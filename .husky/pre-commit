@@ -1,0 +1,5 @@
+#!/bin/sh
+set -e
+
+pnpm frontend:check
+pnpm frontend:test

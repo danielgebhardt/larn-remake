@@ -1,0 +1,15 @@
+{
+  "name": "larn-remake",
+  "private": true,
+  "packageManager": "pnpm@11.25.0",
+  "scripts": {
+    "prepare": "husky",
+    "frontend:dev": "pnpm --filter frontend dev",
+    "frontend:check": "pnpm --filter frontend run check",
+    "frontend:check:fix": "pnpm --filter frontend run check:fix",
+    "frontend:test": "pnpm --filter frontend run test:run"
+  },
+  "devDependencies": {
+    "husky": "^9.1.7"
+  }
+}

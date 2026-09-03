@@ -32,3 +32,6 @@ backend/.gradle/
 .idea/
 *.iml
 out/
+
+# macOS
+.DS_Store

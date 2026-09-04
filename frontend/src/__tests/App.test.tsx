@@ -23,6 +23,6 @@ describe("App", () => {
 		render(<App />);
 
 		const errorMessage = await screen.findByRole("alert");
-		expect(errorMessage).toHaveTextContent("Failed to load user profile");
+		expect(errorMessage).toHaveTextContent("Failed to load from server");
 	});
 });

@@ -4,6 +4,14 @@ import { defineConfig } from "vitest/config";
 // https://vite.dev/config/
 export default defineConfig({
 	plugins: [react()],
+	server: {
+		proxy: {
+			"/initial": {
+				target: "http://localhost:8080",
+				changeOrigin: true,
+			},
+		},
+	},
 	test: {
 		globals: true,
 		environment: "jsdom",

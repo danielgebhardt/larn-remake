@@ -12,12 +12,12 @@ class InitialControllerTest {
     private MockMvcTester mockMvc;
 
     @Test
-    void shouldReturnHelloWord() {
+    void shouldReturnHelloWorld() {
         this.mockMvc.get().uri("/initial")
                 .exchange()
                 .assertThat()
                 .hasStatus(HttpStatus.OK)
                 .bodyText()
-                .isEqualTo("Hello World");
+                .isEqualTo("Hello World!");
     }
 }

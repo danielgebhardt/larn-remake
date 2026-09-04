@@ -11,7 +11,7 @@ function App() {
 				return res.text();
 			})
 			.then((data) => setInitialText(data))
-			.catch(() => setError("Failed to load user profile"));
+			.catch(() => setError("Failed to load from server"));
 	}, []);
 
 	if (error) return <div role="alert">{error}</div>;

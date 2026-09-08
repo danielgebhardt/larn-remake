@@ -2,7 +2,7 @@ import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 import Home from "../Home.tsx";
 
-describe("App Banner tests", () => {
+describe("Home tests", () => {
 	it("should show the Header and main elements", () => {
 		render(<Home />);
 

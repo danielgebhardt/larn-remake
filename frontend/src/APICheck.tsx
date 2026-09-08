@@ -16,7 +16,7 @@ function APICheck(): JSX.Element {
 
 	if (error) return <div role="alert">{error}</div>;
 
-	return <h1 aria-label={"App Heading"}>{initialText}</h1>;
+	return <section aria-label={"Body Text"}>{initialText}</section>;
 }
 
 export default APICheck;

@@ -9,7 +9,7 @@ describe("APICheck", () => {
 		render(<APICheck />);
 
 		expect(
-			await screen.findByRole("heading", { name: "App Heading" }),
+			await screen.findByRole("region", { name: "Body Text" }),
 		).toHaveTextContent("Hello World!");
 	});
 

@@ -1,8 +1,8 @@
 import "./App.css";
-import Header from "./Header.tsx";
+import Home from "./Home.tsx";
 
 function App() {
-	return <Header />;
+	return <Home />;
 }
 
 export default App;

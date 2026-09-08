@@ -1,12 +1,12 @@
 import { render, screen } from "@testing-library/react";
 import { HttpResponse, http } from "msw";
 import { describe, expect, it } from "vitest";
-import App from "../App.tsx";
+import APICheck from "../APICheck.tsx";
 import { server } from "../mocks/server.ts";
 
-describe("App", () => {
+describe("APICheck", () => {
 	it("should render the title from the backend", async () => {
-		render(<App />);
+		render(<APICheck />);
 
 		expect(
 			await screen.findByRole("heading", { name: "App Heading" }),
@@ -20,7 +20,7 @@ describe("App", () => {
 			}),
 		);
 
-		render(<App />);
+		render(<APICheck />);
 
 		const errorMessage = await screen.findByRole("alert");
 		expect(errorMessage).toHaveTextContent("Failed to load from server");

@@ -1,4 +1,5 @@
 import APICheck from "./APICheck.tsx";
+import DungeonLayout from "./DungeonLayout.tsx";
 import Header from "./Header.tsx";
 
 const Home = () => {
@@ -6,7 +7,12 @@ const Home = () => {
 		<div>
 			<Header />
 			<main>
-				<APICheck />
+				<section>
+					<APICheck />
+				</section>
+				<section>
+					<DungeonLayout />
+				</section>
 			</main>
 		</div>
 	);

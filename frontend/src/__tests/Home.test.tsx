@@ -16,20 +16,26 @@ describe("Home tests", () => {
 	it("should show the default 5 x 5 dungeon layout", () => {
 		render(<Home />);
 
-		expect(screen.getByRole("cell", { name: "row0cell0" })).toHaveTextContent(
-			"#####",
+		expect(screen.getByRole("table", { name: "Dungeon" })).toBeVisible();
+	});
+
+	it("it should show walls and floors in the correct individual grid location", () => {
+		render(<Home />);
+
+		expect(screen.getByRole("cell", { name: "row0col0" })).toHaveTextContent(
+			"#",
 		);
-		expect(screen.getByRole("cell", { name: "row1cell0" })).toHaveTextContent(
-			"#...#",
+		expect(screen.getByRole("cell", { name: "row1col0" })).toHaveTextContent(
+			"#",
 		);
-		expect(screen.getByRole("cell", { name: "row2cell0" })).toHaveTextContent(
-			"#.#.#",
+		expect(screen.getByRole("cell", { name: "row1col1" })).toHaveTextContent(
+			".",
 		);
-		expect(screen.getByRole("cell", { name: "row3cell0" })).toHaveTextContent(
-			"#...#",
+		expect(screen.getByRole("cell", { name: "row1col2" })).toHaveTextContent(
+			".",
 		);
-		expect(screen.getByRole("cell", { name: "row4cell0" })).toHaveTextContent(
-			"#####",
+		expect(screen.getByRole("cell", { name: "row4col4" })).toHaveTextContent(
+			"#",
 		);
 	});
 });

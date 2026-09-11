@@ -10,9 +10,9 @@ export const dungeon: string[][] = [
 ];
 
 export const getDungeonCoordinateValue = (
-	x: number,
-	y: number,
+	column: number,
+	row: number,
 	dungeon: string[][],
 ): string | undefined => {
-	return dungeon[x]?.[y];
+	return dungeon[row]?.[column];
 };

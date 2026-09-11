@@ -1,8 +1,8 @@
-import { type CoordsType, PLAYER } from "./LayoutTiles.ts";
+import { type Coordinate, PLAYER } from "./LayoutTiles.ts";
 
 type DungeonLayoutProps = {
 	dungeon: string[][];
-	playerPosition: CoordsType;
+	playerPosition: Coordinate;
 };
 
 const DungeonLayout = ({ dungeon, playerPosition }: DungeonLayoutProps) => {

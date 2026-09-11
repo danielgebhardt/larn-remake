@@ -19,8 +19,10 @@
 	},
 	"packageManager": "pnpm@11.25.0",
 	"dependencies": {
+		"@tailwindcss/vite": "^4.3.3",
 		"react": "^19.2.8",
-		"react-dom": "^19.2.8"
+		"react-dom": "^19.2.8",
+		"tailwindcss": "^4.3.3"
 	},
 	"devDependencies": {
 		"@biomejs/biome": "2.5.11",

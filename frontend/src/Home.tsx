@@ -1,6 +1,7 @@
 import APICheck from "./APICheck.tsx";
 import DungeonLayout from "./DungeonLayout.tsx";
 import Header from "./Header.tsx";
+import { START_COORDINATE, startingDungeon } from "./LayoutTiles.ts";
 
 const Home = () => {
 	return (
@@ -11,7 +12,10 @@ const Home = () => {
 					<APICheck />
 				</section>
 				<section>
-					<DungeonLayout />
+					<DungeonLayout
+						dungeon={startingDungeon}
+						playerPosition={START_COORDINATE}
+					/>
 				</section>
 			</main>
 		</div>

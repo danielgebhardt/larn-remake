@@ -28,7 +28,7 @@ describe("Home tests", () => {
 		expect(screen.getByRole("cell", { name: "row1col0" })).toHaveTextContent(
 			"#",
 		);
-		expect(screen.getByRole("cell", { name: "row1col1" })).toHaveTextContent(
+		expect(screen.getByRole("cell", { name: "row1col3" })).toHaveTextContent(
 			".",
 		);
 		expect(screen.getByRole("cell", { name: "row1col2" })).toHaveTextContent(
@@ -36,6 +36,14 @@ describe("Home tests", () => {
 		);
 		expect(screen.getByRole("cell", { name: "row4col4" })).toHaveTextContent(
 			"#",
+		);
+	});
+
+	it("should start with Player in 1,1 position", () => {
+		render(<Home />);
+
+		expect(screen.getByRole("cell", { name: "row1col1" })).toHaveTextContent(
+			"@",
 		);
 	});
 });

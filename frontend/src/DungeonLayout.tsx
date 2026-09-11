@@ -1,6 +1,11 @@
-import { dungeon } from "./LayoutTiles.ts";
+import { type CoordsType, PLAYER } from "./LayoutTiles.ts";
 
-const DungeonLayout = () => {
+type DungeonLayoutProps = {
+	dungeon: string[][];
+	playerPosition: CoordsType;
+};
+
+const DungeonLayout = ({ dungeon, playerPosition }: DungeonLayoutProps) => {
 	return (
 		<table aria-label="Dungeon">
 			<tbody className="grid">
@@ -11,7 +16,10 @@ const DungeonLayout = () => {
 								key={columnIndex}
 								aria-label={`row${rowIndex}col${columnIndex}`}
 							>
-								{cell}
+								{playerPosition.row === rowIndex &&
+								playerPosition.col === columnIndex
+									? PLAYER
+									: cell}
 							</td>
 						))}
 					</tr>

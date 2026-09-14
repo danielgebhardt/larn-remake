@@ -14,7 +14,7 @@ const Home = () => {
 				<section>
 					<DungeonLayout
 						dungeon={fixedDungeon}
-						playerPosition={START_COORDINATE}
+						startingPlayerPosition={START_COORDINATE}
 					/>
 				</section>
 			</main>

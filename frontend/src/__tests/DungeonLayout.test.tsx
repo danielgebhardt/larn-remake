@@ -1,5 +1,5 @@
 import { render, screen } from "@testing-library/react";
-import { userEvent } from "@testing-library/user-event/dist/cjs/setup/index.js";
+import userEvent from "@testing-library/user-event";
 import { describe, expect, it } from "vitest";
 import DungeonLayout from "../DungeonLayout.tsx";
 import { fixedDungeon, START_COORDINATE } from "../LayoutTiles.ts";

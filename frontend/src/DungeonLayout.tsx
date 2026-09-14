@@ -16,34 +16,34 @@ const DungeonLayout = ({
 			switch (event.key) {
 				case "ArrowUp":
 				case "w":
-					setPlayerPosition({
-						row: playerPosition.row - 1,
-						col: playerPosition.col,
-					});
+					setPlayerPosition((current) => ({
+						row: current.row - 1,
+						col: current.col,
+					}));
 					break;
 
 				case "ArrowDown":
 				case "s":
-					setPlayerPosition({
-						row: playerPosition.row + 1,
-						col: playerPosition.col,
-					});
+					setPlayerPosition((current) => ({
+						row: current.row + 1,
+						col: current.col,
+					}));
 					break;
 
 				case "ArrowLeft":
 				case "a":
-					setPlayerPosition({
-						row: playerPosition.row,
-						col: playerPosition.col - 1,
-					});
+					setPlayerPosition((current) => ({
+						row: current.row,
+						col: current.col - 1,
+					}));
 					break;
 
 				case "ArrowRight":
 				case "d":
-					setPlayerPosition({
-						row: playerPosition.row,
-						col: playerPosition.col + 1,
-					});
+					setPlayerPosition((current) => ({
+						row: current.row,
+						col: current.col + 1,
+					}));
 					break;
 			}
 		};
@@ -53,7 +53,7 @@ const DungeonLayout = ({
 		return () => {
 			window.removeEventListener("keydown", handleKeyDown);
 		};
-	}, [playerPosition.row, playerPosition.col]);
+	}, []);
 
 	return (
 		<table aria-label="Dungeon">

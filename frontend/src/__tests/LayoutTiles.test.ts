@@ -3,6 +3,7 @@ import {
 	FLOOR,
 	fixedDungeon,
 	getDungeonCoordinateValue,
+	MAX_SIZE,
 	makeDungeon,
 	WALL,
 } from "../LayoutTiles.ts";
@@ -43,13 +44,23 @@ describe("LayoutTiles Tests", () => {
 		expect(makeDungeon(1, -1)).toBeUndefined();
 	});
 
+	it("should return undefined for custom size dungeon with dimensions greater than MAX_SIZE", () => {
+		expect(makeDungeon(MAX_SIZE + 1, 1)).toBeUndefined();
+		expect(makeDungeon(1, MAX_SIZE + 1)).toBeUndefined();
+	});
+
+	it("should return undefined for custom size dungeon with fractional numbers", () => {
+		expect(makeDungeon(1.5, 1)).toBeUndefined();
+		expect(makeDungeon(1, 1.3)).toBeUndefined();
+	});
+
 	it("should create a custom sized dungeon defaulted to all WALLS", () => {
 		const newDungeon = makeDungeon(4, 7);
 
-		expect(newDungeon?.length === 4);
-		if (newDungeon) {
-			expect(newDungeon[0].length === 7);
+		expect(newDungeon).toHaveLength(4);
+		expect(newDungeon?.[0]).toHaveLength(7);
 
+		if (newDungeon) {
 			for (let row = 0; row < 4; row++) {
 				for (let col = 0; col < 7; col++) {
 					expect(getDungeonCoordinateValue(col, row, newDungeon)).toBe(WALL);

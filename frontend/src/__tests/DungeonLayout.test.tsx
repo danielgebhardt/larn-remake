@@ -149,7 +149,7 @@ describe("DungeonLayout Tests", () => {
 		);
 	});
 
-	it("should not let player move into a wall", async () => {
+	it("should not let player move into a wall when moving left or up", async () => {
 		render(
 			<DungeonLayout
 				dungeon={fixedDungeon}
@@ -170,6 +170,31 @@ describe("DungeonLayout Tests", () => {
 		await userEvent.keyboard("{ArrowLeft}");
 
 		expect(screen.getByRole("cell", { name: "row1col1" })).toHaveTextContent(
+			"@",
+		);
+	});
+
+	it("should not let player move into a wall when moving right or down", async () => {
+		render(
+			<DungeonLayout
+				dungeon={fixedDungeon}
+				startingPlayerPosition={{ row: 3, col: 3 }}
+			/>,
+		);
+
+		expect(screen.getByRole("cell", { name: "row3col3" })).toHaveTextContent(
+			"@",
+		);
+
+		await userEvent.keyboard("{ArrowDown}");
+
+		expect(screen.getByRole("cell", { name: "row3col3" })).toHaveTextContent(
+			"@",
+		);
+
+		await userEvent.keyboard("{ArrowRight}");
+
+		expect(screen.getByRole("cell", { name: "row3col3" })).toHaveTextContent(
 			"@",
 		);
 	});

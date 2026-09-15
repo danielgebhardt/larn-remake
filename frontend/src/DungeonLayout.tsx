@@ -1,5 +1,10 @@
-import { useEffect, useState } from "react";
-import { type Coordinate, PLAYER } from "./LayoutTiles.ts";
+import { useCallback, useEffect, useState } from "react";
+import {
+	type Coordinate,
+	getDungeonCoordinateValue,
+	PLAYER,
+	WALL,
+} from "./LayoutTiles.ts";
 
 type DungeonLayoutProps = {
 	dungeon: string[][];
@@ -11,39 +16,53 @@ const DungeonLayout = ({
 	startingPlayerPosition,
 }: DungeonLayoutProps) => {
 	const [playerPosition, setPlayerPosition] = useState(startingPlayerPosition);
+
+	const movePlayer = useCallback(
+		(changeUpDown: number, changeLeftRight: number) => {
+			setPlayerPosition((current) => {
+				const newRow = current.row + changeUpDown;
+				const newCol = current.col + changeLeftRight;
+
+				const coordinateValueInPositionToMoveTo = getDungeonCoordinateValue(
+					newCol,
+					newRow,
+					dungeon,
+				);
+
+				if (coordinateValueInPositionToMoveTo === WALL) {
+					return current;
+				}
+
+				return {
+					row: newRow,
+					col: newCol,
+				};
+			});
+		},
+		[dungeon],
+	);
+
 	useEffect(() => {
 		const handleKeyDown = (event: KeyboardEvent) => {
 			switch (event.key) {
 				case "ArrowUp":
 				case "w":
-					setPlayerPosition((current) => ({
-						row: current.row - 1,
-						col: current.col,
-					}));
+					movePlayer(-1, 0);
 					break;
 
 				case "ArrowDown":
 				case "s":
-					setPlayerPosition((current) => ({
-						row: current.row + 1,
-						col: current.col,
-					}));
+					movePlayer(1, 0);
 					break;
 
 				case "ArrowLeft":
 				case "a":
-					setPlayerPosition((current) => ({
-						row: current.row,
-						col: current.col - 1,
-					}));
+					movePlayer(0, -1);
 					break;
 
 				case "ArrowRight":
 				case "d":
-					setPlayerPosition((current) => ({
-						row: current.row,
-						col: current.col + 1,
-					}));
+					movePlayer(0, 1);
 					break;
 			}
 		};
@@ -53,7 +72,7 @@ const DungeonLayout = ({
 		return () => {
 			window.removeEventListener("keydown", handleKeyDown);
 		};
-	}, []);
+	}, [movePlayer]);
 
 	return (
 		<table aria-label="Dungeon">

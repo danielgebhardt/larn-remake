@@ -43,53 +43,7 @@ describe("DungeonLayout Tests", () => {
 		);
 	});
 
-	it("should move player up when pressing Up key", async () => {
-		render(
-			<DungeonLayout
-				dungeon={fixedDungeon}
-				startingPlayerPosition={START_COORDINATE}
-			/>,
-		);
-
-		expect(screen.getByRole("cell", { name: "row1col1" })).toHaveTextContent(
-			"@",
-		);
-
-		await userEvent.keyboard("{ArrowUp}");
-
-		expect(screen.getByRole("cell", { name: "row0col1" })).toHaveTextContent(
-			"@",
-		);
-
-		expect(screen.getByRole("cell", { name: "row1col1" })).toHaveTextContent(
-			".",
-		);
-	});
-
-	it("should move player up when pressing 'w' key", async () => {
-		render(
-			<DungeonLayout
-				dungeon={fixedDungeon}
-				startingPlayerPosition={START_COORDINATE}
-			/>,
-		);
-
-		expect(screen.getByRole("cell", { name: "row1col1" })).toHaveTextContent(
-			"@",
-		);
-
-		await userEvent.keyboard("w");
-
-		expect(screen.getByRole("cell", { name: "row0col1" })).toHaveTextContent(
-			"@",
-		);
-
-		expect(screen.getByRole("cell", { name: "row1col1" })).toHaveTextContent(
-			".",
-		);
-	});
-
-	it("should move player down when pressing down key", async () => {
+	it("should move player down and up when pressing Up, Down, 's', and 'w' keys", async () => {
 		render(
 			<DungeonLayout
 				dungeon={fixedDungeon}
@@ -110,18 +64,15 @@ describe("DungeonLayout Tests", () => {
 		expect(screen.getByRole("cell", { name: "row1col1" })).toHaveTextContent(
 			".",
 		);
-	});
 
-	it("should move player down when pressing 's' key", async () => {
-		render(
-			<DungeonLayout
-				dungeon={fixedDungeon}
-				startingPlayerPosition={START_COORDINATE}
-			/>,
-		);
+		await userEvent.keyboard("{ArrowUp}");
 
 		expect(screen.getByRole("cell", { name: "row1col1" })).toHaveTextContent(
 			"@",
+		);
+
+		expect(screen.getByRole("cell", { name: "row2col1" })).toHaveTextContent(
+			".",
 		);
 
 		await userEvent.keyboard("s");
@@ -133,55 +84,19 @@ describe("DungeonLayout Tests", () => {
 		expect(screen.getByRole("cell", { name: "row1col1" })).toHaveTextContent(
 			".",
 		);
-	});
 
-	it("should move player left when pressing left key", async () => {
-		render(
-			<DungeonLayout
-				dungeon={fixedDungeon}
-				startingPlayerPosition={START_COORDINATE}
-			/>,
-		);
+		await userEvent.keyboard("w");
 
 		expect(screen.getByRole("cell", { name: "row1col1" })).toHaveTextContent(
 			"@",
 		);
 
-		await userEvent.keyboard("{ArrowLeft}");
-
-		expect(screen.getByRole("cell", { name: "row1col0" })).toHaveTextContent(
-			"@",
-		);
-
-		expect(screen.getByRole("cell", { name: "row1col1" })).toHaveTextContent(
+		expect(screen.getByRole("cell", { name: "row2col1" })).toHaveTextContent(
 			".",
 		);
 	});
 
-	it("should move player left when pressing 'a' key", async () => {
-		render(
-			<DungeonLayout
-				dungeon={fixedDungeon}
-				startingPlayerPosition={START_COORDINATE}
-			/>,
-		);
-
-		expect(screen.getByRole("cell", { name: "row1col1" })).toHaveTextContent(
-			"@",
-		);
-
-		await userEvent.keyboard("a");
-
-		expect(screen.getByRole("cell", { name: "row1col0" })).toHaveTextContent(
-			"@",
-		);
-
-		expect(screen.getByRole("cell", { name: "row1col1" })).toHaveTextContent(
-			".",
-		);
-	});
-
-	it("should move player right when pressing right key", async () => {
+	it("should move player right and left when pressing Right, Left, 'd', and 'a' keys", async () => {
 		render(
 			<DungeonLayout
 				dungeon={fixedDungeon}
@@ -202,9 +117,39 @@ describe("DungeonLayout Tests", () => {
 		expect(screen.getByRole("cell", { name: "row1col1" })).toHaveTextContent(
 			".",
 		);
+
+		await userEvent.keyboard("{ArrowLeft}");
+
+		expect(screen.getByRole("cell", { name: "row1col1" })).toHaveTextContent(
+			"@",
+		);
+
+		expect(screen.getByRole("cell", { name: "row1col2" })).toHaveTextContent(
+			".",
+		);
+
+		await userEvent.keyboard("d");
+
+		expect(screen.getByRole("cell", { name: "row1col2" })).toHaveTextContent(
+			"@",
+		);
+
+		expect(screen.getByRole("cell", { name: "row1col1" })).toHaveTextContent(
+			".",
+		);
+
+		await userEvent.keyboard("a");
+
+		expect(screen.getByRole("cell", { name: "row1col1" })).toHaveTextContent(
+			"@",
+		);
+
+		expect(screen.getByRole("cell", { name: "row1col2" })).toHaveTextContent(
+			".",
+		);
 	});
 
-	it("should move player right when pressing 'd' key", async () => {
+	it("should not let player move into a wall", async () => {
 		render(
 			<DungeonLayout
 				dungeon={fixedDungeon}
@@ -216,14 +161,16 @@ describe("DungeonLayout Tests", () => {
 			"@",
 		);
 
-		await userEvent.keyboard("d");
+		await userEvent.keyboard("{ArrowUp}");
 
-		expect(screen.getByRole("cell", { name: "row1col2" })).toHaveTextContent(
+		expect(screen.getByRole("cell", { name: "row1col1" })).toHaveTextContent(
 			"@",
 		);
 
+		await userEvent.keyboard("{ArrowLeft}");
+
 		expect(screen.getByRole("cell", { name: "row1col1" })).toHaveTextContent(
-			".",
+			"@",
 		);
 	});
 });

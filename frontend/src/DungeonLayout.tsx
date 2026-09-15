@@ -22,6 +22,8 @@ const DungeonLayout = ({
 			setPlayerPosition((current) => {
 				const newRow = current.row + changeUpDown;
 				const newCol = current.col + changeLeftRight;
+				const maxWidth = dungeon.length - 1;
+				const maxHeight = dungeon[0].length - 1;
 
 				const coordinateValueInPositionToMoveTo = getDungeonCoordinateValue(
 					newCol,
@@ -30,6 +32,15 @@ const DungeonLayout = ({
 				);
 
 				if (coordinateValueInPositionToMoveTo === WALL) {
+					return current;
+				}
+
+				if (
+					current.row + changeUpDown < 0 ||
+					current.row + changeUpDown > maxHeight ||
+					current.col + changeLeftRight < 0 ||
+					current.col + changeLeftRight > maxWidth
+				) {
 					return current;
 				}
 

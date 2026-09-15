@@ -198,4 +198,54 @@ describe("DungeonLayout Tests", () => {
 			"@",
 		);
 	});
+
+	it("should not allow player to move out of bounds for moving left or up", async () => {
+		render(
+			<DungeonLayout
+				dungeon={fixedDungeon}
+				startingPlayerPosition={{ row: 0, col: 0 }}
+			/>,
+		);
+
+		expect(screen.getByRole("cell", { name: "row0col0" })).toHaveTextContent(
+			"@",
+		);
+
+		await userEvent.keyboard("{ArrowUp}");
+
+		expect(screen.getByRole("cell", { name: "row0col0" })).toHaveTextContent(
+			"@",
+		);
+
+		await userEvent.keyboard("{ArrowLeft}");
+
+		expect(screen.getByRole("cell", { name: "row0col0" })).toHaveTextContent(
+			"@",
+		);
+	});
+
+	it("should not allow player to move out of bounds for moving right or down", async () => {
+		render(
+			<DungeonLayout
+				dungeon={fixedDungeon}
+				startingPlayerPosition={{ row: 4, col: 4 }}
+			/>,
+		);
+
+		expect(screen.getByRole("cell", { name: "row4col4" })).toHaveTextContent(
+			"@",
+		);
+
+		await userEvent.keyboard("{ArrowDown}");
+
+		expect(screen.getByRole("cell", { name: "row4col4" })).toHaveTextContent(
+			"@",
+		);
+
+		await userEvent.keyboard("{ArrowRight}");
+
+		expect(screen.getByRole("cell", { name: "row4col4" })).toHaveTextContent(
+			"@",
+		);
+	});
 });

@@ -68,4 +68,19 @@ describe("LayoutTiles Tests", () => {
 			}
 		}
 	});
+
+	it("should allow coordinates to change independently", () => {
+		const dungeon = makeDungeon(2, 2);
+
+		expect(dungeon).toBeDefined();
+
+		if (!dungeon) {
+			throw new Error("Expected dungeon to be created");
+		}
+
+		dungeon[0][0] = FLOOR;
+
+		expect(dungeon[0][0]).toBe(FLOOR);
+		expect(dungeon[1][0]).toBe(WALL);
+	});
 });

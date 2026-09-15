@@ -20,10 +20,18 @@ const DungeonLayout = ({
 	const movePlayer = useCallback(
 		(changeUpDown: number, changeLeftRight: number) => {
 			setPlayerPosition((current) => {
-				const newRow = current.row + changeUpDown;
-				const newCol = current.col + changeLeftRight;
-				const maxWidth = dungeon.length - 1;
-				const maxHeight = dungeon[0].length - 1;
+				const newRow: number = current.row + changeUpDown;
+				const newCol: number = current.col + changeLeftRight;
+
+				const isOutOfBounds =
+					newRow < 0 ||
+					newRow >= dungeon.length ||
+					newCol < 0 ||
+					newCol >= (dungeon[newRow]?.length ?? 0);
+
+				if (isOutOfBounds) {
+					return current;
+				}
 
 				const coordinateValueInPositionToMoveTo = getDungeonCoordinateValue(
 					newCol,
@@ -32,15 +40,6 @@ const DungeonLayout = ({
 				);
 
 				if (coordinateValueInPositionToMoveTo === WALL) {
-					return current;
-				}
-
-				if (
-					current.row + changeUpDown < 0 ||
-					current.row + changeUpDown > maxHeight ||
-					current.col + changeLeftRight < 0 ||
-					current.col + changeLeftRight > maxWidth
-				) {
 					return current;
 				}
 

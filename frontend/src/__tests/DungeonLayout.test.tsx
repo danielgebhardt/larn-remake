@@ -2,7 +2,7 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it } from "vitest";
 import DungeonLayout from "../DungeonLayout.tsx";
-import { fixedDungeon, START_COORDINATE } from "../LayoutTiles.ts";
+import { FLOOR, fixedDungeon, START_COORDINATE } from "../LayoutTiles.ts";
 
 describe("DungeonLayout Tests", () => {
 	it("renders a simple 5 x 5 dungeon by default", () => {
@@ -245,6 +245,47 @@ describe("DungeonLayout Tests", () => {
 		await userEvent.keyboard("{ArrowRight}");
 
 		expect(screen.getByRole("cell", { name: "row4col4" })).toHaveTextContent(
+			"@",
+		);
+	});
+
+	it("should not allow movement out of bounds in asymmetric dungeon", async () => {
+		render(
+			<DungeonLayout
+				dungeon={[
+					[FLOOR, FLOOR, FLOOR, FLOOR, FLOOR],
+					[FLOOR, FLOOR, FLOOR, FLOOR, FLOOR],
+					[FLOOR, FLOOR, FLOOR, FLOOR, FLOOR],
+				]}
+				startingPlayerPosition={{ row: 1, col: 3 }}
+			/>,
+		);
+
+		expect(screen.getByRole("cell", { name: "row1col3" })).toHaveTextContent(
+			"@",
+		);
+
+		await userEvent.keyboard("{ArrowRight}");
+
+		expect(screen.getByRole("cell", { name: "row1col4" })).toHaveTextContent(
+			"@",
+		);
+
+		await userEvent.keyboard("{ArrowRight}");
+
+		expect(screen.getByRole("cell", { name: "row1col4" })).toHaveTextContent(
+			"@",
+		);
+
+		await userEvent.keyboard("{ArrowDown}");
+
+		expect(screen.getByRole("cell", { name: "row2col4" })).toHaveTextContent(
+			"@",
+		);
+
+		await userEvent.keyboard("{ArrowDown}");
+
+		expect(screen.getByRole("cell", { name: "row2col4" })).toHaveTextContent(
 			"@",
 		);
 	});

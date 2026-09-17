@@ -1,7 +1,16 @@
+export type Coordinate = { row: number; col: number };
+export type Region = {
+	startRow: number;
+	startCol: number;
+	endRow: number;
+	endCol: number;
+};
+
+export type SplitDirection = "horizontal" | "vertical";
+
 export const WALL: string = "#";
 export const FLOOR: string = ".";
 export const PLAYER: string = "@";
-export type Coordinate = { row: number; col: number };
 export const START_COORDINATE: Coordinate = { row: 1, col: 1 };
 export const MAX_SIZE = 100;
 
@@ -49,4 +58,56 @@ export const makeDungeon = (
 	}
 
 	return newDungeon;
+};
+
+export const splitRegion = (
+	region: Region,
+	direction: SplitDirection,
+	minChildSize: number,
+): Region[] | undefined => {
+	if (direction === "vertical") {
+		const regionWidth: number = (region.startCol + region.endCol + 1) / 2;
+
+		if (minChildSize > regionWidth) {
+			return undefined;
+		}
+
+		const child1: Region = {
+			startRow: region.startRow,
+			endRow: region.endRow,
+			startCol: region.startCol,
+			endCol: region.endCol - regionWidth,
+		};
+		const child2: Region = {
+			startRow: region.startRow,
+			endRow: region.endRow,
+			startCol: region.endCol - regionWidth + 1,
+			endCol: region.endCol,
+		};
+
+		return [child1, child2];
+	} else if (direction === "horizontal") {
+		const regionHeight: number = (region.startRow + region.endRow + 1) / 2;
+
+		if (minChildSize > regionHeight) {
+			return undefined;
+		}
+
+		const child1: Region = {
+			startRow: region.startRow,
+			endRow: region.endRow - regionHeight,
+			startCol: region.startCol,
+			endCol: region.endCol,
+		};
+		const child2: Region = {
+			startRow: region.endRow - regionHeight + 1,
+			endRow: region.endRow,
+			startCol: region.startCol,
+			endCol: region.endCol,
+		};
+
+		return [child1, child2];
+	}
+
+	return undefined;
 };

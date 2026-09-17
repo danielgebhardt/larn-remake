@@ -5,6 +5,8 @@ import {
 	getDungeonCoordinateValue,
 	MAX_SIZE,
 	makeDungeon,
+	type Region,
+	splitRegion,
 	WALL,
 } from "../LayoutTiles.ts";
 
@@ -82,5 +84,211 @@ describe("LayoutTiles Tests", () => {
 
 		expect(dungeon[0][0]).toBe(FLOOR);
 		expect(dungeon[1][0]).toBe(WALL);
+	});
+
+	it("should split a square region into 2 equally sized child regions vertically", () => {
+		const testRegion: Region = {
+			startRow: 0,
+			endRow: 5,
+			startCol: 0,
+			endCol: 5,
+		};
+
+		const expectedChild1: Region = {
+			startRow: 0,
+			endRow: 5,
+			startCol: 0,
+			endCol: 2,
+		};
+
+		const expectedChild2: Region = {
+			startRow: 0,
+			endRow: 5,
+			startCol: 3,
+			endCol: 5,
+		};
+
+		const childRegions = splitRegion(testRegion, "vertical", 2);
+
+		expect(childRegions).toHaveLength(2);
+		expect(childRegions?.[0]).toStrictEqual(expectedChild1);
+		expect(childRegions?.[1]).toStrictEqual(expectedChild2);
+	});
+
+	it("should split a square region into 2 equally sized child regions horizontally", () => {
+		const testRegion: Region = {
+			startRow: 0,
+			endRow: 5,
+			startCol: 0,
+			endCol: 5,
+		};
+
+		const expectedChild1: Region = {
+			startRow: 0,
+			endRow: 2,
+			startCol: 0,
+			endCol: 5,
+		};
+
+		const expectedChild2: Region = {
+			startRow: 3,
+			endRow: 5,
+			startCol: 0,
+			endCol: 5,
+		};
+
+		const childRegions = splitRegion(testRegion, "horizontal", 2);
+
+		expect(childRegions).toHaveLength(2);
+		expect(childRegions?.[0]).toStrictEqual(expectedChild1);
+		expect(childRegions?.[1]).toStrictEqual(expectedChild2);
+	});
+
+	it("should return undefined if minChildSize is greater than region split size", () => {
+		expect(
+			splitRegion(
+				{
+					startRow: 0,
+					endRow: 5,
+					startCol: 0,
+					endCol: 5,
+				},
+				"vertical",
+				4,
+			),
+		).toBeUndefined();
+
+		expect(
+			splitRegion(
+				{
+					startRow: 0,
+					endRow: 5,
+					startCol: 0,
+					endCol: 5,
+				},
+				"horizontal",
+				4,
+			),
+		).toBeUndefined();
+	});
+
+	it("children regions should cover the entire parent region without gaps or overlaps when split horizontally", () => {
+		const testRegion: Region = {
+			startRow: 0,
+			endRow: 5,
+			startCol: 0,
+			endCol: 5,
+		};
+
+		const childRegions = splitRegion(testRegion, "horizontal", 2);
+
+		expect(childRegions).toHaveLength(2);
+
+		if (childRegions) {
+			expect(childRegions[0].startRow).toStrictEqual(testRegion.startRow);
+			expect(childRegions[1].startRow).toStrictEqual(
+				childRegions[0].endRow + 1,
+			);
+
+			expect(childRegions[0].endRow).toStrictEqual(
+				childRegions[1].startRow - 1,
+			);
+			expect(childRegions[1].endRow).toStrictEqual(testRegion.endRow);
+
+			expect(childRegions[0].startCol).toStrictEqual(testRegion.startCol);
+			expect(childRegions[1].startCol).toStrictEqual(testRegion.startCol);
+
+			expect(childRegions[0].endCol).toStrictEqual(testRegion.endCol);
+			expect(childRegions[1].endCol).toStrictEqual(testRegion.endCol);
+		}
+	});
+
+	it("children regions should cover the entire parent region without gaps or overlaps when split vertically", () => {
+		const testRegion: Region = {
+			startRow: 0,
+			endRow: 5,
+			startCol: 0,
+			endCol: 5,
+		};
+
+		const childRegions = splitRegion(testRegion, "vertical", 2);
+
+		expect(childRegions).toHaveLength(2);
+
+		if (childRegions) {
+			expect(childRegions[0].startCol).toStrictEqual(testRegion.startRow);
+			expect(childRegions[1].startCol).toStrictEqual(
+				childRegions[0].endCol + 1,
+			);
+
+			expect(childRegions[0].endCol).toStrictEqual(
+				childRegions[1].startCol - 1,
+			);
+			expect(childRegions[1].endCol).toStrictEqual(testRegion.endCol);
+
+			expect(childRegions[0].startRow).toStrictEqual(testRegion.startRow);
+			expect(childRegions[1].startRow).toStrictEqual(testRegion.startRow);
+
+			expect(childRegions[0].endRow).toStrictEqual(testRegion.endRow);
+			expect(childRegions[1].endRow).toStrictEqual(testRegion.endRow);
+		}
+	});
+
+	it("should split a rectangle region into 2 equally sized child regions vertically", () => {
+		const testRegion: Region = {
+			startRow: 0,
+			endRow: 5,
+			startCol: 0,
+			endCol: 9,
+		};
+
+		const expectedChild1: Region = {
+			startRow: 0,
+			endRow: 5,
+			startCol: 0,
+			endCol: 4,
+		};
+
+		const expectedChild2: Region = {
+			startRow: 0,
+			endRow: 5,
+			startCol: 5,
+			endCol: 9,
+		};
+
+		const childRegions = splitRegion(testRegion, "vertical", 2);
+
+		expect(childRegions).toHaveLength(2);
+		expect(childRegions?.[0]).toStrictEqual(expectedChild1);
+		expect(childRegions?.[1]).toStrictEqual(expectedChild2);
+	});
+
+	it("should split a rectangle region into 2 equally sized child regions horizontally", () => {
+		const testRegion: Region = {
+			startRow: 0,
+			endRow: 9,
+			startCol: 0,
+			endCol: 5,
+		};
+
+		const expectedChild1: Region = {
+			startRow: 0,
+			endRow: 4,
+			startCol: 0,
+			endCol: 5,
+		};
+
+		const expectedChild2: Region = {
+			startRow: 5,
+			endRow: 9,
+			startCol: 0,
+			endCol: 5,
+		};
+
+		const childRegions = splitRegion(testRegion, "horizontal", 2);
+
+		expect(childRegions).toHaveLength(2);
+		expect(childRegions?.[0]).toStrictEqual(expectedChild1);
+		expect(childRegions?.[1]).toStrictEqual(expectedChild2);
 	});
 });

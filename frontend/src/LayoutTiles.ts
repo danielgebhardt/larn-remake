@@ -68,11 +68,11 @@ export const splitRegion = (
 	const regionWidth = region.endCol - region.startCol + 1;
 	const regionHeight = region.endRow - region.startRow + 1;
 
-	if (minChildSize > regionWidth / 2 || minChildSize > regionHeight / 2) {
-		return undefined;
-	}
-
 	if (direction === "vertical") {
+		if (regionWidth < minChildSize * 2 || regionHeight < minChildSize) {
+			return undefined;
+		}
+
 		const firstChildWidth = Math.floor(regionWidth / 2);
 		const firstChildEndCol = region.startCol + firstChildWidth - 1;
 
@@ -91,6 +91,10 @@ export const splitRegion = (
 
 		return [child1, child2];
 	} else if (direction === "horizontal") {
+		if (regionHeight < minChildSize * 2 || regionWidth < minChildSize) {
+			return undefined;
+		}
+
 		const firstChildHeight = Math.floor(regionHeight / 2);
 		const firstChildEndRow = region.startRow + firstChildHeight - 1;
 

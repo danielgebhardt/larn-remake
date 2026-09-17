@@ -387,4 +387,23 @@ describe("LayoutTiles Tests", () => {
 			splitRegion(regionTooNarrowForHorizontalSplit, "horizontal", 2),
 		).toBeUndefined();
 	});
+
+	it("should allow the non-split dimension to equal the minimum size", () => {
+		const verticallySplitRegion: Region = {
+			startRow: 0,
+			endRow: 1, // Height 2
+			startCol: 0,
+			endCol: 5, // Width 6
+		};
+
+		const horizontallySplitRegion: Region = {
+			startRow: 0,
+			endRow: 5, // Height 6
+			startCol: 0,
+			endCol: 1, // Width 2
+		};
+
+		expect(splitRegion(verticallySplitRegion, "vertical", 2)).toBeDefined();
+		expect(splitRegion(horizontallySplitRegion, "horizontal", 2)).toBeDefined();
+	});
 });

@@ -64,43 +64,44 @@ export const splitRegion = (
 	region: Region,
 	direction: SplitDirection,
 	minChildSize: number,
-): Region[] | undefined => {
-	if (direction === "vertical") {
-		const regionWidth: number = (region.startCol + region.endCol + 1) / 2;
+): [Region, Region] | undefined => {
+	const regionWidth = region.endCol - region.startCol + 1;
+	const regionHeight = region.endRow - region.startRow + 1;
 
-		if (minChildSize > regionWidth) {
-			return undefined;
-		}
+	if (minChildSize > regionWidth / 2 || minChildSize > regionHeight / 2) {
+		return undefined;
+	}
+
+	if (direction === "vertical") {
+		const firstChildWidth = Math.floor(regionWidth / 2);
+		const firstChildEndCol = region.startCol + firstChildWidth - 1;
 
 		const child1: Region = {
 			startRow: region.startRow,
 			endRow: region.endRow,
 			startCol: region.startCol,
-			endCol: region.endCol - regionWidth,
+			endCol: region.startCol + firstChildWidth - 1,
 		};
 		const child2: Region = {
 			startRow: region.startRow,
 			endRow: region.endRow,
-			startCol: region.endCol - regionWidth + 1,
+			startCol: firstChildEndCol + 1,
 			endCol: region.endCol,
 		};
 
 		return [child1, child2];
 	} else if (direction === "horizontal") {
-		const regionHeight: number = (region.startRow + region.endRow + 1) / 2;
-
-		if (minChildSize > regionHeight) {
-			return undefined;
-		}
+		const firstChildHeight = Math.floor(regionHeight / 2);
+		const firstChildEndRow = region.startRow + firstChildHeight - 1;
 
 		const child1: Region = {
 			startRow: region.startRow,
-			endRow: region.endRow - regionHeight,
+			endRow: region.startRow + firstChildHeight - 1,
 			startCol: region.startCol,
 			endCol: region.endCol,
 		};
 		const child2: Region = {
-			startRow: region.endRow - regionHeight + 1,
+			startRow: firstChildEndRow + 1,
 			endRow: region.endRow,
 			startCol: region.startCol,
 			endCol: region.endCol,

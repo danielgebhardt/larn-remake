@@ -6,6 +6,11 @@ export type Region = {
 	endCol: number;
 };
 
+export type PartitionNode = {
+	region: Region;
+	children?: [PartitionNode, PartitionNode];
+};
+
 export type SplitDirection = "horizontal" | "vertical";
 
 export const WALL: string = "#";
@@ -115,4 +120,38 @@ export const splitRegion = (
 	}
 
 	return undefined;
+};
+
+export const recursivePartition = (
+	region: Region,
+	minChildSize: number,
+): PartitionNode => {
+	const partitions: PartitionNode = {
+		region: { ...region },
+	};
+
+	const regionWidth = region.endCol - region.startCol;
+	const regionHeight = region.endRow - region.startRow;
+	const direction = regionWidth - regionHeight >= 0 ? "vertical" : "horizontal";
+
+	const childPartitions = splitRegion(
+		partitions.region,
+		direction,
+		minChildSize,
+	);
+
+	if (childPartitions) {
+		const partition1: PartitionNode = recursivePartition(
+			childPartitions[0],
+			minChildSize,
+		);
+		const partition2: PartitionNode = recursivePartition(
+			childPartitions[1],
+			minChildSize,
+		);
+
+		partitions.children = [partition1, partition2];
+	}
+
+	return partitions;
 };

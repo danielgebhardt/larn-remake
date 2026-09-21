@@ -5,7 +5,9 @@ import {
 	getDungeonCoordinateValue,
 	MAX_SIZE,
 	makeDungeon,
+	type PartitionNode,
 	type Region,
+	recursivePartition,
 	splitRegion,
 	WALL,
 } from "../LayoutTiles.ts";
@@ -405,5 +407,63 @@ describe("LayoutTiles Tests", () => {
 
 		expect(splitRegion(verticallySplitRegion, "vertical", 2)).toBeDefined();
 		expect(splitRegion(horizontallySplitRegion, "horizontal", 2)).toBeDefined();
+	});
+
+	it("when recursively partitioning the a region, it should return the region as a terminal partition when unable to split", () => {
+		const regionTooSmall: Region = {
+			startRow: 0,
+			endRow: 2,
+			startCol: 0,
+			endCol: 2,
+		};
+
+		const minChildSize = 4;
+
+		const partitions: PartitionNode = recursivePartition(
+			regionTooSmall,
+			minChildSize,
+		);
+
+		expect(partitions.region).toStrictEqual(regionTooSmall);
+		expect(partitions.children).toBeUndefined();
+	});
+
+	it("when recursively partitioning the a region, it should return the the partitions with children", () => {
+		const regionWithChildren: Region = {
+			startRow: 0,
+			endRow: 3,
+			startCol: 0,
+			endCol: 7,
+		};
+
+		const minChildSize = 4;
+
+		const expectedChild1: PartitionNode = {
+			region: {
+				startRow: 0,
+				endRow: 3,
+				startCol: 0,
+				endCol: 3,
+			},
+		};
+
+		const expectedChild2: PartitionNode = {
+			region: {
+				startRow: 0,
+				endRow: 3,
+				startCol: 4,
+				endCol: 7,
+			},
+		};
+
+		const partitions: PartitionNode = recursivePartition(
+			regionWithChildren,
+			minChildSize,
+		);
+
+		expect(partitions.region).toStrictEqual(regionWithChildren);
+		expect(partitions.children).toBeDefined();
+		expect(partitions.children?.[0]).toStrictEqual(expectedChild1);
+		expect(partitions.children?.[1]).toStrictEqual(expectedChild2);
 	});
 });

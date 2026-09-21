@@ -130,8 +130,12 @@ export const recursivePartition = (
 		region: { ...region },
 	};
 
-	const regionWidth = region.endCol - region.startCol;
-	const regionHeight = region.endRow - region.startRow;
+	if (!Number.isInteger(minChildSize) || minChildSize < 1) {
+		throw new RangeError("minChildSize must be a positive integer");
+	}
+
+	const regionWidth = region.endCol - region.startCol + 1;
+	const regionHeight = region.endRow - region.startRow + 1;
 	const direction = regionWidth - regionHeight >= 0 ? "vertical" : "horizontal";
 
 	const childPartitions = splitRegion(

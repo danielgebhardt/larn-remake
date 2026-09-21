@@ -12,6 +12,21 @@ import {
 	WALL,
 } from "../LayoutTiles.ts";
 
+const getTerminalRegions = (node: PartitionNode): Region[] => {
+	if (!node.children) {
+		return [node.region];
+	}
+
+	return node.children.flatMap(getTerminalRegions);
+};
+
+const getRegionArea = (region: Region): number => {
+	const rowCount = region.endRow - region.startRow + 1;
+	const colCount = region.endCol - region.startCol + 1;
+
+	return rowCount * colCount;
+};
+
 describe("LayoutTiles Tests", () => {
 	it("should return a # for WALL values in dungeon map", () => {
 		expect(getDungeonCoordinateValue(0, 0, fixedDungeon)).toBe(WALL);
@@ -465,5 +480,165 @@ describe("LayoutTiles Tests", () => {
 		expect(partitions.children).toBeDefined();
 		expect(partitions.children?.[0]).toStrictEqual(expectedChild1);
 		expect(partitions.children?.[1]).toStrictEqual(expectedChild2);
+	});
+
+	it("should throw RangerError when minChildsize is 0 or negative numbers", async ({
+		expect,
+	}) => {
+		const testRegion: Region = {
+			startRow: 0,
+			endRow: 3,
+			startCol: 0,
+			endCol: 7,
+		};
+
+		expect(() => recursivePartition(testRegion, 0)).toThrow(
+			"minChildSize must be a positive integer",
+		);
+		expect(() => recursivePartition(testRegion, -1)).toThrow(
+			"minChildSize must be a positive integer",
+		);
+	});
+
+	it("should recursively partition a region through multiple levels", () => {
+		const rootRegion: Region = {
+			startRow: 0,
+			endRow: 3,
+			startCol: 0,
+			endCol: 3,
+		};
+
+		const partitionTree = recursivePartition(rootRegion, 2);
+		const terminalRegions = getTerminalRegions(partitionTree);
+
+		expect(terminalRegions).toStrictEqual([
+			{
+				startRow: 0,
+				endRow: 1,
+				startCol: 0,
+				endCol: 1,
+			},
+			{
+				startRow: 2,
+				endRow: 3,
+				startCol: 0,
+				endCol: 1,
+			},
+			{
+				startRow: 0,
+				endRow: 1,
+				startCol: 2,
+				endCol: 3,
+			},
+			{
+				startRow: 2,
+				endRow: 3,
+				startCol: 2,
+				endCol: 3,
+			},
+		]);
+	});
+
+	it("should initially split a tall region horizontally", () => {
+		const tallRegion: Region = {
+			startRow: 0,
+			endRow: 7,
+			startCol: 0,
+			endCol: 3,
+		};
+
+		const partitionTree = recursivePartition(tallRegion, 4);
+
+		expect(partitionTree.children?.[0].region).toStrictEqual({
+			startRow: 0,
+			endRow: 3,
+			startCol: 0,
+			endCol: 3,
+		});
+
+		expect(partitionTree.children?.[1].region).toStrictEqual({
+			startRow: 4,
+			endRow: 7,
+			startCol: 0,
+			endCol: 3,
+		});
+	});
+
+	it("should produce repeatable partitions for the same inputs", () => {
+		const rootRegion: Region = {
+			startRow: 5,
+			endRow: 16,
+			startCol: 10,
+			endCol: 29,
+		};
+
+		const firstResult = recursivePartition(rootRegion, 3);
+		const secondResult = recursivePartition(rootRegion, 3);
+
+		expect(firstResult).toStrictEqual(secondResult);
+	});
+
+	describe("recursive partition invariants", () => {
+		const rootRegion: Region = {
+			startRow: 5,
+			endRow: 16,
+			startCol: 10,
+			endCol: 29,
+		};
+
+		const minChildSize = 3;
+		const partitionTree = recursivePartition(rootRegion, minChildSize);
+		const terminalRegions = getTerminalRegions(partitionTree);
+
+		it("should keep every terminal region within the root bounds", () => {
+			for (const region of terminalRegions) {
+				expect(region.startRow).toBeGreaterThanOrEqual(rootRegion.startRow);
+				expect(region.endRow).toBeLessThanOrEqual(rootRegion.endRow);
+				expect(region.startCol).toBeGreaterThanOrEqual(rootRegion.startCol);
+				expect(region.endCol).toBeLessThanOrEqual(rootRegion.endCol);
+			}
+		});
+
+		it("should make every terminal region satisfy the minimum dimensions", () => {
+			for (const region of terminalRegions) {
+				const rowCount = region.endRow - region.startRow + 1;
+				const colCount = region.endCol - region.startCol + 1;
+
+				expect(rowCount).toBeGreaterThanOrEqual(minChildSize);
+				expect(colCount).toBeGreaterThanOrEqual(minChildSize);
+			}
+		});
+
+		it("should stop only when terminal regions cannot be split further", () => {
+			for (const region of terminalRegions) {
+				expect(splitRegion(region, "vertical", minChildSize)).toBeUndefined();
+
+				expect(splitRegion(region, "horizontal", minChildSize)).toBeUndefined();
+			}
+		});
+
+		it("should produce terminal regions that do not overlap", () => {
+			const coveredCoordinates = new Set<string>();
+
+			for (const region of terminalRegions) {
+				for (let row = region.startRow; row <= region.endRow; row++) {
+					for (let col = region.startCol; col <= region.endCol; col++) {
+						const coordinate = `${row},${col}`;
+
+						expect(coveredCoordinates.has(coordinate)).toBe(false);
+						coveredCoordinates.add(coordinate);
+					}
+				}
+			}
+		});
+
+		it("should completely cover the root region", () => {
+			const terminalArea = terminalRegions.reduce(
+				(total, region) => total + getRegionArea(region),
+				0,
+			);
+
+			expect(terminalArea).toBe(getRegionArea(rootRegion));
+		});
 	});
 });

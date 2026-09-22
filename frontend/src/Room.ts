@@ -1,4 +1,4 @@
-import type { Region } from "./Partitioning.ts";
+import type { PartitionNode, Region } from "./Partitioning.ts";
 
 export type Room = {
 	startRow: number;
@@ -8,16 +8,16 @@ export type Room = {
 };
 
 export const createRoom = (region: Region, padding: number): Room => {
+	if (!Number.isInteger(padding) || padding < 0) {
+		throw new RangeError("padding must be zero or a positive integer");
+	}
+
 	const startRow = region.startRow + padding;
 	const endRow = region.endRow - padding;
 	const startCol = region.startCol + padding;
 	const endCol = region.endCol - padding;
 
-	if (!Number.isInteger(padding) || padding < 0) {
-		throw new RangeError("padding must be zero or a positive integer");
-	}
-
-	if (endRow - startRow < 1 || endCol - startCol < 1) {
+	if (endRow < startRow || endCol < startCol) {
 		throw new RangeError("region is too small for the configured padding");
 	}
 
@@ -27,4 +27,29 @@ export const createRoom = (region: Region, padding: number): Room => {
 		startCol,
 		endCol,
 	};
+};
+
+export const assignRoomsToPartition = (
+	partition: PartitionNode,
+	padding: number,
+): PartitionNode => {
+	const updatedPartition: PartitionNode = {
+		region: { ...partition.region },
+	};
+
+	if (partition.children) {
+		updatedPartition.children = [...partition.children];
+		updatedPartition.children[0] = assignRoomsToPartition(
+			partition.children[0],
+			padding,
+		);
+		updatedPartition.children[1] = assignRoomsToPartition(
+			partition.children[1],
+			padding,
+		);
+	} else {
+		updatedPartition.room = createRoom(updatedPartition.region, padding);
+	}
+
+	return updatedPartition;
 };

@@ -5,21 +5,7 @@ import {
 	recursivePartition,
 	splitRegion,
 } from "../Partitioning.ts";
-
-const getTerminalRegions = (node: PartitionNode): Region[] => {
-	if (!node.children) {
-		return [node.region];
-	}
-
-	return node.children.flatMap(getTerminalRegions);
-};
-
-const getRegionArea = (region: Region): number => {
-	const rowCount = region.endRow - region.startRow + 1;
-	const colCount = region.endCol - region.startCol + 1;
-
-	return rowCount * colCount;
-};
+import { getRegionArea, getTerminalRegions } from "./testhelpers.ts";
 
 describe("Partitioning Tests", () => {
 	it("should split a square region into 2 equally sized child regions vertically", () => {
@@ -343,7 +329,7 @@ describe("Partitioning Tests", () => {
 		expect(splitRegion(horizontallySplitRegion, "horizontal", 2)).toBeDefined();
 	});
 
-	it("when recursively partitioning the a region, it should return the region as a terminal partition when unable to split", () => {
+	it("when recursively partitioning a region, it should return the region as a terminal partition when unable to split", () => {
 		const regionTooSmall: Region = {
 			startRow: 0,
 			endRow: 2,
@@ -362,7 +348,7 @@ describe("Partitioning Tests", () => {
 		expect(partitions.children).toBeUndefined();
 	});
 
-	it("when recursively partitioning the a region, it should return the the partitions with children", () => {
+	it("when recursively partitioning a region, it should return the the partitions with children", () => {
 		const regionWithChildren: Region = {
 			startRow: 0,
 			endRow: 3,

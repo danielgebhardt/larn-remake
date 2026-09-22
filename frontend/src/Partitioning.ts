@@ -1,3 +1,5 @@
+import type { Room } from "./Room.ts";
+
 export type Region = {
 	startRow: number;
 	startCol: number;
@@ -8,6 +10,7 @@ export type Region = {
 export type PartitionNode = {
 	region: Region;
 	children?: [PartitionNode, PartitionNode];
+	room?: Room;
 };
 
 export type SplitDirection = "horizontal" | "vertical";

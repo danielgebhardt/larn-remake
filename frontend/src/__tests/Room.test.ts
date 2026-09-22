@@ -149,7 +149,7 @@ describe("Room Tests", () => {
 
 	describe("assignRoomsToPartition tests", () => {
 		it("should add a room to a terminal partition using the configured padding", () => {
-			const regionTooSmall: Region = {
+			const terminalRegion: Region = {
 				startRow: 0,
 				endRow: 5,
 				startCol: 0,
@@ -166,13 +166,13 @@ describe("Room Tests", () => {
 			const minChildSize = 4;
 
 			const partitions: PartitionNode = recursivePartition(
-				regionTooSmall,
+				terminalRegion,
 				minChildSize,
 			);
 
 			const partitionWithRooms = assignRoomsToPartition(partitions, 2);
 
-			expect(partitionWithRooms.region).toStrictEqual(regionTooSmall);
+			expect(partitionWithRooms.region).toStrictEqual(terminalRegion);
 			expect(partitionWithRooms.children).toBeUndefined();
 			expect(partitionWithRooms.room).toStrictEqual(expectedRoom);
 		});

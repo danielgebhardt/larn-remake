@@ -148,19 +148,19 @@ describe("Room Tests", () => {
 	});
 
 	describe("assignRoomsToPartition tests", () => {
-		it("should add a room to a terminal partition", () => {
+		it("should add a room to a terminal partition using the configured padding", () => {
 			const regionTooSmall: Region = {
 				startRow: 0,
-				endRow: 2,
+				endRow: 5,
 				startCol: 0,
-				endCol: 2,
+				endCol: 5,
 			};
 
 			const expectedRoom: Room = {
-				startRow: 1,
-				endRow: 1,
-				startCol: 1,
-				endCol: 1,
+				startRow: 2,
+				endRow: 3,
+				startCol: 2,
+				endCol: 3,
 			};
 
 			const minChildSize = 4;
@@ -170,7 +170,7 @@ describe("Room Tests", () => {
 				minChildSize,
 			);
 
-			const partitionWithRooms = assignRoomsToPartition(partitions, 1);
+			const partitionWithRooms = assignRoomsToPartition(partitions, 2);
 
 			expect(partitionWithRooms.region).toStrictEqual(regionTooSmall);
 			expect(partitionWithRooms.children).toBeUndefined();
@@ -231,6 +231,44 @@ describe("Room Tests", () => {
 					endCol: 6,
 				},
 			]);
+		});
+
+		it("should not modify the original partition tree", () => {
+			const rootRegion: Region = {
+				startRow: 0,
+				endRow: 7,
+				startCol: 0,
+				endCol: 7,
+			};
+
+			const partitionTree = recursivePartition(rootRegion, 4);
+			const originalPartitionTree = structuredClone(partitionTree);
+
+			const partitionTreeWithRooms = assignRoomsToPartition(partitionTree, 1);
+
+			expect(partitionTree).toStrictEqual(originalPartitionTree);
+			expect(partitionTreeWithRooms).not.toBe(partitionTree);
+			expect(partitionTreeWithRooms.children?.[0]).not.toBe(
+				partitionTree.children?.[0],
+			);
+			expect(partitionTreeWithRooms.children?.[1]).not.toBe(
+				partitionTree.children?.[1],
+			);
+		});
+
+		it("should throw RangeError when a terminal partition is too small for the configured padding", () => {
+			const smallRegion: Region = {
+				startRow: 0,
+				endRow: 1,
+				startCol: 0,
+				endCol: 1,
+			};
+
+			const partitionTree = recursivePartition(smallRegion, 2);
+
+			expect(() => assignRoomsToPartition(partitionTree, 1)).toThrow(
+				new RangeError("region is too small for the configured padding"),
+			);
 		});
 	});
 });

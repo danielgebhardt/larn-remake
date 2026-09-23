@@ -1,6 +1,5 @@
 import { describe, expect, it } from "vitest";
 import {
-	type Coordinate,
 	carveRooms,
 	FLOOR,
 	fixedDungeon,
@@ -98,58 +97,70 @@ describe("LayoutTiles Tests", () => {
 			const rooms: Room[] = getTerminalRooms(partitionsWithRooms);
 			const carvedDungeon: string[][] = carveRooms(testDungeon, rooms);
 
-			const expectedWalls: Coordinate[] = [
-				{
-					row: 0,
-					col: 0,
-				},
-				{
-					row: 0,
-					col: 1,
-				},
-				{
-					row: 0,
-					col: 2,
-				},
-				{
-					row: 1,
-					col: 0,
-				},
-				{
-					row: 1,
-					col: 2,
-				},
-				{
-					row: 2,
-					col: 0,
-				},
-				{
-					row: 2,
-					col: 1,
-				},
-				{
-					row: 2,
-					col: 2,
-				},
+			const expectedDungeon: string[][] = [
+				[WALL, WALL, WALL],
+				[WALL, FLOOR, WALL],
+				[WALL, WALL, WALL],
 			];
 
-			const expectedFloors: Coordinate[] = [
-				{
-					row: 1,
-					col: 1,
-				},
+			expect(carvedDungeon).toStrictEqual(expectedDungeon);
+		});
+
+		it("should carve every tile inside a hand-built multi-tile room", () => {
+			const testDungeon = makeDungeon(5, 6);
+
+			const testRoom: Room = {
+				startRow: 1,
+				endRow: 3,
+				startCol: 2,
+				endCol: 4,
+			};
+
+			const carvedDungeon = carveRooms(testDungeon, [testRoom]);
+
+			const expectedDungeon: string[][] = [
+				[WALL, WALL, WALL, WALL, WALL, WALL],
+				[WALL, WALL, FLOOR, FLOOR, FLOOR, WALL],
+				[WALL, WALL, FLOOR, FLOOR, FLOOR, WALL],
+				[WALL, WALL, FLOOR, FLOOR, FLOOR, WALL],
+				[WALL, WALL, WALL, WALL, WALL, WALL],
 			];
 
-			for (const wall of expectedWalls) {
-				expect(
-					getDungeonCoordinateValue(wall.col, wall.row, carvedDungeon),
-				).toBe(WALL);
-			}
+			expect(carvedDungeon).toStrictEqual(expectedDungeon);
+		});
 
-			for (const floor of expectedFloors) {
-				expect(
-					getDungeonCoordinateValue(floor.col, floor.row, carvedDungeon),
-				).toBe(FLOOR);
+		it("should throw RangeError when any room is outside the dungeon bounds", () => {
+			const testDungeon = makeDungeon(2, 3);
+
+			const testRoomOutsideRows: Room = {
+				startRow: 1,
+				endRow: 3,
+				startCol: 0,
+				endCol: 1,
+			};
+
+			const testRoomOutsideCols: Room = {
+				startRow: 0,
+				endRow: 1,
+				startCol: 1,
+				endCol: 4,
+			};
+
+			const testRoomOutsideBoth: Room = {
+				startRow: 2,
+				endRow: 4,
+				startCol: 1,
+				endCol: 5,
+			};
+
+			for (const invalidRoom of [
+				testRoomOutsideRows,
+				testRoomOutsideCols,
+				testRoomOutsideBoth,
+			]) {
+				expect(() => carveRooms(testDungeon, [invalidRoom])).toThrow(
+					new RangeError("room is outside dungeon bounds"),
+				);
 			}
 		});
 	});

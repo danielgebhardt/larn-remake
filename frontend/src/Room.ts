@@ -1,4 +1,3 @@
-import type { Coordinate } from "./LayoutTiles.ts";
 import type { PartitionNode, Region } from "./Partitioning.ts";
 
 export type Room = {
@@ -53,34 +52,4 @@ export const assignRoomsToPartition = (
 	}
 
 	return updatedPartition;
-};
-
-export const createCoordinateListFromRoom = (room: Room): Coordinate[] => {
-	if (!room) {
-		return [];
-	}
-
-	const coordinates: Coordinate[] = [];
-
-	for (let row: number = room.startRow; row <= room.endRow; row++) {
-		for (let col: number = room.startCol; col <= room.endCol; col++) {
-			coordinates.push({ row, col });
-		}
-	}
-
-	return coordinates;
-};
-
-export const createCoordinateListOfAllRooms = (rooms: Room[]): Coordinate[] => {
-	if (!rooms) {
-		return [];
-	}
-
-	const coordinates: Coordinate[] = [];
-
-	for (const room of rooms) {
-		coordinates.push(...createCoordinateListFromRoom(room));
-	}
-
-	return coordinates;
 };

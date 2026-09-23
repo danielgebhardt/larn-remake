@@ -1,4 +1,4 @@
-import { createCoordinateListOfAllRooms, type Room } from "./Room.ts";
+import type { Room } from "./Room.ts";
 
 export type Coordinate = { row: number; col: number };
 
@@ -63,10 +63,25 @@ export const carveRooms = (
 	}
 
 	const carvedDungeon = dungeon.map((row) => [...row]);
-	const roomCoordinates: Coordinate[] = createCoordinateListOfAllRooms(rooms);
 
-	for (const coordinate of roomCoordinates) {
-		carvedDungeon[coordinate.row][coordinate.col] = FLOOR;
+	const dungeonMaxHeightCoordinate = carvedDungeon.length - 1;
+	const dungeonMaxWidthCoordinate = carvedDungeon[0].length - 1;
+
+	for (const room of rooms) {
+		for (let row = room.startRow; row <= room.endRow; row++) {
+			for (let col = room.startCol; col <= room.endCol; col++) {
+				if (
+					row < 0 ||
+					row > dungeonMaxHeightCoordinate ||
+					col < 0 ||
+					col > dungeonMaxWidthCoordinate
+				) {
+					throw new RangeError("room is outside dungeon bounds");
+				}
+
+				carvedDungeon[row][col] = FLOOR;
+			}
+		}
 	}
 
 	return carvedDungeon;

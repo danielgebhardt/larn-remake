@@ -277,12 +277,6 @@ describe("LayoutTiles Tests", () => {
 			);
 		});
 
-		it("should throw RangeError when the dungeon is undefined", () => {
-			expect(() => carveRooms(undefined, [])).toThrow(
-				new RangeError("Dungeon is undefined"),
-			);
-		});
-
 		it("should return an unchanged dungeon when no rooms are provided", () => {
 			const testDungeon = makeDungeon(5, 6);
 

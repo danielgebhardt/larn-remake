@@ -153,15 +153,144 @@ describe("LayoutTiles Tests", () => {
 				endCol: 5,
 			};
 
+			const testRoomOutsideNegativeCoordinates: Room = {
+				startRow: -1,
+				endRow: 1,
+				startCol: 0,
+				endCol: 1,
+			};
+
 			for (const invalidRoom of [
 				testRoomOutsideRows,
 				testRoomOutsideCols,
 				testRoomOutsideBoth,
+				testRoomOutsideNegativeCoordinates,
 			]) {
 				expect(() => carveRooms(testDungeon, [invalidRoom])).toThrow(
 					new RangeError("room is outside dungeon bounds"),
 				);
 			}
+		});
+
+		it("should carve multiple separated rooms while leaving walls between them", () => {
+			const testDungeon = makeDungeon(5, 9);
+
+			const rooms: Room[] = [
+				{
+					startRow: 1,
+					endRow: 3,
+					startCol: 1,
+					endCol: 2,
+				},
+				{
+					startRow: 1,
+					endRow: 3,
+					startCol: 6,
+					endCol: 7,
+				},
+			];
+
+			const carvedDungeon = carveRooms(testDungeon, rooms);
+
+			const expectedDungeon: string[][] = [
+				[WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL],
+				[WALL, FLOOR, FLOOR, WALL, WALL, WALL, FLOOR, FLOOR, WALL],
+				[WALL, FLOOR, FLOOR, WALL, WALL, WALL, FLOOR, FLOOR, WALL],
+				[WALL, FLOOR, FLOOR, WALL, WALL, WALL, FLOOR, FLOOR, WALL],
+				[WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL],
+			];
+
+			expect(carvedDungeon).toStrictEqual(expectedDungeon);
+		});
+
+		it("should not modify the original dungeon", () => {
+			const testDungeon = makeDungeon(5, 9);
+			const rooms: Room[] = [
+				{
+					startRow: 1,
+					endRow: 3,
+					startCol: 1,
+					endCol: 2,
+				},
+			];
+
+			const originalDungeon = structuredClone(testDungeon);
+
+			const carvedDungeon = carveRooms(testDungeon, rooms);
+
+			expect(testDungeon).toStrictEqual(originalDungeon);
+			expect(carvedDungeon).not.toBe(testDungeon);
+			expect(carvedDungeon[1]).not.toBe(testDungeon?.[1]);
+
+			expect(testDungeon?.[1][1]).toBe(WALL);
+			expect(carvedDungeon[1][1]).toBe(FLOOR);
+		});
+
+		it("should not modify the supplied rooms", () => {
+			const testDungeon = makeDungeon(5, 9);
+			const rooms: Room[] = [
+				{
+					startRow: 1,
+					endRow: 3,
+					startCol: 1,
+					endCol: 2,
+				},
+			];
+
+			const originalRooms = structuredClone(rooms);
+			const originalRoomReference = rooms[0];
+
+			carveRooms(testDungeon, rooms);
+
+			expect(originalRooms).toStrictEqual(rooms);
+			expect(rooms[0]).toBe(originalRoomReference);
+		});
+
+		it("should leave the original dungeon unchanged when one of multiple rooms is invalid", () => {
+			const testDungeon = makeDungeon(2, 3);
+			const originalDungeon = structuredClone(testDungeon);
+
+			const validRoom: Room = {
+				startRow: 0,
+				endRow: 0,
+				startCol: 0,
+				endCol: 1,
+			};
+
+			const roomOutsideDungeon: Room = {
+				startRow: 1,
+				endRow: 3,
+				startCol: 0,
+				endCol: 1,
+			};
+
+			expect(() =>
+				carveRooms(testDungeon, [validRoom, roomOutsideDungeon]),
+			).toThrow(new RangeError("room is outside dungeon bounds"));
+
+			expect(testDungeon).toStrictEqual(originalDungeon);
+		});
+
+		it("should throw RangeError when the dungeon is undefined", () => {
+			expect(() => carveRooms(undefined, [])).toThrow(
+				new RangeError("Dungeon is undefined"),
+			);
+		});
+
+		it("should throw RangeError when the dungeon is undefined", () => {
+			expect(() => carveRooms(undefined, [])).toThrow(
+				new RangeError("Dungeon is undefined"),
+			);
+		});
+
+		it("should return an unchanged dungeon when no rooms are provided", () => {
+			const testDungeon = makeDungeon(5, 6);
+
+			const carvedDungeon = carveRooms(testDungeon, []);
+
+			expect(carvedDungeon).toStrictEqual(testDungeon);
+			expect(carvedDungeon).not.toBe(testDungeon);
+			expect(carvedDungeon[0]).not.toBe(testDungeon?.[0]);
 		});
 	});
 });

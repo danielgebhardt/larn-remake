@@ -68,17 +68,17 @@ export const carveRooms = (
 	const dungeonMaxWidthCoordinate = carvedDungeon[0].length - 1;
 
 	for (const room of rooms) {
+		if (
+			room.startRow < 0 ||
+			room.endRow > dungeonMaxHeightCoordinate ||
+			room.startCol < 0 ||
+			room.endCol > dungeonMaxWidthCoordinate
+		) {
+			throw new RangeError("room is outside dungeon bounds");
+		}
+
 		for (let row = room.startRow; row <= room.endRow; row++) {
 			for (let col = room.startCol; col <= room.endCol; col++) {
-				if (
-					row < 0 ||
-					row > dungeonMaxHeightCoordinate ||
-					col < 0 ||
-					col > dungeonMaxWidthCoordinate
-				) {
-					throw new RangeError("room is outside dungeon bounds");
-				}
-
 				carvedDungeon[row][col] = FLOOR;
 			}
 		}

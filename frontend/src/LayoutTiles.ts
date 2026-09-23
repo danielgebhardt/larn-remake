@@ -1,3 +1,5 @@
+import { createCoordinateListOfAllRooms, type Room } from "./Room.ts";
+
 export type Coordinate = { row: number; col: number };
 
 export const WALL: string = "#";
@@ -50,4 +52,22 @@ export const makeDungeon = (
 	}
 
 	return newDungeon;
+};
+
+export const carveRooms = (
+	dungeon: string[][] | undefined,
+	rooms: Room[],
+): string[][] => {
+	if (!dungeon) {
+		throw new RangeError("Dungeon is undefined");
+	}
+
+	const carvedDungeon = dungeon.map((row) => [...row]);
+	const roomCoordinates: Coordinate[] = createCoordinateListOfAllRooms(rooms);
+
+	for (const coordinate of roomCoordinates) {
+		carvedDungeon[coordinate.row][coordinate.col] = FLOOR;
+	}
+
+	return carvedDungeon;
 };

@@ -31,3 +31,16 @@ export const getRegionArea = (region: Region): number => {
 
 	return rowCount * colCount;
 };
+
+export const makeRegion = (dungeon: string[][] | undefined): Region => {
+	if (!dungeon) {
+		throw new Error("Dungeon is undefined");
+	}
+
+	return {
+		startRow: 0,
+		endRow: dungeon.length - 1,
+		startCol: 0,
+		endCol: dungeon[0].length - 1,
+	};
+};

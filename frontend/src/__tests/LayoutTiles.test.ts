@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
+	type Coordinate,
+	carveRooms,
 	FLOOR,
 	fixedDungeon,
 	getDungeonCoordinateValue,
@@ -7,6 +9,9 @@ import {
 	makeDungeon,
 	WALL,
 } from "../LayoutTiles.ts";
+import { recursivePartition } from "../Partitioning.ts";
+import { assignRoomsToPartition, type Room } from "../Room.ts";
+import { getTerminalRooms, makeRegion } from "./testhelpers.ts";
 
 describe("LayoutTiles Tests", () => {
 	it("should return a # for WALL values in dungeon map", () => {
@@ -82,5 +87,70 @@ describe("LayoutTiles Tests", () => {
 
 		expect(dungeon[0][0]).toBe(FLOOR);
 		expect(dungeon[1][0]).toBe(WALL);
+	});
+
+	describe("Carve Room tests", () => {
+		it("should carve a single room into a wall-filled dungeon", () => {
+			const testDungeon = makeDungeon(3, 3);
+			const testRegion = makeRegion(testDungeon);
+			const partitionTree = recursivePartition(testRegion, 3);
+			const partitionsWithRooms = assignRoomsToPartition(partitionTree, 1);
+			const rooms: Room[] = getTerminalRooms(partitionsWithRooms);
+			const carvedDungeon: string[][] = carveRooms(testDungeon, rooms);
+
+			const expectedWalls: Coordinate[] = [
+				{
+					row: 0,
+					col: 0,
+				},
+				{
+					row: 0,
+					col: 1,
+				},
+				{
+					row: 0,
+					col: 2,
+				},
+				{
+					row: 1,
+					col: 0,
+				},
+				{
+					row: 1,
+					col: 2,
+				},
+				{
+					row: 2,
+					col: 0,
+				},
+				{
+					row: 2,
+					col: 1,
+				},
+				{
+					row: 2,
+					col: 2,
+				},
+			];
+
+			const expectedFloors: Coordinate[] = [
+				{
+					row: 1,
+					col: 1,
+				},
+			];
+
+			for (const wall of expectedWalls) {
+				expect(
+					getDungeonCoordinateValue(wall.col, wall.row, carvedDungeon),
+				).toBe(WALL);
+			}
+
+			for (const floor of expectedFloors) {
+				expect(
+					getDungeonCoordinateValue(floor.col, floor.row, carvedDungeon),
+				).toBe(FLOOR);
+			}
+		});
 	});
 });

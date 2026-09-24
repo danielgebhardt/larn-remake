@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest";
+import { type Corridor, createCorridor } from "../Corridor.ts";
 import {
+	carveCorridor,
 	carveRooms,
 	FLOOR,
 	fixedDungeon,
@@ -285,6 +287,126 @@ describe("LayoutTiles Tests", () => {
 			expect(carvedDungeon).toStrictEqual(testDungeon);
 			expect(carvedDungeon).not.toBe(testDungeon);
 			expect(carvedDungeon[0]).not.toBe(testDungeon?.[0]);
+		});
+	});
+
+	describe("Carve Corridor tests", () => {
+		it("should carve every corridor coordinate as floor", () => {
+			const dungeon = makeDungeon(4, 7);
+
+			const corridor: Corridor = [
+				{ row: 1, col: 1 },
+				{ row: 1, col: 2 },
+				{ row: 1, col: 3 },
+				{ row: 1, col: 4 },
+			];
+
+			const carvedDungeon = carveCorridor(dungeon, corridor);
+
+			const expectedDungeon: string[][] = [
+				[WALL, WALL, WALL, WALL, WALL, WALL, WALL],
+				[WALL, FLOOR, FLOOR, FLOOR, FLOOR, WALL, WALL],
+				[WALL, WALL, WALL, WALL, WALL, WALL, WALL],
+				[WALL, WALL, WALL, WALL, WALL, WALL, WALL],
+			];
+
+			expect(carvedDungeon).toStrictEqual(expectedDungeon);
+		});
+
+		it("should preserve room floors when carving a connecting corridor", () => {
+			const dungeon = makeDungeon(4, 7);
+
+			const room1: Room = {
+				startRow: 1,
+				endRow: 2,
+				startCol: 1,
+				endCol: 2,
+			};
+
+			const room2: Room = {
+				startRow: 1,
+				endRow: 2,
+				startCol: 4,
+				endCol: 5,
+			};
+
+			const dungeonWithRooms = carveRooms(dungeon, [room1, room2]);
+			const corridor = createCorridor(room1, room2);
+			const connectedDungeon = carveCorridor(dungeonWithRooms, corridor);
+
+			const expectedDungeon: string[][] = [
+				[WALL, WALL, WALL, WALL, WALL, WALL, WALL],
+				[WALL, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, WALL],
+				[WALL, FLOOR, FLOOR, WALL, FLOOR, FLOOR, WALL],
+				[WALL, WALL, WALL, WALL, WALL, WALL, WALL],
+			];
+
+			expect(connectedDungeon).toStrictEqual(expectedDungeon);
+		});
+
+		it("should not modify the original dungeon or corridor", () => {
+			const dungeon = makeDungeon(4, 7);
+
+			const corridor: Corridor = [
+				{ row: 1, col: 1 },
+				{ row: 1, col: 2 },
+				{ row: 1, col: 3 },
+				{ row: 1, col: 4 },
+			];
+
+			const originalDungeon = structuredClone(dungeon);
+			const originalCorridor = structuredClone(corridor);
+
+			const carvedDungeon = carveCorridor(dungeon, corridor);
+
+			expect(dungeon).toStrictEqual(originalDungeon);
+			expect(corridor).toStrictEqual(originalCorridor);
+
+			expect(carvedDungeon).not.toBe(dungeon);
+			expect(carvedDungeon[1]).not.toBe(dungeon?.[1]);
+
+			expect(dungeon?.[1][1]).toBe(WALL);
+			expect(carvedDungeon[1][1]).toBe(FLOOR);
+		});
+
+		it("should not modify the rooms when creating a corridor", () => {
+			const room1: Room = {
+				startRow: 1,
+				endRow: 2,
+				startCol: 1,
+				endCol: 2,
+			};
+
+			const room2: Room = {
+				startRow: 4,
+				endRow: 5,
+				startCol: 4,
+				endCol: 5,
+			};
+
+			const originalRoom1 = structuredClone(room1);
+			const originalRoom2 = structuredClone(room2);
+
+			createCorridor(room1, room2);
+
+			expect(room1).toStrictEqual(originalRoom1);
+			expect(room2).toStrictEqual(originalRoom2);
+		});
+
+		it("should throw RangeError when a corridor coordinate is outside the dungeon", () => {
+			const dungeon = makeDungeon(3, 3);
+			const originalDungeon = structuredClone(dungeon);
+
+			const invalidCoordinates: Corridor = [
+				{ row: 0, col: 0 },
+				{ row: 3, col: 0 },
+			];
+
+			expect(() => carveCorridor(dungeon, invalidCoordinates)).toThrow(
+				new RangeError("corridor is outside dungeon bounds"),
+			);
+
+			expect(dungeon).toStrictEqual(originalDungeon);
 		});
 	});
 });

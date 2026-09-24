@@ -14,19 +14,31 @@ export const createCorridor = (room1: Room, room2: Room): Corridor => {
 	const room1Endpoint = getRoomEndpoint(room1);
 	const room2Endpoint = getRoomEndpoint(room2);
 
-	const corridor: Corridor = [];
+	const corridor: Corridor = [{ ...room1Endpoint }];
 
-	for (let i = room1Endpoint.col + 1; i < room2Endpoint.col; i++) {
+	const horizontalStep = Math.sign(room2Endpoint.col - room1Endpoint.col);
+
+	let currentCol = room1Endpoint.col;
+
+	while (currentCol !== room2Endpoint.col) {
+		currentCol += horizontalStep;
+
 		corridor.push({
 			row: room1Endpoint.row,
-			col: i,
+			col: currentCol,
 		});
 	}
 
-	for (let i = room1Endpoint.row + 1; i < room2Endpoint.row; i++) {
+	const verticalStep = Math.sign(room2Endpoint.row - room1Endpoint.row);
+
+	let currentRow = room1Endpoint.row;
+
+	while (currentRow !== room2Endpoint.row) {
+		currentRow += verticalStep;
+
 		corridor.push({
-			col: room1Endpoint.col,
-			row: i,
+			col: currentCol,
+			row: currentRow,
 		});
 	}
 

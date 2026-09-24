@@ -39,8 +39,10 @@ describe("Corridor tests", () => {
 
 		const corridor: Corridor = createCorridor(room1, room2);
 		expect(corridor).toStrictEqual([
+			{ row: 1, col: 1 },
 			{ row: 1, col: 2 },
 			{ row: 1, col: 3 },
+			{ row: 1, col: 4 },
 		]);
 	});
 
@@ -61,8 +63,135 @@ describe("Corridor tests", () => {
 
 		const corridor: Corridor = createCorridor(room1, room2);
 		expect(corridor).toStrictEqual([
+			{ row: 1, col: 1 },
 			{ row: 2, col: 1 },
 			{ row: 3, col: 1 },
+			{ row: 4, col: 1 },
 		]);
+	});
+
+	it("should create a horizontal corridor when the second room is left of the first room", () => {
+		const room1: Room = {
+			startRow: 1,
+			endRow: 2,
+			startCol: 1,
+			endCol: 2,
+		};
+
+		const room2: Room = {
+			startRow: 1,
+			endRow: 2,
+			startCol: 4,
+			endCol: 5,
+		};
+
+		const corridor: Corridor = createCorridor(room2, room1);
+		expect(corridor).toStrictEqual([
+			{ row: 1, col: 4 },
+			{ row: 1, col: 3 },
+			{ row: 1, col: 2 },
+			{ row: 1, col: 1 },
+		]);
+	});
+
+	it("should create a vertical corridor when the second room is above the first room", () => {
+		const room1: Room = {
+			startRow: 1,
+			endRow: 2,
+			startCol: 1,
+			endCol: 2,
+		};
+
+		const room2: Room = {
+			startRow: 4,
+			endRow: 5,
+			startCol: 1,
+			endCol: 2,
+		};
+
+		const corridor: Corridor = createCorridor(room2, room1);
+		expect(corridor).toStrictEqual([
+			{ row: 4, col: 1 },
+			{ row: 3, col: 1 },
+			{ row: 2, col: 1 },
+			{ row: 1, col: 1 },
+		]);
+	});
+
+	it("should create a corridor with one right-angle bend between offset rooms", () => {
+		const room1: Room = {
+			startRow: 1,
+			endRow: 2,
+			startCol: 1,
+			endCol: 2,
+		};
+
+		const room2: Room = {
+			startRow: 4,
+			endRow: 5,
+			startCol: 4,
+			endCol: 5,
+		};
+
+		const corridor: Corridor = createCorridor(room1, room2);
+
+		expect(corridor).toStrictEqual([
+			{ row: 1, col: 1 },
+			{ row: 1, col: 2 },
+			{ row: 1, col: 3 },
+			{ row: 1, col: 4 },
+			{ row: 2, col: 4 },
+			{ row: 3, col: 4 },
+			{ row: 4, col: 4 },
+		]);
+	});
+
+	it("should include both room endpoints", () => {
+		const room1: Room = {
+			startRow: 1,
+			endRow: 2,
+			startCol: 1,
+			endCol: 2,
+		};
+
+		const room2: Room = {
+			startRow: 1,
+			endRow: 2,
+			startCol: 4,
+			endCol: 5,
+		};
+
+		const corridor: Corridor = createCorridor(room1, room2);
+		expect(corridor).toContainEqual({ row: 1, col: 1 });
+		expect(corridor).toContainEqual({ row: 1, col: 4 });
+	});
+
+	it("should produce only cardinally adjacent consecutive coordinates (no diagonal)", () => {
+		const room1: Room = {
+			startRow: 5,
+			endRow: 6,
+			startCol: 5,
+			endCol: 6,
+		};
+
+		const room2: Room = {
+			startRow: 1,
+			endRow: 2,
+			startCol: 1,
+			endCol: 2,
+		};
+
+		const corridor = createCorridor(room1, room2);
+
+		for (let index = 1; index < corridor.length; index++) {
+			const previous = corridor[index - 1];
+			const current = corridor[index];
+
+			const distance =
+				Math.abs(current.row - previous.row) +
+				Math.abs(current.col - previous.col);
+
+			expect(distance).toBe(1);
+		}
 	});
 });

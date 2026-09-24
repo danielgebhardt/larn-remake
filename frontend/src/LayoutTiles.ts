@@ -1,3 +1,4 @@
+import type { Corridor } from "./Corridor.ts";
 import type { Room } from "./Room.ts";
 
 export type Coordinate = { row: number; col: number };
@@ -82,6 +83,37 @@ export const carveRooms = (
 				carvedDungeon[row][col] = FLOOR;
 			}
 		}
+	}
+
+	return carvedDungeon;
+};
+
+export const carveCorridor = (
+	dungeon: string[][] | undefined,
+	corridor: Corridor,
+): string[][] => {
+	if (!dungeon) {
+		throw new RangeError("Dungeon is undefined");
+	}
+
+	const dungeonMaxRow = dungeon.length - 1;
+	const dungeonMaxCol = dungeon[0].length - 1;
+
+	for (const coordinate of corridor) {
+		if (
+			coordinate.row < 0 ||
+			coordinate.row > dungeonMaxRow ||
+			coordinate.col < 0 ||
+			coordinate.col > dungeonMaxCol
+		) {
+			throw new RangeError("corridor is outside dungeon bounds");
+		}
+	}
+
+	const carvedDungeon = dungeon.map((row) => [...row]);
+
+	for (const coordinate of corridor) {
+		carvedDungeon[coordinate.row][coordinate.col] = FLOOR;
 	}
 
 	return carvedDungeon;

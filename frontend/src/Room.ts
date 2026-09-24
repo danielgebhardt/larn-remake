@@ -53,3 +53,15 @@ export const assignRoomsToPartition = (
 
 	return updatedPartition;
 };
+
+export const getRepresentativeRoom = (partition: PartitionNode): Room => {
+	if (!partition.children) {
+		if (!partition.room) {
+			throw new Error("Terminal partition does not contain a room");
+		}
+
+		return partition.room;
+	}
+
+	return getRepresentativeRoom(partition.children[0]);
+};

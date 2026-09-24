@@ -4,7 +4,12 @@ import {
 	type Region,
 	recursivePartition,
 } from "../Partitioning.ts";
-import { assignRoomsToPartition, createRoom, type Room } from "../Room.ts";
+import {
+	assignRoomsToPartition,
+	createRoom,
+	getRepresentativeRoom,
+	type Room,
+} from "../Room.ts";
 import { getTerminalRooms } from "./testhelpers.ts";
 
 describe("Room Tests", () => {
@@ -268,6 +273,101 @@ describe("Room Tests", () => {
 
 			expect(() => assignRoomsToPartition(partitionTree, 1)).toThrow(
 				new RangeError("region is too small for the configured padding"),
+			);
+		});
+
+		it("should return the room attached to a terminal partition", () => {
+			const region: Region = {
+				startRow: 0,
+				endRow: 3,
+				startCol: 0,
+				endCol: 3,
+			};
+			const room: Room = {
+				startRow: 1,
+				endRow: 2,
+				startCol: 1,
+				endCol: 2,
+			};
+
+			const partition: PartitionNode = {
+				region: region,
+				room: room,
+			};
+
+			const representativeRoom = getRepresentativeRoom(partition);
+
+			expect(representativeRoom).toStrictEqual(room);
+		});
+
+		it("should select the representative room from the first child subtree", () => {
+			const regionRoot: Region = {
+				startRow: 0,
+				endRow: 5,
+				startCol: 0,
+				endCol: 5,
+			};
+
+			const region1: Region = {
+				startRow: 0,
+				endRow: 5,
+				startCol: 0,
+				endCol: 2,
+			};
+
+			const region2: Region = {
+				startRow: 0,
+				endRow: 5,
+				startCol: 3,
+				endCol: 5,
+			};
+
+			const room1: Room = {
+				startRow: 1,
+				endRow: 4,
+				startCol: 1,
+				endCol: 1,
+			};
+
+			const room2: Room = {
+				startRow: 1,
+				endRow: 4,
+				startCol: 4,
+				endCol: 4,
+			};
+
+			const child1: PartitionNode = {
+				region: region1,
+				room: room1,
+			};
+
+			const child2: PartitionNode = {
+				region: region2,
+				room: room2,
+			};
+
+			const partitionRoot: PartitionNode = {
+				region: regionRoot,
+				children: [child1, child2],
+			};
+
+			expect(getRepresentativeRoom(partitionRoot)).toStrictEqual(room1);
+		});
+
+		it("should throw Error when the selected terminal partition has no room", () => {
+			const regionRoot: Region = {
+				startRow: 0,
+				endRow: 5,
+				startCol: 0,
+				endCol: 5,
+			};
+
+			const partitionRoot: PartitionNode = {
+				region: regionRoot,
+			};
+
+			expect(() => getRepresentativeRoom(partitionRoot)).toThrow(
+				"Terminal partition does not contain a room",
 			);
 		});
 	});

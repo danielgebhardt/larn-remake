@@ -370,5 +370,43 @@ describe("Room Tests", () => {
 				"Terminal partition does not contain a room",
 			);
 		});
+
+		it("should select a representative room through multiple partition levels", () => {
+			const region: Region = {
+				startRow: 0,
+				endRow: 7,
+				startCol: 0,
+				endCol: 7,
+			};
+
+			const partition = assignRoomsToPartition(
+				recursivePartition(region, 2),
+				0,
+			);
+			const terminalRooms = getTerminalRooms(partition);
+
+			const representativeRoom = getRepresentativeRoom(partition);
+
+			expect(representativeRoom).toBe(terminalRooms[0]);
+		});
+
+		it("should not modify the partition tree when selecting a representative room", () => {
+			const region: Region = {
+				startRow: 0,
+				endRow: 7,
+				startCol: 0,
+				endCol: 7,
+			};
+
+			const partition = assignRoomsToPartition(
+				recursivePartition(region, 2),
+				0,
+			);
+			const originalPartition = structuredClone(partition);
+
+			getRepresentativeRoom(partition);
+
+			expect(partition).toStrictEqual(originalPartition);
+		});
 	});
 });

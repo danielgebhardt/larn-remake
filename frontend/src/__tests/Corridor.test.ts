@@ -194,4 +194,28 @@ describe("Corridor tests", () => {
 			expect(distance).toBe(1);
 		}
 	});
+
+	it("should not modify the rooms when creating a corridor", () => {
+		const room1: Room = {
+			startRow: 1,
+			endRow: 2,
+			startCol: 1,
+			endCol: 2,
+		};
+
+		const room2: Room = {
+			startRow: 4,
+			endRow: 5,
+			startCol: 4,
+			endCol: 5,
+		};
+
+		const originalRoom1 = structuredClone(room1);
+		const originalRoom2 = structuredClone(room2);
+
+		createCorridor(room1, room2);
+
+		expect(room1).toStrictEqual(originalRoom1);
+		expect(room2).toStrictEqual(originalRoom2);
+	});
 });

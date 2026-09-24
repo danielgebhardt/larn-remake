@@ -1,6 +1,13 @@
 import { describe, expect, it } from "vitest";
-import { type Corridor, createCorridor, getRoomEndpoint } from "../Corridor.ts";
-import type { Room } from "../Room.ts";
+import {
+	type Corridor,
+	connectPartitionRooms,
+	createCorridor,
+	getRoomEndpoint,
+} from "../Corridor.ts";
+import { type Region, recursivePartition } from "../Partitioning.ts";
+import { assignRoomsToPartition, type Room } from "../Room.ts";
+import { getTerminalRooms } from "./testhelpers.ts";
 
 describe("Corridor tests", () => {
 	it("should select an endpoint inside each room", () => {
@@ -217,5 +224,166 @@ describe("Corridor tests", () => {
 
 		expect(room1).toStrictEqual(originalRoom1);
 		expect(room2).toStrictEqual(originalRoom2);
+	});
+
+	describe("connectPartitionRooms tests", () => {
+		it("should return no corridors for a terminal partition", () => {
+			const region: Region = {
+				startRow: 0,
+				endRow: 3,
+				startCol: 0,
+				endCol: 3,
+			};
+
+			const partition = assignRoomsToPartition(
+				recursivePartition(region, 4),
+				1,
+			);
+
+			expect(connectPartitionRooms(partition)).toHaveLength(0);
+		});
+
+		it("should create one corridor between two terminal child rooms", () => {
+			const region: Region = {
+				startRow: 0,
+				endRow: 2,
+				startCol: 0,
+				endCol: 5,
+			};
+
+			const partition = assignRoomsToPartition(
+				recursivePartition(region, 3),
+				1,
+			);
+
+			const expectedCorridors: Corridor[] = [
+				[
+					{ row: 1, col: 1 },
+					{ row: 1, col: 2 },
+					{ row: 1, col: 3 },
+					{ row: 1, col: 4 },
+				],
+			];
+
+			expect(connectPartitionRooms(partition)).toStrictEqual(expectedCorridors);
+		});
+
+		it("should recursively create corridors for a multi-level partition tree", () => {
+			const region: Region = {
+				startRow: 0,
+				endRow: 5,
+				startCol: 0,
+				endCol: 5,
+			};
+
+			const partition = assignRoomsToPartition(
+				recursivePartition(region, 3),
+				1,
+			);
+
+			const expectedCorridors: Corridor[] = [
+				[
+					{ row: 1, col: 1 },
+					{ row: 2, col: 1 },
+					{ row: 3, col: 1 },
+					{ row: 4, col: 1 },
+				],
+				[
+					{ row: 1, col: 4 },
+					{ row: 2, col: 4 },
+					{ row: 3, col: 4 },
+					{ row: 4, col: 4 },
+				],
+				[
+					{ row: 1, col: 1 },
+					{ row: 1, col: 2 },
+					{ row: 1, col: 3 },
+					{ row: 1, col: 4 },
+				],
+			];
+
+			expect(connectPartitionRooms(partition)).toStrictEqual(expectedCorridors);
+		});
+
+		it("should create one fewer corridor than the number of terminal rooms", () => {
+			const region: Region = {
+				startRow: 0,
+				endRow: 11,
+				startCol: 0,
+				endCol: 11,
+			};
+
+			const partition = assignRoomsToPartition(
+				recursivePartition(region, 3),
+				1,
+			);
+			const terminalRooms = getTerminalRooms(partition);
+
+			const corridors = connectPartitionRooms(partition);
+
+			expect(corridors).toHaveLength(terminalRooms.length - 1);
+		});
+
+		it("should include every terminal room in the corridor network", () => {
+			const region: Region = {
+				startRow: 0,
+				endRow: 5,
+				startCol: 0,
+				endCol: 5,
+			};
+
+			const partition = assignRoomsToPartition(
+				recursivePartition(region, 3),
+				1,
+			);
+			const terminalRooms = getTerminalRooms(partition);
+
+			const corridors = connectPartitionRooms(partition);
+			const corridorCoordinateKeys = new Set(
+				corridors.flat().map(({ row, col }) => `${row},${col}`),
+			);
+
+			for (const room of terminalRooms) {
+				const endpoint = getRoomEndpoint(room);
+
+				expect(
+					corridorCoordinateKeys.has(`${endpoint.row},${endpoint.col}`),
+				).toBe(true);
+			}
+		});
+
+		it("should throw when a required terminal partition has no room", () => {
+			const region: Region = {
+				startRow: 0,
+				endRow: 2,
+				startCol: 0,
+				endCol: 5,
+			};
+
+			const partitionWithoutRooms = recursivePartition(region, 3);
+
+			expect(() => connectPartitionRooms(partitionWithoutRooms)).toThrow(
+				new Error("Terminal partition does not contain a room"),
+			);
+		});
+
+		it("should not modify the partition tree or its rooms", () => {
+			const region: Region = {
+				startRow: 0,
+				endRow: 5,
+				startCol: 0,
+				endCol: 5,
+			};
+
+			const partition = assignRoomsToPartition(
+				recursivePartition(region, 3),
+				1,
+			);
+			const originalPartition = structuredClone(partition);
+
+			connectPartitionRooms(partition);
+
+			expect(partition).toStrictEqual(originalPartition);
+		});
 	});
 });

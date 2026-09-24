@@ -1,5 +1,6 @@
 import type { Coordinate } from "./LayoutTiles.ts";
-import type { Room } from "./Room.ts";
+import type { PartitionNode } from "./Partitioning.ts";
+import { getRepresentativeRoom, type Room } from "./Room.ts";
 
 export type Corridor = Coordinate[];
 
@@ -43,4 +44,22 @@ export const createCorridor = (room1: Room, room2: Room): Corridor => {
 	}
 
 	return corridor;
+};
+
+export const connectPartitionRooms = (partition: PartitionNode): Corridor[] => {
+	if (!partition.children) {
+		return [];
+	}
+
+	const [firstChild, secondChild] = partition.children;
+
+	const firstChildCorridors = connectPartitionRooms(firstChild);
+	const secondChildCorridors = connectPartitionRooms(secondChild);
+
+	const connectingCorridor = createCorridor(
+		getRepresentativeRoom(firstChild),
+		getRepresentativeRoom(secondChild),
+	);
+
+	return [...firstChildCorridors, ...secondChildCorridors, connectingCorridor];
 };

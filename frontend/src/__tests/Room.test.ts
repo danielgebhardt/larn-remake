@@ -275,7 +275,9 @@ describe("Room Tests", () => {
 				new RangeError("region is too small for the configured padding"),
 			);
 		});
+	});
 
+	describe("getRepresentativeRoom tests", () => {
 		it("should return the room attached to a terminal partition", () => {
 			const region: Region = {
 				startRow: 0,

@@ -1,3 +1,4 @@
+import type { Dungeon } from "./LayoutTiles.ts";
 import type { Room } from "./Room.ts";
 
 export type Region = {
@@ -14,6 +15,19 @@ export type PartitionNode = {
 };
 
 export type SplitDirection = "horizontal" | "vertical";
+
+export const makeRegion = (dungeon: Dungeon | undefined): Region => {
+	if (!dungeon) {
+		throw new Error("Dungeon is undefined");
+	}
+
+	return {
+		startRow: 0,
+		endRow: dungeon.length - 1,
+		startCol: 0,
+		endCol: dungeon[0].length - 1,
+	};
+};
 
 export const splitRegion = (
 	region: Region,

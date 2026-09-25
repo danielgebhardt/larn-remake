@@ -13,9 +13,12 @@ import {
 	makeDungeon,
 	WALL,
 } from "../LayoutTiles.ts";
-import { recursivePartition } from "../Partitioning.ts";
-import { assignRoomsToPartition, type Room } from "../Room.ts";
-import { getTerminalRooms, makeRegion } from "./testhelpers.ts";
+import { makeRegion, recursivePartition } from "../Partitioning.ts";
+import {
+	assignRoomsToPartition,
+	getTerminalRooms,
+	type Room,
+} from "../Room.ts";
 
 describe("LayoutTiles Tests", () => {
 	it("should return a # for WALL values in dungeon map", () => {

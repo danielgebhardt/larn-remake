@@ -1,7 +1,10 @@
-import { getTerminalRooms, makeRegion } from "./__tests/testhelpers.ts";
 import { type Corridor, connectPartitionRooms } from "./Corridor.ts";
-import { type PartitionNode, recursivePartition } from "./Partitioning.ts";
-import { assignRoomsToPartition, type Room } from "./Room.ts";
+import {
+	makeRegion,
+	type PartitionNode,
+	recursivePartition,
+} from "./Partitioning.ts";
+import { assignRoomsToPartition, getTerminalRooms, type Room } from "./Room.ts";
 
 export type Dungeon = string[][];
 export type Coordinate = { row: number; col: number };

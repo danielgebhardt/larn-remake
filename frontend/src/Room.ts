@@ -7,6 +7,22 @@ export type Room = {
 	endCol: number;
 };
 
+export const getTerminalRooms = (node: PartitionNode): Room[] => {
+	if (node.children) {
+		if (node.room) {
+			throw new Error("Internal partition should not have a room");
+		}
+
+		return node.children.flatMap(getTerminalRooms);
+	}
+
+	if (!node.room) {
+		throw new Error("Terminal partition is missing its room");
+	}
+
+	return [node.room];
+};
+
 export const createRoom = (region: Region, padding: number): Room => {
 	if (!Number.isInteger(padding) || padding < 0) {
 		throw new RangeError("padding must be zero or a positive integer");

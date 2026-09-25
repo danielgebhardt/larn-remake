@@ -6,8 +6,11 @@ import {
 	getRoomEndpoint,
 } from "../Corridor.ts";
 import { type Region, recursivePartition } from "../Partitioning.ts";
-import { assignRoomsToPartition, type Room } from "../Room.ts";
-import { getTerminalRooms } from "./testhelpers.ts";
+import {
+	assignRoomsToPartition,
+	getTerminalRooms,
+	type Room,
+} from "../Room.ts";
 
 describe("Corridor tests", () => {
 	it("should select an endpoint inside each room", () => {

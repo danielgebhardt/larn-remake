@@ -8,9 +8,9 @@ import {
 	assignRoomsToPartition,
 	createRoom,
 	getRepresentativeRoom,
+	getTerminalRooms,
 	type Room,
 } from "../Room.ts";
-import { getTerminalRooms } from "./testhelpers.ts";
 
 describe("Room Tests", () => {
 	describe("createRoom tests", () => {

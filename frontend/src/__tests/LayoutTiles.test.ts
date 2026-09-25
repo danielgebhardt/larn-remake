@@ -1,7 +1,11 @@
 import { describe, expect, it } from "vitest";
-import { type Corridor, createCorridor } from "../Corridor.ts";
 import {
-	carveCorridor,
+	type Corridor,
+	connectPartitionRooms,
+	createCorridor,
+} from "../Corridor.ts";
+import {
+	carveCorridors,
 	carveRooms,
 	FLOOR,
 	fixedDungeon,
@@ -10,7 +14,7 @@ import {
 	makeDungeon,
 	WALL,
 } from "../LayoutTiles.ts";
-import { recursivePartition } from "../Partitioning.ts";
+import { type Region, recursivePartition } from "../Partitioning.ts";
 import { assignRoomsToPartition, type Room } from "../Room.ts";
 import { getTerminalRooms, makeRegion } from "./testhelpers.ts";
 
@@ -301,7 +305,7 @@ describe("LayoutTiles Tests", () => {
 				{ row: 1, col: 4 },
 			];
 
-			const carvedDungeon = carveCorridor(dungeon, corridor);
+			const carvedDungeon = carveCorridors(dungeon, [corridor]);
 
 			const expectedDungeon: string[][] = [
 				[WALL, WALL, WALL, WALL, WALL, WALL, WALL],
@@ -332,7 +336,7 @@ describe("LayoutTiles Tests", () => {
 
 			const dungeonWithRooms = carveRooms(dungeon, [room1, room2]);
 			const corridor = createCorridor(room1, room2);
-			const connectedDungeon = carveCorridor(dungeonWithRooms, corridor);
+			const connectedDungeon = carveCorridors(dungeonWithRooms, [corridor]);
 
 			const expectedDungeon: string[][] = [
 				[WALL, WALL, WALL, WALL, WALL, WALL, WALL],
@@ -357,7 +361,7 @@ describe("LayoutTiles Tests", () => {
 			const originalDungeon = structuredClone(dungeon);
 			const originalCorridor = structuredClone(corridor);
 
-			const carvedDungeon = carveCorridor(dungeon, corridor);
+			const carvedDungeon = carveCorridors(dungeon, [corridor]);
 
 			expect(dungeon).toStrictEqual(originalDungeon);
 			expect(corridor).toStrictEqual(originalCorridor);
@@ -378,11 +382,81 @@ describe("LayoutTiles Tests", () => {
 				{ row: 3, col: 0 },
 			];
 
-			expect(() => carveCorridor(dungeon, invalidCoordinates)).toThrow(
+			expect(() => carveCorridors(dungeon, [invalidCoordinates])).toThrow(
 				new RangeError("corridor is outside dungeon bounds"),
 			);
 
 			expect(dungeon).toStrictEqual(originalDungeon);
+		});
+
+		it("should carve multiple corridors into the dungeon", () => {
+			const dungeon = [
+				[WALL, WALL, WALL, WALL, WALL],
+				[WALL, WALL, WALL, WALL, WALL],
+				[WALL, WALL, WALL, WALL, WALL],
+				[WALL, WALL, WALL, WALL, WALL],
+				[WALL, WALL, WALL, WALL, WALL],
+			];
+
+			const corridors: Corridor[] = [
+				[
+					{ row: 1, col: 1 },
+					{ row: 1, col: 2 },
+					{ row: 1, col: 3 },
+				],
+				[
+					{ row: 1, col: 3 },
+					{ row: 2, col: 3 },
+					{ row: 3, col: 3 },
+				],
+			];
+
+			const result = carveCorridors(dungeon, corridors);
+
+			expect(result).toEqual([
+				[WALL, WALL, WALL, WALL, WALL],
+				[WALL, FLOOR, FLOOR, FLOOR, WALL],
+				[WALL, WALL, WALL, FLOOR, WALL],
+				[WALL, WALL, WALL, FLOOR, WALL],
+				[WALL, WALL, WALL, WALL, WALL],
+			]);
+		});
+	});
+
+	describe("Generate complete connected dungeon tests", () => {
+		it("should produce an exact expected terrain map from a known deterministic configuration", () => {
+			const region: Region = {
+				startRow: 0,
+				endRow: 5,
+				startCol: 0,
+				endCol: 5,
+			};
+
+			const dungeon = makeDungeon(6, 6);
+
+			const partitionsWithRooms = assignRoomsToPartition(
+				recursivePartition(region, 3),
+				1,
+			);
+			const rooms: Room[] = getTerminalRooms(partitionsWithRooms);
+			const corridors: Corridor[] = connectPartitionRooms(partitionsWithRooms);
+
+			const carvedDungeon: string[][] = carveRooms(dungeon, rooms);
+			const carvedDungeonWithCorridors = carveCorridors(
+				carvedDungeon,
+				corridors,
+			);
+
+			const expectedDungeon: string[][] = [
+				[WALL, WALL, WALL, WALL, WALL, WALL],
+				[WALL, FLOOR, FLOOR, FLOOR, FLOOR, WALL],
+				[WALL, FLOOR, WALL, WALL, FLOOR, WALL],
+				[WALL, FLOOR, WALL, WALL, FLOOR, WALL],
+				[WALL, FLOOR, WALL, WALL, FLOOR, WALL],
+				[WALL, WALL, WALL, WALL, WALL, WALL],
+			];
+
+			expect(carvedDungeonWithCorridors).toStrictEqual(expectedDungeon);
 		});
 	});
 });

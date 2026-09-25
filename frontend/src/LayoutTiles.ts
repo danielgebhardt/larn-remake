@@ -88,9 +88,9 @@ export const carveRooms = (
 	return carvedDungeon;
 };
 
-export const carveCorridor = (
+export const carveCorridors = (
 	dungeon: string[][] | undefined,
-	corridor: Corridor,
+	corridors: Corridor[],
 ): string[][] => {
 	if (!dungeon) {
 		throw new RangeError("Dungeon is undefined");
@@ -99,21 +99,23 @@ export const carveCorridor = (
 	const dungeonMaxRow = dungeon.length - 1;
 	const dungeonMaxCol = dungeon[0].length - 1;
 
-	for (const coordinate of corridor) {
-		if (
-			coordinate.row < 0 ||
-			coordinate.row > dungeonMaxRow ||
-			coordinate.col < 0 ||
-			coordinate.col > dungeonMaxCol
-		) {
-			throw new RangeError("corridor is outside dungeon bounds");
-		}
-	}
-
 	const carvedDungeon = dungeon.map((row) => [...row]);
 
-	for (const coordinate of corridor) {
-		carvedDungeon[coordinate.row][coordinate.col] = FLOOR;
+	for (const corridor of corridors) {
+		for (const coordinate of corridor) {
+			if (
+				coordinate.row < 0 ||
+				coordinate.row > dungeonMaxRow ||
+				coordinate.col < 0 ||
+				coordinate.col > dungeonMaxCol
+			) {
+				throw new RangeError("corridor is outside dungeon bounds");
+			}
+		}
+
+		for (const coordinate of corridor) {
+			carvedDungeon[coordinate.row][coordinate.col] = FLOOR;
+		}
 	}
 
 	return carvedDungeon;

@@ -1,7 +1,23 @@
-import type { Corridor } from "./Corridor.ts";
-import type { Room } from "./Room.ts";
+import { getTerminalRooms, makeRegion } from "./__tests/testhelpers.ts";
+import { type Corridor, connectPartitionRooms } from "./Corridor.ts";
+import { type PartitionNode, recursivePartition } from "./Partitioning.ts";
+import { assignRoomsToPartition, type Room } from "./Room.ts";
 
+export type Dungeon = string[][];
 export type Coordinate = { row: number; col: number };
+export type DungeonConfig = {
+	rows: number;
+	cols: number;
+	minPartitionSize: number;
+	roomPadding: number;
+};
+
+export type GeneratedDungeon = {
+	terrain: Dungeon;
+	partitions: PartitionNode;
+	rooms: Room[];
+	corridors: Corridor[];
+};
 
 export const WALL: string = "#";
 export const FLOOR: string = ".";
@@ -9,7 +25,7 @@ export const PLAYER: string = "@";
 export const START_COORDINATE: Coordinate = { row: 1, col: 1 };
 export const MAX_SIZE = 100;
 
-export const fixedDungeon: string[][] = [
+export const fixedDungeon: Dungeon = [
 	[WALL, WALL, WALL, WALL, WALL],
 	[WALL, FLOOR, FLOOR, FLOOR, WALL],
 	[WALL, FLOOR, WALL, FLOOR, WALL],
@@ -20,7 +36,7 @@ export const fixedDungeon: string[][] = [
 export const getDungeonCoordinateValue = (
 	column: number,
 	row: number,
-	dungeon: string[][],
+	dungeon: Dungeon,
 ): string | undefined => {
 	return dungeon[row]?.[column];
 };
@@ -28,7 +44,7 @@ export const getDungeonCoordinateValue = (
 export const makeDungeon = (
 	rows: number,
 	cols: number,
-): string[][] | undefined => {
+): Dungeon | undefined => {
 	if (
 		!Number.isInteger(rows) ||
 		!Number.isInteger(cols) ||
@@ -40,7 +56,7 @@ export const makeDungeon = (
 		return undefined;
 	}
 
-	const newDungeon: string[][] = [];
+	const newDungeon: Dungeon = [];
 
 	for (let row = 0; row < rows; row++) {
 		const currentRow: string[] = [];
@@ -56,9 +72,9 @@ export const makeDungeon = (
 };
 
 export const carveRooms = (
-	dungeon: string[][] | undefined,
+	dungeon: Dungeon | undefined,
 	rooms: Room[],
-): string[][] => {
+): Dungeon => {
 	if (!dungeon) {
 		throw new RangeError("Dungeon is undefined");
 	}
@@ -89,9 +105,9 @@ export const carveRooms = (
 };
 
 export const carveCorridors = (
-	dungeon: string[][] | undefined,
+	dungeon: Dungeon | undefined,
 	corridors: Corridor[],
-): string[][] => {
+): Dungeon => {
 	if (!dungeon) {
 		throw new RangeError("Dungeon is undefined");
 	}
@@ -119,4 +135,28 @@ export const carveCorridors = (
 	}
 
 	return carvedDungeon;
+};
+
+export const generateDungeon = (config: DungeonConfig): GeneratedDungeon => {
+	const dungeon = makeDungeon(config.rows, config.cols);
+	const region = makeRegion(dungeon);
+
+	const partitionsWithRooms = assignRoomsToPartition(
+		recursivePartition(region, config.minPartitionSize),
+		config.roomPadding,
+	);
+	const rooms: Room[] = getTerminalRooms(partitionsWithRooms);
+	const corridors: Corridor[] = connectPartitionRooms(partitionsWithRooms);
+
+	const carvedDungeon: Dungeon = carveCorridors(
+		carveRooms(dungeon, rooms),
+		corridors,
+	);
+
+	return {
+		terrain: carvedDungeon,
+		partitions: partitionsWithRooms,
+		rooms,
+		corridors,
+	};
 };

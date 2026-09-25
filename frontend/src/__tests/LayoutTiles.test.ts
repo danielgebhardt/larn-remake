@@ -1,20 +1,19 @@
 import { describe, expect, it } from "vitest";
-import {
-	type Corridor,
-	connectPartitionRooms,
-	createCorridor,
-} from "../Corridor.ts";
+import { type Corridor, createCorridor } from "../Corridor.ts";
 import {
 	carveCorridors,
 	carveRooms,
+	type Dungeon,
+	type DungeonConfig,
 	FLOOR,
 	fixedDungeon,
+	generateDungeon,
 	getDungeonCoordinateValue,
 	MAX_SIZE,
 	makeDungeon,
 	WALL,
 } from "../LayoutTiles.ts";
-import { type Region, recursivePartition } from "../Partitioning.ts";
+import { recursivePartition } from "../Partitioning.ts";
 import { assignRoomsToPartition, type Room } from "../Room.ts";
 import { getTerminalRooms, makeRegion } from "./testhelpers.ts";
 
@@ -101,9 +100,9 @@ describe("LayoutTiles Tests", () => {
 			const partitionTree = recursivePartition(testRegion, 3);
 			const partitionsWithRooms = assignRoomsToPartition(partitionTree, 1);
 			const rooms: Room[] = getTerminalRooms(partitionsWithRooms);
-			const carvedDungeon: string[][] = carveRooms(testDungeon, rooms);
+			const carvedDungeon: Dungeon = carveRooms(testDungeon, rooms);
 
-			const expectedDungeon: string[][] = [
+			const expectedDungeon: Dungeon = [
 				[WALL, WALL, WALL],
 				[WALL, FLOOR, WALL],
 				[WALL, WALL, WALL],
@@ -124,7 +123,7 @@ describe("LayoutTiles Tests", () => {
 
 			const carvedDungeon = carveRooms(testDungeon, [testRoom]);
 
-			const expectedDungeon: string[][] = [
+			const expectedDungeon: Dungeon = [
 				[WALL, WALL, WALL, WALL, WALL, WALL],
 				[WALL, WALL, FLOOR, FLOOR, FLOOR, WALL],
 				[WALL, WALL, FLOOR, FLOOR, FLOOR, WALL],
@@ -198,7 +197,7 @@ describe("LayoutTiles Tests", () => {
 
 			const carvedDungeon = carveRooms(testDungeon, rooms);
 
-			const expectedDungeon: string[][] = [
+			const expectedDungeon: Dungeon = [
 				[WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL],
 				[WALL, FLOOR, FLOOR, WALL, WALL, WALL, FLOOR, FLOOR, WALL],
 				[WALL, FLOOR, FLOOR, WALL, WALL, WALL, FLOOR, FLOOR, WALL],
@@ -307,7 +306,7 @@ describe("LayoutTiles Tests", () => {
 
 			const carvedDungeon = carveCorridors(dungeon, [corridor]);
 
-			const expectedDungeon: string[][] = [
+			const expectedDungeon: Dungeon = [
 				[WALL, WALL, WALL, WALL, WALL, WALL, WALL],
 				[WALL, FLOOR, FLOOR, FLOOR, FLOOR, WALL, WALL],
 				[WALL, WALL, WALL, WALL, WALL, WALL, WALL],
@@ -338,7 +337,7 @@ describe("LayoutTiles Tests", () => {
 			const corridor = createCorridor(room1, room2);
 			const connectedDungeon = carveCorridors(dungeonWithRooms, [corridor]);
 
-			const expectedDungeon: string[][] = [
+			const expectedDungeon: Dungeon = [
 				[WALL, WALL, WALL, WALL, WALL, WALL, WALL],
 				[WALL, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, WALL],
 				[WALL, FLOOR, FLOOR, WALL, FLOOR, FLOOR, WALL],
@@ -425,29 +424,14 @@ describe("LayoutTiles Tests", () => {
 
 	describe("Generate complete connected dungeon tests", () => {
 		it("should produce an exact expected terrain map from a known deterministic configuration", () => {
-			const region: Region = {
-				startRow: 0,
-				endRow: 5,
-				startCol: 0,
-				endCol: 5,
-			};
+			const connectedDungeon = generateDungeon({
+				rows: 6,
+				cols: 6,
+				minPartitionSize: 3,
+				roomPadding: 1,
+			});
 
-			const dungeon = makeDungeon(6, 6);
-
-			const partitionsWithRooms = assignRoomsToPartition(
-				recursivePartition(region, 3),
-				1,
-			);
-			const rooms: Room[] = getTerminalRooms(partitionsWithRooms);
-			const corridors: Corridor[] = connectPartitionRooms(partitionsWithRooms);
-
-			const carvedDungeon: string[][] = carveRooms(dungeon, rooms);
-			const carvedDungeonWithCorridors = carveCorridors(
-				carvedDungeon,
-				corridors,
-			);
-
-			const expectedDungeon: string[][] = [
+			const expectedDungeon: Dungeon = [
 				[WALL, WALL, WALL, WALL, WALL, WALL],
 				[WALL, FLOOR, FLOOR, FLOOR, FLOOR, WALL],
 				[WALL, FLOOR, WALL, WALL, FLOOR, WALL],
@@ -456,7 +440,130 @@ describe("LayoutTiles Tests", () => {
 				[WALL, WALL, WALL, WALL, WALL, WALL],
 			];
 
-			expect(carvedDungeonWithCorridors).toStrictEqual(expectedDungeon);
+			expect(connectedDungeon.terrain).toStrictEqual(expectedDungeon);
 		});
+	});
+
+	it("should generate a rectangular dungeon with the configured dimensions", () => {
+		const config: DungeonConfig = {
+			rows: 6,
+			cols: 9,
+			minPartitionSize: 3,
+			roomPadding: 1,
+		};
+
+		const result = generateDungeon(config);
+
+		expect(result.terrain).toHaveLength(6);
+
+		for (const row of result.terrain) {
+			expect(row).toHaveLength(9);
+		}
+	});
+
+	it("should carve every generated room and corridor into the terrain", () => {
+		const config: DungeonConfig = {
+			rows: 12,
+			cols: 12,
+			minPartitionSize: 3,
+			roomPadding: 1,
+		};
+
+		const result = generateDungeon(config);
+
+		for (const room of result.rooms) {
+			for (let row = room.startRow; row <= room.endRow; row++) {
+				for (let col = room.startCol; col <= room.endCol; col++) {
+					expect(result.terrain[row][col]).toBe(FLOOR);
+				}
+			}
+		}
+
+		for (const corridor of result.corridors) {
+			for (const coordinate of corridor) {
+				expect(result.terrain[coordinate.row][coordinate.col]).toBe(FLOOR);
+			}
+		}
+	});
+
+	it("should generate identical results from identical configuration", () => {
+		const config: DungeonConfig = {
+			rows: 12,
+			cols: 15,
+			minPartitionSize: 3,
+			roomPadding: 1,
+		};
+
+		const firstResult = generateDungeon(config);
+		const secondResult = generateDungeon(config);
+
+		expect(secondResult).toStrictEqual(firstResult);
+	});
+
+	it("should reject configuration when terminal partitions cannot support the requested room padding", () => {
+		const config: DungeonConfig = {
+			rows: 6,
+			cols: 6,
+			minPartitionSize: 3,
+			roomPadding: 2,
+		};
+
+		expect(() => generateDungeon(config)).toThrow(RangeError);
+	});
+
+	it("should make every generated room reachable through contiguous floor tiles", () => {
+		const config: DungeonConfig = {
+			rows: 12,
+			cols: 12,
+			minPartitionSize: 3,
+			roomPadding: 1,
+		};
+
+		const result = generateDungeon(config);
+
+		const startingRoom = result.rooms[0];
+		const start = {
+			row: startingRoom.startRow,
+			col: startingRoom.startCol,
+		};
+
+		const visited = new Set<string>();
+		const queue = [start];
+
+		while (queue.length > 0) {
+			const current = queue.shift();
+
+			if (!current) {
+				continue;
+			}
+
+			const key = `${current.row},${current.col}`;
+
+			if (visited.has(key)) {
+				continue;
+			}
+
+			visited.add(key);
+
+			const neighbors = [
+				{ row: current.row - 1, col: current.col },
+				{ row: current.row + 1, col: current.col },
+				{ row: current.row, col: current.col - 1 },
+				{ row: current.row, col: current.col + 1 },
+			];
+
+			for (const neighbor of neighbors) {
+				if (
+					result.terrain[neighbor.row]?.[neighbor.col] === FLOOR &&
+					!visited.has(`${neighbor.row},${neighbor.col}`)
+				) {
+					queue.push(neighbor);
+				}
+			}
+		}
+
+		for (const room of result.rooms) {
+			expect(visited.has(`${room.startRow},${room.startCol}`)).toBe(true);
+		}
 	});
 });

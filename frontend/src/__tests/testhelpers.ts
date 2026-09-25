@@ -1,3 +1,4 @@
+import type { Dungeon } from "../LayoutTiles.ts";
 import type { PartitionNode, Region } from "../Partitioning.ts";
 import type { Room } from "../Room.ts";
 
@@ -32,7 +33,7 @@ export const getRegionArea = (region: Region): number => {
 	return rowCount * colCount;
 };
 
-export const makeRegion = (dungeon: string[][] | undefined): Region => {
+export const makeRegion = (dungeon: Dungeon | undefined): Region => {
 	if (!dungeon) {
 		throw new Error("Dungeon is undefined");
 	}

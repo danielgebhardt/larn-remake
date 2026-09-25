@@ -1,13 +1,14 @@
 import { useCallback, useEffect, useState } from "react";
 import {
 	type Coordinate,
+	type Dungeon,
 	getDungeonCoordinateValue,
 	PLAYER,
 	WALL,
 } from "./LayoutTiles.ts";
 
 type DungeonLayoutProps = {
-	dungeon: string[][];
+	dungeon: Dungeon;
 	startingPlayerPosition: Coordinate;
 };
 

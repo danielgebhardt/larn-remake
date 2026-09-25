@@ -163,3 +163,14 @@ export const generateDungeon = (config: DungeonConfig): GeneratedDungeon => {
 		corridors,
 	};
 };
+
+export const setPlayerStart = (rooms: Room[]): Coordinate => {
+	if (rooms.length === 0) {
+		throw new RangeError("No eligible rooms for starting point");
+	}
+
+	return {
+		row: Math.floor((rooms[0].endRow + rooms[0].startRow) / 2),
+		col: Math.floor((rooms[0].endCol + rooms[0].startCol) / 2),
+	};
+};

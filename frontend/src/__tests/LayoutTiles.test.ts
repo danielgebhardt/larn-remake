@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { type Corridor, createCorridor } from "../Corridor.ts";
 import {
+	type Coordinate,
 	carveCorridors,
 	carveRooms,
 	type Dungeon,
@@ -11,6 +12,7 @@ import {
 	getDungeonCoordinateValue,
 	MAX_SIZE,
 	makeDungeon,
+	setPlayerStart,
 	WALL,
 } from "../LayoutTiles.ts";
 import { makeRegion, recursivePartition } from "../Partitioning.ts";
@@ -445,128 +447,242 @@ describe("LayoutTiles Tests", () => {
 
 			expect(connectedDungeon.terrain).toStrictEqual(expectedDungeon);
 		});
-	});
 
-	it("should generate a rectangular dungeon with the configured dimensions", () => {
-		const config: DungeonConfig = {
-			rows: 6,
-			cols: 9,
-			minPartitionSize: 3,
-			roomPadding: 1,
-		};
+		it("should generate a rectangular dungeon with the configured dimensions", () => {
+			const config: DungeonConfig = {
+				rows: 6,
+				cols: 9,
+				minPartitionSize: 3,
+				roomPadding: 1,
+			};
 
-		const result = generateDungeon(config);
+			const result = generateDungeon(config);
 
-		expect(result.terrain).toHaveLength(6);
+			expect(result.terrain).toHaveLength(6);
 
-		for (const row of result.terrain) {
-			expect(row).toHaveLength(9);
-		}
-	});
+			for (const row of result.terrain) {
+				expect(row).toHaveLength(9);
+			}
+		});
 
-	it("should carve every generated room and corridor into the terrain", () => {
-		const config: DungeonConfig = {
-			rows: 12,
-			cols: 12,
-			minPartitionSize: 3,
-			roomPadding: 1,
-		};
+		it("should carve every generated room and corridor into the terrain", () => {
+			const config: DungeonConfig = {
+				rows: 12,
+				cols: 12,
+				minPartitionSize: 3,
+				roomPadding: 1,
+			};
 
-		const result = generateDungeon(config);
+			const result = generateDungeon(config);
 
-		for (const room of result.rooms) {
-			for (let row = room.startRow; row <= room.endRow; row++) {
-				for (let col = room.startCol; col <= room.endCol; col++) {
-					expect(result.terrain[row][col]).toBe(FLOOR);
+			for (const room of result.rooms) {
+				for (let row = room.startRow; row <= room.endRow; row++) {
+					for (let col = room.startCol; col <= room.endCol; col++) {
+						expect(result.terrain[row][col]).toBe(FLOOR);
+					}
 				}
 			}
-		}
 
-		for (const corridor of result.corridors) {
-			for (const coordinate of corridor) {
-				expect(result.terrain[coordinate.row][coordinate.col]).toBe(FLOOR);
-			}
-		}
-	});
-
-	it("should generate identical results from identical configuration", () => {
-		const config: DungeonConfig = {
-			rows: 12,
-			cols: 15,
-			minPartitionSize: 3,
-			roomPadding: 1,
-		};
-
-		const firstResult = generateDungeon(config);
-		const secondResult = generateDungeon(config);
-
-		expect(secondResult).toStrictEqual(firstResult);
-	});
-
-	it("should reject configuration when terminal partitions cannot support the requested room padding", () => {
-		const config: DungeonConfig = {
-			rows: 6,
-			cols: 6,
-			minPartitionSize: 3,
-			roomPadding: 2,
-		};
-
-		expect(() => generateDungeon(config)).toThrow(RangeError);
-	});
-
-	it("should make every generated room reachable through contiguous floor tiles", () => {
-		const config: DungeonConfig = {
-			rows: 12,
-			cols: 12,
-			minPartitionSize: 3,
-			roomPadding: 1,
-		};
-
-		const result = generateDungeon(config);
-
-		const startingRoom = result.rooms[0];
-		const start = {
-			row: startingRoom.startRow,
-			col: startingRoom.startCol,
-		};
-
-		const visited = new Set<string>();
-		const queue = [start];
-
-		while (queue.length > 0) {
-			const current = queue.shift();
-
-			if (!current) {
-				continue;
-			}
-
-			const key = `${current.row},${current.col}`;
-
-			if (visited.has(key)) {
-				continue;
-			}
-
-			visited.add(key);
-
-			const neighbors = [
-				{ row: current.row - 1, col: current.col },
-				{ row: current.row + 1, col: current.col },
-				{ row: current.row, col: current.col - 1 },
-				{ row: current.row, col: current.col + 1 },
-			];
-
-			for (const neighbor of neighbors) {
-				if (
-					result.terrain[neighbor.row]?.[neighbor.col] === FLOOR &&
-					!visited.has(`${neighbor.row},${neighbor.col}`)
-				) {
-					queue.push(neighbor);
+			for (const corridor of result.corridors) {
+				for (const coordinate of corridor) {
+					expect(result.terrain[coordinate.row][coordinate.col]).toBe(FLOOR);
 				}
 			}
-		}
+		});
 
-		for (const room of result.rooms) {
-			expect(visited.has(`${room.startRow},${room.startCol}`)).toBe(true);
-		}
+		it("should generate identical results from identical configuration", () => {
+			const config: DungeonConfig = {
+				rows: 12,
+				cols: 15,
+				minPartitionSize: 3,
+				roomPadding: 1,
+			};
+
+			const firstResult = generateDungeon(config);
+			const secondResult = generateDungeon(config);
+
+			expect(secondResult).toStrictEqual(firstResult);
+		});
+
+		it("should reject configuration when terminal partitions cannot support the requested room padding", () => {
+			const config: DungeonConfig = {
+				rows: 6,
+				cols: 6,
+				minPartitionSize: 3,
+				roomPadding: 2,
+			};
+
+			expect(() => generateDungeon(config)).toThrow(RangeError);
+		});
+
+		it("should make every generated room reachable through contiguous floor tiles", () => {
+			const config: DungeonConfig = {
+				rows: 12,
+				cols: 12,
+				minPartitionSize: 3,
+				roomPadding: 1,
+			};
+
+			const result = generateDungeon(config);
+
+			const startingRoom = result.rooms[0];
+			const start = {
+				row: startingRoom.startRow,
+				col: startingRoom.startCol,
+			};
+
+			const visited = new Set<string>();
+			const queue = [start];
+
+			while (queue.length > 0) {
+				const current = queue.shift();
+
+				if (!current) {
+					continue;
+				}
+
+				const key = `${current.row},${current.col}`;
+
+				if (visited.has(key)) {
+					continue;
+				}
+
+				visited.add(key);
+
+				const neighbors = [
+					{ row: current.row - 1, col: current.col },
+					{ row: current.row + 1, col: current.col },
+					{ row: current.row, col: current.col - 1 },
+					{ row: current.row, col: current.col + 1 },
+				];
+
+				for (const neighbor of neighbors) {
+					if (
+						result.terrain[neighbor.row]?.[neighbor.col] === FLOOR &&
+						!visited.has(`${neighbor.row},${neighbor.col}`)
+					) {
+						queue.push(neighbor);
+					}
+				}
+			}
+
+			for (const room of result.rooms) {
+				expect(visited.has(`${room.startRow},${room.startCol}`)).toBe(true);
+			}
+		});
+	});
+
+	describe("Player safe start tests", () => {
+		it("should return a deterministic coordinate that is inside an eligible room", () => {
+			const room: Room = {
+				startRow: 1,
+				endRow: 3,
+				startCol: 1,
+				endCol: 5,
+			};
+
+			const expectedStart: Coordinate = { row: 2, col: 3 };
+
+			expect(setPlayerStart([room])).toStrictEqual(expectedStart);
+		});
+
+		it("should handle an offset room correctly", () => {
+			const room: Room = {
+				startRow: 5,
+				endRow: 9,
+				startCol: 10,
+				endCol: 14,
+			};
+
+			const expectedStart: Coordinate = { row: 7, col: 12 };
+
+			expect(setPlayerStart([room])).toStrictEqual(expectedStart);
+		});
+
+		it("should handle even-sized rooms deterministically", () => {
+			const room1: Room = {
+				startRow: 5,
+				endRow: 8,
+				startCol: 10,
+				endCol: 14,
+			};
+
+			const room2: Room = {
+				startRow: 5,
+				endRow: 9,
+				startCol: 10,
+				endCol: 13,
+			};
+
+			const room3: Room = {
+				startRow: 5,
+				endRow: 8,
+				startCol: 10,
+				endCol: 13,
+			};
+
+			const expectedStart1: Coordinate = { row: 6, col: 12 };
+			const expectedStart2: Coordinate = { row: 7, col: 11 };
+			const expectedStart3: Coordinate = { row: 6, col: 11 };
+
+			expect(setPlayerStart([room1])).toStrictEqual(expectedStart1);
+			expect(setPlayerStart([room2])).toStrictEqual(expectedStart2);
+			expect(setPlayerStart([room3])).toStrictEqual(expectedStart3);
+		});
+
+		it("should select from the intended room when multiple rooms exist", () => {
+			const room1: Room = {
+				startRow: 1,
+				endRow: 3,
+				startCol: 1,
+				endCol: 5,
+			};
+
+			const room2: Room = {
+				startRow: 5,
+				endRow: 7,
+				startCol: 1,
+				endCol: 5,
+			};
+
+			const expectedStart: Coordinate = { row: 2, col: 3 };
+
+			expect(setPlayerStart([room1, room2])).toStrictEqual(expectedStart);
+		});
+
+		it("should throw when there are no eligible rooms", () => {
+			expect(() => setPlayerStart([])).toThrow(
+				"No eligible rooms for starting point",
+			);
+		});
+
+		it("should set starting point on a FLOOR", () => {
+			const config: DungeonConfig = {
+				rows: 4,
+				cols: 4,
+				minPartitionSize: 5,
+				roomPadding: 1,
+			};
+
+			const dungeon = generateDungeon(config);
+			const startingPoint: Coordinate = setPlayerStart(dungeon.rooms);
+
+			expect(dungeon.terrain[startingPoint.row][startingPoint.col]).toBe(FLOOR);
+		});
+
+		it("should get same starting coordinate for same generated dungeon", () => {
+			const config: DungeonConfig = {
+				rows: 4,
+				cols: 4,
+				minPartitionSize: 5,
+				roomPadding: 1,
+			};
+
+			const dungeon = generateDungeon(config);
+
+			expect(setPlayerStart(dungeon.rooms)).toStrictEqual(
+				setPlayerStart(dungeon.rooms),
+			);
+		});
 	});
 });

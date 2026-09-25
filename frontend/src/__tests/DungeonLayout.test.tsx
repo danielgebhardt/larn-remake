@@ -2,7 +2,21 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it } from "vitest";
 import DungeonLayout from "../DungeonLayout.tsx";
-import { FLOOR, fixedDungeon, START_COORDINATE } from "../LayoutTiles.ts";
+import {
+	FLOOR,
+	fixedDungeon,
+	PLAYER,
+	START_COORDINATE,
+	WALL,
+} from "../LayoutTiles.ts";
+
+const connectedDungeon = [
+	Array(9).fill(WALL),
+	[WALL, FLOOR, FLOOR, WALL, WALL, WALL, FLOOR, FLOOR, WALL],
+	[WALL, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, WALL],
+	[WALL, FLOOR, FLOOR, WALL, WALL, WALL, FLOOR, FLOOR, WALL],
+	Array(9).fill(WALL),
+];
 
 describe("DungeonLayout Tests", () => {
 	it("renders a simple 5 x 5 dungeon by default", () => {
@@ -287,6 +301,44 @@ describe("DungeonLayout Tests", () => {
 
 		expect(screen.getByRole("cell", { name: "row2col4" })).toHaveTextContent(
 			"@",
+		);
+	});
+
+	it("moves from a room through a corridor into another room", async () => {
+		render(
+			<DungeonLayout
+				dungeon={connectedDungeon}
+				startingPlayerPosition={{ row: 2, col: 2 }}
+			/>,
+		);
+
+		await userEvent.keyboard("{ArrowRight}");
+		expect(screen.getByRole("cell", { name: "row2col3" })).toHaveTextContent(
+			PLAYER,
+		);
+
+		await userEvent.keyboard("{ArrowRight}{ArrowRight}{ArrowRight}");
+		expect(screen.getByRole("cell", { name: "row2col6" })).toHaveTextContent(
+			PLAYER,
+		);
+	});
+
+	it("blocks movement from a corridor into a wall", async () => {
+		render(
+			<DungeonLayout
+				dungeon={connectedDungeon}
+				startingPlayerPosition={{ row: 2, col: 4 }}
+			/>,
+		);
+
+		expect(screen.getByRole("cell", { name: "row1col4" })).toHaveTextContent(
+			WALL,
+		);
+
+		await userEvent.keyboard("{ArrowUp}");
+
+		expect(screen.getByRole("cell", { name: "row2col4" })).toHaveTextContent(
+			PLAYER,
 		);
 	});
 });

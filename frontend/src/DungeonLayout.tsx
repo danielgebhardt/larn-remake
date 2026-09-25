@@ -89,7 +89,13 @@ const DungeonLayout = ({
 		<table aria-label="Dungeon">
 			<tbody className="grid">
 				{dungeon.map((row, rowIndex) => (
-					<tr key={rowIndex} className="grid grid-cols-5">
+					<tr
+						key={rowIndex}
+						className="grid"
+						style={{
+							gridTemplateColumns: `repeat(${row.length}, minmax(0, 1fr))`,
+						}}
+					>
 						{row.map((cell, columnIndex) => (
 							<td
 								key={columnIndex}

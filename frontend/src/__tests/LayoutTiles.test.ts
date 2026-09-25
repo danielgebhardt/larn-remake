@@ -8,11 +8,12 @@ import {
 	type DungeonConfig,
 	FLOOR,
 	fixedDungeon,
+	type GeneratedDungeon,
 	generateDungeon,
 	getDungeonCoordinateValue,
 	MAX_SIZE,
 	makeDungeon,
-	setPlayerStart,
+	selectPlayerStart,
 	WALL,
 } from "../LayoutTiles.ts";
 import { makeRegion, recursivePartition } from "../Partitioning.ts";
@@ -21,6 +22,7 @@ import {
 	getTerminalRooms,
 	type Room,
 } from "../Room.ts";
+import { makePlayerStartSource } from "./testhelpers.ts";
 
 describe("LayoutTiles Tests", () => {
 	it("should return a # for WALL values in dungeon map", () => {
@@ -573,17 +575,19 @@ describe("LayoutTiles Tests", () => {
 	});
 
 	describe("Player safe start tests", () => {
-		it("should return a deterministic coordinate that is inside an eligible room", () => {
-			const room: Room = {
-				startRow: 1,
-				endRow: 3,
-				startCol: 1,
-				endCol: 5,
+		it("should return the center coordinate of an eligible room", () => {
+			const config: DungeonConfig = {
+				rows: 5,
+				cols: 7,
+				minPartitionSize: 5,
+				roomPadding: 1,
 			};
+
+			const dungeon = generateDungeon(config);
 
 			const expectedStart: Coordinate = { row: 2, col: 3 };
 
-			expect(setPlayerStart([room])).toStrictEqual(expectedStart);
+			expect(selectPlayerStart(dungeon)).toStrictEqual(expectedStart);
 		});
 
 		it("should handle an offset room correctly", () => {
@@ -594,40 +598,46 @@ describe("LayoutTiles Tests", () => {
 				endCol: 14,
 			};
 
+			const dungeon = makePlayerStartSource([room]);
+
 			const expectedStart: Coordinate = { row: 7, col: 12 };
 
-			expect(setPlayerStart([room])).toStrictEqual(expectedStart);
+			expect(selectPlayerStart(dungeon)).toStrictEqual(expectedStart);
 		});
 
 		it("should handle even-sized rooms deterministically", () => {
-			const room1: Room = {
-				startRow: 5,
-				endRow: 8,
-				startCol: 10,
-				endCol: 14,
-			};
+			const rooms: Room[] = [
+				{
+					startRow: 5,
+					endRow: 8,
+					startCol: 10,
+					endCol: 14,
+				},
+				{
+					startRow: 5,
+					endRow: 9,
+					startCol: 10,
+					endCol: 13,
+				},
+				{
+					startRow: 5,
+					endRow: 8,
+					startCol: 10,
+					endCol: 13,
+				},
+			];
 
-			const room2: Room = {
-				startRow: 5,
-				endRow: 9,
-				startCol: 10,
-				endCol: 13,
-			};
+			const expectedStarts: Coordinate[] = [
+				{ row: 6, col: 12 },
+				{ row: 7, col: 11 },
+				{ row: 6, col: 11 },
+			];
 
-			const room3: Room = {
-				startRow: 5,
-				endRow: 8,
-				startCol: 10,
-				endCol: 13,
-			};
+			for (let index = 0; index < rooms.length; index++) {
+				const dungeon = makePlayerStartSource([rooms[index]]);
 
-			const expectedStart1: Coordinate = { row: 6, col: 12 };
-			const expectedStart2: Coordinate = { row: 7, col: 11 };
-			const expectedStart3: Coordinate = { row: 6, col: 11 };
-
-			expect(setPlayerStart([room1])).toStrictEqual(expectedStart1);
-			expect(setPlayerStart([room2])).toStrictEqual(expectedStart2);
-			expect(setPlayerStart([room3])).toStrictEqual(expectedStart3);
+				expect(selectPlayerStart(dungeon)).toStrictEqual(expectedStarts[index]);
+			}
 		});
 
 		it("should select from the intended room when multiple rooms exist", () => {
@@ -645,18 +655,22 @@ describe("LayoutTiles Tests", () => {
 				endCol: 5,
 			};
 
+			const dungeon = makePlayerStartSource([room1, room2]);
+
 			const expectedStart: Coordinate = { row: 2, col: 3 };
 
-			expect(setPlayerStart([room1, room2])).toStrictEqual(expectedStart);
+			expect(selectPlayerStart(dungeon)).toStrictEqual(expectedStart);
 		});
 
 		it("should throw when there are no eligible rooms", () => {
-			expect(() => setPlayerStart([])).toThrow(
+			const dungeon = makePlayerStartSource([]);
+
+			expect(() => selectPlayerStart(dungeon)).toThrow(
 				"No eligible rooms for starting point",
 			);
 		});
 
-		it("should set starting point on a FLOOR", () => {
+		it("should select a FLOOR tile in a generated dungeon", () => {
 			const config: DungeonConfig = {
 				rows: 4,
 				cols: 4,
@@ -665,12 +679,35 @@ describe("LayoutTiles Tests", () => {
 			};
 
 			const dungeon = generateDungeon(config);
-			const startingPoint: Coordinate = setPlayerStart(dungeon.rooms);
+			const startingPoint = selectPlayerStart(dungeon);
 
 			expect(dungeon.terrain[startingPoint.row][startingPoint.col]).toBe(FLOOR);
 		});
 
-		it("should get same starting coordinate for same generated dungeon", () => {
+		it("should throw an error when starting location is not a FLOOR", () => {
+			const config: DungeonConfig = {
+				rows: 4,
+				cols: 4,
+				minPartitionSize: 5,
+				roomPadding: 1,
+			};
+
+			const badTerrain = [
+				[WALL, WALL, WALL, WALL],
+				[WALL, WALL, WALL, WALL],
+				[WALL, WALL, WALL, WALL],
+				[WALL, WALL, WALL, WALL],
+			];
+
+			const dungeon: GeneratedDungeon = {
+				...generateDungeon(config),
+				terrain: badTerrain,
+			};
+
+			expect(() => selectPlayerStart(dungeon)).toThrow("Invalid start point");
+		});
+
+		it("should not modify the original generated dungeon ", () => {
 			const config: DungeonConfig = {
 				rows: 4,
 				cols: 4,
@@ -679,10 +716,11 @@ describe("LayoutTiles Tests", () => {
 			};
 
 			const dungeon = generateDungeon(config);
+			const original = structuredClone(dungeon);
 
-			expect(setPlayerStart(dungeon.rooms)).toStrictEqual(
-				setPlayerStart(dungeon.rooms),
-			);
+			selectPlayerStart(dungeon);
+
+			expect(dungeon).toStrictEqual(original);
 		});
 	});
 });

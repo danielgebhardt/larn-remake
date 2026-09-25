@@ -22,6 +22,8 @@ export type GeneratedDungeon = {
 	corridors: Corridor[];
 };
 
+export type PlayerStartSource = Pick<GeneratedDungeon, "rooms" | "terrain">;
+
 export const WALL: string = "#";
 export const FLOOR: string = ".";
 export const PLAYER: string = "@";
@@ -164,13 +166,21 @@ export const generateDungeon = (config: DungeonConfig): GeneratedDungeon => {
 	};
 };
 
-export const setPlayerStart = (rooms: Room[]): Coordinate => {
+export const selectPlayerStart = (dungeon: PlayerStartSource): Coordinate => {
+	const rooms = dungeon.rooms;
+
 	if (rooms.length === 0) {
 		throw new RangeError("No eligible rooms for starting point");
 	}
 
-	return {
+	const startingPoint = {
 		row: Math.floor((rooms[0].endRow + rooms[0].startRow) / 2),
 		col: Math.floor((rooms[0].endCol + rooms[0].startCol) / 2),
 	};
+
+	if (dungeon.terrain[startingPoint.row][startingPoint.col] !== FLOOR) {
+		throw new RangeError("Invalid start point");
+	}
+
+	return startingPoint;
 };

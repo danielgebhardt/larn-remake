@@ -9,17 +9,15 @@ The repository is a monorepo with a Spring Boot backend and a React/TypeScript f
 The application currently includes:
 
 - A Spring Boot API with an initial frontend/backend connectivity endpoint.
-- A React interface that renders a fixed dungeon.
+- A React interface that displays a generated, connected dungeon.
+- A player who starts on a valid floor tile inside a generated room.
 - Keyboard movement using the arrow keys or WASD.
 - Collision rules that prevent movement into walls or outside dungeon bounds.
-- Domain behavior for creating configurable rectangular dungeons filled with walls.
-- Binary space partitioning behavior that:
-    - Splits regions horizontally or vertically.
-    - Enforces minimum partition dimensions.
-    - Recursively partitions rectangular dungeon space.
-    - Produces deterministic, non-overlapping terminal regions with complete coverage.
+- Configurable dungeon creation with rectangular dimensions.
+- Binary space partitioning that divides dungeon space into terminal regions.
+- Rooms carved into terminal regions and corridors connecting those rooms.
 
-Procedural partitions are currently domain behavior only. They are not yet rendered or used to carve rooms and corridors.
+The playable dungeon is generated in the frontend when the page loads. It remains stable during ordinary React rerenders. The earlier fixed dungeon remains available as a test fixture.
 
 ## Repository layout
 
@@ -28,8 +26,11 @@ larn-remake/
 ├── backend/                  # Spring Boot API
 ├── frontend/                 # React + TypeScript application
 │   └── src/
-│       ├── LayoutTiles.ts   # Dungeon terrain and creation behavior
-│       ├── Partitioning.ts  # Region splitting and recursive BSP behavior
+│       ├── Corridor.ts      # Corridor creation and connections
+│       ├── DungeonLayout.tsx # Dungeon rendering and player movement
+│       ├── LayoutTiles.ts   # Dungeon generation and player start
+│       ├── Partitioning.ts  # Region splitting and recursive BSP
+│       ├── Room.ts          # Room creation and assignment
 │       └── __tests__/       # Frontend and domain tests
 ├── docs/                     # Definition of Done and AI working agreement
 └── README.md
@@ -84,7 +85,7 @@ Move the player with either control scheme:
 | Left | ← | A |
 | Right | → | D |
 
-The player cannot move through wall tiles or beyond the dungeon boundary.
+The player can move through rooms and corridors but cannot move through wall tiles or beyond the dungeon boundary.
 
 ## Testing and quality checks
 
@@ -172,4 +173,4 @@ Backlog and completed stories are tracked in [GitHub Issues](https://github.com/
 
 ## Current development status
 
-The fixed-dungeon movement loop is working, configurable dungeon creation is implemented, and deterministic recursive BSP partitioning is complete. Upcoming procedural-generation work will build on those partitions to create and carve rooms, connect them with corridors, and eventually select a valid player starting position.
+The playable UI now uses a generated dungeon with connected rooms and corridors and a valid player starting position. Rendering and movement support rectangular dungeons. Future stories can build additional gameplay on this foundation.

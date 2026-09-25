@@ -1,7 +1,7 @@
 import {
 	type Dungeon,
 	FLOOR,
-	type GeneratedDungeon,
+	type PlayerStartSource,
 	WALL,
 } from "../LayoutTiles.ts";
 import type { PartitionNode, Region } from "../Partitioning.ts";
@@ -22,9 +22,7 @@ export const getRegionArea = (region: Region): number => {
 	return rowCount * colCount;
 };
 
-export const makePlayerStartSource = (
-	rooms: Room[],
-): Pick<GeneratedDungeon, "rooms" | "terrain"> => {
+export const makePlayerStartSource = (rooms: Room[]): PlayerStartSource => {
 	if (rooms.length === 0) {
 		return {
 			rooms: [],

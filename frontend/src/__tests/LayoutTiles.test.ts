@@ -8,11 +8,11 @@ import {
 	type DungeonConfig,
 	FLOOR,
 	fixedDungeon,
-	type GeneratedDungeon,
 	generateDungeon,
 	getDungeonCoordinateValue,
 	MAX_SIZE,
 	makeDungeon,
+	type PlayerStartSource,
 	selectPlayerStart,
 	WALL,
 } from "../LayoutTiles.ts";
@@ -699,15 +699,15 @@ describe("LayoutTiles Tests", () => {
 				[WALL, WALL, WALL, WALL],
 			];
 
-			const dungeon: GeneratedDungeon = {
-				...generateDungeon(config),
+			const dungeon: PlayerStartSource = {
+				rooms: generateDungeon(config).rooms,
 				terrain: badTerrain,
 			};
 
 			expect(() => selectPlayerStart(dungeon)).toThrow("Invalid start point");
 		});
 
-		it("should not modify the original generated dungeon ", () => {
+		it("should not modify the original generated dungeon", () => {
 			const config: DungeonConfig = {
 				rows: 4,
 				cols: 4,

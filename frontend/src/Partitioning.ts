@@ -109,6 +109,7 @@ export const splitRegion = (
 export const recursivePartition = (
 	region: Region,
 	minChildSize: number,
+	random?: () => number,
 ): PartitionNode => {
 	const partitions: PartitionNode = {
 		region: { ...region },
@@ -120,22 +121,34 @@ export const recursivePartition = (
 
 	const regionWidth = region.endCol - region.startCol + 1;
 	const regionHeight = region.endRow - region.startRow + 1;
-	const direction = regionWidth - regionHeight >= 0 ? "vertical" : "horizontal";
+	let direction: SplitDirection =
+		regionWidth - regionHeight >= 0 ? "vertical" : "horizontal";
+
+	if (
+		random &&
+		regionWidth >= minChildSize * 2 &&
+		regionHeight >= minChildSize * 2
+	) {
+		direction = random() < 0.5 ? "horizontal" : "vertical";
+	}
 
 	const childPartitions = splitRegion(
 		partitions.region,
 		direction,
 		minChildSize,
+		random,
 	);
 
 	if (childPartitions) {
 		const partition1: PartitionNode = recursivePartition(
 			childPartitions[0],
 			minChildSize,
+			random,
 		);
 		const partition2: PartitionNode = recursivePartition(
 			childPartitions[1],
 			minChildSize,
+			random,
 		);
 
 		partitions.children = [partition1, partition2];

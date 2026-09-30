@@ -5,6 +5,7 @@ import {
 	recursivePartition,
 	splitRegion,
 } from "../Partitioning.ts";
+import { createSeededRandom } from "../Seed.ts";
 import { getRegionArea, getTerminalRegions } from "./testhelpers.ts";
 
 describe("Partitioning Tests", () => {
@@ -601,7 +602,7 @@ describe("Partitioning Tests", () => {
 	});
 
 	it.each([0, 0.25, 0.5, 0.75, 0.99])(
-		"creates an the only valid vertical split on an offset region regardless of what the value of random returns",
+		"creates the only valid vertical split on an offset region regardless of what the value of random returns",
 		(value: number) => {
 			const testRegion: Region = {
 				startRow: 2,
@@ -754,7 +755,7 @@ describe("Partitioning Tests", () => {
 	});
 
 	it.each([0, 0.25, 0.5, 0.75, 0.99])(
-		"creates an the only valid horizontal split on an offset region regardless of what the value of random returns",
+		"creates the only valid horizontal split on an offset region regardless of what the value of random returns",
 		(value: number) => {
 			const testRegion: Region = {
 				startRow: 2,
@@ -847,6 +848,185 @@ describe("Partitioning Tests", () => {
 			);
 
 			expect(terminalArea).toBe(getRegionArea(rootRegion));
+		});
+	});
+
+	describe("recursive partitioning with a random source", () => {
+		it.each([
+			{
+				direction: "horizontal",
+				value: 0,
+				expected: [
+					{ startRow: 0, endRow: 1, startCol: 0, endCol: 3 },
+					{ startRow: 2, endRow: 3, startCol: 0, endCol: 3 },
+				],
+			},
+			{
+				direction: "vertical",
+				value: 0.99,
+				expected: [
+					{ startRow: 0, endRow: 3, startCol: 0, endCol: 1 },
+					{ startRow: 0, endRow: 3, startCol: 2, endCol: 3 },
+				],
+			},
+		])(
+			"chooses $direction when both directions are valid",
+			({ value, expected }) => {
+				const region: Region = {
+					startRow: 0,
+					endRow: 3,
+					startCol: 0,
+					endCol: 3,
+				};
+
+				const result = recursivePartition(region, 2, () => value);
+
+				expect(result.children?.map((child) => child.region)).toStrictEqual(
+					expected,
+				);
+			},
+		);
+
+		it.each([0, 0.99])(
+			"chooses vertical when it is the only valid direction, with random %s",
+			(value) => {
+				const region: Region = {
+					startRow: 0,
+					endRow: 1,
+					startCol: 0,
+					endCol: 5,
+				};
+
+				const result = recursivePartition(region, 2, () => value);
+
+				expect(result.children).toBeDefined();
+
+				for (const child of result.children ?? []) {
+					expect(child.region.startRow).toBe(0);
+					expect(child.region.endRow).toBe(1);
+					expect(
+						child.region.endCol - child.region.startCol + 1,
+					).toBeGreaterThanOrEqual(2);
+				}
+			},
+		);
+
+		it.each([0, 0.99])(
+			"chooses horizontal when it is the only valid direction, with random %s",
+			(value) => {
+				const region: Region = {
+					startRow: 0,
+					endRow: 5,
+					startCol: 0,
+					endCol: 1,
+				};
+
+				const result = recursivePartition(region, 2, () => value);
+
+				expect(result.children).toBeDefined();
+
+				for (const child of result.children ?? []) {
+					expect(child.region.startCol).toBe(0);
+					expect(child.region.endCol).toBe(1);
+					expect(
+						child.region.endRow - child.region.startRow + 1,
+					).toBeGreaterThanOrEqual(2);
+				}
+			},
+		);
+
+		it.each([0, 0.99])(
+			"leaves an unsplittable region terminal, with random %s",
+			(value) => {
+				const region: Region = {
+					startRow: 5,
+					endRow: 7,
+					startCol: 10,
+					endCol: 12,
+				};
+
+				expect(recursivePartition(region, 2, () => value)).toStrictEqual({
+					region,
+				});
+			},
+		);
+
+		it("uses the supplied random source for split positions below the root", () => {
+			const region: Region = {
+				startRow: 0,
+				endRow: 1,
+				startCol: 0,
+				endCol: 9,
+			};
+
+			const result = recursivePartition(region, 2, () => 0);
+			const rightChild = result.children?.[1];
+
+			expect(rightChild?.region).toStrictEqual({
+				startRow: 0,
+				endRow: 1,
+				startCol: 2,
+				endCol: 9,
+			});
+
+			expect(rightChild?.children?.map((child) => child.region)).toStrictEqual([
+				{
+					startRow: 0,
+					endRow: 1,
+					startCol: 2,
+					endCol: 3,
+				},
+				{
+					startRow: 0,
+					endRow: 1,
+					startCol: 4,
+					endCol: 9,
+				},
+			]);
+		});
+
+		it("produces the same partition tree from the same seed", () => {
+			const region: Region = {
+				startRow: 5,
+				endRow: 16,
+				startCol: 10,
+				endCol: 25,
+			};
+
+			const first = recursivePartition(region, 3, createSeededRandom(123));
+			const second = recursivePartition(region, 3, createSeededRandom(123));
+
+			expect(first).toStrictEqual(second);
+		});
+
+		it("can produce different partition trees across seeds", () => {
+			const region: Region = {
+				startRow: 5,
+				endRow: 16,
+				startCol: 10,
+				endCol: 25,
+			};
+
+			const trees = Array.from({ length: 20 }, (_, seed) =>
+				recursivePartition(region, 3, createSeededRandom(seed)),
+			);
+			const uniqueTrees = new Set(trees.map((tree) => JSON.stringify(tree)));
+
+			expect(uniqueTrees.size).toBeGreaterThan(1);
+		});
+
+		it("does not modify the original region during seeded partitioning", () => {
+			const region: Region = {
+				startRow: 5,
+				endRow: 16,
+				startCol: 10,
+				endCol: 25,
+			};
+			const original = { ...region };
+
+			recursivePartition(region, 3, createSeededRandom(123));
+
+			expect(region).toStrictEqual(original);
 		});
 	});
 });

@@ -787,19 +787,25 @@ describe("Partitioning Tests", () => {
 		},
 	);
 
-	describe("recursive partition invariants", () => {
+	describe.each([
+		{ label: "without a seed", seed: undefined },
+		{ label: "with seed 0", seed: 0 },
+		{ label: "with seed 1", seed: 1 },
+		{ label: "with seed 123", seed: 123 },
+		{ label: "with seed 999", seed: 999 },
+	])("recursive partition invariants $label", ({ seed }) => {
 		const rootRegion: Region = {
 			startRow: 5,
 			endRow: 16,
 			startCol: 10,
 			endCol: 29,
 		};
-
 		const minChildSize = 3;
-		const partitionTree = recursivePartition(rootRegion, minChildSize);
+		const random = seed === undefined ? undefined : createSeededRandom(seed);
+		const partitionTree = recursivePartition(rootRegion, minChildSize, random);
 		const terminalRegions = getTerminalRegions(partitionTree);
 
-		it("should keep every terminal region within the root bounds", () => {
+		it("keeps every terminal region within the root bounds", () => {
 			for (const region of terminalRegions) {
 				expect(region.startRow).toBeGreaterThanOrEqual(rootRegion.startRow);
 				expect(region.endRow).toBeLessThanOrEqual(rootRegion.endRow);
@@ -808,7 +814,7 @@ describe("Partitioning Tests", () => {
 			}
 		});
 
-		it("should make every terminal region satisfy the minimum dimensions", () => {
+		it("makes every terminal region satisfy the minimum dimensions", () => {
 			for (const region of terminalRegions) {
 				const rowCount = region.endRow - region.startRow + 1;
 				const colCount = region.endCol - region.startCol + 1;
@@ -818,15 +824,14 @@ describe("Partitioning Tests", () => {
 			}
 		});
 
-		it("should stop only when terminal regions cannot be split further", () => {
+		it("stops only when terminal regions cannot be split further", () => {
 			for (const region of terminalRegions) {
 				expect(splitRegion(region, "vertical", minChildSize)).toBeUndefined();
-
 				expect(splitRegion(region, "horizontal", minChildSize)).toBeUndefined();
 			}
 		});
 
-		it("should produce terminal regions that do not overlap", () => {
+		it("produces terminal regions that do not overlap", () => {
 			const coveredCoordinates = new Set<string>();
 
 			for (const region of terminalRegions) {
@@ -841,7 +846,7 @@ describe("Partitioning Tests", () => {
 			}
 		});
 
-		it("should completely cover the root region", () => {
+		it("completely covers the root region", () => {
 			const terminalArea = terminalRegions.reduce(
 				(total, region) => total + getRegionArea(region),
 				0,

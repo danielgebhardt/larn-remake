@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import {
 	type PartitionNode,
 	type Region,
@@ -11,6 +11,7 @@ import {
 	getTerminalRooms,
 	type Room,
 } from "../Room.ts";
+import { createSeededRandom } from "../Seed.ts";
 
 describe("Room Tests", () => {
 	describe("createRoom tests", () => {
@@ -150,6 +151,182 @@ describe("Room Tests", () => {
 
 			expect(createRoom(testRegion, 1)).toStrictEqual(expectedRoomPadding1);
 		});
+
+		it("creates the smallest room at the padded origin when random choices are zero", () => {
+			const region: Region = {
+				startRow: 10,
+				endRow: 19,
+				startCol: 20,
+				endCol: 31,
+			};
+			const random = () => 0;
+
+			expect(createRoom(region, 1, random)).toStrictEqual({
+				startRow: 11,
+				endRow: 11,
+				startCol: 21,
+				endCol: 21,
+			});
+		});
+
+		it("creates the largest room at the padded origin when random choices are 0.99", () => {
+			const region: Region = {
+				startRow: 10,
+				endRow: 19,
+				startCol: 20,
+				endCol: 31,
+			};
+			const random = () => 0.99;
+
+			expect(createRoom(region, 1, random)).toStrictEqual({
+				startRow: 11,
+				endRow: 18,
+				startCol: 21,
+				endCol: 30,
+			});
+		});
+
+		it("creates an intermediate-sized room offset within the padded region", () => {
+			const region: Region = {
+				startRow: 10,
+				endRow: 19,
+				startCol: 20,
+				endCol: 31,
+			};
+			const random = () => 0.5;
+
+			expect(createRoom(region, 1, random)).toStrictEqual({
+				startRow: 13,
+				endRow: 17,
+				startCol: 23,
+				endCol: 28,
+			});
+		});
+
+		it("places the smallest room at the bottom-right of the padded region", () => {
+			const region: Region = {
+				startRow: 10,
+				endRow: 19,
+				startCol: 20,
+				endCol: 31,
+			};
+			const random = vi
+				.fn()
+				.mockReturnValueOnce(0)
+				.mockReturnValueOnce(0)
+				.mockReturnValueOnce(0.99)
+				.mockReturnValueOnce(0.99);
+
+			expect(createRoom(region, 1, random)).toStrictEqual({
+				startRow: 18,
+				endRow: 18,
+				startCol: 30,
+				endCol: 30,
+			});
+		});
+
+		it.each([0, 0.5, 0.99])(
+			"creates the only valid room when random returns %s",
+			(value) => {
+				const region: Region = {
+					startRow: 10,
+					endRow: 12,
+					startCol: 20,
+					endCol: 22,
+				};
+
+				expect(createRoom(region, 1, () => value)).toStrictEqual({
+					startRow: 11,
+					endRow: 11,
+					startCol: 21,
+					endCol: 21,
+				});
+			},
+		);
+
+		it.each([0, 0.25, 0.5, 0.75, 0.99])(
+			"creates a nonempty integer room within the padded bounds when random returns %s",
+			(value) => {
+				const region: Region = {
+					startRow: 10,
+					endRow: 19,
+					startCol: 20,
+					endCol: 31,
+				};
+
+				const room = createRoom(region, 1, () => value);
+
+				for (const coordinate of Object.values(room)) {
+					expect(Number.isInteger(coordinate)).toBe(true);
+				}
+
+				expect(room.startRow).toBeGreaterThanOrEqual(11);
+				expect(room.endRow).toBeLessThanOrEqual(18);
+				expect(room.startCol).toBeGreaterThanOrEqual(21);
+				expect(room.endCol).toBeLessThanOrEqual(30);
+
+				expect(room.endRow).toBeGreaterThanOrEqual(room.startRow);
+				expect(room.endCol).toBeGreaterThanOrEqual(room.startCol);
+			},
+		);
+
+		it.each([0, 0.5, 0.99])(
+			"rejects a region too small for padding when random returns %s",
+			(value) => {
+				const region: Region = {
+					startRow: 10,
+					endRow: 11,
+					startCol: 20,
+					endCol: 23,
+				};
+
+				expect(() => createRoom(region, 1, () => value)).toThrow(RangeError);
+			},
+		);
+
+		it("does not modify the region when creating a varied room", () => {
+			const region: Region = {
+				startRow: 10,
+				endRow: 19,
+				startCol: 20,
+				endCol: 31,
+			};
+			const original = { ...region };
+
+			createRoom(region, 1, () => 0.5);
+
+			expect(region).toStrictEqual(original);
+		});
+
+		it("creates identical room geometry from the same seed", () => {
+			const region: Region = {
+				startRow: 10,
+				endRow: 19,
+				startCol: 20,
+				endCol: 31,
+			};
+
+			const first = createRoom(region, 1, createSeededRandom(123));
+			const second = createRoom(region, 1, createSeededRandom(123));
+
+			expect(first).toStrictEqual(second);
+		});
+
+		it("can create different room geometry across seeds", () => {
+			const region: Region = {
+				startRow: 10,
+				endRow: 19,
+				startCol: 20,
+				endCol: 31,
+			};
+
+			const rooms = Array.from({ length: 20 }, (_, seed) =>
+				createRoom(region, 1, createSeededRandom(seed)),
+			);
+			const uniqueRooms = new Set(rooms.map((room) => JSON.stringify(room)));
+
+			expect(uniqueRooms.size).toBeGreaterThan(1);
+		});
 	});
 
 	describe("assignRoomsToPartition tests", () => {
@@ -274,6 +451,64 @@ describe("Room Tests", () => {
 			expect(() => assignRoomsToPartition(partitionTree, 1)).toThrow(
 				new RangeError("region is too small for the configured padding"),
 			);
+		});
+
+		it("assigns varied rooms to every terminal partition using the supplied random source", () => {
+			const partition: PartitionNode = {
+				region: {
+					startRow: 0,
+					endRow: 4,
+					startCol: 0,
+					endCol: 9,
+				},
+				children: [
+					{
+						region: {
+							startRow: 0,
+							endRow: 4,
+							startCol: 0,
+							endCol: 4,
+						},
+					},
+					{
+						region: {
+							startRow: 0,
+							endRow: 4,
+							startCol: 5,
+							endCol: 9,
+						},
+					},
+				],
+			};
+			const original = structuredClone(partition);
+			const random = vi
+				.fn()
+				.mockReturnValueOnce(0)
+				.mockReturnValueOnce(0)
+				.mockReturnValueOnce(0)
+				.mockReturnValueOnce(0)
+				.mockReturnValueOnce(0)
+				.mockReturnValueOnce(0)
+				.mockReturnValueOnce(0.99)
+				.mockReturnValueOnce(0.99);
+
+			const result = assignRoomsToPartition(partition, 1, random);
+
+			expect(getTerminalRooms(result)).toStrictEqual([
+				{
+					startRow: 1,
+					endRow: 1,
+					startCol: 1,
+					endCol: 1,
+				},
+				{
+					startRow: 3,
+					endRow: 3,
+					startCol: 8,
+					endCol: 8,
+				},
+			]);
+			expect(partition).toStrictEqual(original);
 		});
 	});
 

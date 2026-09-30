@@ -23,31 +23,56 @@ export const getTerminalRooms = (node: PartitionNode): Room[] => {
 	return [node.room];
 };
 
-export const createRoom = (region: Region, padding: number): Room => {
+export const createRoom = (
+	region: Region,
+	padding: number,
+	random?: () => number,
+): Room => {
 	if (!Number.isInteger(padding) || padding < 0) {
 		throw new RangeError("padding must be zero or a positive integer");
 	}
 
-	const startRow = region.startRow + padding;
-	const endRow = region.endRow - padding;
-	const startCol = region.startCol + padding;
-	const endCol = region.endCol - padding;
+	const minRow = region.startRow + padding;
+	const maxRow = region.endRow - padding;
+	const minCol = region.startCol + padding;
+	const maxCol = region.endCol - padding;
 
-	if (endRow < startRow || endCol < startCol) {
+	if (maxRow < minRow || maxCol < minCol) {
 		throw new RangeError("region is too small for the configured padding");
 	}
 
+	if (!random) {
+		return {
+			startRow: minRow,
+			endRow: maxRow,
+			startCol: minCol,
+			endCol: maxCol,
+		};
+	}
+
+	const availableHeight = maxRow - minRow + 1;
+	const availableWidth = maxCol - minCol + 1;
+
+	const roomHeight = Math.floor(random() * availableHeight) + 1;
+	const roomWidth = Math.floor(random() * availableWidth) + 1;
+
+	const startRow =
+		minRow + Math.floor(random() * (availableHeight - roomHeight + 1));
+	const startCol =
+		minCol + Math.floor(random() * (availableWidth - roomWidth + 1));
+
 	return {
 		startRow,
-		endRow,
+		endRow: startRow + roomHeight - 1,
 		startCol,
-		endCol,
+		endCol: startCol + roomWidth - 1,
 	};
 };
 
 export const assignRoomsToPartition = (
 	partition: PartitionNode,
 	padding: number,
+	random?: () => number,
 ): PartitionNode => {
 	const updatedPartition: PartitionNode = {
 		region: { ...partition.region },
@@ -58,13 +83,19 @@ export const assignRoomsToPartition = (
 		updatedPartition.children[0] = assignRoomsToPartition(
 			partition.children[0],
 			padding,
+			random,
 		);
 		updatedPartition.children[1] = assignRoomsToPartition(
 			partition.children[1],
 			padding,
+			random,
 		);
 	} else {
-		updatedPartition.room = createRoom(updatedPartition.region, padding);
+		updatedPartition.room = createRoom(
+			updatedPartition.region,
+			padding,
+			random,
+		);
 	}
 
 	return updatedPartition;

@@ -100,6 +100,26 @@ describe("LayoutTiles Tests", () => {
 		expect(dungeon[1][0]).toBe(WALL);
 	});
 
+	it("should produce an exact expected terrain map from a known deterministic configuration", () => {
+		const connectedDungeon = generateDungeon({
+			rows: 6,
+			cols: 6,
+			minPartitionSize: 3,
+			roomPadding: 1,
+		});
+
+		const expectedDungeon: Dungeon = [
+			[WALL, WALL, WALL, WALL, WALL, WALL],
+			[WALL, FLOOR, FLOOR, FLOOR, FLOOR, WALL],
+			[WALL, FLOOR, WALL, WALL, FLOOR, WALL],
+			[WALL, FLOOR, WALL, WALL, FLOOR, WALL],
+			[WALL, FLOOR, WALL, WALL, FLOOR, WALL],
+			[WALL, WALL, WALL, WALL, WALL, WALL],
+		];
+
+		expect(connectedDungeon.terrain).toStrictEqual(expectedDungeon);
+	});
+
 	describe("Carve Room tests", () => {
 		it("should carve a single room into a wall-filled dungeon", () => {
 			const testDungeon = makeDungeon(3, 3);
@@ -429,27 +449,13 @@ describe("LayoutTiles Tests", () => {
 		});
 	});
 
-	describe("Generate complete connected dungeon tests", () => {
-		it("should produce an exact expected terrain map from a known deterministic configuration", () => {
-			const connectedDungeon = generateDungeon({
-				rows: 6,
-				cols: 6,
-				minPartitionSize: 3,
-				roomPadding: 1,
-			});
-
-			const expectedDungeon: Dungeon = [
-				[WALL, WALL, WALL, WALL, WALL, WALL],
-				[WALL, FLOOR, FLOOR, FLOOR, FLOOR, WALL],
-				[WALL, FLOOR, WALL, WALL, FLOOR, WALL],
-				[WALL, FLOOR, WALL, WALL, FLOOR, WALL],
-				[WALL, FLOOR, WALL, WALL, FLOOR, WALL],
-				[WALL, WALL, WALL, WALL, WALL, WALL],
-			];
-
-			expect(connectedDungeon.terrain).toStrictEqual(expectedDungeon);
-		});
-
+	describe.each([
+		{ label: "without a seed", seed: undefined },
+		{ label: "with seed 0", seed: 0 },
+		{ label: "with seed 1", seed: 1 },
+		{ label: "with seed 123", seed: 123 },
+		{ label: "with seed 999", seed: 999 },
+	])("Generate complete connected dungeon tests $label", ({ seed }) => {
 		it("should generate a rectangular dungeon with the configured dimensions", () => {
 			const config: DungeonConfig = {
 				rows: 6,
@@ -458,7 +464,7 @@ describe("LayoutTiles Tests", () => {
 				roomPadding: 1,
 			};
 
-			const result = generateDungeon(config);
+			const result = generateDungeon(config, seed);
 
 			expect(result.terrain).toHaveLength(6);
 
@@ -475,7 +481,7 @@ describe("LayoutTiles Tests", () => {
 				roomPadding: 1,
 			};
 
-			const result = generateDungeon(config);
+			const result = generateDungeon(config, seed);
 
 			for (const room of result.rooms) {
 				for (let row = room.startRow; row <= room.endRow; row++) {
@@ -500,8 +506,8 @@ describe("LayoutTiles Tests", () => {
 				roomPadding: 1,
 			};
 
-			const firstResult = generateDungeon(config);
-			const secondResult = generateDungeon(config);
+			const firstResult = generateDungeon(config, seed);
+			const secondResult = generateDungeon(config, seed);
 
 			expect(secondResult).toStrictEqual(firstResult);
 		});
@@ -514,10 +520,10 @@ describe("LayoutTiles Tests", () => {
 				roomPadding: 2,
 			};
 
-			expect(() => generateDungeon(config)).toThrow(RangeError);
+			expect(() => generateDungeon(config, seed)).toThrow(RangeError);
 		});
 
-		it("should make every generated room reachable through contiguous floor tiles", () => {
+		it("should make every floor tile reachable from the selected player start", () => {
 			const config: DungeonConfig = {
 				rows: 12,
 				cols: 12,
@@ -525,13 +531,10 @@ describe("LayoutTiles Tests", () => {
 				roomPadding: 1,
 			};
 
-			const result = generateDungeon(config);
+			const result = generateDungeon(config, seed);
+			const start = selectPlayerStart(result);
 
-			const startingRoom = result.rooms[0];
-			const start = {
-				row: startingRoom.startRow,
-				col: startingRoom.startCol,
-			};
+			expect(result.terrain[start.row][start.col]).toBe(FLOOR);
 
 			const visited = new Set<string>();
 			const queue = [start];
@@ -568,8 +571,12 @@ describe("LayoutTiles Tests", () => {
 				}
 			}
 
-			for (const room of result.rooms) {
-				expect(visited.has(`${room.startRow},${room.startCol}`)).toBe(true);
+			for (const [rowIndex, row] of result.terrain.entries()) {
+				for (const [colIndex, tile] of row.entries()) {
+					if (tile === FLOOR) {
+						expect(visited.has(`${rowIndex},${colIndex}`)).toBe(true);
+					}
+				}
 			}
 		});
 	});
@@ -721,6 +728,43 @@ describe("LayoutTiles Tests", () => {
 			selectPlayerStart(dungeon);
 
 			expect(dungeon).toStrictEqual(original);
+		});
+	});
+
+	describe("Generated deterministic dungeons from different seeds", () => {
+		it("can generate different terrain from different seeds", () => {
+			const config: DungeonConfig = {
+				rows: 12,
+				cols: 20,
+				minPartitionSize: 5,
+				roomPadding: 1,
+			};
+
+			const dungeons = Array.from({ length: 20 }, (_, seed) =>
+				generateDungeon(config, seed),
+			);
+			const uniqueTerrain = new Set(
+				dungeons.map((dungeon) => JSON.stringify(dungeon.terrain)),
+			);
+
+			expect(uniqueTerrain.size).toBeGreaterThan(1);
+		});
+
+		it("reproduces the complete dungeon from the same configuration and seed", () => {
+			const config: DungeonConfig = {
+				rows: 12,
+				cols: 20,
+				minPartitionSize: 5,
+				roomPadding: 1,
+			};
+
+			const first = generateDungeon(config, 123);
+
+			generateDungeon(config, 456);
+
+			const second = generateDungeon(config, 123);
+
+			expect(second).toStrictEqual(first);
 		});
 	});
 });

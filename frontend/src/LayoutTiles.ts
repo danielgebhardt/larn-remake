@@ -5,6 +5,7 @@ import {
 	recursivePartition,
 } from "./Partitioning.ts";
 import { assignRoomsToPartition, getTerminalRooms, type Room } from "./Room.ts";
+import { createSeededRandom } from "./Seed.ts";
 
 export type Dungeon = string[][];
 export type Coordinate = { row: number; col: number };
@@ -142,13 +143,19 @@ export const carveCorridors = (
 	return carvedDungeon;
 };
 
-export const generateDungeon = (config: DungeonConfig): GeneratedDungeon => {
+export const generateDungeon = (
+	config: DungeonConfig,
+	seed?: number,
+): GeneratedDungeon => {
 	const dungeon = makeDungeon(config.rows, config.cols);
 	const region = makeRegion(dungeon);
 
+	const random = seed === undefined ? undefined : createSeededRandom(seed);
+
 	const partitionsWithRooms = assignRoomsToPartition(
-		recursivePartition(region, config.minPartitionSize),
+		recursivePartition(region, config.minPartitionSize, random),
 		config.roomPadding,
+		random,
 	);
 	const rooms: Room[] = getTerminalRooms(partitionsWithRooms);
 	const corridors: Corridor[] = connectPartitionRooms(partitionsWithRooms);

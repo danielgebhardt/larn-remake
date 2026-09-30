@@ -33,6 +33,7 @@ export const splitRegion = (
 	region: Region,
 	direction: SplitDirection,
 	minChildSize: number,
+	random?: () => number,
 ): [Region, Region] | undefined => {
 	const regionWidth = region.endCol - region.startCol + 1;
 	const regionHeight = region.endRow - region.startRow + 1;
@@ -42,7 +43,16 @@ export const splitRegion = (
 			return undefined;
 		}
 
-		const firstChildWidth = Math.floor(regionWidth / 2);
+		let firstChildWidth = Math.floor(regionWidth / 2);
+
+		if (random) {
+			const minFirstChildWidth = minChildSize;
+			const maxFirstChildWidth = regionWidth - minChildSize;
+			const widthChoiceCount = maxFirstChildWidth - minFirstChildWidth + 1;
+
+			firstChildWidth = Math.floor(random() * widthChoiceCount) + minChildSize;
+		}
+
 		const firstChildEndCol = region.startCol + firstChildWidth - 1;
 
 		const child1: Region = {
@@ -64,7 +74,17 @@ export const splitRegion = (
 			return undefined;
 		}
 
-		const firstChildHeight = Math.floor(regionHeight / 2);
+		let firstChildHeight = Math.floor(regionHeight / 2);
+
+		if (random) {
+			const minFirstChildHeight = minChildSize;
+			const maxFirstChildHeight = regionHeight - minChildSize;
+			const heightChoiceCount = maxFirstChildHeight - minFirstChildHeight + 1;
+
+			firstChildHeight =
+				Math.floor(random() * heightChoiceCount) + minChildSize;
+		}
+
 		const firstChildEndRow = region.startRow + firstChildHeight - 1;
 
 		const child1: Region = {

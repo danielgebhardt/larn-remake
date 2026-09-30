@@ -5,6 +5,7 @@ import Header from "./Header.tsx";
 import {
 	type Coordinate,
 	type Dungeon,
+	type DungeonConfig,
 	generateDungeon,
 	selectPlayerStart,
 } from "./LayoutTiles.ts";
@@ -16,18 +17,17 @@ type DungeonLayoutType = {
 	generation: number;
 };
 
+const dungeonConfig: DungeonConfig = {
+	rows: 30,
+	cols: 100,
+	minPartitionSize: 5,
+	roomPadding: 1,
+};
+
 const Home = () => {
 	const [{ terrain, startingPlayerPosition, generation }, setDungeon] =
 		useState((): DungeonLayoutType => {
-			const generated = generateDungeon(
-				{
-					rows: 30,
-					cols: 100,
-					minPartitionSize: 5,
-					roomPadding: 1,
-				},
-				0,
-			);
+			const generated = generateDungeon(dungeonConfig, 0);
 
 			return {
 				terrain: generated.terrain,
@@ -39,15 +39,7 @@ const Home = () => {
 
 	const handleNewDungeon = () => {
 		const seed = Math.floor(Math.random() * 1000);
-		const generated = generateDungeon(
-			{
-				rows: 30,
-				cols: 100,
-				minPartitionSize: 5,
-				roomPadding: 1,
-			},
-			seed,
-		);
+		const generated = generateDungeon(dungeonConfig, seed);
 
 		setDungeon((previous) => ({
 			terrain: generated.terrain,

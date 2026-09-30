@@ -128,4 +128,157 @@ describe("Home tests", () => {
 			LayoutTiles.PLAYER,
 		);
 	});
+
+	it("replaces the rendered dungeon and resets the player when New Dungeon is clicked", async () => {
+		const user = userEvent.setup();
+		const first = LayoutTiles.generateDungeon({
+			rows: 7,
+			cols: 11,
+			minPartitionSize: 5,
+			roomPadding: 1,
+		});
+		const second = LayoutTiles.generateDungeon({
+			rows: 5,
+			cols: 7,
+			minPartitionSize: 5,
+			roomPadding: 1,
+		});
+
+		const generateSpy = vi
+			.spyOn(LayoutTiles, "generateDungeon")
+			.mockReturnValue(first);
+
+		render(<Home />);
+
+		// Move away from the first dungeon's starting position.
+		const firstStart = LayoutTiles.selectPlayerStart(first);
+		const movedPosition = {
+			row: firstStart.row,
+			col: firstStart.col + 1,
+		};
+
+		// Confirm the fixture allows this move.
+		expect(first.terrain[movedPosition.row][movedPosition.col]).toBe(
+			LayoutTiles.FLOOR,
+		);
+
+		await user.keyboard("{ArrowRight}");
+
+		expect(
+			screen.getByRole("cell", {
+				name: `row${movedPosition.row}col${movedPosition.col}`,
+			}),
+		).toHaveTextContent(LayoutTiles.PLAYER);
+
+		const callsBeforeClick = generateSpy.mock.calls.length;
+		generateSpy.mockReturnValue(second);
+
+		await user.click(screen.getByRole("button", { name: "New Dungeon" }));
+
+		expect(generateSpy).toHaveBeenCalledTimes(callsBeforeClick + 1);
+
+		const dungeon = screen.getByRole("table", { name: "Dungeon" });
+		const rows = within(dungeon).getAllByRole("row");
+
+		expect(rows).toHaveLength(5);
+		for (const row of rows) {
+			expect(within(row).getAllByRole("cell")).toHaveLength(7);
+		}
+
+		const start = LayoutTiles.selectPlayerStart(second);
+
+		for (const [rowIndex, row] of second.terrain.entries()) {
+			for (const [colIndex, tile] of row.entries()) {
+				const expected =
+					rowIndex === start.row && colIndex === start.col
+						? LayoutTiles.PLAYER
+						: tile;
+
+				expect(
+					screen.getByRole("cell", {
+						name: `row${rowIndex}col${colIndex}`,
+					}),
+				).toHaveTextContent(expected);
+			}
+		}
+	});
+
+	it("resets the player on every new dungeon even when the seed and starting position repeat", async () => {
+		const user = userEvent.setup();
+		const generated = LayoutTiles.generateDungeon({
+			rows: 5,
+			cols: 7,
+			minPartitionSize: 5,
+			roomPadding: 1,
+		});
+
+		vi.spyOn(LayoutTiles, "generateDungeon").mockReturnValue(generated);
+		vi.spyOn(Math, "random").mockReturnValue(0.5);
+
+		render(<Home />);
+
+		for (let generation = 0; generation < 2; generation++) {
+			await user.keyboard("{ArrowRight}");
+
+			expect(screen.getByRole("cell", { name: "row2col4" })).toHaveTextContent(
+				LayoutTiles.PLAYER,
+			);
+
+			await user.click(screen.getByRole("button", { name: "New Dungeon" }));
+
+			expect(screen.getByRole("cell", { name: "row2col3" })).toHaveTextContent(
+				LayoutTiles.PLAYER,
+			);
+			expect(screen.getByRole("cell", { name: "row2col4" })).toHaveTextContent(
+				LayoutTiles.FLOOR,
+			);
+		}
+	});
+
+	it("uses the replacement terrain for movement and moves only once per keypress", async () => {
+		const user = userEvent.setup();
+		const first = LayoutTiles.generateDungeon({
+			rows: 5,
+			cols: 7,
+			minPartitionSize: 5,
+			roomPadding: 1,
+		});
+		const second = {
+			...first,
+			terrain: first.terrain.map((row) => [...row]),
+		};
+
+		// This cell was floor in the first dungeon.
+		second.terrain[1][3] = LayoutTiles.WALL;
+
+		const generateSpy = vi
+			.spyOn(LayoutTiles, "generateDungeon")
+			.mockReturnValue(first);
+
+		render(<Home />);
+
+		generateSpy.mockReturnValue(second);
+		await user.click(screen.getByRole("button", { name: "New Dungeon" }));
+
+		await user.keyboard("{ArrowUp}");
+
+		expect(screen.getByRole("cell", { name: "row1col3" })).toHaveTextContent(
+			LayoutTiles.WALL,
+		);
+		expect(screen.getByRole("cell", { name: "row2col3" })).toHaveTextContent(
+			LayoutTiles.PLAYER,
+		);
+
+		await user.keyboard("{ArrowRight}");
+
+		expect(screen.getByRole("cell", { name: "row2col3" })).toHaveTextContent(
+			LayoutTiles.FLOOR,
+		);
+		expect(screen.getByRole("cell", { name: "row2col4" })).toHaveTextContent(
+			LayoutTiles.PLAYER,
+		);
+		expect(screen.getByRole("cell", { name: "row2col5" })).toHaveTextContent(
+			LayoutTiles.FLOOR,
+		);
+	});
 });

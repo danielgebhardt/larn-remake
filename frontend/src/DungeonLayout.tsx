@@ -55,24 +55,36 @@ const DungeonLayout = ({
 
 	useEffect(() => {
 		const handleKeyDown = (event: KeyboardEvent) => {
+			if (
+				event.target instanceof HTMLInputElement ||
+				event.target instanceof HTMLTextAreaElement ||
+				(event.target instanceof HTMLElement && event.target.isContentEditable)
+			) {
+				return;
+			}
+
 			switch (event.key) {
 				case "ArrowUp":
 				case "w":
+					event.preventDefault();
 					movePlayer(-1, 0);
 					break;
 
 				case "ArrowDown":
 				case "s":
+					event.preventDefault();
 					movePlayer(1, 0);
 					break;
 
 				case "ArrowLeft":
 				case "a":
+					event.preventDefault();
 					movePlayer(0, -1);
 					break;
 
 				case "ArrowRight":
 				case "d":
+					event.preventDefault();
 					movePlayer(0, 1);
 					break;
 			}

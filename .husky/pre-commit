@@ -4,3 +4,4 @@ set -e
 pnpm frontend:check:fix
 git add frontend
 pnpm frontend:test
+pnpm frontend:build

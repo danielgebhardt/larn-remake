@@ -95,7 +95,13 @@ Run frontend formatting and lint checks:
 pnpm frontend:check
 ```
 
-Apply Biome fixes:
+Run strict TypeScript checks for application code, tests, and Vite configuration:
+
+```bash
+pnpm frontend:typecheck
+```
+
+Apply Biome fixes explicitly:
 
 ```bash
 pnpm frontend:check:fix
@@ -110,7 +116,7 @@ pnpm frontend:test
 Create a production frontend build:
 
 ```bash
-pnpm --filter frontend build
+pnpm frontend:build
 ```
 
 Run backend tests from `backend/`:
@@ -156,9 +162,10 @@ Husky runs the following pre-commit workflow:
 pnpm frontend:check:fix
 git add frontend
 pnpm frontend:test
+pnpm frontend:build
 ```
 
-Biome fixes are applied and frontend changes are staged before the test suite runs. A failed check or test prevents the commit.
+The hook applies Biome fixes and stages all frontend changes, then runs frontend tests and a production build, including strict TypeScript checks. A failed check, test, or build prevents the commit. Checks use the current working tree.
 
 ## Development approach
 

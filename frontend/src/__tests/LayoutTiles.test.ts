@@ -14,6 +14,7 @@ import {
 	makeDungeon,
 	type PlayerStartSource,
 	selectPlayerStart,
+	selectStairLocation,
 	WALL,
 } from "../LayoutTiles.ts";
 import { makeRegion, recursivePartition } from "../Partitioning.ts";
@@ -765,6 +766,336 @@ describe("LayoutTiles Tests", () => {
 			const second = generateDungeon(config, 123);
 
 			expect(second).toStrictEqual(first);
+		});
+	});
+
+	describe("Stair location tests", () => {
+		it("should select the center of a different room when one is available", () => {
+			const room1: Room = {
+				startRow: 1,
+				endRow: 3,
+				startCol: 1,
+				endCol: 3,
+			};
+
+			const room2: Room = {
+				startRow: 1,
+				endRow: 3,
+				startCol: 5,
+				endCol: 7,
+			};
+
+			const terrain: Dungeon = [
+				[WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL],
+				[WALL, FLOOR, FLOOR, FLOOR, WALL, FLOOR, FLOOR, FLOOR, WALL],
+				[WALL, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, WALL],
+				[WALL, FLOOR, FLOOR, FLOOR, WALL, FLOOR, FLOOR, FLOOR, WALL],
+				[WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL],
+			];
+
+			const dungeon: PlayerStartSource = {
+				rooms: [room1, room2],
+				terrain,
+			};
+
+			const entry: Coordinate = { row: 2, col: 2 };
+
+			expect(selectStairLocation(dungeon, entry)).toStrictEqual({
+				row: 2,
+				col: 6,
+			});
+		});
+
+		it("should select the last eligible different room when multiple rooms exist", () => {
+			const room1: Room = {
+				startRow: 1,
+				endRow: 3,
+				startCol: 1,
+				endCol: 3,
+			};
+
+			const room2: Room = {
+				startRow: 1,
+				endRow: 3,
+				startCol: 5,
+				endCol: 7,
+			};
+
+			const room3: Room = {
+				startRow: 5,
+				endRow: 7,
+				startCol: 5,
+				endCol: 7,
+			};
+
+			const terrain: Dungeon = [
+				[WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL],
+				[WALL, FLOOR, FLOOR, FLOOR, WALL, FLOOR, FLOOR, FLOOR, WALL],
+				[WALL, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, WALL],
+				[WALL, FLOOR, FLOOR, FLOOR, WALL, FLOOR, FLOOR, FLOOR, WALL],
+				[WALL, WALL, WALL, WALL, WALL, WALL, FLOOR, WALL, WALL],
+				[WALL, WALL, WALL, WALL, WALL, FLOOR, FLOOR, FLOOR, WALL],
+				[WALL, WALL, WALL, WALL, WALL, FLOOR, FLOOR, FLOOR, WALL],
+				[WALL, WALL, WALL, WALL, WALL, FLOOR, FLOOR, FLOOR, WALL],
+				[WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL],
+			];
+
+			const dungeon: PlayerStartSource = {
+				rooms: [room1, room2, room3],
+				terrain,
+			};
+
+			const entry: Coordinate = { row: 2, col: 2 };
+
+			expect(selectStairLocation(dungeon, entry)).toStrictEqual({
+				row: 6,
+				col: 6,
+			});
+		});
+
+		it("should select deterministically when called repeatedly with the same dungeon and entry", () => {
+			const room1: Room = {
+				startRow: 1,
+				endRow: 3,
+				startCol: 1,
+				endCol: 3,
+			};
+
+			const room2: Room = {
+				startRow: 1,
+				endRow: 3,
+				startCol: 5,
+				endCol: 7,
+			};
+
+			const terrain: Dungeon = [
+				[WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL],
+				[WALL, FLOOR, FLOOR, FLOOR, WALL, FLOOR, FLOOR, FLOOR, WALL],
+				[WALL, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, WALL],
+				[WALL, FLOOR, FLOOR, FLOOR, WALL, FLOOR, FLOOR, FLOOR, WALL],
+				[WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL],
+			];
+
+			const dungeon: PlayerStartSource = {
+				rooms: [room1, room2],
+				terrain,
+			};
+
+			const entry: Coordinate = { row: 2, col: 2 };
+
+			const firstResult = selectStairLocation(dungeon, entry);
+			const secondResult = selectStairLocation(dungeon, entry);
+
+			expect(secondResult).toStrictEqual(firstResult);
+		});
+
+		it("should use another floor coordinate in the entry room when only one room exists", () => {
+			const room: Room = {
+				startRow: 1,
+				endRow: 3,
+				startCol: 1,
+				endCol: 3,
+			};
+
+			const dungeon = makePlayerStartSource([room]);
+			const entry: Coordinate = { row: 2, col: 2 };
+
+			expect(selectStairLocation(dungeon, entry)).toStrictEqual({
+				row: 1,
+				col: 1,
+			});
+		});
+
+		it("should never select the entry coordinate as the stair location", () => {
+			const room: Room = {
+				startRow: 1,
+				endRow: 3,
+				startCol: 1,
+				endCol: 3,
+			};
+
+			const dungeon = makePlayerStartSource([room]);
+			const entry: Coordinate = { row: 1, col: 1 };
+
+			const stair = selectStairLocation(dungeon, entry);
+
+			expect(stair).not.toStrictEqual(entry);
+		});
+
+		it("should select a floor coordinate within dungeon bounds", () => {
+			const config: DungeonConfig = {
+				rows: 12,
+				cols: 20,
+				minPartitionSize: 5,
+				roomPadding: 1,
+			};
+
+			const dungeon = generateDungeon(config, 123);
+			const entry = selectPlayerStart(dungeon);
+
+			const stair = selectStairLocation(dungeon, entry);
+
+			expect(stair.row).toBeGreaterThanOrEqual(0);
+			expect(stair.row).toBeLessThan(dungeon.terrain.length);
+			expect(stair.col).toBeGreaterThanOrEqual(0);
+			expect(stair.col).toBeLessThan(dungeon.terrain[stair.row].length);
+			expect(dungeon.terrain[stair.row][stair.col]).toBe(FLOOR);
+		});
+
+		it("should correctly select the center of an offset rectangular room", () => {
+			const entryRoom: Room = {
+				startRow: 1,
+				endRow: 3,
+				startCol: 1,
+				endCol: 3,
+			};
+
+			const stairRoom: Room = {
+				startRow: 5,
+				endRow: 7,
+				startCol: 8,
+				endCol: 14,
+			};
+
+			const terrain: Dungeon = Array.from({ length: 9 }, () =>
+				Array.from({ length: 16 }, () => WALL),
+			);
+
+			for (const room of [entryRoom, stairRoom]) {
+				for (let row = room.startRow; row <= room.endRow; row++) {
+					for (let col = room.startCol; col <= room.endCol; col++) {
+						terrain[row][col] = FLOOR;
+					}
+				}
+			}
+
+			for (let row = 2; row <= 6; row++) {
+				terrain[row][2] = FLOOR;
+			}
+
+			for (let col = 2; col <= 11; col++) {
+				terrain[6][col] = FLOOR;
+			}
+
+			const dungeon: PlayerStartSource = {
+				rooms: [entryRoom, stairRoom],
+				terrain,
+			};
+
+			const entry: Coordinate = { row: 2, col: 2 };
+
+			expect(selectStairLocation(dungeon, entry)).toStrictEqual({
+				row: 6,
+				col: 11,
+			});
+		});
+
+		it("should handle an even-sized destination room deterministically", () => {
+			const entryRoom: Room = {
+				startRow: 1,
+				endRow: 3,
+				startCol: 1,
+				endCol: 3,
+			};
+
+			const stairRoom: Room = {
+				startRow: 5,
+				endRow: 8,
+				startCol: 10,
+				endCol: 13,
+			};
+
+			const terrain: Dungeon = Array.from({ length: 10 }, () =>
+				Array.from({ length: 15 }, () => WALL),
+			);
+
+			for (const room of [entryRoom, stairRoom]) {
+				for (let row = room.startRow; row <= room.endRow; row++) {
+					for (let col = room.startCol; col <= room.endCol; col++) {
+						terrain[row][col] = FLOOR;
+					}
+				}
+			}
+
+			const dungeon: PlayerStartSource = {
+				rooms: [entryRoom, stairRoom],
+				terrain,
+			};
+
+			const entry: Coordinate = { row: 2, col: 2 };
+
+			expect(selectStairLocation(dungeon, entry)).toStrictEqual({
+				row: 6,
+				col: 11,
+			});
+		});
+
+		it("should throw when the entry is outside the dungeon bounds", () => {
+			const room: Room = {
+				startRow: 1,
+				endRow: 2,
+				startCol: 1,
+				endCol: 2,
+			};
+
+			const dungeon = makePlayerStartSource([room]);
+
+			expect(() => selectStairLocation(dungeon, { row: -1, col: 1 })).toThrow(
+				RangeError,
+			);
+
+			expect(() => selectStairLocation(dungeon, { row: 100, col: 1 })).toThrow(
+				RangeError,
+			);
+		});
+
+		it("should throw when the entry coordinate is not floor", () => {
+			const room: Room = {
+				startRow: 1,
+				endRow: 2,
+				startCol: 1,
+				endCol: 2,
+			};
+
+			const dungeon = makePlayerStartSource([room]);
+
+			expect(() => selectStairLocation(dungeon, { row: 0, col: 0 })).toThrow(
+				RangeError,
+			);
+		});
+
+		it("should throw when there is no valid distinct floor coordinate", () => {
+			const room: Room = {
+				startRow: 1,
+				endRow: 1,
+				startCol: 1,
+				endCol: 1,
+			};
+
+			const dungeon = makePlayerStartSource([room]);
+			const entry: Coordinate = { row: 1, col: 1 };
+
+			expect(() => selectStairLocation(dungeon, entry)).toThrow(RangeError);
+		});
+
+		it("should not modify the generated dungeon or entry coordinate", () => {
+			const config: DungeonConfig = {
+				rows: 12,
+				cols: 20,
+				minPartitionSize: 5,
+				roomPadding: 1,
+			};
+
+			const dungeon = generateDungeon(config, 123);
+			const entry = selectPlayerStart(dungeon);
+
+			const originalDungeon = structuredClone(dungeon);
+			const originalEntry = structuredClone(entry);
+
+			selectStairLocation(dungeon, entry);
+
+			expect(dungeon).toStrictEqual(originalDungeon);
+			expect(entry).toStrictEqual(originalEntry);
 		});
 	});
 });

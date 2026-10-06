@@ -191,3 +191,78 @@ export const selectPlayerStart = (dungeon: PlayerStartSource): Coordinate => {
 
 	return startingPoint;
 };
+
+export const selectStairLocation = (
+	dungeon: PlayerStartSource,
+	entryCoordinate: Coordinate,
+): Coordinate => {
+	if (
+		entryCoordinate.row < 0 ||
+		entryCoordinate.row > dungeon.terrain.length - 1 ||
+		entryCoordinate.col < 0 ||
+		entryCoordinate.col > dungeon.terrain[0].length - 1 ||
+		dungeon.terrain[entryCoordinate.row][entryCoordinate.col] !== FLOOR
+	) {
+		throw new RangeError("Invalid start point");
+	}
+
+	if (dungeon.rooms.length === 1) {
+		const room = dungeon.rooms[0];
+
+		const middleOfRoom = {
+			row: Math.floor((room.startRow + room.endRow) / 2),
+			col: Math.floor((room.startCol + room.endCol) / 2),
+		};
+
+		if (
+			middleOfRoom.row === entryCoordinate.row &&
+			middleOfRoom.col === entryCoordinate.col
+		) {
+			for (let i = room.startRow; i <= room.endRow; i++) {
+				for (let j = room.startCol; j <= room.endCol; j++) {
+					if (i !== entryCoordinate.row || j !== entryCoordinate.col) {
+						return {
+							row: i,
+							col: j,
+						};
+					}
+				}
+			}
+
+			throw new RangeError("No valid coordinate available for staircase");
+		} else {
+			return middleOfRoom;
+		}
+	}
+
+	let startingRoomIndex = -1;
+
+	for (let i = 0; i < dungeon.rooms.length; i++) {
+		const room = dungeon.rooms[i];
+
+		if (
+			entryCoordinate.row >= room.startRow &&
+			entryCoordinate.col >= room.startCol &&
+			entryCoordinate.row <= room.endRow &&
+			entryCoordinate.col <= room.endCol
+		) {
+			startingRoomIndex = i;
+			break;
+		}
+
+		i++;
+	}
+
+	const rooms: Room[] = dungeon.rooms.toSpliced(startingRoomIndex, 1);
+
+	const roomWithStaircase = rooms[rooms.length - 1];
+
+	return {
+		row: Math.floor(
+			(roomWithStaircase.startRow + roomWithStaircase.endRow) / 2,
+		),
+		col: Math.floor(
+			(roomWithStaircase.startCol + roomWithStaircase.endCol) / 2,
+		),
+	};
+};

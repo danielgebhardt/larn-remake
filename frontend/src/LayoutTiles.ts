@@ -47,6 +47,13 @@ export const getDungeonCoordinateValue = (
 	return dungeon[row]?.[column];
 };
 
+const getRoomCenter = (room: Room) => {
+	return {
+		row: Math.floor((room.startRow + room.endRow) / 2),
+		col: Math.floor((room.startCol + room.endCol) / 2),
+	};
+};
+
 export const makeDungeon = (
 	rows: number,
 	cols: number,
@@ -209,27 +216,30 @@ export const selectStairLocation = (
 	if (dungeon.rooms.length === 1) {
 		const room = dungeon.rooms[0];
 
-		const middleOfRoom = {
-			row: Math.floor((room.startRow + room.endRow) / 2),
-			col: Math.floor((room.startCol + room.endCol) / 2),
-		};
+		const middleOfRoom = getRoomCenter(room);
 
 		if (
 			middleOfRoom.row === entryCoordinate.row &&
 			middleOfRoom.col === entryCoordinate.col
 		) {
-			for (let i = room.startRow; i <= room.endRow; i++) {
-				for (let j = room.startCol; j <= room.endCol; j++) {
-					if (i !== entryCoordinate.row || j !== entryCoordinate.col) {
-						return {
-							row: i,
-							col: j,
-						};
-					}
-				}
+			const candidates = [
+				{ row: room.startRow, col: room.startCol },
+				{ row: room.startRow, col: room.endCol },
+				{ row: room.endRow, col: room.startCol },
+				{ row: room.endRow, col: room.endCol },
+			];
+
+			const fallback = candidates.find(
+				(coordinate) =>
+					coordinate.row !== entryCoordinate.row ||
+					coordinate.col !== entryCoordinate.col,
+			);
+
+			if (!fallback) {
+				throw new RangeError("No valid coordinate available for staircase");
 			}
 
-			throw new RangeError("No valid coordinate available for staircase");
+			return fallback;
 		} else {
 			return middleOfRoom;
 		}
@@ -249,20 +259,13 @@ export const selectStairLocation = (
 			startingRoomIndex = i;
 			break;
 		}
+	}
 
-		i++;
+	if (startingRoomIndex === -1) {
+		throw new RangeError("Invalid start point");
 	}
 
 	const rooms: Room[] = dungeon.rooms.toSpliced(startingRoomIndex, 1);
 
-	const roomWithStaircase = rooms[rooms.length - 1];
-
-	return {
-		row: Math.floor(
-			(roomWithStaircase.startRow + roomWithStaircase.endRow) / 2,
-		),
-		col: Math.floor(
-			(roomWithStaircase.startCol + roomWithStaircase.endCol) / 2,
-		),
-	};
+	return getRoomCenter(rooms[rooms.length - 1]);
 };

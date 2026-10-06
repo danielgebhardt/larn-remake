@@ -853,6 +853,53 @@ describe("LayoutTiles Tests", () => {
 			});
 		});
 
+		it("should select the last eligible different room when multiple rooms exist and starting room is not first room", () => {
+			const room1: Room = {
+				startRow: 1,
+				endRow: 3,
+				startCol: 1,
+				endCol: 3,
+			};
+
+			const room2: Room = {
+				startRow: 1,
+				endRow: 3,
+				startCol: 5,
+				endCol: 7,
+			};
+
+			const room3: Room = {
+				startRow: 5,
+				endRow: 7,
+				startCol: 5,
+				endCol: 7,
+			};
+
+			const terrain: Dungeon = [
+				[WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL],
+				[WALL, FLOOR, FLOOR, FLOOR, WALL, FLOOR, FLOOR, FLOOR, WALL],
+				[WALL, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, WALL],
+				[WALL, FLOOR, FLOOR, FLOOR, WALL, FLOOR, FLOOR, FLOOR, WALL],
+				[WALL, WALL, WALL, WALL, WALL, WALL, FLOOR, WALL, WALL],
+				[WALL, WALL, WALL, WALL, WALL, FLOOR, FLOOR, FLOOR, WALL],
+				[WALL, WALL, WALL, WALL, WALL, FLOOR, FLOOR, FLOOR, WALL],
+				[WALL, WALL, WALL, WALL, WALL, FLOOR, FLOOR, FLOOR, WALL],
+				[WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL],
+			];
+
+			const dungeon: PlayerStartSource = {
+				rooms: [room1, room2, room3],
+				terrain,
+			};
+
+			const entry: Coordinate = { row: 2, col: 6 };
+
+			expect(selectStairLocation(dungeon, entry)).toStrictEqual({
+				row: 6,
+				col: 6,
+			});
+		});
+
 		it("should select deterministically when called repeatedly with the same dungeon and entry", () => {
 			const room1: Room = {
 				startRow: 1,
@@ -1076,6 +1123,40 @@ describe("LayoutTiles Tests", () => {
 			const entry: Coordinate = { row: 1, col: 1 };
 
 			expect(() => selectStairLocation(dungeon, entry)).toThrow(RangeError);
+		});
+
+		it("should throw when the entry is floor but does not belong to a room", () => {
+			const room1: Room = {
+				startRow: 1,
+				endRow: 2,
+				startCol: 1,
+				endCol: 2,
+			};
+
+			const room2: Room = {
+				startRow: 1,
+				endRow: 2,
+				startCol: 4,
+				endCol: 5,
+			};
+
+			const terrain: Dungeon = [
+				[WALL, WALL, WALL, WALL, WALL, WALL, WALL],
+				[WALL, FLOOR, FLOOR, WALL, FLOOR, FLOOR, WALL],
+				[WALL, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, WALL],
+				[WALL, WALL, WALL, WALL, WALL, WALL, WALL],
+			];
+
+			const dungeon: PlayerStartSource = {
+				rooms: [room1, room2],
+				terrain,
+			};
+
+			const corridorEntry: Coordinate = { row: 2, col: 3 };
+
+			expect(() => selectStairLocation(dungeon, corridorEntry)).toThrow(
+				RangeError,
+			);
 		});
 
 		it("should not modify the generated dungeon or entry coordinate", () => {

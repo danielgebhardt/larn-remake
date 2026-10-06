@@ -10,9 +10,9 @@ import {
 	fixedDungeon,
 	generateDungeon,
 	getDungeonCoordinateValue,
+	type LocationSelectionSource,
 	MAX_SIZE,
 	makeDungeon,
-	type PlayerStartSource,
 	selectPlayerStart,
 	selectStairLocation,
 	WALL,
@@ -707,7 +707,7 @@ describe("LayoutTiles Tests", () => {
 				[WALL, WALL, WALL, WALL],
 			];
 
-			const dungeon: PlayerStartSource = {
+			const dungeon: LocationSelectionSource = {
 				rooms: generateDungeon(config).rooms,
 				terrain: badTerrain,
 			};
@@ -793,7 +793,7 @@ describe("LayoutTiles Tests", () => {
 				[WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL],
 			];
 
-			const dungeon: PlayerStartSource = {
+			const dungeon: LocationSelectionSource = {
 				rooms: [room1, room2],
 				terrain,
 			};
@@ -840,7 +840,7 @@ describe("LayoutTiles Tests", () => {
 				[WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL],
 			];
 
-			const dungeon: PlayerStartSource = {
+			const dungeon: LocationSelectionSource = {
 				rooms: [room1, room2, room3],
 				terrain,
 			};
@@ -887,7 +887,7 @@ describe("LayoutTiles Tests", () => {
 				[WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL],
 			];
 
-			const dungeon: PlayerStartSource = {
+			const dungeon: LocationSelectionSource = {
 				rooms: [room1, room2, room3],
 				terrain,
 			};
@@ -923,7 +923,7 @@ describe("LayoutTiles Tests", () => {
 				[WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL],
 			];
 
-			const dungeon: PlayerStartSource = {
+			const dungeon: LocationSelectionSource = {
 				rooms: [room1, room2],
 				terrain,
 			};
@@ -1024,7 +1024,7 @@ describe("LayoutTiles Tests", () => {
 				terrain[6][col] = FLOOR;
 			}
 
-			const dungeon: PlayerStartSource = {
+			const dungeon: LocationSelectionSource = {
 				rooms: [entryRoom, stairRoom],
 				terrain,
 			};
@@ -1064,7 +1064,7 @@ describe("LayoutTiles Tests", () => {
 				}
 			}
 
-			const dungeon: PlayerStartSource = {
+			const dungeon: LocationSelectionSource = {
 				rooms: [entryRoom, stairRoom],
 				terrain,
 			};
@@ -1088,11 +1088,11 @@ describe("LayoutTiles Tests", () => {
 			const dungeon = makePlayerStartSource([room]);
 
 			expect(() => selectStairLocation(dungeon, { row: -1, col: 1 })).toThrow(
-				RangeError,
+				new RangeError("Invalid start point"),
 			);
 
 			expect(() => selectStairLocation(dungeon, { row: 100, col: 1 })).toThrow(
-				RangeError,
+				new RangeError("Invalid start point"),
 			);
 		});
 
@@ -1107,7 +1107,7 @@ describe("LayoutTiles Tests", () => {
 			const dungeon = makePlayerStartSource([room]);
 
 			expect(() => selectStairLocation(dungeon, { row: 0, col: 0 })).toThrow(
-				RangeError,
+				new RangeError("Invalid start point"),
 			);
 		});
 
@@ -1122,7 +1122,9 @@ describe("LayoutTiles Tests", () => {
 			const dungeon = makePlayerStartSource([room]);
 			const entry: Coordinate = { row: 1, col: 1 };
 
-			expect(() => selectStairLocation(dungeon, entry)).toThrow(RangeError);
+			expect(() => selectStairLocation(dungeon, entry)).toThrow(
+				new RangeError("No valid coordinate available for staircase"),
+			);
 		});
 
 		it("should throw when the entry is floor but does not belong to a room", () => {
@@ -1147,7 +1149,7 @@ describe("LayoutTiles Tests", () => {
 				[WALL, WALL, WALL, WALL, WALL, WALL, WALL],
 			];
 
-			const dungeon: PlayerStartSource = {
+			const dungeon: LocationSelectionSource = {
 				rooms: [room1, room2],
 				terrain,
 			};
@@ -1155,7 +1157,7 @@ describe("LayoutTiles Tests", () => {
 			const corridorEntry: Coordinate = { row: 2, col: 3 };
 
 			expect(() => selectStairLocation(dungeon, corridorEntry)).toThrow(
-				RangeError,
+				new RangeError("Invalid start point. Starting point is not in a room."),
 			);
 		});
 

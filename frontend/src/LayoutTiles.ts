@@ -23,7 +23,10 @@ export type GeneratedDungeon = {
 	corridors: Corridor[];
 };
 
-export type PlayerStartSource = Pick<GeneratedDungeon, "rooms" | "terrain">;
+export type LocationSelectionSource = Pick<
+	GeneratedDungeon,
+	"rooms" | "terrain"
+>;
 
 export const WALL: string = "#";
 export const FLOOR: string = ".";
@@ -180,7 +183,9 @@ export const generateDungeon = (
 	};
 };
 
-export const selectPlayerStart = (dungeon: PlayerStartSource): Coordinate => {
+export const selectPlayerStart = (
+	dungeon: LocationSelectionSource,
+): Coordinate => {
 	const rooms = dungeon.rooms;
 
 	if (rooms.length === 0) {
@@ -200,7 +205,7 @@ export const selectPlayerStart = (dungeon: PlayerStartSource): Coordinate => {
 };
 
 export const selectStairLocation = (
-	dungeon: PlayerStartSource,
+	dungeon: LocationSelectionSource,
 	entryCoordinate: Coordinate,
 ): Coordinate => {
 	if (
@@ -240,9 +245,9 @@ export const selectStairLocation = (
 			}
 
 			return fallback;
-		} else {
-			return middleOfRoom;
 		}
+
+		return middleOfRoom;
 	}
 
 	let startingRoomIndex = -1;
@@ -262,7 +267,9 @@ export const selectStairLocation = (
 	}
 
 	if (startingRoomIndex === -1) {
-		throw new RangeError("Invalid start point");
+		throw new RangeError(
+			"Invalid start point. Starting point is not in a room.",
+		);
 	}
 
 	const rooms: Room[] = dungeon.rooms.toSpliced(startingRoomIndex, 1);

@@ -192,10 +192,7 @@ export const selectPlayerStart = (
 		throw new RangeError("No eligible rooms for starting point");
 	}
 
-	const startingPoint = {
-		row: Math.floor((rooms[0].endRow + rooms[0].startRow) / 2),
-		col: Math.floor((rooms[0].endCol + rooms[0].startCol) / 2),
-	};
+	const startingPoint = getRoomCenter(rooms[0]);
 
 	if (dungeon.terrain[startingPoint.row][startingPoint.col] !== FLOOR) {
 		throw new RangeError("Invalid start point");

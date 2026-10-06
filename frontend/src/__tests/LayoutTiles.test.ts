@@ -23,7 +23,7 @@ import {
 	getTerminalRooms,
 	type Room,
 } from "../Room.ts";
-import { makePlayerStartSource } from "./testhelpers.ts";
+import { makeLocationSelectionSource } from "./testhelpers.ts";
 
 describe("LayoutTiles Tests", () => {
 	it("should return a # for WALL values in dungeon map", () => {
@@ -606,7 +606,7 @@ describe("LayoutTiles Tests", () => {
 				endCol: 14,
 			};
 
-			const dungeon = makePlayerStartSource([room]);
+			const dungeon = makeLocationSelectionSource([room]);
 
 			const expectedStart: Coordinate = { row: 7, col: 12 };
 
@@ -642,7 +642,7 @@ describe("LayoutTiles Tests", () => {
 			];
 
 			for (let index = 0; index < rooms.length; index++) {
-				const dungeon = makePlayerStartSource([rooms[index]]);
+				const dungeon = makeLocationSelectionSource([rooms[index]]);
 
 				expect(selectPlayerStart(dungeon)).toStrictEqual(expectedStarts[index]);
 			}
@@ -663,7 +663,7 @@ describe("LayoutTiles Tests", () => {
 				endCol: 5,
 			};
 
-			const dungeon = makePlayerStartSource([room1, room2]);
+			const dungeon = makeLocationSelectionSource([room1, room2]);
 
 			const expectedStart: Coordinate = { row: 2, col: 3 };
 
@@ -671,7 +671,7 @@ describe("LayoutTiles Tests", () => {
 		});
 
 		it("should throw when there are no eligible rooms", () => {
-			const dungeon = makePlayerStartSource([]);
+			const dungeon = makeLocationSelectionSource([]);
 
 			expect(() => selectPlayerStart(dungeon)).toThrow(
 				"No eligible rooms for starting point",
@@ -944,7 +944,7 @@ describe("LayoutTiles Tests", () => {
 				endCol: 3,
 			};
 
-			const dungeon = makePlayerStartSource([room]);
+			const dungeon = makeLocationSelectionSource([room]);
 			const entry: Coordinate = { row: 2, col: 2 };
 
 			expect(selectStairLocation(dungeon, entry)).toStrictEqual({
@@ -961,7 +961,7 @@ describe("LayoutTiles Tests", () => {
 				endCol: 3,
 			};
 
-			const dungeon = makePlayerStartSource([room]);
+			const dungeon = makeLocationSelectionSource([room]);
 			const entry: Coordinate = { row: 1, col: 1 };
 
 			const stair = selectStairLocation(dungeon, entry);
@@ -1085,7 +1085,7 @@ describe("LayoutTiles Tests", () => {
 				endCol: 2,
 			};
 
-			const dungeon = makePlayerStartSource([room]);
+			const dungeon = makeLocationSelectionSource([room]);
 
 			expect(() => selectStairLocation(dungeon, { row: -1, col: 1 })).toThrow(
 				new RangeError("Invalid start point"),
@@ -1104,7 +1104,7 @@ describe("LayoutTiles Tests", () => {
 				endCol: 2,
 			};
 
-			const dungeon = makePlayerStartSource([room]);
+			const dungeon = makeLocationSelectionSource([room]);
 
 			expect(() => selectStairLocation(dungeon, { row: 0, col: 0 })).toThrow(
 				new RangeError("Invalid start point"),
@@ -1119,7 +1119,7 @@ describe("LayoutTiles Tests", () => {
 				endCol: 1,
 			};
 
-			const dungeon = makePlayerStartSource([room]);
+			const dungeon = makeLocationSelectionSource([room]);
 			const entry: Coordinate = { row: 1, col: 1 };
 
 			expect(() => selectStairLocation(dungeon, entry)).toThrow(

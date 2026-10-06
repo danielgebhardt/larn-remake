@@ -22,7 +22,7 @@ export const getRegionArea = (region: Region): number => {
 	return rowCount * colCount;
 };
 
-export const makePlayerStartSource = (
+export const makeLocationSelectionSource = (
 	rooms: Room[],
 ): LocationSelectionSource => {
 	if (rooms.length === 0) {

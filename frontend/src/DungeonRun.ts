@@ -1,4 +1,8 @@
-import type { Coordinate, GeneratedDungeon } from "./LayoutTiles.ts";
+import {
+	type Coordinate,
+	type GeneratedDungeon,
+	selectPlayerStart,
+} from "./LayoutTiles.ts";
 
 export type DungeonFloor = GeneratedDungeon & {
 	floorNumber: number;
@@ -13,16 +17,24 @@ export type DungeonRun = {
 
 export const createDungeonRun = (
 	seed: number,
-	floorCount: number,
 	floors: DungeonFloor[],
 ): DungeonRun => {
+	if (floors.length < 1) {
+		throw new RangeError("Dungeon run must contain at least one floor");
+	}
+
+	for (let i = 0; i < floors.length; i++) {
+		if (floors[i].floorNumber !== i + 1) {
+			throw new RangeError("Dungeon floor numbers must be sequential");
+		}
+	}
+
+	const startingPoint = selectPlayerStart(floors[0]);
+
 	return {
 		seed: seed,
 		floors: floors,
-		activeFloor: floorCount,
-		playerCoordinate: {
-			row: 0,
-			col: 0,
-		},
+		activeFloor: 1,
+		playerCoordinate: startingPoint,
 	};
 };

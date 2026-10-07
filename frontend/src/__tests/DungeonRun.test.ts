@@ -612,6 +612,44 @@ describe("Dungeon run tests", () => {
 					expect(connected.floors[i].terrain).toStrictEqual(terrainBefore[i]);
 				}
 			});
+
+			it("should fail clearly when a floor cannot provide a distinct stair location", () => {
+				const run = generateDungeonRun(123, 3, config);
+
+				run.floors[1].terrain = [[FLOOR]];
+				run.floors[1].rooms = [
+					{
+						startRow: 0,
+						endRow: 0,
+						startCol: 0,
+						endCol: 0,
+					},
+				];
+
+				expect(() => connectDungeonFloors(run)).toThrow(
+					new RangeError("No valid coordinate available for staircase"),
+				);
+			});
+
+			it("should not partially modify the original run when stair linking fails", () => {
+				const run = generateDungeonRun(123, 3, config);
+
+				run.floors[1].terrain = [[FLOOR]];
+				run.floors[1].rooms = [
+					{
+						startRow: 0,
+						endRow: 0,
+						startCol: 0,
+						endCol: 0,
+					},
+				];
+
+				const before = structuredClone(run);
+
+				expect(() => connectDungeonFloors(run)).toThrow();
+
+				expect(run).toStrictEqual(before);
+			});
 		});
 	});
 });

@@ -1,4 +1,6 @@
+import { expect } from "vitest";
 import {
+	type Coordinate,
 	type Dungeon,
 	FLOOR,
 	type LocationSelectionSource,
@@ -51,4 +53,54 @@ export const makeLocationSelectionSource = (
 		rooms,
 		terrain,
 	};
+};
+
+export const expectAllFloorTilesReachable = (
+	terrain: Dungeon,
+	start: Coordinate,
+) => {
+	expect(terrain[start.row][start.col]).toBe(FLOOR);
+
+	const visited = new Set<string>();
+	const queue = [start];
+
+	while (queue.length > 0) {
+		const current = queue.shift();
+
+		if (!current) {
+			continue;
+		}
+
+		const key = `${current.row},${current.col}`;
+
+		if (visited.has(key)) {
+			continue;
+		}
+
+		visited.add(key);
+
+		const neighbors = [
+			{ row: current.row - 1, col: current.col },
+			{ row: current.row + 1, col: current.col },
+			{ row: current.row, col: current.col - 1 },
+			{ row: current.row, col: current.col + 1 },
+		];
+
+		for (const neighbor of neighbors) {
+			if (
+				terrain[neighbor.row]?.[neighbor.col] === FLOOR &&
+				!visited.has(`${neighbor.row},${neighbor.col}`)
+			) {
+				queue.push(neighbor);
+			}
+		}
+	}
+
+	for (const [rowIndex, row] of terrain.entries()) {
+		for (const [colIndex, tile] of row.entries()) {
+			if (tile === FLOOR) {
+				expect(visited.has(`${rowIndex},${colIndex}`)).toBe(true);
+			}
+		}
+	}
 };

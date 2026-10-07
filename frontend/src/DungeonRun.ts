@@ -47,7 +47,7 @@ export const generateDungeonFloor = (
 ): DungeonFloor => {
 	return {
 		...generateDungeon(config, deriveFloorSeed(seed, floorNumber)),
-		floorNumber: floorNumber,
+		floorNumber,
 	};
 };
 

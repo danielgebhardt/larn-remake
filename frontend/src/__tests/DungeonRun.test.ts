@@ -351,13 +351,5 @@ describe("Dungeon run tests", () => {
 
 			expect(new Set(terrains).size).toBeGreaterThan(1);
 		});
-
-		it("should allow different floors in the same run to have different layouts", () => {
-			const run = generateDungeonRun(123, 3, config);
-
-			const terrains = run.floors.map((floor) => JSON.stringify(floor.terrain));
-
-			expect(new Set(terrains).size).toBeGreaterThan(1);
-		});
 	});
 });

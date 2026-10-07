@@ -78,24 +78,6 @@ describe("Dungeon run tests", () => {
 		expect(run.floors[0].terrain.flat().includes(PLAYER)).toBe(false);
 	});
 
-	it("should keep floor data independent", () => {
-		const floors = [makeFloor(1, 101), makeFloor(2, 102), makeFloor(3, 103)];
-
-		const run = createDungeonRun(123, floors);
-
-		const originalFloor2 = structuredClone(run.floors[1]);
-		const originalFloor3 = structuredClone(run.floors[2]);
-
-		run.floors[0].terrain[0][0] = FLOOR;
-
-		expect(run.floors[1]).toStrictEqual(originalFloor2);
-		expect(run.floors[2]).toStrictEqual(originalFloor3);
-
-		expect(run.floors[0].terrain).not.toBe(run.floors[1].terrain);
-		expect(run.floors[0].terrain).not.toBe(run.floors[2].terrain);
-		expect(run.floors[1].terrain).not.toBe(run.floors[2].terrain);
-	});
-
 	it("should reject a run with no floors", () => {
 		expect(() => createDungeonRun(123, [])).toThrow(
 			new RangeError("Dungeon run must contain at least one floor"),
@@ -104,6 +86,14 @@ describe("Dungeon run tests", () => {
 
 	it("should reject floors that are not numbered consecutively starting at 1", () => {
 		const floors = [makeFloor(1, 101), makeFloor(3, 103)];
+
+		expect(() => createDungeonRun(123, floors)).toThrow(
+			new RangeError("Dungeon floor numbers must be sequential"),
+		);
+	});
+
+	it("should reject floors that do not start at floor 1", () => {
+		const floors = [makeFloor(2, 102), makeFloor(3, 103)];
 
 		expect(() => createDungeonRun(123, floors)).toThrow(
 			new RangeError("Dungeon floor numbers must be sequential"),

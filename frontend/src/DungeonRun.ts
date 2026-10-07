@@ -32,8 +32,8 @@ export const createDungeonRun = (
 	const startingPoint = selectPlayerStart(floors[0]);
 
 	return {
-		seed: seed,
-		floors: floors,
+		seed,
+		floors,
 		activeFloor: 1,
 		playerCoordinate: startingPoint,
 	};

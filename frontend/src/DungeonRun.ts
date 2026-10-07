@@ -3,11 +3,15 @@ import {
 	type DungeonConfig,
 	type GeneratedDungeon,
 	generateDungeon,
+	type LocationSelectionSource,
 	selectPlayerStart,
+	selectStairLocation,
 } from "./LayoutTiles.ts";
 
 export type DungeonFloor = GeneratedDungeon & {
 	floorNumber: number;
+	upStair?: StairLink;
+	downStair?: StairLink;
 };
 
 export type DungeonRun = {
@@ -15,6 +19,12 @@ export type DungeonRun = {
 	floors: DungeonFloor[];
 	activeFloor: number;
 	playerCoordinate: Coordinate;
+};
+
+export type StairLink = {
+	coordinate: Coordinate;
+	destinationFloor: number;
+	arrivalCoordinate: Coordinate;
 };
 
 export const hashStringToUint32 = (value: string): number => {
@@ -91,4 +101,43 @@ export const generateDungeonRun = (
 	}
 
 	return createDungeonRun(seed, floors);
+};
+
+const getLocationSource = (floor: DungeonFloor): LocationSelectionSource => ({
+	terrain: floor.terrain,
+	rooms: floor.rooms,
+});
+
+export const connectDungeonFloors = (run: DungeonRun): DungeonRun => {
+	const floors = run.floors.map((floor) => ({ ...floor }));
+
+	for (let i = 0; i < floors.length - 1; i++) {
+		const shallowerFloor = floors[i];
+		const deeperFloor = floors[i + 1];
+
+		const shallowerSource = getLocationSource(shallowerFloor);
+		const deeperSource = getLocationSource(deeperFloor);
+
+		const shallowerEntry = selectPlayerStart(shallowerSource);
+		const deeperEntry = selectPlayerStart(deeperSource);
+
+		const shallowerStair = selectStairLocation(shallowerSource, shallowerEntry);
+
+		shallowerFloor.downStair = {
+			coordinate: shallowerStair,
+			destinationFloor: deeperFloor.floorNumber,
+			arrivalCoordinate: deeperEntry,
+		};
+
+		deeperFloor.upStair = {
+			coordinate: deeperEntry,
+			destinationFloor: shallowerFloor.floorNumber,
+			arrivalCoordinate: shallowerStair,
+		};
+	}
+
+	return {
+		...run,
+		floors,
+	};
 };

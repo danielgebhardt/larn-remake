@@ -147,16 +147,24 @@ export const descendDungeonRun = (run: DungeonRun): DungeonRun => {
 	const downStair = currentFloor.downStair;
 
 	if (
-		downStair &&
-		downStair.coordinate.row === run.playerCoordinate.row &&
-		downStair.coordinate.col === run.playerCoordinate.col
+		!downStair ||
+		downStair.coordinate.row !== run.playerCoordinate.row ||
+		downStair.coordinate.col !== run.playerCoordinate.col
 	) {
-		return {
-			...run,
-			playerCoordinate: downStair.arrivalCoordinate,
-			activeFloor: downStair.destinationFloor,
-		};
+		return run;
 	}
 
-	return run;
+	const destinationFloor = run.floors.find(
+		(floor) => floor.floorNumber === downStair.destinationFloor,
+	);
+
+	if (!destinationFloor) {
+		return run;
+	}
+
+	return {
+		...run,
+		playerCoordinate: downStair.arrivalCoordinate,
+		activeFloor: downStair.destinationFloor,
+	};
 };

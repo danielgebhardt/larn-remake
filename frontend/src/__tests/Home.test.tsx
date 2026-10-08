@@ -610,14 +610,24 @@ describe("Home tests", () => {
 					LayoutTiles.WALL,
 					LayoutTiles.WALL,
 					LayoutTiles.WALL,
+					LayoutTiles.WALL,
 				],
 				[
 					LayoutTiles.WALL,
 					LayoutTiles.FLOOR,
 					LayoutTiles.FLOOR,
+					LayoutTiles.FLOOR,
 					LayoutTiles.WALL,
 				],
 				[
+					LayoutTiles.WALL,
+					LayoutTiles.FLOOR,
+					LayoutTiles.FLOOR,
+					LayoutTiles.FLOOR,
+					LayoutTiles.WALL,
+				],
+				[
+					LayoutTiles.WALL,
 					LayoutTiles.WALL,
 					LayoutTiles.WALL,
 					LayoutTiles.WALL,
@@ -643,16 +653,25 @@ describe("Home tests", () => {
 
 		render(<Home />);
 
+		// Move onto floor 1's down stair and descend.
 		await user.keyboard("{ArrowRight}");
 
+		// Player should remain on floor 2's up stair after arrival.
 		expect(
 			screen.getByRole("cell", {
 				name: "row1col1 - player",
 			}),
 		).toHaveTextContent(LayoutTiles.PLAYER);
 
+		// Prove floor 2 is still the rendered floor.
 		const dungeon = screen.getByRole("table", { name: "Dungeon" });
-		expect(within(dungeon).getAllByRole("row")).toHaveLength(3);
+		const rows = within(dungeon).getAllByRole("row");
+
+		expect(rows).toHaveLength(4);
+
+		for (const row of rows) {
+			expect(within(row).getAllByRole("cell")).toHaveLength(5);
+		}
 	});
 
 	it("only moves the player once after descending to the next floor", async () => {

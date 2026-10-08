@@ -757,6 +757,40 @@ describe("Dungeon run tests", () => {
 
 				expect(descended.floors).toEqual(floorsBefore);
 			});
+
+			it("does not descend when the down stair links to a nonexistent floor", () => {
+				const run = connectDungeonFloors(generateDungeonRun(123, 3, config));
+
+				const floor1 = run.floors[0];
+
+				expect(floor1.downStair).toBeDefined();
+
+				if (!floor1.downStair) {
+					throw new Error("Expected floor 1 to have a down stair");
+				}
+
+				const runWithInvalidLink: DungeonRun = {
+					...run,
+					floors: [
+						{
+							...floor1,
+							downStair: {
+								...floor1.downStair,
+								destinationFloor: 99,
+							},
+						},
+						...run.floors.slice(1),
+					],
+					playerCoordinate: {
+						row: floor1.downStair.coordinate.row,
+						col: floor1.downStair.coordinate.col,
+					},
+				};
+
+				const descended = descendDungeonRun(runWithInvalidLink);
+
+				expect(descended).toEqual(runWithInvalidLink);
+			});
 		});
 	});
 });

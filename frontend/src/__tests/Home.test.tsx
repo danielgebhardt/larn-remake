@@ -4,6 +4,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import * as DungeonRun from "../DungeonRun.ts";
 import Home from "../Home.tsx";
 import * as LayoutTiles from "../LayoutTiles.ts";
+import { STAIRS_DOWN, STAIRS_UP } from "../LayoutTiles.ts";
 
 afterEach(() => {
 	vi.restoreAllMocks();
@@ -369,5 +370,48 @@ describe("Home tests", () => {
 		expect(
 			screen.getByRole("cell", { name: "row0col0" }),
 		).not.toHaveTextContent("1");
+	});
+
+	it("renders up and down stairs on an intermediate floor", () => {
+		const run = DungeonRun.connectDungeonFloors(
+			DungeonRun.generateDungeonRun(123, 3, {
+				rows: 7,
+				cols: 11,
+				minPartitionSize: 5,
+				roomPadding: 1,
+			}),
+		);
+
+		const floor2 = run.floors[1];
+
+		expect(floor2.upStair).toBeDefined();
+		expect(floor2.downStair).toBeDefined();
+
+		if (!floor2.upStair || !floor2.downStair) {
+			throw new Error("Expected intermediate floor to have both stairs");
+		}
+
+		const activeRun = {
+			...run,
+			activeFloor: 2,
+			playerCoordinate: { row: 1, col: 1 },
+		};
+
+		vi.spyOn(DungeonRun, "generateDungeonRun").mockReturnValue(activeRun);
+		vi.spyOn(DungeonRun, "connectDungeonFloors").mockReturnValue(activeRun);
+
+		render(<Home />);
+
+		expect(
+			screen.getByRole("cell", {
+				name: `row${floor2.downStair.coordinate.row}col${floor2.downStair.coordinate.col} - stairs down`,
+			}),
+		).toHaveTextContent(STAIRS_DOWN);
+
+		expect(
+			screen.getByRole("cell", {
+				name: `row${floor2.upStair.coordinate.row}col${floor2.upStair.coordinate.col} - stairs up`,
+			}),
+		).toHaveTextContent(STAIRS_UP);
 	});
 });

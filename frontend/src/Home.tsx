@@ -8,7 +8,6 @@ import type { Coordinate, Dungeon, DungeonConfig } from "./LayoutTiles.ts";
 type DungeonLayoutType = {
 	terrain: Dungeon;
 	startingPlayerPosition: Coordinate;
-	seed: number;
 	generation: number;
 	upStair?: Coordinate;
 	downStair?: Coordinate;
@@ -32,7 +31,6 @@ const createDungeonLayoutState = (
 	return {
 		terrain: activeFloor.terrain,
 		startingPlayerPosition: run.playerCoordinate,
-		seed,
 		generation,
 		upStair: activeFloor.upStair?.coordinate,
 		downStair: activeFloor.downStair?.coordinate,

@@ -5,6 +5,7 @@ import * as DungeonRun from "../DungeonRun.ts";
 import Home from "../Home.tsx";
 import * as LayoutTiles from "../LayoutTiles.ts";
 import { STAIRS_DOWN, STAIRS_UP } from "../LayoutTiles.ts";
+import { createTestDungeonFloor } from "./testhelpers.ts";
 
 afterEach(() => {
 	vi.restoreAllMocks();
@@ -413,5 +414,63 @@ describe("Home tests", () => {
 				name: `row${floor2.upStair.coordinate.row}col${floor2.upStair.coordinate.col} - stairs up`,
 			}),
 		).toHaveTextContent(STAIRS_UP);
+	});
+
+	it("descends when the player moves onto a down stair", async () => {
+		const user = userEvent.setup();
+
+		const floor1 = createTestDungeonFloor({
+			floorNumber: 1,
+			terrain: [
+				[LayoutTiles.WALL, LayoutTiles.WALL, LayoutTiles.WALL],
+				[LayoutTiles.WALL, LayoutTiles.FLOOR, LayoutTiles.FLOOR],
+				[LayoutTiles.WALL, LayoutTiles.WALL, LayoutTiles.WALL],
+			],
+			downStair: {
+				coordinate: { row: 1, col: 2 },
+				destinationFloor: 2,
+				arrivalCoordinate: { row: 1, col: 1 },
+			},
+		});
+
+		const floor2 = createTestDungeonFloor({
+			floorNumber: 2,
+			terrain: [
+				[LayoutTiles.WALL, LayoutTiles.WALL, LayoutTiles.WALL],
+				[LayoutTiles.WALL, LayoutTiles.FLOOR, LayoutTiles.FLOOR],
+				[LayoutTiles.WALL, LayoutTiles.WALL, LayoutTiles.WALL],
+			],
+			upStair: {
+				coordinate: { row: 1, col: 1 },
+				destinationFloor: 1,
+				arrivalCoordinate: { row: 1, col: 2 },
+			},
+		});
+
+		const run: DungeonRun.DungeonRun = {
+			seed: 123,
+			floors: [floor1, floor2],
+			activeFloor: 1,
+			playerCoordinate: { row: 1, col: 1 },
+		};
+
+		vi.spyOn(DungeonRun, "generateDungeonRun").mockReturnValue(run);
+		vi.spyOn(DungeonRun, "connectDungeonFloors").mockReturnValue(run);
+
+		render(<Home />);
+
+		await user.keyboard("{ArrowRight}");
+
+		expect(
+			screen.getByRole("cell", {
+				name: "row1col1 - player",
+			}),
+		).toHaveTextContent(LayoutTiles.PLAYER);
+
+		expect(
+			screen.getByRole("cell", {
+				name: "row1col2",
+			}),
+		).toHaveTextContent(LayoutTiles.FLOOR);
 	});
 });

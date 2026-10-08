@@ -14,6 +14,7 @@ type DungeonLayoutProps = {
 	startingPlayerPosition: Coordinate;
 	downStair?: Coordinate;
 	upStair?: Coordinate;
+	onPlayerMove: (coordinate: Coordinate) => void;
 };
 
 const DungeonLayout = ({
@@ -21,6 +22,7 @@ const DungeonLayout = ({
 	startingPlayerPosition,
 	downStair,
 	upStair,
+	onPlayerMove,
 }: DungeonLayoutProps) => {
 	const [playerPosition, setPlayerPosition] = useState(startingPlayerPosition);
 
@@ -50,13 +52,18 @@ const DungeonLayout = ({
 					return current;
 				}
 
+				onPlayerMove({
+					row: newRow,
+					col: newCol,
+				});
+
 				return {
 					row: newRow,
 					col: newCol,
 				};
 			});
 		},
-		[dungeon],
+		[dungeon, onPlayerMove],
 	);
 
 	useEffect(() => {

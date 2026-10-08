@@ -1,5 +1,10 @@
 import { expect } from "vitest";
 import {
+	type DungeonFloor,
+	generateDungeonFloor,
+	type StairLink,
+} from "../DungeonRun.ts";
+import {
 	type Coordinate,
 	type Dungeon,
 	FLOOR,
@@ -103,4 +108,32 @@ export const expectAllFloorTilesReachable = (
 			}
 		}
 	}
+};
+
+type TestDungeonFloorOptions = {
+	floorNumber: number;
+	terrain: string[][];
+	upStair?: StairLink;
+	downStair?: StairLink;
+};
+
+export const createTestDungeonFloor = ({
+	floorNumber,
+	terrain,
+	upStair,
+	downStair,
+}: TestDungeonFloorOptions): DungeonFloor => {
+	const floor = generateDungeonFloor(123, floorNumber, {
+		rows: terrain.length,
+		cols: terrain[0].length,
+		minPartitionSize: Math.min(terrain.length, terrain[0].length),
+		roomPadding: 0,
+	});
+
+	return {
+		...floor,
+		terrain,
+		upStair,
+		downStair,
+	};
 };

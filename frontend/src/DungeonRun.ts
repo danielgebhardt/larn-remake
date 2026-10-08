@@ -141,3 +141,22 @@ export const connectDungeonFloors = (run: DungeonRun): DungeonRun => {
 		floors,
 	};
 };
+
+export const descendDungeonRun = (run: DungeonRun): DungeonRun => {
+	const currentFloor = run.floors[run.activeFloor - 1];
+	const downStair = currentFloor.downStair;
+
+	if (
+		downStair &&
+		downStair.coordinate.row === run.playerCoordinate.row &&
+		downStair.coordinate.col === run.playerCoordinate.col
+	) {
+		return {
+			...run,
+			playerCoordinate: downStair.arrivalCoordinate,
+			activeFloor: downStair.destinationFloor,
+		};
+	}
+
+	return run;
+};

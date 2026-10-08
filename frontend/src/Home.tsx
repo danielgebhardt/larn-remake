@@ -1,16 +1,18 @@
 import { useState } from "react";
 import APICheck from "./APICheck.tsx";
 import DungeonLayout from "./DungeonLayout.tsx";
-import { connectDungeonFloors, generateDungeonRun } from "./DungeonRun.ts";
+import {
+	connectDungeonFloors,
+	type DungeonRun,
+	descendDungeonRun,
+	generateDungeonRun,
+} from "./DungeonRun.ts";
 import Header from "./Header.tsx";
-import type { Coordinate, Dungeon, DungeonConfig } from "./LayoutTiles.ts";
+import type { Coordinate, DungeonConfig } from "./LayoutTiles.ts";
 
-type DungeonLayoutType = {
-	terrain: Dungeon;
-	startingPlayerPosition: Coordinate;
+type HomeState = {
+	run: DungeonRun;
 	generation: number;
-	upStair?: Coordinate;
-	downStair?: Coordinate;
 };
 
 const dungeonConfig: DungeonConfig = {
@@ -20,40 +22,44 @@ const dungeonConfig: DungeonConfig = {
 	roomPadding: 1,
 };
 
-const createDungeonLayoutState = (
-	seed: number,
-	generation: number,
-): DungeonLayoutType => {
-	const run = connectDungeonFloors(generateDungeonRun(seed, 3, dungeonConfig));
-
-	const activeFloor = run.floors[run.activeFloor - 1];
-
-	return {
-		terrain: activeFloor.terrain,
-		startingPlayerPosition: run.playerCoordinate,
-		generation,
-		upStair: activeFloor.upStair?.coordinate,
-		downStair: activeFloor.downStair?.coordinate,
-	};
-};
+const createRun = (seed: number): DungeonRun =>
+	connectDungeonFloors(generateDungeonRun(seed, 3, dungeonConfig));
 
 const Home = () => {
-	const [
-		{ terrain, startingPlayerPosition, generation, upStair, downStair },
-		setDungeon,
-	] = useState(() => createDungeonLayoutState(0, 0));
+	const [{ run, generation }, setDungeon] = useState<HomeState>(() => ({
+		run: createRun(0),
+		generation: 0,
+	}));
+
+	const activeFloor = run.floors[run.activeFloor - 1];
 
 	const handleNewDungeon = () => {
 		const seed = Math.floor(Math.random() * 1000);
 
-		setDungeon((previous) =>
-			createDungeonLayoutState(seed, previous.generation + 1),
-		);
+		setDungeon((current) => ({
+			run: createRun(seed),
+			generation: current.generation + 1,
+		}));
+	};
+
+	const handlePlayerMove = (coordinate: Coordinate) => {
+		setDungeon((current) => {
+			const movedRun = descendDungeonRun({
+				...current.run,
+				playerCoordinate: coordinate,
+			});
+
+			return {
+				...current,
+				run: movedRun,
+			};
+		});
 	};
 
 	return (
 		<div>
 			<Header />
+
 			<main>
 				<section>
 					<APICheck />
@@ -67,11 +73,12 @@ const Home = () => {
 
 				<section>
 					<DungeonLayout
-						key={generation}
-						dungeon={terrain}
-						startingPlayerPosition={startingPlayerPosition}
-						upStair={upStair}
-						downStair={downStair}
+						key={`${generation}-${run.activeFloor}`}
+						dungeon={activeFloor.terrain}
+						startingPlayerPosition={run.playerCoordinate}
+						upStair={activeFloor.upStair?.coordinate}
+						downStair={activeFloor.downStair?.coordinate}
+						onPlayerMove={handlePlayerMove}
 					/>
 				</section>
 			</main>

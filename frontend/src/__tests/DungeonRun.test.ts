@@ -3,7 +3,9 @@ import {
 	connectDungeonFloors,
 	createDungeonRun,
 	type DungeonFloor,
+	type DungeonRun,
 	deriveFloorSeed,
+	descendDungeonRun,
 	generateDungeonFloor,
 	generateDungeonRun,
 	hashStringToUint32,
@@ -649,6 +651,111 @@ describe("Dungeon run tests", () => {
 				expect(() => connectDungeonFloors(run)).toThrow();
 
 				expect(run).toStrictEqual(before);
+			});
+
+			it("descends to the linked floor when the player is standing on a down stair", () => {
+				const run: DungeonRun = connectDungeonFloors(
+					generateDungeonRun(123, 3, config),
+				);
+
+				const floor1 = run.floors[0];
+
+				expect(floor1.downStair).toBeDefined();
+
+				if (!floor1.downStair) {
+					throw new Error("Expected floor 1 to have a down stair");
+				}
+
+				const runOnStairs: DungeonRun = {
+					...run,
+					playerCoordinate: floor1.downStair.coordinate,
+				};
+
+				const descended = descendDungeonRun(runOnStairs);
+
+				expect(descended.activeFloor).toBe(floor1.downStair.destinationFloor);
+
+				expect(descended.playerCoordinate).toEqual(
+					floor1.downStair.arrivalCoordinate,
+				);
+			});
+
+			it("does not descend when the player is not standing on the down stair", () => {
+				const run = connectDungeonFloors(generateDungeonRun(123, 3, config));
+
+				const descended = descendDungeonRun(run);
+
+				expect(descended).toEqual(run);
+			});
+
+			it("does not descend when the active floor has no down stair", () => {
+				const run = connectDungeonFloors(generateDungeonRun(123, 3, config));
+
+				const deepestFloor = run.floors[run.floors.length - 1];
+
+				const deepestRun = {
+					...run,
+					activeFloor: deepestFloor.floorNumber,
+					playerCoordinate: { row: 0, col: 0 },
+				};
+
+				const descended = descendDungeonRun(deepestRun);
+
+				expect(descended).toEqual(deepestRun);
+			});
+
+			it("descends when the player has the same coordinate values as the down stair", () => {
+				const run = connectDungeonFloors(generateDungeonRun(123, 3, config));
+
+				const floor1 = run.floors[0];
+
+				expect(floor1.downStair).toBeDefined();
+
+				if (!floor1.downStair) {
+					throw new Error("Expected floor 1 to have a down stair");
+				}
+
+				const runOnStairs = {
+					...run,
+					playerCoordinate: {
+						row: floor1.downStair.coordinate.row,
+						col: floor1.downStair.coordinate.col,
+					},
+				};
+
+				const descended = descendDungeonRun(runOnStairs);
+
+				expect(descended.activeFloor).toBe(floor1.downStair.destinationFloor);
+
+				expect(descended.playerCoordinate).toEqual(
+					floor1.downStair.arrivalCoordinate,
+				);
+			});
+
+			it("does not change generated floors when descending", () => {
+				const run = connectDungeonFloors(generateDungeonRun(123, 3, config));
+
+				const floor1 = run.floors[0];
+
+				expect(floor1.downStair).toBeDefined();
+
+				if (!floor1.downStair) {
+					throw new Error("Expected floor 1 to have a down stair");
+				}
+
+				const runOnStairs = {
+					...run,
+					playerCoordinate: {
+						row: floor1.downStair.coordinate.row,
+						col: floor1.downStair.coordinate.col,
+					},
+				};
+
+				const floorsBefore = structuredClone(runOnStairs.floors);
+
+				const descended = descendDungeonRun(runOnStairs);
+
+				expect(descended.floors).toEqual(floorsBefore);
 			});
 		});
 	});

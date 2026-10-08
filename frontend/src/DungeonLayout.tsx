@@ -1,20 +1,26 @@
-import { useCallback, useEffect, useState } from "react";
+import { type ReactNode, useCallback, useEffect, useState } from "react";
 import {
 	type Coordinate,
 	type Dungeon,
 	getDungeonCoordinateValue,
 	PLAYER,
+	STAIRS_DOWN,
+	STAIRS_UP,
 	WALL,
 } from "./LayoutTiles.ts";
 
 type DungeonLayoutProps = {
 	dungeon: Dungeon;
 	startingPlayerPosition: Coordinate;
+	downStair?: Coordinate;
+	upStair?: Coordinate;
 };
 
 const DungeonLayout = ({
 	dungeon,
 	startingPlayerPosition,
+	downStair,
+	upStair,
 }: DungeonLayoutProps) => {
 	const [playerPosition, setPlayerPosition] = useState(startingPlayerPosition);
 
@@ -97,6 +103,40 @@ const DungeonLayout = ({
 		};
 	}, [movePlayer]);
 
+	const chooseDisplayedCharacter = (
+		rowIndex: number,
+		columnIndex: number,
+		cell: string,
+	): ReactNode => {
+		let displayTile = cell;
+		let tileDescription = `row${rowIndex}col${columnIndex}`;
+
+		if (playerPosition.row === rowIndex && playerPosition.col === columnIndex) {
+			displayTile = PLAYER;
+			tileDescription = `row${rowIndex}col${columnIndex} - player`;
+		} else if (
+			upStair &&
+			upStair.row === rowIndex &&
+			upStair.col === columnIndex
+		) {
+			displayTile = STAIRS_UP;
+			tileDescription = `row${rowIndex}col${columnIndex} - stairs up`;
+		} else if (
+			downStair &&
+			downStair.row === rowIndex &&
+			downStair.col === columnIndex
+		) {
+			displayTile = STAIRS_DOWN;
+			tileDescription = `row${rowIndex}col${columnIndex} - stairs down`;
+		}
+
+		return (
+			<td key={columnIndex} aria-label={tileDescription}>
+				{displayTile}
+			</td>
+		);
+	};
+
 	return (
 		<table aria-label="Dungeon">
 			<tbody className="grid">
@@ -108,17 +148,9 @@ const DungeonLayout = ({
 							gridTemplateColumns: `repeat(${row.length}, minmax(0, 1fr))`,
 						}}
 					>
-						{row.map((cell, columnIndex) => (
-							<td
-								key={columnIndex}
-								aria-label={`row${rowIndex}col${columnIndex}`}
-							>
-								{playerPosition.row === rowIndex &&
-								playerPosition.col === columnIndex
-									? PLAYER
-									: cell}
-							</td>
-						))}
+						{row.map((cell, columnIndex) =>
+							chooseDisplayedCharacter(rowIndex, columnIndex, cell),
+						)}
 					</tr>
 				))}
 			</tbody>

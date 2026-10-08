@@ -31,6 +31,8 @@ export type LocationSelectionSource = Pick<
 export const WALL: string = "#";
 export const FLOOR: string = ".";
 export const PLAYER: string = "@";
+export const STAIRS_UP = "<";
+export const STAIRS_DOWN = ">";
 export const START_COORDINATE: Coordinate = { row: 1, col: 1 };
 export const MAX_SIZE = 100;
 

@@ -79,7 +79,9 @@ describe("Home tests", () => {
 		expect(start).toEqual({ row: 2, col: 3 });
 		expect(generated.terrain[start.row][start.col]).toBe(LayoutTiles.FLOOR);
 		expect(
-			screen.getByRole("cell", { name: `row${start.row}col${start.col}` }),
+			screen.getByRole("cell", {
+				name: `row${start.row}col${start.col} - player`,
+			}),
 		).toHaveTextContent(LayoutTiles.PLAYER);
 	});
 
@@ -118,15 +120,15 @@ describe("Home tests", () => {
 		const { rerender } = render(<Home />);
 
 		await userEvent.keyboard("{ArrowRight}");
-		expect(screen.getByRole("cell", { name: "row2col4" })).toHaveTextContent(
-			LayoutTiles.PLAYER,
-		);
+		expect(
+			screen.getByRole("cell", { name: "row2col4 - player" }),
+		).toHaveTextContent(LayoutTiles.PLAYER);
 
 		rerender(<Home />);
 
-		expect(screen.getByRole("cell", { name: "row2col4" })).toHaveTextContent(
-			LayoutTiles.PLAYER,
-		);
+		expect(
+			screen.getByRole("cell", { name: "row2col4 - player" }),
+		).toHaveTextContent(LayoutTiles.PLAYER);
 	});
 
 	it("replaces the rendered dungeon and resets the player when New Dungeon is clicked", async () => {
@@ -166,7 +168,7 @@ describe("Home tests", () => {
 
 		expect(
 			screen.getByRole("cell", {
-				name: `row${movedPosition.row}col${movedPosition.col}`,
+				name: `row${movedPosition.row}col${movedPosition.col} - player`,
 			}),
 		).toHaveTextContent(LayoutTiles.PLAYER);
 
@@ -189,14 +191,17 @@ describe("Home tests", () => {
 
 		for (const [rowIndex, row] of second.terrain.entries()) {
 			for (const [colIndex, tile] of row.entries()) {
-				const expected =
-					rowIndex === start.row && colIndex === start.col
-						? LayoutTiles.PLAYER
-						: tile;
+				let expected = tile;
+				let expectedDescription = `row${rowIndex}col${colIndex}`;
+
+				if (rowIndex === start.row && colIndex === start.col) {
+					expected = LayoutTiles.PLAYER;
+					expectedDescription = `row${rowIndex}col${colIndex} - player`;
+				}
 
 				expect(
 					screen.getByRole("cell", {
-						name: `row${rowIndex}col${colIndex}`,
+						name: expectedDescription,
 					}),
 				).toHaveTextContent(expected);
 			}
@@ -220,15 +225,15 @@ describe("Home tests", () => {
 		for (let generation = 0; generation < 2; generation++) {
 			await user.keyboard("{ArrowRight}");
 
-			expect(screen.getByRole("cell", { name: "row2col4" })).toHaveTextContent(
-				LayoutTiles.PLAYER,
-			);
+			expect(
+				screen.getByRole("cell", { name: "row2col4 - player" }),
+			).toHaveTextContent(LayoutTiles.PLAYER);
 
 			await user.click(screen.getByRole("button", { name: "New Dungeon" }));
 
-			expect(screen.getByRole("cell", { name: "row2col3" })).toHaveTextContent(
-				LayoutTiles.PLAYER,
-			);
+			expect(
+				screen.getByRole("cell", { name: "row2col3 - player" }),
+			).toHaveTextContent(LayoutTiles.PLAYER);
 			expect(screen.getByRole("cell", { name: "row2col4" })).toHaveTextContent(
 				LayoutTiles.FLOOR,
 			);
@@ -265,18 +270,18 @@ describe("Home tests", () => {
 		expect(screen.getByRole("cell", { name: "row1col3" })).toHaveTextContent(
 			LayoutTiles.WALL,
 		);
-		expect(screen.getByRole("cell", { name: "row2col3" })).toHaveTextContent(
-			LayoutTiles.PLAYER,
-		);
+		expect(
+			screen.getByRole("cell", { name: "row2col3 - player" }),
+		).toHaveTextContent(LayoutTiles.PLAYER);
 
 		await user.keyboard("{ArrowRight}");
 
 		expect(screen.getByRole("cell", { name: "row2col3" })).toHaveTextContent(
 			LayoutTiles.FLOOR,
 		);
-		expect(screen.getByRole("cell", { name: "row2col4" })).toHaveTextContent(
-			LayoutTiles.PLAYER,
-		);
+		expect(
+			screen.getByRole("cell", { name: "row2col4 - player" }),
+		).toHaveTextContent(LayoutTiles.PLAYER);
 		expect(screen.getByRole("cell", { name: "row2col5" })).toHaveTextContent(
 			LayoutTiles.FLOOR,
 		);

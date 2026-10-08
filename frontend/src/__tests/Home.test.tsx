@@ -11,6 +11,96 @@ afterEach(() => {
 	vi.restoreAllMocks();
 });
 
+const createThreeFloorTraversalRun = (): DungeonRun.DungeonRun => {
+	const floor1 = createTestDungeonFloor({
+		floorNumber: 1,
+		terrain: [
+			[LayoutTiles.WALL, LayoutTiles.WALL, LayoutTiles.WALL, LayoutTiles.WALL],
+			[
+				LayoutTiles.WALL,
+				LayoutTiles.FLOOR,
+				LayoutTiles.FLOOR,
+				LayoutTiles.WALL,
+			],
+			[LayoutTiles.WALL, LayoutTiles.WALL, LayoutTiles.WALL, LayoutTiles.WALL],
+		],
+		downStair: {
+			coordinate: { row: 1, col: 2 },
+			destinationFloor: 2,
+			arrivalCoordinate: { row: 1, col: 1 },
+		},
+	});
+
+	const floor2 = createTestDungeonFloor({
+		floorNumber: 2,
+		terrain: [
+			[
+				LayoutTiles.WALL,
+				LayoutTiles.WALL,
+				LayoutTiles.WALL,
+				LayoutTiles.WALL,
+				LayoutTiles.WALL,
+			],
+			[
+				LayoutTiles.WALL,
+				LayoutTiles.FLOOR,
+				LayoutTiles.FLOOR,
+				LayoutTiles.FLOOR,
+				LayoutTiles.WALL,
+			],
+			[
+				LayoutTiles.WALL,
+				LayoutTiles.WALL,
+				LayoutTiles.WALL,
+				LayoutTiles.WALL,
+				LayoutTiles.WALL,
+			],
+		],
+		upStair: {
+			coordinate: { row: 1, col: 1 },
+			destinationFloor: 1,
+			arrivalCoordinate: { row: 1, col: 2 },
+		},
+		downStair: {
+			coordinate: { row: 1, col: 3 },
+			destinationFloor: 3,
+			arrivalCoordinate: { row: 1, col: 1 },
+		},
+	});
+
+	const floor3 = createTestDungeonFloor({
+		floorNumber: 3,
+		terrain: [
+			[LayoutTiles.WALL, LayoutTiles.WALL, LayoutTiles.WALL, LayoutTiles.WALL],
+			[
+				LayoutTiles.WALL,
+				LayoutTiles.FLOOR,
+				LayoutTiles.FLOOR,
+				LayoutTiles.WALL,
+			],
+			[
+				LayoutTiles.WALL,
+				LayoutTiles.FLOOR,
+				LayoutTiles.FLOOR,
+				LayoutTiles.WALL,
+			],
+			[LayoutTiles.WALL, LayoutTiles.WALL, LayoutTiles.WALL, LayoutTiles.WALL],
+		],
+		upStair: {
+			coordinate: { row: 1, col: 1 },
+			destinationFloor: 2,
+			arrivalCoordinate: { row: 1, col: 3 },
+		},
+	});
+
+	return {
+		seed: 123,
+		floors: [floor1, floor2, floor3],
+		activeFloor: 1,
+		playerCoordinate: { row: 1, col: 1 },
+	};
+};
+
 describe("Home tests", () => {
 	it("shows the header and main element", () => {
 		render(<Home />);
@@ -752,5 +842,140 @@ describe("Home tests", () => {
 				name: "row1col3",
 			}),
 		).toHaveTextContent(LayoutTiles.FLOOR);
+	});
+
+	it("ascends onto the linked shallower floor and arrives on its down stair", async () => {
+		const user = userEvent.setup();
+		const run = createThreeFloorTraversalRun();
+
+		const runOnFloor2: DungeonRun.DungeonRun = {
+			...run,
+			activeFloor: 2,
+			playerCoordinate: { row: 1, col: 2 },
+		};
+
+		vi.spyOn(DungeonRun, "generateDungeonRun").mockReturnValue(runOnFloor2);
+		vi.spyOn(DungeonRun, "connectDungeonFloors").mockReturnValue(runOnFloor2);
+
+		render(<Home />);
+
+		await user.keyboard("{ArrowLeft}");
+
+		expect(
+			screen.getByRole("cell", {
+				name: "row1col2 - player",
+			}),
+		).toHaveTextContent(LayoutTiles.PLAYER);
+
+		const dungeon = screen.getByRole("table", { name: "Dungeon" });
+		const rows = within(dungeon).getAllByRole("row");
+
+		expect(rows).toHaveLength(3);
+
+		for (const row of rows) {
+			expect(within(row).getAllByRole("cell")).toHaveLength(4);
+		}
+	});
+
+	it("does not immediately descend again after arriving on a down stair", async () => {
+		const user = userEvent.setup();
+		const run = createThreeFloorTraversalRun();
+
+		const runOnFloor2: DungeonRun.DungeonRun = {
+			...run,
+			activeFloor: 2,
+			playerCoordinate: { row: 1, col: 2 },
+		};
+
+		vi.spyOn(DungeonRun, "generateDungeonRun").mockReturnValue(runOnFloor2);
+		vi.spyOn(DungeonRun, "connectDungeonFloors").mockReturnValue(runOnFloor2);
+
+		render(<Home />);
+
+		await user.keyboard("{ArrowLeft}");
+
+		expect(
+			screen.getByRole("cell", {
+				name: "row1col2 - player",
+			}),
+		).toHaveTextContent(LayoutTiles.PLAYER);
+
+		// Floor 1 is still rendered.
+		const dungeon = screen.getByRole("table", { name: "Dungeon" });
+		const rows = within(dungeon).getAllByRole("row");
+
+		expect(rows).toHaveLength(3);
+
+		for (const row of rows) {
+			expect(within(row).getAllByRole("cell")).toHaveLength(4);
+		}
+	});
+
+	it("allows normal movement after ascending to a previously visited floor", async () => {
+		const user = userEvent.setup();
+		const run = createThreeFloorTraversalRun();
+
+		const runOnFloor2: DungeonRun.DungeonRun = {
+			...run,
+			activeFloor: 2,
+			playerCoordinate: { row: 1, col: 2 },
+		};
+
+		vi.spyOn(DungeonRun, "generateDungeonRun").mockReturnValue(runOnFloor2);
+		vi.spyOn(DungeonRun, "connectDungeonFloors").mockReturnValue(runOnFloor2);
+
+		render(<Home />);
+
+		// Ascend from floor 2 to floor 1.
+		await user.keyboard("{ArrowLeft}");
+
+		// Move away from floor 1's down stair.
+		await user.keyboard("{ArrowLeft}");
+
+		expect(
+			screen.getByRole("cell", {
+				name: "row1col1 - player",
+			}),
+		).toHaveTextContent(LayoutTiles.PLAYER);
+
+		expect(
+			screen.getByRole("cell", {
+				name: "row1col2 - stairs down",
+			}),
+		).toHaveTextContent(LayoutTiles.STAIRS_DOWN);
+	});
+
+	it("allows normal movement after ascending to a previously visited floor", async () => {
+		const user = userEvent.setup();
+		const run = createThreeFloorTraversalRun();
+
+		const runOnFloor2: DungeonRun.DungeonRun = {
+			...run,
+			activeFloor: 2,
+			playerCoordinate: { row: 1, col: 2 },
+		};
+
+		vi.spyOn(DungeonRun, "generateDungeonRun").mockReturnValue(runOnFloor2);
+		vi.spyOn(DungeonRun, "connectDungeonFloors").mockReturnValue(runOnFloor2);
+
+		render(<Home />);
+
+		// Ascend from floor 2 to floor 1.
+		await user.keyboard("{ArrowLeft}");
+
+		// Move away from floor 1's down stair.
+		await user.keyboard("{ArrowLeft}");
+
+		expect(
+			screen.getByRole("cell", {
+				name: "row1col1 - player",
+			}),
+		).toHaveTextContent(LayoutTiles.PLAYER);
+
+		expect(
+			screen.getByRole("cell", {
+				name: "row1col2 - stairs down",
+			}),
+		).toHaveTextContent(LayoutTiles.STAIRS_DOWN);
 	});
 });

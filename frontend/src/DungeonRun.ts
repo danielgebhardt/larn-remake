@@ -142,7 +142,12 @@ export const connectDungeonFloors = (run: DungeonRun): DungeonRun => {
 	};
 };
 
-export const descendDungeonRun = (run: DungeonRun): DungeonRun => {
+type DungeonTransitionResult = {
+	run: DungeonRun;
+	transitioned: boolean;
+};
+
+export const descendDungeonRun = (run: DungeonRun): DungeonTransitionResult => {
 	const currentFloor = run.floors[run.activeFloor - 1];
 	const downStair = currentFloor.downStair;
 
@@ -151,7 +156,10 @@ export const descendDungeonRun = (run: DungeonRun): DungeonRun => {
 		downStair.coordinate.row !== run.playerCoordinate.row ||
 		downStair.coordinate.col !== run.playerCoordinate.col
 	) {
-		return run;
+		return {
+			run,
+			transitioned: false,
+		};
 	}
 
 	const destinationFloor = run.floors.find(
@@ -159,12 +167,54 @@ export const descendDungeonRun = (run: DungeonRun): DungeonRun => {
 	);
 
 	if (!destinationFloor) {
-		return run;
+		return {
+			run,
+			transitioned: false,
+		};
 	}
 
 	return {
-		...run,
-		playerCoordinate: downStair.arrivalCoordinate,
-		activeFloor: downStair.destinationFloor,
+		run: {
+			...run,
+			playerCoordinate: downStair.arrivalCoordinate,
+			activeFloor: downStair.destinationFloor,
+		},
+		transitioned: true,
+	};
+};
+
+export const ascendDungeonRun = (run: DungeonRun): DungeonTransitionResult => {
+	const currentFloor = run.floors[run.activeFloor - 1];
+	const upStair = currentFloor.upStair;
+
+	if (
+		!upStair ||
+		upStair.coordinate.row !== run.playerCoordinate.row ||
+		upStair.coordinate.col !== run.playerCoordinate.col
+	) {
+		return {
+			run,
+			transitioned: false,
+		};
+	}
+
+	const destinationFloor = run.floors.find(
+		(floor) => floor.floorNumber === upStair.destinationFloor,
+	);
+
+	if (!destinationFloor) {
+		return {
+			run,
+			transitioned: false,
+		};
+	}
+
+	return {
+		run: {
+			...run,
+			playerCoordinate: upStair.arrivalCoordinate,
+			activeFloor: upStair.destinationFloor,
+		},
+		transitioned: true,
 	};
 };

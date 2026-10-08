@@ -2,6 +2,7 @@ import { useState } from "react";
 import APICheck from "./APICheck.tsx";
 import DungeonLayout from "./DungeonLayout.tsx";
 import {
+	ascendDungeonRun,
 	connectDungeonFloors,
 	type DungeonRun,
 	descendDungeonRun,
@@ -44,14 +45,26 @@ const Home = () => {
 
 	const handlePlayerMove = (coordinate: Coordinate) => {
 		setDungeon((current) => {
-			const movedRun = descendDungeonRun({
+			const movedRunCheckDescend = descendDungeonRun({
+				...current.run,
+				playerCoordinate: coordinate,
+			});
+
+			if (movedRunCheckDescend.transitioned) {
+				return {
+					...current,
+					run: movedRunCheckDescend.run,
+				};
+			}
+
+			const movedRunCheckAscend = ascendDungeonRun({
 				...current.run,
 				playerCoordinate: coordinate,
 			});
 
 			return {
 				...current,
-				run: movedRun,
+				run: movedRunCheckAscend.run,
 			};
 		});
 	};

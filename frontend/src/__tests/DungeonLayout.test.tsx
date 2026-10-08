@@ -579,154 +579,175 @@ describe("DungeonLayout tests", () => {
 
 			expect(onPlayerMove).not.toHaveBeenCalled();
 		});
+	});
 
-		describe("Stair tests", () => {
-			it("renders a down stair marker on the supplied stair coordinate", () => {
-				render(
-					<DungeonLayout
-						dungeon={openDungeon}
-						startingPlayerPosition={{ row: 0, col: 0 }}
-						downStair={{ row: 1, col: 1 }}
-						onPlayerMove={noopPlayerMove}
-					/>,
-				);
+	describe("Stair tests", () => {
+		it("renders a down stair marker on the supplied stair coordinate", () => {
+			render(
+				<DungeonLayout
+					dungeon={openDungeon}
+					startingPlayerPosition={{ row: 0, col: 0 }}
+					downStair={{ row: 1, col: 1 }}
+					onPlayerMove={noopPlayerMove}
+				/>,
+			);
 
-				expect(
-					screen.getByRole("cell", { name: "row1col1 - stairs down" }),
-				).toHaveTextContent(STAIRS_DOWN);
+			expect(
+				screen.getByRole("cell", { name: "row1col1 - stairs down" }),
+			).toHaveTextContent(STAIRS_DOWN);
+		});
+
+		it("renders an up stair marker on the supplied stair coordinate", () => {
+			render(
+				<DungeonLayout
+					dungeon={openDungeon}
+					startingPlayerPosition={{ row: 0, col: 0 }}
+					upStair={{ row: 1, col: 1 }}
+					onPlayerMove={noopPlayerMove}
+				/>,
+			);
+
+			expect(
+				screen.getByRole("cell", { name: "row1col1 - stairs up" }),
+			).toHaveTextContent(STAIRS_UP);
+		});
+
+		it("renders the player instead of a down stair when occupying the same coordinate", () => {
+			render(
+				<DungeonLayout
+					dungeon={openDungeon}
+					startingPlayerPosition={{ row: 1, col: 1 }}
+					downStair={{ row: 1, col: 1 }}
+					onPlayerMove={noopPlayerMove}
+				/>,
+			);
+
+			expect(
+				screen.getByRole("cell", { name: "row1col1 - player" }),
+			).toHaveTextContent(PLAYER);
+		});
+
+		it("allows the player to occupy a down stair and restores the marker after moving away", async () => {
+			render(
+				<DungeonLayout
+					dungeon={openDungeon}
+					startingPlayerPosition={{ row: 1, col: 1 }}
+					downStair={{ row: 1, col: 1 }}
+					onPlayerMove={noopPlayerMove}
+				/>,
+			);
+
+			expect(
+				screen.getByRole("cell", { name: "row1col1 - player" }),
+			).toHaveTextContent(PLAYER);
+
+			await userEvent.keyboard("{ArrowRight}");
+
+			expect(
+				screen.getByRole("cell", { name: "row1col1 - stairs down" }),
+			).toHaveTextContent(STAIRS_DOWN);
+
+			await userEvent.keyboard("{ArrowLeft}");
+
+			expect(
+				screen.getByRole("cell", { name: "row1col1 - player" }),
+			).toHaveTextContent(PLAYER);
+		});
+
+		it("renders the player instead of an up stair when occupying the same coordinate", () => {
+			render(
+				<DungeonLayout
+					dungeon={openDungeon}
+					startingPlayerPosition={{ row: 1, col: 1 }}
+					upStair={{ row: 1, col: 1 }}
+					onPlayerMove={noopPlayerMove}
+				/>,
+			);
+
+			expect(
+				screen.getByRole("cell", { name: "row1col1 - player" }),
+			).toHaveTextContent(PLAYER);
+		});
+
+		it("allows the player to occupy an up stair and restores the marker after moving away", async () => {
+			render(
+				<DungeonLayout
+					dungeon={openDungeon}
+					startingPlayerPosition={{ row: 1, col: 1 }}
+					upStair={{ row: 1, col: 1 }}
+					onPlayerMove={noopPlayerMove}
+				/>,
+			);
+
+			expect(
+				screen.getByRole("cell", { name: "row1col1 - player" }),
+			).toHaveTextContent(PLAYER);
+
+			await userEvent.keyboard("{ArrowRight}");
+
+			expect(
+				screen.getByRole("cell", { name: "row1col1 - stairs up" }),
+			).toHaveTextContent(STAIRS_UP);
+
+			await userEvent.keyboard("{ArrowLeft}");
+
+			expect(
+				screen.getByRole("cell", { name: "row1col1 - player" }),
+			).toHaveTextContent(PLAYER);
+		});
+
+		it("provides an accessible description for a down stair", () => {
+			render(
+				<DungeonLayout
+					dungeon={openDungeon}
+					startingPlayerPosition={{ row: 0, col: 0 }}
+					downStair={{ row: 1, col: 1 }}
+					onPlayerMove={noopPlayerMove}
+				/>,
+			);
+
+			const stairCell = screen.getByRole("cell", {
+				name: "row1col1 - stairs down",
 			});
 
-			it("renders an up stair marker on the supplied stair coordinate", () => {
-				render(
-					<DungeonLayout
-						dungeon={openDungeon}
-						startingPlayerPosition={{ row: 0, col: 0 }}
-						upStair={{ row: 1, col: 1 }}
-						onPlayerMove={noopPlayerMove}
-					/>,
-				);
+			expect(stairCell).toHaveTextContent(STAIRS_DOWN);
+		});
 
-				expect(
-					screen.getByRole("cell", { name: "row1col1 - stairs up" }),
-				).toHaveTextContent(STAIRS_UP);
+		it("provides an accessible description for an up stair", () => {
+			render(
+				<DungeonLayout
+					dungeon={openDungeon}
+					startingPlayerPosition={{ row: 0, col: 0 }}
+					upStair={{ row: 1, col: 1 }}
+					onPlayerMove={noopPlayerMove}
+				/>,
+			);
+
+			const stairCell = screen.getByRole("cell", {
+				name: "row1col1 - stairs up",
 			});
 
-			it("renders the player instead of a down stair when occupying the same coordinate", () => {
-				render(
-					<DungeonLayout
-						dungeon={openDungeon}
-						startingPlayerPosition={{ row: 1, col: 1 }}
-						downStair={{ row: 1, col: 1 }}
-						onPlayerMove={noopPlayerMove}
-					/>,
-				);
+			expect(stairCell).toHaveTextContent(STAIRS_UP);
+		});
 
-				expect(
-					screen.getByRole("cell", { name: "row1col1 - player" }),
-				).toHaveTextContent(PLAYER);
-			});
+		it("reports movement onto an up stair through onPlayerMove", async () => {
+			const onPlayerMove = vi.fn();
 
-			it("allows the player to occupy a down stair and restores the marker after moving away", async () => {
-				render(
-					<DungeonLayout
-						dungeon={openDungeon}
-						startingPlayerPosition={{ row: 1, col: 1 }}
-						downStair={{ row: 1, col: 1 }}
-						onPlayerMove={noopPlayerMove}
-					/>,
-				);
+			render(
+				<DungeonLayout
+					dungeon={openDungeon}
+					startingPlayerPosition={{ row: 1, col: 2 }}
+					upStair={{ row: 1, col: 1 }}
+					onPlayerMove={onPlayerMove}
+				/>,
+			);
 
-				expect(
-					screen.getByRole("cell", { name: "row1col1 - player" }),
-				).toHaveTextContent(PLAYER);
+			await userEvent.keyboard("{ArrowLeft}");
 
-				await userEvent.keyboard("{ArrowRight}");
-
-				expect(
-					screen.getByRole("cell", { name: "row1col1 - stairs down" }),
-				).toHaveTextContent(STAIRS_DOWN);
-
-				await userEvent.keyboard("{ArrowLeft}");
-
-				expect(
-					screen.getByRole("cell", { name: "row1col1 - player" }),
-				).toHaveTextContent(PLAYER);
-			});
-
-			it("renders the player instead of an up stair when occupying the same coordinate", () => {
-				render(
-					<DungeonLayout
-						dungeon={openDungeon}
-						startingPlayerPosition={{ row: 1, col: 1 }}
-						upStair={{ row: 1, col: 1 }}
-						onPlayerMove={noopPlayerMove}
-					/>,
-				);
-
-				expect(
-					screen.getByRole("cell", { name: "row1col1 - player" }),
-				).toHaveTextContent(PLAYER);
-			});
-
-			it("allows the player to occupy an up stair and restores the marker after moving away", async () => {
-				render(
-					<DungeonLayout
-						dungeon={openDungeon}
-						startingPlayerPosition={{ row: 1, col: 1 }}
-						upStair={{ row: 1, col: 1 }}
-						onPlayerMove={noopPlayerMove}
-					/>,
-				);
-
-				expect(
-					screen.getByRole("cell", { name: "row1col1 - player" }),
-				).toHaveTextContent(PLAYER);
-
-				await userEvent.keyboard("{ArrowRight}");
-
-				expect(
-					screen.getByRole("cell", { name: "row1col1 - stairs up" }),
-				).toHaveTextContent(STAIRS_UP);
-
-				await userEvent.keyboard("{ArrowLeft}");
-
-				expect(
-					screen.getByRole("cell", { name: "row1col1 - player" }),
-				).toHaveTextContent(PLAYER);
-			});
-
-			it("provides an accessible description for a down stair", () => {
-				render(
-					<DungeonLayout
-						dungeon={openDungeon}
-						startingPlayerPosition={{ row: 0, col: 0 }}
-						downStair={{ row: 1, col: 1 }}
-						onPlayerMove={noopPlayerMove}
-					/>,
-				);
-
-				const stairCell = screen.getByRole("cell", {
-					name: "row1col1 - stairs down",
-				});
-
-				expect(stairCell).toHaveTextContent(STAIRS_DOWN);
-			});
-
-			it("provides an accessible description for an up stair", () => {
-				render(
-					<DungeonLayout
-						dungeon={openDungeon}
-						startingPlayerPosition={{ row: 0, col: 0 }}
-						upStair={{ row: 1, col: 1 }}
-						onPlayerMove={noopPlayerMove}
-					/>,
-				);
-
-				const stairCell = screen.getByRole("cell", {
-					name: "row1col1 - stairs up",
-				});
-
-				expect(stairCell).toHaveTextContent(STAIRS_UP);
+			expect(onPlayerMove).toHaveBeenCalledTimes(1);
+			expect(onPlayerMove).toHaveBeenCalledWith({
+				row: 1,
+				col: 1,
 			});
 		});
 	});

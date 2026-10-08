@@ -945,26 +945,22 @@ describe("Home tests", () => {
 		).toHaveTextContent(LayoutTiles.STAIRS_DOWN);
 	});
 
-	it("allows normal movement after ascending to a previously visited floor", async () => {
+	it("travels from floor 1 to 2 to 3 and back to 2 and 1 without regenerating floors", async () => {
 		const user = userEvent.setup();
 		const run = createThreeFloorTraversalRun();
 
-		const runOnFloor2: DungeonRun.DungeonRun = {
-			...run,
-			activeFloor: 2,
-			playerCoordinate: { row: 1, col: 2 },
-		};
+		const generateSpy = vi
+			.spyOn(DungeonRun, "generateDungeonRun")
+			.mockReturnValue(run);
 
-		vi.spyOn(DungeonRun, "generateDungeonRun").mockReturnValue(runOnFloor2);
-		vi.spyOn(DungeonRun, "connectDungeonFloors").mockReturnValue(runOnFloor2);
+		const connectSpy = vi
+			.spyOn(DungeonRun, "connectDungeonFloors")
+			.mockReturnValue(run);
 
 		render(<Home />);
 
-		// Ascend from floor 2 to floor 1.
-		await user.keyboard("{ArrowLeft}");
-
-		// Move away from floor 1's down stair.
-		await user.keyboard("{ArrowLeft}");
+		// Floor 1 -> Floor 2.
+		await user.keyboard("{ArrowRight}");
 
 		expect(
 			screen.getByRole("cell", {
@@ -972,10 +968,68 @@ describe("Home tests", () => {
 			}),
 		).toHaveTextContent(LayoutTiles.PLAYER);
 
+		// Walk across floor 2 to its down stair.
+		await user.keyboard("{ArrowRight}");
+		await user.keyboard("{ArrowRight}");
+
+		// Now on floor 3 at its up stair.
 		expect(
 			screen.getByRole("cell", {
-				name: "row1col2 - stairs down",
+				name: "row1col1 - player",
 			}),
-		).toHaveTextContent(LayoutTiles.STAIRS_DOWN);
+		).toHaveTextContent(LayoutTiles.PLAYER);
+
+		let dungeon = screen.getByRole("table", { name: "Dungeon" });
+		let rows = within(dungeon).getAllByRole("row");
+
+		expect(rows).toHaveLength(4);
+
+		for (const row of rows) {
+			expect(within(row).getAllByRole("cell")).toHaveLength(4);
+		}
+
+		// Move away, then step back onto floor 3's up stair.
+		await user.keyboard("{ArrowRight}");
+		await user.keyboard("{ArrowLeft}");
+
+		// Back on floor 2, arriving at its down stair.
+		expect(
+			screen.getByRole("cell", {
+				name: "row1col3 - player",
+			}),
+		).toHaveTextContent(LayoutTiles.PLAYER);
+
+		dungeon = screen.getByRole("table", { name: "Dungeon" });
+		rows = within(dungeon).getAllByRole("row");
+
+		expect(rows).toHaveLength(3);
+
+		for (const row of rows) {
+			expect(within(row).getAllByRole("cell")).toHaveLength(5);
+		}
+
+		// Walk from floor 2's down stair back to its up stair.
+		await user.keyboard("{ArrowLeft}");
+		await user.keyboard("{ArrowLeft}");
+
+		// Back on floor 1 at its down stair.
+		expect(
+			screen.getByRole("cell", {
+				name: "row1col2 - player",
+			}),
+		).toHaveTextContent(LayoutTiles.PLAYER);
+
+		dungeon = screen.getByRole("table", { name: "Dungeon" });
+		rows = within(dungeon).getAllByRole("row");
+
+		expect(rows).toHaveLength(3);
+
+		for (const row of rows) {
+			expect(within(row).getAllByRole("cell")).toHaveLength(4);
+		}
+
+		// Traversal must reuse the existing run, not generate replacement floors.
+		expect(generateSpy).toHaveBeenCalledTimes(1);
+		expect(connectSpy).toHaveBeenCalledTimes(1);
 	});
 });

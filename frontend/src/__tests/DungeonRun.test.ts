@@ -675,6 +675,8 @@ describe("Dungeon run tests", () => {
 			expect(descended.run.playerCoordinate).toEqual(
 				floor1.downStair.arrivalCoordinate,
 			);
+
+			expect(descended.transitioned).toBe(true);
 		});
 
 		it("does not descend when the player is not standing on the down stair", () => {
@@ -683,6 +685,7 @@ describe("Dungeon run tests", () => {
 			const descended = descendDungeonRun(run);
 
 			expect(descended.run).toEqual(run);
+			expect(descended.transitioned).toBe(false);
 		});
 
 		it("does not descend when the active floor has no down stair", () => {
@@ -699,6 +702,7 @@ describe("Dungeon run tests", () => {
 			const descended = descendDungeonRun(deepestRun);
 
 			expect(descended.run).toEqual(deepestRun);
+			expect(descended.transitioned).toBe(false);
 		});
 
 		it("descends when the player has the same coordinate values as the down stair", () => {
@@ -727,6 +731,8 @@ describe("Dungeon run tests", () => {
 			expect(descended.run.playerCoordinate).toEqual(
 				floor1.downStair.arrivalCoordinate,
 			);
+
+			expect(descended.transitioned).toBe(true);
 		});
 
 		it("does not change generated floors when descending", () => {
@@ -753,6 +759,7 @@ describe("Dungeon run tests", () => {
 			const descended = descendDungeonRun(runOnStairs);
 
 			expect(descended.run.floors).toEqual(floorsBefore);
+			expect(descended.transitioned).toBe(true);
 		});
 
 		it("does not descend when the down stair links to a nonexistent floor", () => {
@@ -787,6 +794,7 @@ describe("Dungeon run tests", () => {
 			const descended = descendDungeonRun(runWithInvalidLink);
 
 			expect(descended.run).toEqual(runWithInvalidLink);
+			expect(descended.transitioned).toBe(false);
 		});
 
 		it("ascends to the linked floor when the player is standing on an up stair", () => {
@@ -815,6 +823,7 @@ describe("Dungeon run tests", () => {
 			expect(ascended.run.playerCoordinate).toEqual(
 				floor2.upStair.arrivalCoordinate,
 			);
+			expect(ascended.transitioned).toBe(true);
 		});
 
 		it("does not ascend when the player is not standing on the up stair", () => {
@@ -829,6 +838,7 @@ describe("Dungeon run tests", () => {
 			const ascended = ascendDungeonRun(runAwayFromStairs);
 
 			expect(ascended.run).toEqual(runAwayFromStairs);
+			expect(ascended.transitioned).toBe(false);
 		});
 
 		it("does not ascend when the active floor has no up stair", () => {
@@ -843,6 +853,7 @@ describe("Dungeon run tests", () => {
 			const ascended = ascendDungeonRun(floor1Run);
 
 			expect(ascended.run).toEqual(floor1Run);
+			expect(ascended.transitioned).toBe(false);
 		});
 
 		it("ascends when the player has the same coordinate values as the up stair", () => {
@@ -871,6 +882,7 @@ describe("Dungeon run tests", () => {
 			expect(ascended.run.playerCoordinate).toEqual(
 				floor2.upStair.arrivalCoordinate,
 			);
+			expect(ascended.transitioned).toBe(true);
 		});
 
 		it("does not change generated floors when ascending", () => {
@@ -898,6 +910,7 @@ describe("Dungeon run tests", () => {
 			const ascended = ascendDungeonRun(runOnStairs);
 
 			expect(ascended.run.floors).toEqual(floorsBefore);
+			expect(ascended.transitioned).toBe(true);
 		});
 
 		it("does not ascend when the up stair links to a nonexistent floor", () => {
@@ -934,6 +947,7 @@ describe("Dungeon run tests", () => {
 			const ascended = ascendDungeonRun(runWithInvalidLink);
 
 			expect(ascended.run).toEqual(runWithInvalidLink);
+			expect(ascended.transitioned).toBe(false);
 		});
 	});
 });

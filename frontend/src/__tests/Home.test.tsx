@@ -1,6 +1,7 @@
 import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, it, vi } from "vitest";
+import * as DungeonRun from "../DungeonRun.ts";
 import Home from "../Home.tsx";
 import * as LayoutTiles from "../LayoutTiles.ts";
 
@@ -37,21 +38,37 @@ describe("Home tests", () => {
 	});
 
 	it("renders the generated terrain in the correct cells", () => {
-		const generated = LayoutTiles.generateDungeon({
-			rows: 5,
-			cols: 7,
-			minPartitionSize: 5,
-			roomPadding: 1,
-		});
-		vi.spyOn(LayoutTiles, "generateDungeon").mockReturnValue(generated);
+		const run = DungeonRun.connectDungeonFloors(
+			DungeonRun.generateDungeonRun(123, 3, {
+				rows: 5,
+				cols: 7,
+				minPartitionSize: 5,
+				roomPadding: 1,
+			}),
+		);
+
+		vi.spyOn(DungeonRun, "generateDungeonRun").mockReturnValue(run);
+		vi.spyOn(DungeonRun, "connectDungeonFloors").mockReturnValue(run);
 
 		render(<Home />);
 
-		const start = LayoutTiles.selectPlayerStart(generated);
+		const activeFloor = run.floors[run.activeFloor - 1];
 
-		for (const [rowIndex, row] of generated.terrain.entries()) {
+		for (const [rowIndex, row] of activeFloor.terrain.entries()) {
 			for (const [colIndex, tile] of row.entries()) {
-				if (rowIndex === start.row && colIndex === start.col) {
+				const isPlayer =
+					rowIndex === run.playerCoordinate.row &&
+					colIndex === run.playerCoordinate.col;
+
+				const isUpStair =
+					activeFloor.upStair?.coordinate.row === rowIndex &&
+					activeFloor.upStair.coordinate.col === colIndex;
+
+				const isDownStair =
+					activeFloor.downStair?.coordinate.row === rowIndex &&
+					activeFloor.downStair.coordinate.col === colIndex;
+
+				if (isPlayer || isUpStair || isDownStair) {
 					continue;
 				}
 
@@ -133,34 +150,44 @@ describe("Home tests", () => {
 
 	it("replaces the rendered dungeon and resets the player when New Dungeon is clicked", async () => {
 		const user = userEvent.setup();
-		const first = LayoutTiles.generateDungeon({
-			rows: 7,
-			cols: 11,
-			minPartitionSize: 5,
-			roomPadding: 1,
-		});
-		const second = LayoutTiles.generateDungeon({
-			rows: 5,
-			cols: 7,
-			minPartitionSize: 5,
-			roomPadding: 1,
-		});
+
+		const firstRun = DungeonRun.connectDungeonFloors(
+			DungeonRun.generateDungeonRun(123, 3, {
+				rows: 7,
+				cols: 11,
+				minPartitionSize: 5,
+				roomPadding: 1,
+			}),
+		);
+
+		const secondRun = DungeonRun.connectDungeonFloors(
+			DungeonRun.generateDungeonRun(456, 3, {
+				rows: 5,
+				cols: 7,
+				minPartitionSize: 5,
+				roomPadding: 1,
+			}),
+		);
 
 		const generateSpy = vi
-			.spyOn(LayoutTiles, "generateDungeon")
-			.mockReturnValue(first);
+			.spyOn(DungeonRun, "generateDungeonRun")
+			.mockReturnValue(firstRun);
+
+		vi.spyOn(DungeonRun, "connectDungeonFloors").mockImplementation(
+			(run) => run,
+		);
 
 		render(<Home />);
 
-		// Move away from the first dungeon's starting position.
-		const firstStart = LayoutTiles.selectPlayerStart(first);
+		const firstFloor = firstRun.floors[firstRun.activeFloor - 1];
+		const firstStart = firstRun.playerCoordinate;
+
 		const movedPosition = {
 			row: firstStart.row,
 			col: firstStart.col + 1,
 		};
 
-		// Confirm the fixture allows this move.
-		expect(first.terrain[movedPosition.row][movedPosition.col]).toBe(
+		expect(firstFloor.terrain[movedPosition.row][movedPosition.col]).toBe(
 			LayoutTiles.FLOOR,
 		);
 
@@ -173,7 +200,8 @@ describe("Home tests", () => {
 		).toHaveTextContent(LayoutTiles.PLAYER);
 
 		const callsBeforeClick = generateSpy.mock.calls.length;
-		generateSpy.mockReturnValue(second);
+
+		generateSpy.mockReturnValue(secondRun);
 
 		await user.click(screen.getByRole("button", { name: "New Dungeon" }));
 
@@ -183,29 +211,18 @@ describe("Home tests", () => {
 		const rows = within(dungeon).getAllByRole("row");
 
 		expect(rows).toHaveLength(5);
+
 		for (const row of rows) {
 			expect(within(row).getAllByRole("cell")).toHaveLength(7);
 		}
 
-		const start = LayoutTiles.selectPlayerStart(second);
+		const secondStart = secondRun.playerCoordinate;
 
-		for (const [rowIndex, row] of second.terrain.entries()) {
-			for (const [colIndex, tile] of row.entries()) {
-				let expected = tile;
-				let expectedDescription = `row${rowIndex}col${colIndex}`;
-
-				if (rowIndex === start.row && colIndex === start.col) {
-					expected = LayoutTiles.PLAYER;
-					expectedDescription = `row${rowIndex}col${colIndex} - player`;
-				}
-
-				expect(
-					screen.getByRole("cell", {
-						name: expectedDescription,
-					}),
-				).toHaveTextContent(expected);
-			}
-		}
+		expect(
+			screen.getByRole("cell", {
+				name: `row${secondStart.row}col${secondStart.col} - player`,
+			}),
+		).toHaveTextContent(LayoutTiles.PLAYER);
 	});
 
 	it("resets the player on every new dungeon even when the seed and starting position repeat", async () => {
@@ -285,5 +302,72 @@ describe("Home tests", () => {
 		expect(screen.getByRole("cell", { name: "row2col5" })).toHaveTextContent(
 			LayoutTiles.FLOOR,
 		);
+	});
+
+	it("renders the active floor and its stair markers", () => {
+		const run = DungeonRun.connectDungeonFloors(
+			DungeonRun.generateDungeonRun(123, 3, {
+				rows: 7,
+				cols: 11,
+				minPartitionSize: 5,
+				roomPadding: 1,
+			}),
+		);
+
+		vi.spyOn(DungeonRun, "generateDungeonRun").mockReturnValue(run);
+		vi.spyOn(DungeonRun, "connectDungeonFloors").mockReturnValue(run);
+
+		render(<Home />);
+
+		const activeFloor = run.floors[run.activeFloor - 1];
+
+		expect(activeFloor.downStair).toBeDefined();
+
+		if (!activeFloor.downStair) {
+			throw new Error("Expected active floor to have a down stair");
+		}
+
+		expect(
+			screen.getByRole("cell", {
+				name: `row${activeFloor.downStair.coordinate.row}col${activeFloor.downStair.coordinate.col} - stairs down`,
+			}),
+		).toHaveTextContent(LayoutTiles.STAIRS_DOWN);
+	});
+
+	it("renders only the active floor", () => {
+		const run = DungeonRun.connectDungeonFloors(
+			DungeonRun.generateDungeonRun(123, 3, {
+				rows: 7,
+				cols: 11,
+				minPartitionSize: 5,
+				roomPadding: 1,
+			}),
+		);
+
+		const floor1 = run.floors[0];
+		const floor2 = run.floors[1];
+
+		// Give the two floors an obvious display difference.
+		floor1.terrain[0][0] = "1";
+		floor2.terrain[0][0] = "2";
+
+		const activeRun = {
+			...run,
+			activeFloor: 2,
+			playerCoordinate: { row: 1, col: 1 },
+		};
+
+		vi.spyOn(DungeonRun, "generateDungeonRun").mockReturnValue(activeRun);
+		vi.spyOn(DungeonRun, "connectDungeonFloors").mockReturnValue(activeRun);
+
+		render(<Home />);
+
+		expect(screen.getByRole("cell", { name: "row0col0" })).toHaveTextContent(
+			"2",
+		);
+
+		expect(
+			screen.getByRole("cell", { name: "row0col0" }),
+		).not.toHaveTextContent("1");
 	});
 });

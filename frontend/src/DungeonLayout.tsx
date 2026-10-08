@@ -103,7 +103,7 @@ const DungeonLayout = ({
 		};
 	}, [movePlayer]);
 
-	const chooseDisplayedCharacter = (
+	const renderCell = (
 		rowIndex: number,
 		columnIndex: number,
 		cell: string,
@@ -149,7 +149,7 @@ const DungeonLayout = ({
 						}}
 					>
 						{row.map((cell, columnIndex) =>
-							chooseDisplayedCharacter(rowIndex, columnIndex, cell),
+							renderCell(rowIndex, columnIndex, cell),
 						)}
 					</tr>
 				))}

@@ -416,7 +416,7 @@ describe("Home tests", () => {
 		).toHaveTextContent(STAIRS_UP);
 	});
 
-	it("descends when the player moves onto a down stair", async () => {
+	it("descends onto the destination floor and renders that floor", async () => {
 		const user = userEvent.setup();
 
 		const floor1 = createTestDungeonFloor({
@@ -436,9 +436,34 @@ describe("Home tests", () => {
 		const floor2 = createTestDungeonFloor({
 			floorNumber: 2,
 			terrain: [
-				[LayoutTiles.WALL, LayoutTiles.WALL, LayoutTiles.WALL],
-				[LayoutTiles.WALL, LayoutTiles.FLOOR, LayoutTiles.FLOOR],
-				[LayoutTiles.WALL, LayoutTiles.WALL, LayoutTiles.WALL],
+				[
+					LayoutTiles.WALL,
+					LayoutTiles.WALL,
+					LayoutTiles.WALL,
+					LayoutTiles.WALL,
+					LayoutTiles.WALL,
+				],
+				[
+					LayoutTiles.WALL,
+					LayoutTiles.FLOOR,
+					LayoutTiles.FLOOR,
+					LayoutTiles.FLOOR,
+					LayoutTiles.WALL,
+				],
+				[
+					LayoutTiles.WALL,
+					LayoutTiles.FLOOR,
+					LayoutTiles.FLOOR,
+					LayoutTiles.FLOOR,
+					LayoutTiles.WALL,
+				],
+				[
+					LayoutTiles.WALL,
+					LayoutTiles.WALL,
+					LayoutTiles.WALL,
+					LayoutTiles.WALL,
+					LayoutTiles.WALL,
+				],
 			],
 			upStair: {
 				coordinate: { row: 1, col: 1 },
@@ -467,9 +492,245 @@ describe("Home tests", () => {
 			}),
 		).toHaveTextContent(LayoutTiles.PLAYER);
 
+		const dungeon = screen.getByRole("table", { name: "Dungeon" });
+		const rows = within(dungeon).getAllByRole("row");
+
+		expect(rows).toHaveLength(4);
+
+		for (const row of rows) {
+			expect(within(row).getAllByRole("cell")).toHaveLength(5);
+		}
+	});
+
+	it("allows normal movement on the destination floor after descending", async () => {
+		const user = userEvent.setup();
+
+		const floor1 = createTestDungeonFloor({
+			floorNumber: 1,
+			terrain: [
+				[LayoutTiles.WALL, LayoutTiles.WALL, LayoutTiles.WALL],
+				[LayoutTiles.WALL, LayoutTiles.FLOOR, LayoutTiles.FLOOR],
+				[LayoutTiles.WALL, LayoutTiles.WALL, LayoutTiles.WALL],
+			],
+			downStair: {
+				coordinate: { row: 1, col: 2 },
+				destinationFloor: 2,
+				arrivalCoordinate: { row: 1, col: 1 },
+			},
+		});
+
+		const floor2 = createTestDungeonFloor({
+			floorNumber: 2,
+			terrain: [
+				[
+					LayoutTiles.WALL,
+					LayoutTiles.WALL,
+					LayoutTiles.WALL,
+					LayoutTiles.WALL,
+				],
+				[
+					LayoutTiles.WALL,
+					LayoutTiles.FLOOR,
+					LayoutTiles.FLOOR,
+					LayoutTiles.WALL,
+				],
+				[
+					LayoutTiles.WALL,
+					LayoutTiles.WALL,
+					LayoutTiles.WALL,
+					LayoutTiles.WALL,
+				],
+			],
+			upStair: {
+				coordinate: { row: 1, col: 1 },
+				destinationFloor: 1,
+				arrivalCoordinate: { row: 1, col: 2 },
+			},
+		});
+
+		const run: DungeonRun.DungeonRun = {
+			seed: 123,
+			floors: [floor1, floor2],
+			activeFloor: 1,
+			playerCoordinate: { row: 1, col: 1 },
+		};
+
+		vi.spyOn(DungeonRun, "generateDungeonRun").mockReturnValue(run);
+		vi.spyOn(DungeonRun, "connectDungeonFloors").mockReturnValue(run);
+
+		render(<Home />);
+
+		// Descend from floor 1 to floor 2.
+		await user.keyboard("{ArrowRight}");
+
 		expect(
 			screen.getByRole("cell", {
-				name: "row1col2",
+				name: "row1col1 - player",
+			}),
+		).toHaveTextContent(LayoutTiles.PLAYER);
+
+		// Move normally on floor 2.
+		await user.keyboard("{ArrowRight}");
+
+		expect(
+			screen.getByRole("cell", {
+				name: "row1col2 - player",
+			}),
+		).toHaveTextContent(LayoutTiles.PLAYER);
+
+		expect(
+			screen.getByRole("cell", {
+				name: "row1col1 - stairs up",
+			}),
+		).toHaveTextContent(LayoutTiles.STAIRS_UP);
+	});
+
+	it("does not trigger another floor transition when arriving on the up stair", async () => {
+		const user = userEvent.setup();
+
+		const floor1 = createTestDungeonFloor({
+			floorNumber: 1,
+			terrain: [
+				[LayoutTiles.WALL, LayoutTiles.WALL, LayoutTiles.WALL],
+				[LayoutTiles.WALL, LayoutTiles.FLOOR, LayoutTiles.FLOOR],
+				[LayoutTiles.WALL, LayoutTiles.WALL, LayoutTiles.WALL],
+			],
+			downStair: {
+				coordinate: { row: 1, col: 2 },
+				destinationFloor: 2,
+				arrivalCoordinate: { row: 1, col: 1 },
+			},
+		});
+
+		const floor2 = createTestDungeonFloor({
+			floorNumber: 2,
+			terrain: [
+				[
+					LayoutTiles.WALL,
+					LayoutTiles.WALL,
+					LayoutTiles.WALL,
+					LayoutTiles.WALL,
+				],
+				[
+					LayoutTiles.WALL,
+					LayoutTiles.FLOOR,
+					LayoutTiles.FLOOR,
+					LayoutTiles.WALL,
+				],
+				[
+					LayoutTiles.WALL,
+					LayoutTiles.WALL,
+					LayoutTiles.WALL,
+					LayoutTiles.WALL,
+				],
+			],
+			upStair: {
+				coordinate: { row: 1, col: 1 },
+				destinationFloor: 1,
+				arrivalCoordinate: { row: 1, col: 2 },
+			},
+		});
+
+		const run: DungeonRun.DungeonRun = {
+			seed: 123,
+			floors: [floor1, floor2],
+			activeFloor: 1,
+			playerCoordinate: { row: 1, col: 1 },
+		};
+
+		vi.spyOn(DungeonRun, "generateDungeonRun").mockReturnValue(run);
+		vi.spyOn(DungeonRun, "connectDungeonFloors").mockReturnValue(run);
+
+		render(<Home />);
+
+		await user.keyboard("{ArrowRight}");
+
+		expect(
+			screen.getByRole("cell", {
+				name: "row1col1 - player",
+			}),
+		).toHaveTextContent(LayoutTiles.PLAYER);
+
+		const dungeon = screen.getByRole("table", { name: "Dungeon" });
+		expect(within(dungeon).getAllByRole("row")).toHaveLength(3);
+	});
+
+	it("only moves the player once after descending to the next floor", async () => {
+		const user = userEvent.setup();
+
+		const floor1 = createTestDungeonFloor({
+			floorNumber: 1,
+			terrain: [
+				[LayoutTiles.WALL, LayoutTiles.WALL, LayoutTiles.WALL],
+				[LayoutTiles.WALL, LayoutTiles.FLOOR, LayoutTiles.FLOOR],
+				[LayoutTiles.WALL, LayoutTiles.WALL, LayoutTiles.WALL],
+			],
+			downStair: {
+				coordinate: { row: 1, col: 2 },
+				destinationFloor: 2,
+				arrivalCoordinate: { row: 1, col: 1 },
+			},
+		});
+
+		const floor2 = createTestDungeonFloor({
+			floorNumber: 2,
+			terrain: [
+				[
+					LayoutTiles.WALL,
+					LayoutTiles.WALL,
+					LayoutTiles.WALL,
+					LayoutTiles.WALL,
+					LayoutTiles.WALL,
+				],
+				[
+					LayoutTiles.WALL,
+					LayoutTiles.FLOOR,
+					LayoutTiles.FLOOR,
+					LayoutTiles.FLOOR,
+					LayoutTiles.WALL,
+				],
+				[
+					LayoutTiles.WALL,
+					LayoutTiles.WALL,
+					LayoutTiles.WALL,
+					LayoutTiles.WALL,
+					LayoutTiles.WALL,
+				],
+			],
+			upStair: {
+				coordinate: { row: 1, col: 1 },
+				destinationFloor: 1,
+				arrivalCoordinate: { row: 1, col: 2 },
+			},
+		});
+
+		const run: DungeonRun.DungeonRun = {
+			seed: 123,
+			floors: [floor1, floor2],
+			activeFloor: 1,
+			playerCoordinate: { row: 1, col: 1 },
+		};
+
+		vi.spyOn(DungeonRun, "generateDungeonRun").mockReturnValue(run);
+		vi.spyOn(DungeonRun, "connectDungeonFloors").mockReturnValue(run);
+
+		render(<Home />);
+
+		// Descend.
+		await user.keyboard("{ArrowRight}");
+
+		// One move on floor 2 should move exactly one cell.
+		await user.keyboard("{ArrowRight}");
+
+		expect(
+			screen.getByRole("cell", {
+				name: "row1col2 - player",
+			}),
+		).toHaveTextContent(LayoutTiles.PLAYER);
+
+		expect(
+			screen.getByRole("cell", {
+				name: "row1col3",
 			}),
 		).toHaveTextContent(LayoutTiles.FLOOR);
 	});

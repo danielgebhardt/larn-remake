@@ -28,42 +28,38 @@ const DungeonLayout = ({
 
 	const movePlayer = useCallback(
 		(changeUpDown: number, changeLeftRight: number) => {
-			setPlayerPosition((current) => {
-				const newRow: number = current.row + changeUpDown;
-				const newCol: number = current.col + changeLeftRight;
+			const newRow = playerPosition.row + changeUpDown;
+			const newCol = playerPosition.col + changeLeftRight;
 
-				const isOutOfBounds =
-					newRow < 0 ||
-					newRow >= dungeon.length ||
-					newCol < 0 ||
-					newCol >= (dungeon[newRow]?.length ?? 0);
+			const isOutOfBounds =
+				newRow < 0 ||
+				newRow >= dungeon.length ||
+				newCol < 0 ||
+				newCol >= (dungeon[newRow]?.length ?? 0);
 
-				if (isOutOfBounds) {
-					return current;
-				}
+			if (isOutOfBounds) {
+				return;
+			}
 
-				const coordinateValueInPositionToMoveTo = getDungeonCoordinateValue(
-					newCol,
-					newRow,
-					dungeon,
-				);
+			const coordinateValueInPositionToMoveTo = getDungeonCoordinateValue(
+				newCol,
+				newRow,
+				dungeon,
+			);
 
-				if (coordinateValueInPositionToMoveTo === WALL) {
-					return current;
-				}
+			if (coordinateValueInPositionToMoveTo === WALL) {
+				return;
+			}
 
-				onPlayerMove({
-					row: newRow,
-					col: newCol,
-				});
+			const nextCoordinate = {
+				row: newRow,
+				col: newCol,
+			};
 
-				return {
-					row: newRow,
-					col: newCol,
-				};
-			});
+			setPlayerPosition(nextCoordinate);
+			onPlayerMove(nextCoordinate);
 		},
-		[dungeon, onPlayerMove],
+		[dungeon, onPlayerMove, playerPosition],
 	);
 
 	useEffect(() => {

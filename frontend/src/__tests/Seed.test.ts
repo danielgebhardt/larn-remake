@@ -1,5 +1,35 @@
 import { describe, expect, it } from "vitest";
-import { createSeededRandom } from "../Seed.ts";
+import { createSeededRandom, parseSeedInput } from "../Seed.ts";
+
+describe("Seed input", () => {
+	it.each([
+		{ input: "0", expected: 0 },
+		{ input: "123", expected: 123 },
+		{ input: "4294967295", expected: 4294967295 },
+		{ input: " 00123 ", expected: 123 },
+		{ input: "000", expected: 0 },
+	])("parses decimal seed $input as $expected", ({ input, expected }) => {
+		expect(parseSeedInput(input)).toBe(expected);
+	});
+
+	it.each([
+		"",
+		" ",
+		"abc",
+		"12x",
+		"-1",
+		"+1",
+		"1.5",
+		"1.0",
+		"1e3",
+		"0x10",
+		"NaN",
+		"Infinity",
+		"4294967296",
+	])("rejects invalid seed %j", (input) => {
+		expect(parseSeedInput(input)).toBeUndefined();
+	});
+});
 
 describe("Seed tests", () => {
 	it("produces the same sequence from the same seed", () => {

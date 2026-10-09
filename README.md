@@ -16,6 +16,8 @@ The application currently includes:
 - Configurable dungeon creation with rectangular dimensions.
 - Binary space partitioning that divides dungeon space into terminal regions.
 - Rooms carved into terminal regions and corridors connecting those rooms.
+- Three-floor exploration with automatic stair transitions and a depth display.
+- Current run seed display and replay of the complete dungeon from an entered seed.
 
 The playable dungeon is generated in the frontend when the page loads. It remains stable during ordinary React rerenders. The earlier fixed dungeon remains available as a test fixture.
 
@@ -88,6 +90,10 @@ Move the player with either control scheme:
 | Right | → | D |
 
 The player can move through rooms and corridors but cannot move through wall tiles or beyond the dungeon boundary.
+
+Stepping onto a stair automatically changes floors. The depth heading shows the current floor and total floor count.
+
+To replay a dungeon, enter its displayed seed in **Dungeon seed** and select **Start from seed** or press Enter. Seed input accepts decimal whole numbers from `0` to `4294967295`; surrounding whitespace and leading zeroes are normalized. Replay starts on floor 1 and reproduces every floor and stair link for the same generation configuration. Editing the seed alone does not change the run, and invalid input leaves it intact. Keyboard input in the seed field edits the field without moving the player; click outside it to resume movement. **New Dungeon** starts a run with a newly requested random seed.
 
 ## Testing and quality checks
 

@@ -1,3 +1,14 @@
+export const MAX_SEED = 0xffffffff;
+
+export const parseSeedInput = (input: string): number | undefined => {
+	const trimmed = input.trim();
+	if (!/^\d+$/.test(trimmed)) {
+		return undefined;
+	}
+	const seed = Number(trimmed);
+	return Number.isInteger(seed) && seed <= MAX_SEED ? seed : undefined;
+};
+
 export const createSeededRandom = (seed: number): (() => number) => {
 	let state = seed >>> 0;
 

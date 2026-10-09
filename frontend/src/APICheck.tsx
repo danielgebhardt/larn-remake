@@ -1,4 +1,3 @@
-import "./App.css";
 import { type JSX, useEffect, useState } from "react";
 
 function APICheck(): JSX.Element {

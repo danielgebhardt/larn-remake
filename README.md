@@ -18,6 +18,7 @@ The application currently includes:
 - Rooms carved into terminal regions and corridors connecting those rooms.
 - Three-floor exploration with automatic stair transitions and a depth display.
 - Current run seed display and replay of the complete dungeon from an entered seed.
+- A compact play screen using Tailwind CSS and shadcn/ui (Base UI, Nova), with styled controls, a tile legend, and scrollable dungeon tiles.
 
 The playable run is generated in the frontend when the page loads. By default it contains three rectangular floors. Terrain and stair links are retained throughout exploration and ordinary React rerenders. The earlier fixed dungeon remains available as a test fixture.
 
@@ -80,6 +81,10 @@ pnpm frontend:dev
 Vite serves the frontend and proxies `/initial` requests to the backend at `http://localhost:8080`.
 
 ## Controls
+
+The header shows the current floor and the **New Dungeon** action. Below it, the seed form allows replaying a run; the map and its legend occupy the main play area. A small footer shows the backend connectivity diagnostic. Exploration runs in the frontend and remains available if that check fails.
+
+Shared shadcn styling and theme tokens live in `frontend/src/App.css`, imported by `App.tsx`. Page layout uses Tailwind utilities, and reusable controls live in `frontend/src/components/ui`. A [settings panel](https://github.com/danielgebhardt/larn-remake/issues/41) and [Light/Dark/System preference](https://github.com/danielgebhardt/larn-remake/issues/42) are planned next.
 
 Move the player with either control scheme:
 

@@ -1,6 +1,7 @@
 import {
 	type Coordinate,
 	type DungeonConfig,
+	FLOOR,
 	type GeneratedDungeon,
 	generateDungeon,
 	type LocationSelectionSource,
@@ -147,8 +148,35 @@ type DungeonTransitionResult = {
 	transitioned: boolean;
 };
 
+const getActiveFloor = (run: DungeonRun): DungeonFloor => {
+	const floor = run.floors[run.activeFloor - 1];
+
+	if (!Number.isInteger(run.activeFloor) || !floor) {
+		throw new RangeError(`Active floor ${run.activeFloor} does not exist`);
+	}
+
+	return floor;
+};
+
+const validateStairArrival = (
+	destinationFloor: DungeonFloor,
+	arrivalCoordinate: Coordinate,
+): void => {
+	const { row, col } = arrivalCoordinate;
+
+	if (
+		!Number.isInteger(row) ||
+		!Number.isInteger(col) ||
+		destinationFloor.terrain[row]?.[col] !== FLOOR
+	) {
+		throw new RangeError(
+			"Stair arrival coordinate must be an in-bounds floor tile",
+		);
+	}
+};
+
 export const descendDungeonRun = (run: DungeonRun): DungeonTransitionResult => {
-	const currentFloor = run.floors[run.activeFloor - 1];
+	const currentFloor = getActiveFloor(run);
 	const downStair = currentFloor.downStair;
 
 	if (
@@ -167,11 +195,12 @@ export const descendDungeonRun = (run: DungeonRun): DungeonTransitionResult => {
 	);
 
 	if (!destinationFloor) {
-		return {
-			run,
-			transitioned: false,
-		};
+		throw new RangeError(
+			`Stair destination floor ${downStair.destinationFloor} does not exist`,
+		);
 	}
+
+	validateStairArrival(destinationFloor, downStair.arrivalCoordinate);
 
 	return {
 		run: {
@@ -184,7 +213,7 @@ export const descendDungeonRun = (run: DungeonRun): DungeonTransitionResult => {
 };
 
 export const ascendDungeonRun = (run: DungeonRun): DungeonTransitionResult => {
-	const currentFloor = run.floors[run.activeFloor - 1];
+	const currentFloor = getActiveFloor(run);
 	const upStair = currentFloor.upStair;
 
 	if (
@@ -203,11 +232,12 @@ export const ascendDungeonRun = (run: DungeonRun): DungeonTransitionResult => {
 	);
 
 	if (!destinationFloor) {
-		return {
-			run,
-			transitioned: false,
-		};
+		throw new RangeError(
+			`Stair destination floor ${upStair.destinationFloor} does not exist`,
+		);
 	}
+
+	validateStairArrival(destinationFloor, upStair.arrivalCoordinate);
 
 	return {
 		run: {

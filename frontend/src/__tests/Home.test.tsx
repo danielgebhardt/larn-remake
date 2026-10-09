@@ -893,4 +893,95 @@ describe("Home tests", () => {
 		expect(generateSpy).toHaveBeenCalledTimes(1);
 		expect(connectSpy).toHaveBeenCalledTimes(1);
 	});
+
+	it("should show active floor name and total number of floors", () => {
+		render(<Home />);
+
+		expect(screen.getByRole("heading", { name: "Floor 1 of 3" })).toBeVisible();
+	});
+
+	it("should show correct floor number after descending and ascending", async () => {
+		const user = userEvent.setup();
+		const run = createThreeFloorTraversalRun();
+
+		vi.spyOn(DungeonRun, "generateDungeonRun").mockReturnValue(run);
+
+		vi.spyOn(DungeonRun, "connectDungeonFloors").mockReturnValue(run);
+
+		render(<Home />);
+
+		expect(screen.getByRole("heading", { name: "Floor 1 of 3" })).toBeVisible();
+
+		// Floor 1 -> Floor 2.
+		await user.keyboard("{ArrowRight}");
+		expect(screen.getByRole("heading", { name: "Floor 2 of 3" })).toBeVisible();
+
+		// Floor 2 -> 3
+		await user.keyboard("{ArrowRight}");
+		await user.keyboard("{ArrowRight}");
+		expect(screen.getByRole("heading", { name: "Floor 3 of 3" })).toBeVisible();
+
+		// Floor 3 -> 2
+		await user.keyboard("{ArrowRight}");
+		await user.keyboard("{ArrowLeft}");
+		expect(screen.getByRole("heading", { name: "Floor 2 of 3" })).toBeVisible();
+
+		// Floor 2 -> 1
+		await user.keyboard("{ArrowLeft}");
+		await user.keyboard("{ArrowLeft}");
+		expect(screen.getByRole("heading", { name: "Floor 1 of 3" })).toBeVisible();
+	});
+
+	it("should show correct number of floors with only 1 floor", async () => {
+		const user = userEvent.setup();
+
+		const floor1 = createTestDungeonFloor({
+			floorNumber: 1,
+			rows: 3,
+			cols: 4,
+			room: { startRow: 1, endRow: 1, startCol: 1, endCol: 2 },
+		});
+
+		const singleFloorRun: DungeonRun.DungeonRun = {
+			seed: 123,
+			floors: [floor1],
+			activeFloor: 1,
+			playerCoordinate: { row: 1, col: 1 },
+		};
+
+		vi.spyOn(DungeonRun, "generateDungeonRun").mockReturnValue(singleFloorRun);
+
+		vi.spyOn(DungeonRun, "connectDungeonFloors").mockReturnValue(
+			singleFloorRun,
+		);
+
+		render(<Home />);
+
+		expect(screen.getByRole("heading", { name: "Floor 1 of 1" })).toBeVisible();
+		await user.keyboard("{ArrowRight}");
+		expect(
+			screen.getByRole("cell", { name: "row1col2 - player" }),
+		).toHaveTextContent(LayoutTiles.PLAYER);
+		expect(screen.getByRole("heading", { name: "Floor 1 of 1" })).toBeVisible();
+	});
+
+	it("should show correct floor number after descending, then reset to floor 1 after starting new dungeon", async () => {
+		const user = userEvent.setup();
+		const run = createThreeFloorTraversalRun();
+
+		vi.spyOn(DungeonRun, "generateDungeonRun").mockReturnValue(run);
+		vi.spyOn(DungeonRun, "connectDungeonFloors").mockReturnValue(run);
+
+		render(<Home />);
+
+		expect(screen.getByRole("heading", { name: "Floor 1 of 3" })).toBeVisible();
+
+		// Floor 1 -> Floor 2.
+		await user.keyboard("{ArrowRight}");
+		expect(screen.getByRole("heading", { name: "Floor 2 of 3" })).toBeVisible();
+
+		await user.click(screen.getByRole("button", { name: "New Dungeon" }));
+
+		expect(screen.getByRole("heading", { name: "Floor 1 of 3" })).toBeVisible();
+	});
 });

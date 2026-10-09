@@ -68,6 +68,12 @@ const Home = () => {
 				</section>
 
 				<section>
+					<h2>
+						Floor {activeFloor.floorNumber} of {run.floors.length}
+					</h2>
+				</section>
+
+				<section>
 					<DungeonLayout
 						dungeon={activeFloor.terrain}
 						playerPosition={run.playerCoordinate}

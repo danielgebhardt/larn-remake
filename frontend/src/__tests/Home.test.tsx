@@ -62,6 +62,136 @@ const createThreeFloorTraversalRun = (): DungeonRun.DungeonRun => {
 };
 
 describe("Home tests", () => {
+	it("completes exploration, seed replay, and repeated whole-run restarts without restoring old floors", async () => {
+		const user = userEvent.setup();
+		const shiftCoordinate = (
+			coordinate: LayoutTiles.Coordinate,
+			offset: number,
+		) => ({
+			row: coordinate.row,
+			col: coordinate.col + offset,
+		});
+		const makeRun = (seed: number, offset: number): DungeonRun.DungeonRun => {
+			const original = createThreeFloorTraversalRun();
+			const shiftLink = (link: DungeonRun.StairLink | undefined) =>
+				link && {
+					...link,
+					coordinate: shiftCoordinate(link.coordinate, offset),
+					arrivalCoordinate: shiftCoordinate(link.arrivalCoordinate, offset),
+				};
+			return {
+				...original,
+				seed,
+				playerCoordinate: shiftCoordinate(original.playerCoordinate, offset),
+				floors: original.floors.map((floor) =>
+					createTestDungeonFloor({
+						floorNumber: floor.floorNumber,
+						rows: floor.terrain.length,
+						cols: floor.terrain[0].length + offset,
+						room: {
+							...floor.rooms[0],
+							startCol: floor.rooms[0].startCol + offset,
+							endCol: floor.rooms[0].endCol + offset,
+						},
+						upStair: shiftLink(floor.upStair),
+						downStair: shiftLink(floor.downStair),
+					}),
+				),
+			};
+		};
+		const runs = new Map([
+			[0, makeRun(0, 0)],
+			[123, makeRun(123, 1)],
+			[456, makeRun(456, 2)],
+		]);
+		const before = structuredClone(runs);
+		const generate = vi
+			.spyOn(DungeonRun, "generateDungeonRun")
+			.mockImplementation((seed) => {
+				const run = runs.get(seed);
+				if (!run) throw new Error(`Unexpected seed ${seed}`);
+				return structuredClone(run);
+			});
+		const connect = vi
+			.spyOn(DungeonRun, "connectDungeonFloors")
+			.mockImplementation((run) => run);
+
+		const expectFloor = (
+			seed: number,
+			floorNumber: number,
+			player: LayoutTiles.Coordinate,
+		) => {
+			const floor = runs.get(seed)?.floors[floorNumber - 1];
+			if (!floor) throw new Error("Expected a known fixture floor");
+			const expected = floor.terrain.map((row) => [...row]);
+			for (const [link, glyph] of [
+				[floor.upStair, STAIRS_UP],
+				[floor.downStair, STAIRS_DOWN],
+			] as const) {
+				if (link) expected[link.coordinate.row][link.coordinate.col] = glyph;
+			}
+			expected[player.row][player.col] = LayoutTiles.PLAYER;
+			const table = screen.getByRole("table", { name: "Dungeon" });
+			const actual = within(table)
+				.getAllByRole("row")
+				.map((row) =>
+					within(row)
+						.getAllByRole("cell")
+						.map((cell) => cell.textContent),
+				);
+			expect(actual).toEqual(expected);
+			expect(
+				screen.getByRole("heading", { name: `Floor ${floorNumber} of 3` }),
+			).toBeVisible();
+			expect(screen.getByLabelText("Current dungeon seed").textContent).toBe(
+				String(seed),
+			);
+		};
+
+		const { rerender } = render(<Home />);
+		expectFloor(0, 1, { row: 1, col: 1 });
+		await user.keyboard("{ArrowRight}");
+		expectFloor(0, 2, { row: 1, col: 1 });
+		await user.keyboard("{ArrowRight}{ArrowRight}");
+		expectFloor(0, 3, { row: 1, col: 1 });
+		await user.keyboard("{ArrowRight}{ArrowLeft}");
+		expectFloor(0, 2, { row: 1, col: 3 });
+		await user.keyboard("{ArrowLeft}{ArrowLeft}");
+		expectFloor(0, 1, { row: 1, col: 2 });
+
+		const input = screen.getByRole("textbox", { name: "Dungeon seed" });
+		await user.clear(input);
+		await user.type(input, "0{Enter}");
+		expectFloor(0, 1, { row: 1, col: 1 });
+		expect(generate).toHaveBeenCalledTimes(2);
+		await user.click(screen.getByRole("heading", { name: "Floor 1 of 3" }));
+		await user.keyboard("{ArrowRight}{ArrowRight}{ArrowRight}");
+		expectFloor(0, 3, { row: 1, col: 1 });
+
+		for (const [seed, offset] of [
+			[123, 1],
+			[456, 2],
+		]) {
+			vi.spyOn(Math, "random").mockReturnValue(seed / 4294967296);
+			await user.click(screen.getByRole("button", { name: "New Dungeon" }));
+			expectFloor(seed, 1, { row: 1, col: 1 + offset });
+			expect(input).toHaveValue(String(seed));
+			await user.keyboard("{ArrowRight}");
+			expectFloor(seed, 2, { row: 1, col: 1 + offset });
+			await user.keyboard("{ArrowRight}{ArrowRight}");
+			expectFloor(seed, 3, { row: 1, col: 1 + offset });
+			rerender(<Home />);
+			expectFloor(seed, 3, { row: 1, col: 1 + offset });
+		}
+		await user.keyboard("{ArrowRight}{ArrowLeft}");
+		expectFloor(456, 2, { row: 1, col: 5 });
+		await user.keyboard("{ArrowLeft}{ArrowLeft}");
+		expectFloor(456, 1, { row: 1, col: 4 });
+		expect(generate.mock.calls.map(([seed]) => seed)).toEqual([0, 0, 123, 456]);
+		expect(connect).toHaveBeenCalledTimes(4);
+		expect(runs).toEqual(before);
+	});
+
 	describe("Seed replay", () => {
 		const mockRunGeneration = () => {
 			const generate = vi

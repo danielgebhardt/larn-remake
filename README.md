@@ -19,7 +19,7 @@ The application currently includes:
 - Three-floor exploration with automatic stair transitions and a depth display.
 - Current run seed display and replay of the complete dungeon from an entered seed.
 
-The playable dungeon is generated in the frontend when the page loads. It remains stable during ordinary React rerenders. The earlier fixed dungeon remains available as a test fixture.
+The playable run is generated in the frontend when the page loads. By default it contains three rectangular floors. Terrain and stair links are retained throughout exploration and ordinary React rerenders. The earlier fixed dungeon remains available as a test fixture.
 
 Stair placement uses an independent seeded random source for each floor, derived from the run seed, floor number, and a `stairs` namespace. Down stairs choose equally among rooms outside the entry room, then choose a floor tile within that room. Up stairs stay at the floor entry, with reciprocal arrival coordinates. A single-room floor uses its center when distinct from the entry, otherwise its first distinct floor tile in row-major order; a floor with no distinct location fails clearly. The same seed and configuration reproduce the links regardless of floor generation or connection order, without changing terrain generation. Calls to the stair selector without a random source retain the deterministic last-room-center rule.
 
@@ -32,6 +32,7 @@ larn-remake/
 │   └── src/
 │       ├── Corridor.ts      # Corridor creation and connections
 │       ├── DungeonLayout.tsx # Dungeon rendering and player movement
+│       ├── DungeonRun.ts    # Run state, floor seeds, stair links, and transitions
 │       ├── LayoutTiles.ts   # Dungeon generation and player start
 │       ├── Partitioning.ts  # Region splitting and recursive BSP
 │       ├── Room.ts          # Room creation and assignment
@@ -93,7 +94,18 @@ The player can move through rooms and corridors but cannot move through wall til
 
 Stepping onto a stair automatically changes floors. The depth heading shows the current floor and total floor count.
 
-To replay a dungeon, enter its displayed seed in **Dungeon seed** and select **Start from seed** or press Enter. Seed input accepts decimal whole numbers from `0` to `4294967295`; surrounding whitespace and leading zeroes are normalized. Replay starts on floor 1 and reproduces every floor and stair link for the same generation configuration. Editing the seed alone does not change the run, and invalid input leaves it intact. Keyboard input in the seed field edits the field without moving the player; click outside it to resume movement. **New Dungeon** starts a run with a newly requested random seed.
+To replay a dungeon, enter its displayed seed in **Dungeon seed** and select **Start from seed** or press Enter. Seed input accepts decimal whole numbers from `0` to `4294967295`; surrounding whitespace and leading zeroes are normalized. Replay starts on floor 1 and reproduces every floor and stair link for the same generation configuration. Editing the seed alone does not change the run, and invalid input leaves it intact. Keyboard input in the seed field edits the field without moving the player; click outside it to resume movement.
+
+**New Dungeon** requests a random seed across that same range and replaces the entire run: all floors and stair links, depth, and player position. It returns the player to floor 1 at the new run's selected start. The displayed seed and input update to the new seed. A random seed can repeat; restarting still resets exploration, including when the seed repeats.
+
+To demonstrate the exploration milestone:
+
+1. Note the displayed seed and explore toward `>` to descend from floor 1 to floor 2, then floor 3.
+2. Step onto `<` to return through the same floors to floor 1. Arrival places the player on the matching stair; move away and step back onto it to use it again.
+3. Enter the noted seed and start from it to recreate the complete run at its original start.
+4. Select **New Dungeon**, then explore again. Subsequent transitions use the new run's floors.
+
+Floor 1 has no up stair, and the deepest floor has no down stair. The domain supports configurable floor counts, including a one-floor run with no transitions; the current UI uses three floors. Town, monsters, combat, inventory, and persistence belong to later work.
 
 ## Testing and quality checks
 
@@ -188,4 +200,4 @@ Backlog and completed stories are tracked in [GitHub Issues](https://github.com/
 
 ## Current development status
 
-The playable UI now uses a generated dungeon with connected rooms and corridors and a valid player starting position. Rendering and movement support rectangular dungeons. Future stories can build additional gameplay on this foundation.
+The dungeon creation and exploration milestone now supports three generated floors, seeded stair placement, automatic descent and ascent, stable revisits, depth and seed display, complete seed replay, and whole-run restart. Rendering and movement support rectangular dungeons. Repeatability is guaranteed for the same seed, configuration, and generator version. UI improvements and later gameplay can build on this foundation.

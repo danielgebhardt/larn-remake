@@ -62,6 +62,23 @@ const createThreeFloorTraversalRun = (): DungeonRun.DungeonRun => {
 };
 
 describe("Home tests", () => {
+	it("groups the title, current depth, and New Dungeon action in the header", () => {
+		const run = createThreeFloorTraversalRun();
+		vi.spyOn(DungeonRun, "generateDungeonRun").mockReturnValue(run);
+		vi.spyOn(DungeonRun, "connectDungeonFloors").mockReturnValue(run);
+		render(<Home />);
+
+		const toolbar = screen.getByRole("banner");
+		expect(
+			within(toolbar).getByRole("heading", { name: "Larn Remake" }),
+		).toBeVisible();
+		expect(
+			within(toolbar).getByRole("heading", { name: "Floor 1 of 3" }),
+		).toBeVisible();
+		expect(
+			within(toolbar).getByRole("button", { name: "New Dungeon" }),
+		).toBeVisible();
+	});
 	it("explains the player and both stair directions with a graphical legend", () => {
 		const run = createThreeFloorTraversalRun();
 		vi.spyOn(DungeonRun, "generateDungeonRun").mockReturnValue(run);

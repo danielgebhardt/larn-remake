@@ -72,7 +72,11 @@ const Home = () => {
 
 	return (
 		<div>
-			<Header />
+			<Header
+				floorNumber={activeFloor.floorNumber}
+				floorCount={run.floors.length}
+				onNewDungeon={handleNewDungeon}
+			/>
 
 			<main>
 				<section>
@@ -108,15 +112,6 @@ const Home = () => {
 							</p>
 						)}
 					</form>
-					<button type="button" onClick={handleNewDungeon}>
-						New Dungeon
-					</button>
-				</section>
-
-				<section>
-					<h2>
-						Floor {activeFloor.floorNumber} of {run.floors.length}
-					</h2>
 				</section>
 
 				<section>

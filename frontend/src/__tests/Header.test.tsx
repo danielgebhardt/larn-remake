@@ -4,7 +4,7 @@ import Header from "../Header.tsx";
 
 describe("Header tests", () => {
 	it("should show the header", () => {
-		render(<Header />);
+		render(<Header floorNumber={1} floorCount={3} onNewDungeon={() => {}} />);
 
 		expect(
 			screen.getByRole("heading", { name: "Larn Remake" }),

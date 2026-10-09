@@ -1,4 +1,10 @@
-import { type ReactNode, useCallback, useEffect } from "react";
+import {
+	type ReactNode,
+	useCallback,
+	useEffect,
+	useLayoutEffect,
+	useRef,
+} from "react";
 import {
 	type Coordinate,
 	type Dungeon,
@@ -8,6 +14,7 @@ import {
 	STAIRS_UP,
 	WALL,
 } from "./LayoutTiles.ts";
+import { getScrollOffset } from "./MapScroll";
 import TileIcon from "./TileIcon.tsx";
 import { TILE_BACKGROUNDS, TILE_LABELS } from "./TileVisuals.ts";
 
@@ -28,6 +35,58 @@ const DungeonLayout = ({
 	onPlayerMove,
 	movementEnabled = true,
 }: DungeonLayoutProps) => {
+	const viewportRef = useRef<HTMLElement>(null);
+	const playerRef = useRef<HTMLTableCellElement>(null);
+	const followPlayer = useCallback(() => {
+		const viewport = viewportRef.current;
+		const player = playerRef.current;
+		if (
+			!viewport ||
+			!player ||
+			viewport.clientWidth === 0 ||
+			viewport.clientHeight === 0
+		)
+			return;
+		const view = viewport.getBoundingClientRect();
+		const tile = player.getBoundingClientRect();
+		const left = getScrollOffset({
+			offset: viewport.scrollLeft,
+			viewportSize: viewport.clientWidth,
+			contentSize: viewport.scrollWidth,
+			tileStart:
+				tile.left - view.left - viewport.clientLeft + viewport.scrollLeft,
+			tileSize: tile.width,
+			margin: tile.width,
+		});
+		const top = getScrollOffset({
+			offset: viewport.scrollTop,
+			viewportSize: viewport.clientHeight,
+			contentSize: viewport.scrollHeight,
+			tileStart: tile.top - view.top - viewport.clientTop + viewport.scrollTop,
+			tileSize: tile.height,
+			margin: tile.height,
+		});
+		if (left !== viewport.scrollLeft) viewport.scrollLeft = left;
+		if (top !== viewport.scrollTop) viewport.scrollTop = top;
+	}, []);
+
+	useLayoutEffect(() => {
+		if (dungeon[playerPosition.row]?.[playerPosition.col] !== undefined)
+			followPlayer();
+	}, [dungeon, playerPosition.row, playerPosition.col, followPlayer]);
+
+	useEffect(() => {
+		const viewport = viewportRef.current;
+		if (!viewport) return;
+		if (typeof ResizeObserver === "undefined") {
+			window.addEventListener("resize", followPlayer);
+			return () => window.removeEventListener("resize", followPlayer);
+		}
+		const observer = new ResizeObserver(followPlayer);
+		observer.observe(viewport);
+		return () => observer.disconnect();
+	}, [followPlayer]);
+
 	const movePlayer = useCallback(
 		(changeUpDown: number, changeLeftRight: number) => {
 			const newRow = playerPosition.row + changeUpDown;
@@ -136,6 +195,7 @@ const DungeonLayout = ({
 		return (
 			<td
 				key={columnIndex}
+				ref={displayTile === PLAYER ? playerRef : undefined}
 				aria-label={tileDescription}
 				className={`size-[24px] ${TILE_BACKGROUNDS[displayTile] ?? ""}`}
 			>
@@ -146,6 +206,7 @@ const DungeonLayout = ({
 
 	return (
 		<section
+			ref={viewportRef}
 			aria-label="Dungeon map"
 			// biome-ignore lint/a11y/noNoninteractiveTabindex: Keyboard users need to focus the scrollable map region.
 			tabIndex={0}

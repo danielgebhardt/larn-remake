@@ -1,9 +1,5 @@
 import { expect } from "vitest";
-import {
-	type DungeonFloor,
-	generateDungeonFloor,
-	type StairLink,
-} from "../DungeonRun.ts";
+import type { DungeonFloor, StairLink } from "../DungeonRun.ts";
 import {
 	type Coordinate,
 	type Dungeon,
@@ -112,27 +108,42 @@ export const expectAllFloorTilesReachable = (
 
 type TestDungeonFloorOptions = {
 	floorNumber: number;
-	terrain: string[][];
+	rows: number;
+	cols: number;
+	room: Room;
 	upStair?: StairLink;
 	downStair?: StairLink;
 };
 
 export const createTestDungeonFloor = ({
 	floorNumber,
-	terrain,
+	rows,
+	cols,
+	room,
 	upStair,
 	downStair,
 }: TestDungeonFloorOptions): DungeonFloor => {
-	const floor = generateDungeonFloor(123, floorNumber, {
-		rows: terrain.length,
-		cols: terrain[0].length,
-		minPartitionSize: Math.min(terrain.length, terrain[0].length),
-		roomPadding: 0,
-	});
+	// These traversal fixtures describe one room, with no corridors or RNG.
+	const terrain: Dungeon = Array.from({ length: rows }, (_, row) =>
+		Array.from({ length: cols }, (_, col) =>
+			row >= room.startRow &&
+			row <= room.endRow &&
+			col >= room.startCol &&
+			col <= room.endCol
+				? FLOOR
+				: WALL,
+		),
+	);
 
 	return {
-		...floor,
+		floorNumber,
 		terrain,
+		rooms: [{ ...room }],
+		corridors: [],
+		partitions: {
+			region: { startRow: 0, endRow: rows - 1, startCol: 0, endCol: cols - 1 },
+			room: { ...room },
+		},
 		upStair,
 		downStair,
 	};

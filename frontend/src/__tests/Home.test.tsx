@@ -14,16 +14,9 @@ afterEach(() => {
 const createThreeFloorTraversalRun = (): DungeonRun.DungeonRun => {
 	const floor1 = createTestDungeonFloor({
 		floorNumber: 1,
-		terrain: [
-			[LayoutTiles.WALL, LayoutTiles.WALL, LayoutTiles.WALL, LayoutTiles.WALL],
-			[
-				LayoutTiles.WALL,
-				LayoutTiles.FLOOR,
-				LayoutTiles.FLOOR,
-				LayoutTiles.WALL,
-			],
-			[LayoutTiles.WALL, LayoutTiles.WALL, LayoutTiles.WALL, LayoutTiles.WALL],
-		],
+		rows: 3,
+		cols: 4,
+		room: { startRow: 1, endRow: 1, startCol: 1, endCol: 2 },
 		downStair: {
 			coordinate: { row: 1, col: 2 },
 			destinationFloor: 2,
@@ -33,29 +26,9 @@ const createThreeFloorTraversalRun = (): DungeonRun.DungeonRun => {
 
 	const floor2 = createTestDungeonFloor({
 		floorNumber: 2,
-		terrain: [
-			[
-				LayoutTiles.WALL,
-				LayoutTiles.WALL,
-				LayoutTiles.WALL,
-				LayoutTiles.WALL,
-				LayoutTiles.WALL,
-			],
-			[
-				LayoutTiles.WALL,
-				LayoutTiles.FLOOR,
-				LayoutTiles.FLOOR,
-				LayoutTiles.FLOOR,
-				LayoutTiles.WALL,
-			],
-			[
-				LayoutTiles.WALL,
-				LayoutTiles.WALL,
-				LayoutTiles.WALL,
-				LayoutTiles.WALL,
-				LayoutTiles.WALL,
-			],
-		],
+		rows: 3,
+		cols: 5,
+		room: { startRow: 1, endRow: 1, startCol: 1, endCol: 3 },
 		upStair: {
 			coordinate: { row: 1, col: 1 },
 			destinationFloor: 1,
@@ -70,22 +43,9 @@ const createThreeFloorTraversalRun = (): DungeonRun.DungeonRun => {
 
 	const floor3 = createTestDungeonFloor({
 		floorNumber: 3,
-		terrain: [
-			[LayoutTiles.WALL, LayoutTiles.WALL, LayoutTiles.WALL, LayoutTiles.WALL],
-			[
-				LayoutTiles.WALL,
-				LayoutTiles.FLOOR,
-				LayoutTiles.FLOOR,
-				LayoutTiles.WALL,
-			],
-			[
-				LayoutTiles.WALL,
-				LayoutTiles.FLOOR,
-				LayoutTiles.FLOOR,
-				LayoutTiles.WALL,
-			],
-			[LayoutTiles.WALL, LayoutTiles.WALL, LayoutTiles.WALL, LayoutTiles.WALL],
-		],
+		rows: 4,
+		cols: 4,
+		room: { startRow: 1, endRow: 2, startCol: 1, endCol: 2 },
 		upStair: {
 			coordinate: { row: 1, col: 1 },
 			destinationFloor: 2,
@@ -511,11 +471,9 @@ describe("Home tests", () => {
 
 		const floor1 = createTestDungeonFloor({
 			floorNumber: 1,
-			terrain: [
-				[LayoutTiles.WALL, LayoutTiles.WALL, LayoutTiles.WALL],
-				[LayoutTiles.WALL, LayoutTiles.FLOOR, LayoutTiles.FLOOR],
-				[LayoutTiles.WALL, LayoutTiles.WALL, LayoutTiles.WALL],
-			],
+			rows: 3,
+			cols: 3,
+			room: { startRow: 1, endRow: 1, startCol: 1, endCol: 2 },
 			downStair: {
 				coordinate: { row: 1, col: 2 },
 				destinationFloor: 2,
@@ -525,36 +483,9 @@ describe("Home tests", () => {
 
 		const floor2 = createTestDungeonFloor({
 			floorNumber: 2,
-			terrain: [
-				[
-					LayoutTiles.WALL,
-					LayoutTiles.WALL,
-					LayoutTiles.WALL,
-					LayoutTiles.WALL,
-					LayoutTiles.WALL,
-				],
-				[
-					LayoutTiles.WALL,
-					LayoutTiles.FLOOR,
-					LayoutTiles.FLOOR,
-					LayoutTiles.FLOOR,
-					LayoutTiles.WALL,
-				],
-				[
-					LayoutTiles.WALL,
-					LayoutTiles.FLOOR,
-					LayoutTiles.FLOOR,
-					LayoutTiles.FLOOR,
-					LayoutTiles.WALL,
-				],
-				[
-					LayoutTiles.WALL,
-					LayoutTiles.WALL,
-					LayoutTiles.WALL,
-					LayoutTiles.WALL,
-					LayoutTiles.WALL,
-				],
-			],
+			rows: 4,
+			cols: 5,
+			room: { startRow: 1, endRow: 2, startCol: 1, endCol: 3 },
 			upStair: {
 				coordinate: { row: 1, col: 1 },
 				destinationFloor: 1,
@@ -597,11 +528,9 @@ describe("Home tests", () => {
 
 		const floor1 = createTestDungeonFloor({
 			floorNumber: 1,
-			terrain: [
-				[LayoutTiles.WALL, LayoutTiles.WALL, LayoutTiles.WALL],
-				[LayoutTiles.WALL, LayoutTiles.FLOOR, LayoutTiles.FLOOR],
-				[LayoutTiles.WALL, LayoutTiles.WALL, LayoutTiles.WALL],
-			],
+			rows: 3,
+			cols: 3,
+			room: { startRow: 1, endRow: 1, startCol: 1, endCol: 2 },
 			downStair: {
 				coordinate: { row: 1, col: 2 },
 				destinationFloor: 2,
@@ -611,26 +540,9 @@ describe("Home tests", () => {
 
 		const floor2 = createTestDungeonFloor({
 			floorNumber: 2,
-			terrain: [
-				[
-					LayoutTiles.WALL,
-					LayoutTiles.WALL,
-					LayoutTiles.WALL,
-					LayoutTiles.WALL,
-				],
-				[
-					LayoutTiles.WALL,
-					LayoutTiles.FLOOR,
-					LayoutTiles.FLOOR,
-					LayoutTiles.WALL,
-				],
-				[
-					LayoutTiles.WALL,
-					LayoutTiles.WALL,
-					LayoutTiles.WALL,
-					LayoutTiles.WALL,
-				],
-			],
+			rows: 3,
+			cols: 4,
+			room: { startRow: 1, endRow: 1, startCol: 1, endCol: 2 },
 			upStair: {
 				coordinate: { row: 1, col: 1 },
 				destinationFloor: 1,
@@ -680,11 +592,9 @@ describe("Home tests", () => {
 
 		const floor1 = createTestDungeonFloor({
 			floorNumber: 1,
-			terrain: [
-				[LayoutTiles.WALL, LayoutTiles.WALL, LayoutTiles.WALL],
-				[LayoutTiles.WALL, LayoutTiles.FLOOR, LayoutTiles.FLOOR],
-				[LayoutTiles.WALL, LayoutTiles.WALL, LayoutTiles.WALL],
-			],
+			rows: 3,
+			cols: 3,
+			room: { startRow: 1, endRow: 1, startCol: 1, endCol: 2 },
 			downStair: {
 				coordinate: { row: 1, col: 2 },
 				destinationFloor: 2,
@@ -694,36 +604,9 @@ describe("Home tests", () => {
 
 		const floor2 = createTestDungeonFloor({
 			floorNumber: 2,
-			terrain: [
-				[
-					LayoutTiles.WALL,
-					LayoutTiles.WALL,
-					LayoutTiles.WALL,
-					LayoutTiles.WALL,
-					LayoutTiles.WALL,
-				],
-				[
-					LayoutTiles.WALL,
-					LayoutTiles.FLOOR,
-					LayoutTiles.FLOOR,
-					LayoutTiles.FLOOR,
-					LayoutTiles.WALL,
-				],
-				[
-					LayoutTiles.WALL,
-					LayoutTiles.FLOOR,
-					LayoutTiles.FLOOR,
-					LayoutTiles.FLOOR,
-					LayoutTiles.WALL,
-				],
-				[
-					LayoutTiles.WALL,
-					LayoutTiles.WALL,
-					LayoutTiles.WALL,
-					LayoutTiles.WALL,
-					LayoutTiles.WALL,
-				],
-			],
+			rows: 4,
+			cols: 5,
+			room: { startRow: 1, endRow: 2, startCol: 1, endCol: 3 },
 			upStair: {
 				coordinate: { row: 1, col: 1 },
 				destinationFloor: 1,
@@ -769,11 +652,9 @@ describe("Home tests", () => {
 
 		const floor1 = createTestDungeonFloor({
 			floorNumber: 1,
-			terrain: [
-				[LayoutTiles.WALL, LayoutTiles.WALL, LayoutTiles.WALL],
-				[LayoutTiles.WALL, LayoutTiles.FLOOR, LayoutTiles.FLOOR],
-				[LayoutTiles.WALL, LayoutTiles.WALL, LayoutTiles.WALL],
-			],
+			rows: 3,
+			cols: 3,
+			room: { startRow: 1, endRow: 1, startCol: 1, endCol: 2 },
 			downStair: {
 				coordinate: { row: 1, col: 2 },
 				destinationFloor: 2,
@@ -783,29 +664,9 @@ describe("Home tests", () => {
 
 		const floor2 = createTestDungeonFloor({
 			floorNumber: 2,
-			terrain: [
-				[
-					LayoutTiles.WALL,
-					LayoutTiles.WALL,
-					LayoutTiles.WALL,
-					LayoutTiles.WALL,
-					LayoutTiles.WALL,
-				],
-				[
-					LayoutTiles.WALL,
-					LayoutTiles.FLOOR,
-					LayoutTiles.FLOOR,
-					LayoutTiles.FLOOR,
-					LayoutTiles.WALL,
-				],
-				[
-					LayoutTiles.WALL,
-					LayoutTiles.WALL,
-					LayoutTiles.WALL,
-					LayoutTiles.WALL,
-					LayoutTiles.WALL,
-				],
-			],
+			rows: 3,
+			cols: 5,
+			room: { startRow: 1, endRow: 1, startCol: 1, endCol: 3 },
 			upStair: {
 				coordinate: { row: 1, col: 1 },
 				destinationFloor: 1,

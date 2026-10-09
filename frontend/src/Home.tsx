@@ -1,4 +1,7 @@
 import { type SubmitEvent, useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import APICheck from "./APICheck.tsx";
 import DungeonLayout from "./DungeonLayout.tsx";
 import DungeonLegend from "./DungeonLegend.tsx";
@@ -71,50 +74,59 @@ const Home = () => {
 	};
 
 	return (
-		<div>
+		<div className="flex min-h-svh flex-col bg-muted/30">
 			<Header
 				floorNumber={activeFloor.floorNumber}
 				floorCount={run.floors.length}
 				onNewDungeon={handleNewDungeon}
 			/>
 
-			<main>
-				<section>
-					<APICheck />
-				</section>
-
-				<section className="grid gap-2">
-					<p>
-						Seed: <output aria-label="Current dungeon seed">{run.seed}</output>
+			<main className="min-w-0 flex-1 space-y-4 p-4 sm:p-6">
+				<section className="grid gap-3 rounded-lg border border-border bg-card p-4">
+					<p className="text-sm text-muted-foreground">
+						Current seed:{" "}
+						<output
+							aria-label="Current dungeon seed"
+							className="font-mono text-foreground"
+						>
+							{run.seed}
+						</output>
 					</p>
 					<form
-						className="flex flex-wrap items-center justify-center gap-2"
+						className="flex flex-wrap items-end gap-3"
 						onSubmit={handleSeedSubmit}
 					>
-						<label htmlFor="dungeon-seed">Dungeon seed</label>
-						<input
-							id="dungeon-seed"
-							className="rounded border px-2 py-1"
-							type="text"
-							inputMode="numeric"
-							value={seedInput}
-							aria-invalid={seedError !== null}
-							aria-describedby={seedError ? "seed-error" : undefined}
-							onChange={(event) => {
-								setSeedInput(event.target.value);
-								setSeedError(null);
-							}}
-						/>
-						<button type="submit">Start from seed</button>
+						<div className="grid w-full gap-2 sm:w-64">
+							<Label htmlFor="dungeon-seed">Dungeon seed</Label>
+							<Input
+								id="dungeon-seed"
+								type="text"
+								inputMode="numeric"
+								value={seedInput}
+								aria-invalid={seedError !== null}
+								aria-describedby={seedError ? "seed-error" : undefined}
+								onChange={(event) => {
+									setSeedInput(event.target.value);
+									setSeedError(null);
+								}}
+							/>
+						</div>
+						<Button type="submit" variant="outline">
+							Start from seed
+						</Button>
 						{seedError && (
-							<p id="seed-error" role="alert" className="w-full">
+							<p
+								id="seed-error"
+								role="alert"
+								className="w-full text-sm text-destructive"
+							>
 								{seedError}
 							</p>
 						)}
 					</form>
 				</section>
 
-				<section>
+				<section className="min-w-0 rounded-lg border border-border bg-card p-3 sm:p-4">
 					<DungeonLegend />
 					<DungeonLayout
 						dungeon={activeFloor.terrain}
@@ -125,6 +137,10 @@ const Home = () => {
 					/>
 				</section>
 			</main>
+			<footer className="flex flex-wrap items-center gap-x-2 gap-y-1 border-t border-border px-4 py-2 text-xs text-muted-foreground sm:px-6">
+				<span>Server:</span>
+				<APICheck />
+			</footer>
 		</div>
 	);
 };

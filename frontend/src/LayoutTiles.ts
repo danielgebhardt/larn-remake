@@ -206,72 +206,75 @@ export const selectPlayerStart = (
 export const selectStairLocation = (
 	dungeon: LocationSelectionSource,
 	entryCoordinate: Coordinate,
+	random?: () => number,
 ): Coordinate => {
 	if (
-		entryCoordinate.row < 0 ||
-		entryCoordinate.row > dungeon.terrain.length - 1 ||
-		entryCoordinate.col < 0 ||
-		entryCoordinate.col > dungeon.terrain[0].length - 1 ||
-		dungeon.terrain[entryCoordinate.row][entryCoordinate.col] !== FLOOR
+		!Number.isInteger(entryCoordinate.row) ||
+		!Number.isInteger(entryCoordinate.col) ||
+		dungeon.terrain[entryCoordinate.row]?.[entryCoordinate.col] !== FLOOR
 	) {
 		throw new RangeError("Invalid start point");
 	}
 
-	if (dungeon.rooms.length === 1) {
-		const room = dungeon.rooms[0];
-
-		const middleOfRoom = getRoomCenter(room);
-
-		if (
-			middleOfRoom.row === entryCoordinate.row &&
-			middleOfRoom.col === entryCoordinate.col
-		) {
-			const candidates = [
-				{ row: room.startRow, col: room.startCol },
-				{ row: room.startRow, col: room.endCol },
-				{ row: room.endRow, col: room.startCol },
-				{ row: room.endRow, col: room.endCol },
-			];
-
-			const fallback = candidates.find(
-				(coordinate) =>
-					coordinate.row !== entryCoordinate.row ||
-					coordinate.col !== entryCoordinate.col,
-			);
-
-			if (!fallback) {
-				throw new RangeError("No valid coordinate available for staircase");
-			}
-
-			return fallback;
-		}
-
-		return middleOfRoom;
-	}
-
-	let startingRoomIndex = -1;
-
-	for (let i = 0; i < dungeon.rooms.length; i++) {
-		const room = dungeon.rooms[i];
-
-		if (
+	const entryRoom = dungeon.rooms.find(
+		(room) =>
 			entryCoordinate.row >= room.startRow &&
-			entryCoordinate.col >= room.startCol &&
 			entryCoordinate.row <= room.endRow &&
-			entryCoordinate.col <= room.endCol
-		) {
-			startingRoomIndex = i;
-			break;
-		}
-	}
+			entryCoordinate.col >= room.startCol &&
+			entryCoordinate.col <= room.endCol,
+	);
 
-	if (startingRoomIndex === -1) {
+	if (!entryRoom) {
 		throw new RangeError(
 			"Invalid start point. Starting point is not in a room.",
 		);
 	}
 
-	const rooms: Room[] = dungeon.rooms.toSpliced(startingRoomIndex, 1);
+	const otherRooms = dungeon.rooms.filter((room) => room !== entryRoom);
 
-	return getRoomCenter(rooms[rooms.length - 1]);
+	if (otherRooms.length > 0) {
+		if (!random) {
+			return getRoomCenter(otherRooms[otherRooms.length - 1]);
+		}
+
+		// Choose rooms equally, then choose a floor tile in that room.
+		const room = otherRooms[Math.floor(random() * otherRooms.length)];
+		const candidates: Coordinate[] = [];
+		for (let row = room.startRow; row <= room.endRow; row++) {
+			for (let col = room.startCol; col <= room.endCol; col++) {
+				if (dungeon.terrain[row]?.[col] === FLOOR) {
+					candidates.push({ row, col });
+				}
+			}
+		}
+
+		if (candidates.length === 0) {
+			throw new RangeError("No valid coordinate available for staircase");
+		}
+		return candidates[Math.floor(random() * candidates.length)];
+	}
+
+	// A single-room floor uses its center, then the first distinct floor tile
+	// in row-major order. This constrained fallback consumes no randomness.
+	const center = getRoomCenter(entryRoom);
+	if (
+		(center.row !== entryCoordinate.row ||
+			center.col !== entryCoordinate.col) &&
+		dungeon.terrain[center.row]?.[center.col] === FLOOR
+	) {
+		return center;
+	}
+
+	for (let row = entryRoom.startRow; row <= entryRoom.endRow; row++) {
+		for (let col = entryRoom.startCol; col <= entryRoom.endCol; col++) {
+			if (
+				(row !== entryCoordinate.row || col !== entryCoordinate.col) &&
+				dungeon.terrain[row]?.[col] === FLOOR
+			) {
+				return { row, col };
+			}
+		}
+	}
+
+	throw new RangeError("No valid coordinate available for staircase");
 };

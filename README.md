@@ -19,6 +19,8 @@ The application currently includes:
 
 The playable dungeon is generated in the frontend when the page loads. It remains stable during ordinary React rerenders. The earlier fixed dungeon remains available as a test fixture.
 
+Stair placement uses an independent seeded random source for each floor, derived from the run seed, floor number, and a `stairs` namespace. Down stairs choose equally among rooms outside the entry room, then choose a floor tile within that room. Up stairs stay at the floor entry, with reciprocal arrival coordinates. A single-room floor uses its center when distinct from the entry, otherwise its first distinct floor tile in row-major order; a floor with no distinct location fails clearly. The same seed and configuration reproduce the links regardless of floor generation or connection order, without changing terrain generation. Calls to the stair selector without a random source retain the deterministic last-room-center rule.
+
 ## Repository layout
 
 ```text

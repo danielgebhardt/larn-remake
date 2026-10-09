@@ -76,7 +76,7 @@ describe("DungeonLayout tests", () => {
 		expect(onPlayerMove).toHaveBeenCalledExactlyOnceWith({ row: 1, col: 2 });
 		expect(
 			screen.getByRole("cell", { name: "row1col1 - player" }),
-		).toHaveTextContent(PLAYER);
+		).toBeVisible();
 
 		rerender(
 			<DungeonLayout
@@ -92,7 +92,7 @@ describe("DungeonLayout tests", () => {
 		expect(onPlayerMove).toHaveBeenLastCalledWith({ row: 1, col: 1 });
 		expect(
 			screen.getByRole("cell", { name: "row1col2 - player" }),
-		).toHaveTextContent(PLAYER);
+		).toBeVisible();
 	});
 
 	it("renders a parent position update on the same floor without remounting", () => {
@@ -115,10 +115,10 @@ describe("DungeonLayout tests", () => {
 
 		expect(
 			screen.getByRole("cell", { name: "row1col2 - player" }),
-		).toHaveTextContent(PLAYER);
-		expect(screen.getByRole("cell", { name: "row1col1" })).toHaveTextContent(
-			FLOOR,
-		);
+		).toBeVisible();
+		expect(
+			screen.getByRole("cell", { name: "row1col1 - floor" }),
+		).toBeVisible();
 		expect(onPlayerMove).not.toHaveBeenCalled();
 	});
 
@@ -139,7 +139,7 @@ describe("DungeonLayout tests", () => {
 
 				expect(
 					screen.getByRole("cell", { name: `row${row}col${col} - player` }),
-				).toHaveTextContent(PLAYER);
+				).toBeVisible();
 				expect(event.defaultPrevented).toBe(true);
 			},
 		);
@@ -165,7 +165,7 @@ describe("DungeonLayout tests", () => {
 
 				expect(
 					screen.getByRole("cell", { name: `row${row}col${col} - player` }),
-				).toHaveTextContent(PLAYER);
+				).toBeVisible();
 				expect(event.defaultPrevented).toBe(true);
 			},
 		);
@@ -188,7 +188,7 @@ describe("DungeonLayout tests", () => {
 			expect(event.defaultPrevented).toBe(false);
 			expect(
 				screen.getByRole("cell", { name: "row1col1 - player" }),
-			).toHaveTextContent(PLAYER);
+			).toBeVisible();
 		});
 
 		describe.each([
@@ -256,7 +256,7 @@ describe("DungeonLayout tests", () => {
 					expect(event.defaultPrevented).toBe(false);
 					expect(
 						screen.getByRole("cell", { name: "row1col1 - player" }),
-					).toHaveTextContent(PLAYER);
+					).toBeVisible();
 				},
 			);
 		});
@@ -283,11 +283,55 @@ describe("DungeonLayout tests", () => {
 			expect(editable).toHaveValue("d");
 			expect(
 				screen.getByRole("cell", { name: "row1col1 - player" }),
-			).toHaveTextContent(PLAYER);
+			).toBeVisible();
 		});
 	});
 
 	describe("DungeonLayout Tests", () => {
+		it("provides a focusable map region for keyboard scrolling", () => {
+			render(
+				<DungeonLayout
+					dungeon={openDungeon}
+					playerPosition={{ row: 0, col: 0 }}
+					onPlayerMove={noopPlayerMove}
+				/>,
+			);
+			const map = screen.getByRole("region", { name: "Dungeon map" });
+			expect(map).toHaveAttribute("tabindex", "0");
+			map.focus();
+			expect(map).toHaveFocus();
+		});
+		it.each([
+			{ tile: FLOOR, description: "floor", icons: 1 },
+			{ tile: PLAYER, description: "player", icons: 1 },
+			{ tile: STAIRS_UP, description: "stairs up", icons: 1 },
+			{ tile: STAIRS_DOWN, description: "stairs down", icons: 1 },
+		])(
+			"renders $description with decorative SVGs instead of a glyph",
+			({ tile, description, icons }) => {
+				render(
+					<DungeonLayout
+						dungeon={openDungeon}
+						playerPosition={
+							tile === PLAYER ? { row: 1, col: 1 } : { row: 0, col: 0 }
+						}
+						upStair={tile === STAIRS_UP ? { row: 1, col: 1 } : undefined}
+						downStair={tile === STAIRS_DOWN ? { row: 1, col: 1 } : undefined}
+						onPlayerMove={noopPlayerMove}
+					/>,
+				);
+				const cell = screen.getByRole("cell", {
+					name: `row1col1 - ${description}`,
+				});
+				expect(cell).not.toHaveTextContent(tile);
+				const svgs = cell.querySelectorAll("svg");
+				expect(svgs).toHaveLength(icons);
+				for (const svg of svgs) {
+					expect(svg).toHaveAttribute("aria-hidden", "true");
+					expect(svg).toHaveAttribute("focusable", "false");
+				}
+			},
+		);
 		it("renders a simple 5 x 5 dungeon by default", () => {
 			render(
 				<TestDungeonLayout
@@ -297,21 +341,22 @@ describe("DungeonLayout tests", () => {
 				/>,
 			);
 
-			expect(screen.getByRole("cell", { name: "row0col0" })).toHaveTextContent(
-				"#",
-			);
-			expect(screen.getByRole("cell", { name: "row1col0" })).toHaveTextContent(
-				"#",
-			);
-			expect(screen.getByRole("cell", { name: "row1col3" })).toHaveTextContent(
-				".",
-			);
-			expect(screen.getByRole("cell", { name: "row1col2" })).toHaveTextContent(
-				".",
-			);
-			expect(screen.getByRole("cell", { name: "row4col4" })).toHaveTextContent(
-				"#",
-			);
+			const wall = screen.getByRole("cell", { name: "row0col0 - wall" });
+			expect(wall).not.toHaveTextContent(WALL);
+			expect(wall.querySelector("svg")).toHaveAttribute("aria-hidden", "true");
+			expect(wall.querySelector("svg")).toHaveAttribute("focusable", "false");
+			expect(
+				screen.getByRole("cell", { name: "row1col0 - wall" }),
+			).toBeVisible();
+			expect(
+				screen.getByRole("cell", { name: "row1col3 - floor" }),
+			).toBeVisible();
+			expect(
+				screen.getByRole("cell", { name: "row1col2 - floor" }),
+			).toBeVisible();
+			expect(
+				screen.getByRole("cell", { name: "row4col4 - wall" }),
+			).toBeVisible();
 		});
 
 		it("should start with Player in 1,1 position by default", () => {
@@ -325,7 +370,7 @@ describe("DungeonLayout tests", () => {
 
 			expect(
 				screen.getByRole("cell", { name: "row1col1 - player" }),
-			).toHaveTextContent(PLAYER);
+			).toBeVisible();
 		});
 
 		it("should move player down and up when pressing Up, Down, 's', and 'w' keys", async () => {
@@ -339,47 +384,47 @@ describe("DungeonLayout tests", () => {
 
 			expect(
 				screen.getByRole("cell", { name: "row1col1 - player" }),
-			).toHaveTextContent(PLAYER);
+			).toBeVisible();
 
 			await userEvent.keyboard("{ArrowDown}");
 
 			expect(
 				screen.getByRole("cell", { name: "row2col1 - player" }),
-			).toHaveTextContent(PLAYER);
+			).toBeVisible();
 
-			expect(screen.getByRole("cell", { name: "row1col1" })).toHaveTextContent(
-				".",
-			);
+			expect(
+				screen.getByRole("cell", { name: "row1col1 - floor" }),
+			).toBeVisible();
 
 			await userEvent.keyboard("{ArrowUp}");
 
 			expect(
 				screen.getByRole("cell", { name: "row1col1 - player" }),
-			).toHaveTextContent(PLAYER);
+			).toBeVisible();
 
-			expect(screen.getByRole("cell", { name: "row2col1" })).toHaveTextContent(
-				".",
-			);
+			expect(
+				screen.getByRole("cell", { name: "row2col1 - floor" }),
+			).toBeVisible();
 
 			await userEvent.keyboard("s");
 
 			expect(
 				screen.getByRole("cell", { name: "row2col1 - player" }),
-			).toHaveTextContent(PLAYER);
+			).toBeVisible();
 
-			expect(screen.getByRole("cell", { name: "row1col1" })).toHaveTextContent(
-				".",
-			);
+			expect(
+				screen.getByRole("cell", { name: "row1col1 - floor" }),
+			).toBeVisible();
 
 			await userEvent.keyboard("w");
 
 			expect(
 				screen.getByRole("cell", { name: "row1col1 - player" }),
-			).toHaveTextContent(PLAYER);
+			).toBeVisible();
 
-			expect(screen.getByRole("cell", { name: "row2col1" })).toHaveTextContent(
-				".",
-			);
+			expect(
+				screen.getByRole("cell", { name: "row2col1 - floor" }),
+			).toBeVisible();
 		});
 
 		it("should move player right and left when pressing Right, Left, 'd', and 'a' keys", async () => {
@@ -393,47 +438,47 @@ describe("DungeonLayout tests", () => {
 
 			expect(
 				screen.getByRole("cell", { name: "row1col1 - player" }),
-			).toHaveTextContent(PLAYER);
+			).toBeVisible();
 
 			await userEvent.keyboard("{ArrowRight}");
 
 			expect(
 				screen.getByRole("cell", { name: "row1col2 - player" }),
-			).toHaveTextContent(PLAYER);
+			).toBeVisible();
 
-			expect(screen.getByRole("cell", { name: "row1col1" })).toHaveTextContent(
-				".",
-			);
+			expect(
+				screen.getByRole("cell", { name: "row1col1 - floor" }),
+			).toBeVisible();
 
 			await userEvent.keyboard("{ArrowLeft}");
 
 			expect(
 				screen.getByRole("cell", { name: "row1col1 - player" }),
-			).toHaveTextContent(PLAYER);
+			).toBeVisible();
 
-			expect(screen.getByRole("cell", { name: "row1col2" })).toHaveTextContent(
-				".",
-			);
+			expect(
+				screen.getByRole("cell", { name: "row1col2 - floor" }),
+			).toBeVisible();
 
 			await userEvent.keyboard("d");
 
 			expect(
 				screen.getByRole("cell", { name: "row1col2 - player" }),
-			).toHaveTextContent(PLAYER);
+			).toBeVisible();
 
-			expect(screen.getByRole("cell", { name: "row1col1" })).toHaveTextContent(
-				".",
-			);
+			expect(
+				screen.getByRole("cell", { name: "row1col1 - floor" }),
+			).toBeVisible();
 
 			await userEvent.keyboard("a");
 
 			expect(
 				screen.getByRole("cell", { name: "row1col1 - player" }),
-			).toHaveTextContent(PLAYER);
+			).toBeVisible();
 
-			expect(screen.getByRole("cell", { name: "row1col2" })).toHaveTextContent(
-				".",
-			);
+			expect(
+				screen.getByRole("cell", { name: "row1col2 - floor" }),
+			).toBeVisible();
 		});
 
 		it("should not let player move into a wall when moving left or up", async () => {
@@ -447,19 +492,19 @@ describe("DungeonLayout tests", () => {
 
 			expect(
 				screen.getByRole("cell", { name: "row1col1 - player" }),
-			).toHaveTextContent(PLAYER);
+			).toBeVisible();
 
 			await userEvent.keyboard("{ArrowUp}");
 
 			expect(
 				screen.getByRole("cell", { name: "row1col1 - player" }),
-			).toHaveTextContent(PLAYER);
+			).toBeVisible();
 
 			await userEvent.keyboard("{ArrowLeft}");
 
 			expect(
 				screen.getByRole("cell", { name: "row1col1 - player" }),
-			).toHaveTextContent(PLAYER);
+			).toBeVisible();
 		});
 
 		it("should not let player move into a wall when moving right or down", async () => {
@@ -473,19 +518,19 @@ describe("DungeonLayout tests", () => {
 
 			expect(
 				screen.getByRole("cell", { name: "row3col3 - player" }),
-			).toHaveTextContent(PLAYER);
+			).toBeVisible();
 
 			await userEvent.keyboard("{ArrowDown}");
 
 			expect(
 				screen.getByRole("cell", { name: "row3col3 - player" }),
-			).toHaveTextContent(PLAYER);
+			).toBeVisible();
 
 			await userEvent.keyboard("{ArrowRight}");
 
 			expect(
 				screen.getByRole("cell", { name: "row3col3 - player" }),
-			).toHaveTextContent(PLAYER);
+			).toBeVisible();
 		});
 
 		it("should not allow player to move out of bounds for moving left or up", async () => {
@@ -499,19 +544,19 @@ describe("DungeonLayout tests", () => {
 
 			expect(
 				screen.getByRole("cell", { name: "row0col0 - player" }),
-			).toHaveTextContent(PLAYER);
+			).toBeVisible();
 
 			await userEvent.keyboard("{ArrowUp}");
 
 			expect(
 				screen.getByRole("cell", { name: "row0col0 - player" }),
-			).toHaveTextContent(PLAYER);
+			).toBeVisible();
 
 			await userEvent.keyboard("{ArrowLeft}");
 
 			expect(
 				screen.getByRole("cell", { name: "row0col0 - player" }),
-			).toHaveTextContent(PLAYER);
+			).toBeVisible();
 		});
 
 		it("should not allow player to move out of bounds for moving right or down", async () => {
@@ -525,19 +570,19 @@ describe("DungeonLayout tests", () => {
 
 			expect(
 				screen.getByRole("cell", { name: "row4col4 - player" }),
-			).toHaveTextContent(PLAYER);
+			).toBeVisible();
 
 			await userEvent.keyboard("{ArrowDown}");
 
 			expect(
 				screen.getByRole("cell", { name: "row4col4 - player" }),
-			).toHaveTextContent(PLAYER);
+			).toBeVisible();
 
 			await userEvent.keyboard("{ArrowRight}");
 
 			expect(
 				screen.getByRole("cell", { name: "row4col4 - player" }),
-			).toHaveTextContent(PLAYER);
+			).toBeVisible();
 		});
 
 		it("should not allow movement out of bounds in asymmetric dungeon", async () => {
@@ -555,31 +600,31 @@ describe("DungeonLayout tests", () => {
 
 			expect(
 				screen.getByRole("cell", { name: "row1col3 - player" }),
-			).toHaveTextContent(PLAYER);
+			).toBeVisible();
 
 			await userEvent.keyboard("{ArrowRight}");
 
 			expect(
 				screen.getByRole("cell", { name: "row1col4 - player" }),
-			).toHaveTextContent(PLAYER);
+			).toBeVisible();
 
 			await userEvent.keyboard("{ArrowRight}");
 
 			expect(
 				screen.getByRole("cell", { name: "row1col4 - player" }),
-			).toHaveTextContent(PLAYER);
+			).toBeVisible();
 
 			await userEvent.keyboard("{ArrowDown}");
 
 			expect(
 				screen.getByRole("cell", { name: "row2col4 - player" }),
-			).toHaveTextContent(PLAYER);
+			).toBeVisible();
 
 			await userEvent.keyboard("{ArrowDown}");
 
 			expect(
 				screen.getByRole("cell", { name: "row2col4 - player" }),
-			).toHaveTextContent(PLAYER);
+			).toBeVisible();
 		});
 
 		it("moves from a room through a corridor into another room", async () => {
@@ -594,12 +639,12 @@ describe("DungeonLayout tests", () => {
 			await userEvent.keyboard("{ArrowRight}");
 			expect(
 				screen.getByRole("cell", { name: "row2col3 - player" }),
-			).toHaveTextContent(PLAYER);
+			).toBeVisible();
 
 			await userEvent.keyboard("{ArrowRight}{ArrowRight}{ArrowRight}");
 			expect(
 				screen.getByRole("cell", { name: "row2col6 - player" }),
-			).toHaveTextContent(PLAYER);
+			).toBeVisible();
 		});
 
 		it("blocks movement from a corridor into a wall", async () => {
@@ -611,15 +656,15 @@ describe("DungeonLayout tests", () => {
 				/>,
 			);
 
-			expect(screen.getByRole("cell", { name: "row1col4" })).toHaveTextContent(
-				WALL,
-			);
+			expect(
+				screen.getByRole("cell", { name: "row1col4 - wall" }),
+			).toBeVisible();
 
 			await userEvent.keyboard("{ArrowUp}");
 
 			expect(
 				screen.getByRole("cell", { name: "row2col4 - player" }),
-			).toHaveTextContent(PLAYER);
+			).toBeVisible();
 		});
 
 		it("calls onPlayerMove with the new coordinate after a valid move", async () => {
@@ -676,7 +721,7 @@ describe("DungeonLayout tests", () => {
 
 			expect(
 				screen.getByRole("cell", { name: "row1col1 - stairs down" }),
-			).toHaveTextContent(STAIRS_DOWN);
+			).toBeVisible();
 		});
 
 		it("renders an up stair marker on the supplied stair coordinate", () => {
@@ -691,7 +736,7 @@ describe("DungeonLayout tests", () => {
 
 			expect(
 				screen.getByRole("cell", { name: "row1col1 - stairs up" }),
-			).toHaveTextContent(STAIRS_UP);
+			).toBeVisible();
 		});
 
 		it("renders the player instead of a down stair when occupying the same coordinate", () => {
@@ -706,7 +751,7 @@ describe("DungeonLayout tests", () => {
 
 			expect(
 				screen.getByRole("cell", { name: "row1col1 - player" }),
-			).toHaveTextContent(PLAYER);
+			).toBeVisible();
 		});
 
 		it("allows the player to occupy a down stair and restores the marker after moving away", async () => {
@@ -721,19 +766,19 @@ describe("DungeonLayout tests", () => {
 
 			expect(
 				screen.getByRole("cell", { name: "row1col1 - player" }),
-			).toHaveTextContent(PLAYER);
+			).toBeVisible();
 
 			await userEvent.keyboard("{ArrowRight}");
 
 			expect(
 				screen.getByRole("cell", { name: "row1col1 - stairs down" }),
-			).toHaveTextContent(STAIRS_DOWN);
+			).toBeVisible();
 
 			await userEvent.keyboard("{ArrowLeft}");
 
 			expect(
 				screen.getByRole("cell", { name: "row1col1 - player" }),
-			).toHaveTextContent(PLAYER);
+			).toBeVisible();
 		});
 
 		it("renders the player instead of an up stair when occupying the same coordinate", () => {
@@ -748,7 +793,7 @@ describe("DungeonLayout tests", () => {
 
 			expect(
 				screen.getByRole("cell", { name: "row1col1 - player" }),
-			).toHaveTextContent(PLAYER);
+			).toBeVisible();
 		});
 
 		it("allows the player to occupy an up stair and restores the marker after moving away", async () => {
@@ -763,19 +808,19 @@ describe("DungeonLayout tests", () => {
 
 			expect(
 				screen.getByRole("cell", { name: "row1col1 - player" }),
-			).toHaveTextContent(PLAYER);
+			).toBeVisible();
 
 			await userEvent.keyboard("{ArrowRight}");
 
 			expect(
 				screen.getByRole("cell", { name: "row1col1 - stairs up" }),
-			).toHaveTextContent(STAIRS_UP);
+			).toBeVisible();
 
 			await userEvent.keyboard("{ArrowLeft}");
 
 			expect(
 				screen.getByRole("cell", { name: "row1col1 - player" }),
-			).toHaveTextContent(PLAYER);
+			).toBeVisible();
 		});
 
 		it("provides an accessible description for a down stair", () => {
@@ -792,7 +837,7 @@ describe("DungeonLayout tests", () => {
 				name: "row1col1 - stairs down",
 			});
 
-			expect(stairCell).toHaveTextContent(STAIRS_DOWN);
+			expect(stairCell).toBeVisible();
 		});
 
 		it("provides an accessible description for an up stair", () => {
@@ -809,7 +854,7 @@ describe("DungeonLayout tests", () => {
 				name: "row1col1 - stairs up",
 			});
 
-			expect(stairCell).toHaveTextContent(STAIRS_UP);
+			expect(stairCell).toBeVisible();
 		});
 
 		it("reports movement onto an up stair through onPlayerMove", async () => {

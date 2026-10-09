@@ -8,6 +8,8 @@ import {
 	STAIRS_UP,
 	WALL,
 } from "./LayoutTiles.ts";
+import TileIcon from "./TileIcon.tsx";
+import { TILE_BACKGROUNDS, TILE_LABELS } from "./TileVisuals.ts";
 
 type DungeonLayoutProps = {
 	dungeon: Dungeon;
@@ -109,52 +111,61 @@ const DungeonLayout = ({
 		cell: string,
 	): ReactNode => {
 		let displayTile = cell;
-		let tileDescription = `row${rowIndex}col${columnIndex}`;
 
 		if (playerPosition.row === rowIndex && playerPosition.col === columnIndex) {
 			displayTile = PLAYER;
-			tileDescription = `row${rowIndex}col${columnIndex} - player`;
 		} else if (
 			upStair &&
 			upStair.row === rowIndex &&
 			upStair.col === columnIndex
 		) {
 			displayTile = STAIRS_UP;
-			tileDescription = `row${rowIndex}col${columnIndex} - stairs up`;
 		} else if (
 			downStair &&
 			downStair.row === rowIndex &&
 			downStair.col === columnIndex
 		) {
 			displayTile = STAIRS_DOWN;
-			tileDescription = `row${rowIndex}col${columnIndex} - stairs down`;
 		}
+		const label = TILE_LABELS[displayTile];
+		const tileDescription = `row${rowIndex}col${columnIndex}${label ? ` - ${label}` : ""}`;
 
 		return (
-			<td key={columnIndex} aria-label={tileDescription}>
-				{displayTile}
+			<td
+				key={columnIndex}
+				aria-label={tileDescription}
+				className={`size-[24px] ${TILE_BACKGROUNDS[displayTile] ?? ""}`}
+			>
+				<TileIcon tile={displayTile} />
 			</td>
 		);
 	};
 
 	return (
-		<table aria-label="Dungeon">
-			<tbody className="grid">
-				{dungeon.map((row, rowIndex) => (
-					<tr
-						key={rowIndex}
-						className="grid"
-						style={{
-							gridTemplateColumns: `repeat(${row.length}, minmax(0, 1fr))`,
-						}}
-					>
-						{row.map((cell, columnIndex) =>
-							renderCell(rowIndex, columnIndex, cell),
-						)}
-					</tr>
-				))}
-			</tbody>
-		</table>
+		<section
+			aria-label="Dungeon map"
+			// biome-ignore lint/a11y/noNoninteractiveTabindex: Keyboard users need to focus the scrollable map region.
+			tabIndex={0}
+			className="max-h-[70vh] w-full overflow-auto focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-600"
+		>
+			<table aria-label="Dungeon" className="w-max border-collapse">
+				<tbody className="grid">
+					{dungeon.map((row, rowIndex) => (
+						<tr
+							key={rowIndex}
+							className="grid"
+							style={{
+								gridTemplateColumns: `repeat(${row.length}, 24px)`,
+							}}
+						>
+							{row.map((cell, columnIndex) =>
+								renderCell(rowIndex, columnIndex, cell),
+							)}
+						</tr>
+					))}
+				</tbody>
+			</table>
+		</section>
 	);
 };
 

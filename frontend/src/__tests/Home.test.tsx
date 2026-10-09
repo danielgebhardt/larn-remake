@@ -62,6 +62,22 @@ const createThreeFloorTraversalRun = (): DungeonRun.DungeonRun => {
 };
 
 describe("Home tests", () => {
+	it("explains the player and both stair directions with a graphical legend", () => {
+		const run = createThreeFloorTraversalRun();
+		vi.spyOn(DungeonRun, "generateDungeonRun").mockReturnValue(run);
+		vi.spyOn(DungeonRun, "connectDungeonFloors").mockReturnValue(run);
+		render(<Home />);
+
+		const legend = screen.getByRole("list", { name: "Dungeon legend" });
+		expect(within(legend).getByText("Player")).toBeVisible();
+		expect(within(legend).getByText("Stairs up")).toBeVisible();
+		expect(within(legend).getByText("Stairs down")).toBeVisible();
+		const entries = within(legend).getAllByRole("listitem");
+		expect(entries).toHaveLength(3);
+		for (const entry of entries) {
+			expect(entry.querySelector("svg")).toHaveAttribute("aria-hidden", "true");
+		}
+	});
 	it("completes exploration, seed replay, and repeated whole-run restarts without restoring old floors", async () => {
 		const user = userEvent.setup();
 		const shiftCoordinate = (
@@ -131,15 +147,29 @@ describe("Home tests", () => {
 				if (link) expected[link.coordinate.row][link.coordinate.col] = glyph;
 			}
 			expected[player.row][player.col] = LayoutTiles.PLAYER;
+			const descriptions: Record<string, string> = {
+				[LayoutTiles.WALL]: "wall",
+				[LayoutTiles.FLOOR]: "floor",
+				[LayoutTiles.PLAYER]: "player",
+				[STAIRS_UP]: "stairs up",
+				[STAIRS_DOWN]: "stairs down",
+			};
 			const table = screen.getByRole("table", { name: "Dungeon" });
 			const actual = within(table)
 				.getAllByRole("row")
 				.map((row) =>
 					within(row)
 						.getAllByRole("cell")
-						.map((cell) => cell.textContent),
+						.map((cell) => cell.getAttribute("aria-label")),
 				);
-			expect(actual).toEqual(expected);
+			expect(actual).toEqual(
+				expected.map((row, rowIndex) =>
+					row.map(
+						(tile, colIndex) =>
+							`row${rowIndex}col${colIndex} - ${descriptions[tile]}`,
+					),
+				),
+			);
 			expect(
 				screen.getByRole("heading", { name: `Floor ${floorNumber} of 3` }),
 			).toBeVisible();
@@ -248,7 +278,7 @@ describe("Home tests", () => {
 			).toBeVisible();
 			expect(
 				screen.getByRole("cell", { name: "row1col1 - player" }),
-			).toHaveTextContent(LayoutTiles.PLAYER);
+			).toBeVisible();
 		});
 
 		it("resets repeated replays of the same seed, including submission with Enter", async () => {
@@ -269,7 +299,7 @@ describe("Home tests", () => {
 				).toBeVisible();
 				expect(
 					screen.getByRole("cell", { name: "row1col1 - player" }),
-				).toHaveTextContent(LayoutTiles.PLAYER);
+				).toBeVisible();
 			}
 			expect(generate).toHaveBeenCalledTimes(3);
 		});
@@ -467,11 +497,19 @@ describe("Home tests", () => {
 					continue;
 				}
 
-				expect(
-					screen.getByRole("cell", {
-						name: `row${rowIndex}col${colIndex}`,
-					}),
-				).toHaveTextContent(tile);
+				if (tile === LayoutTiles.WALL) {
+					expect(
+						screen.getByRole("cell", {
+							name: `row${rowIndex}col${colIndex} - wall`,
+						}),
+					).toBeVisible();
+				} else {
+					expect(
+						screen.getByRole("cell", {
+							name: `row${rowIndex}col${colIndex} - floor`,
+						}),
+					).toBeVisible();
+				}
 			}
 		}
 	});
@@ -494,7 +532,7 @@ describe("Home tests", () => {
 			screen.getByRole("cell", {
 				name: `row${start.row}col${start.col} - player`,
 			}),
-		).toHaveTextContent(LayoutTiles.PLAYER);
+		).toBeVisible();
 	});
 
 	it("does not generate another dungeon on an ordinary rerender", () => {
@@ -534,13 +572,13 @@ describe("Home tests", () => {
 		await userEvent.keyboard("{ArrowRight}");
 		expect(
 			screen.getByRole("cell", { name: "row2col4 - player" }),
-		).toHaveTextContent(LayoutTiles.PLAYER);
+		).toBeVisible();
 
 		rerender(<Home />);
 
 		expect(
 			screen.getByRole("cell", { name: "row2col4 - player" }),
-		).toHaveTextContent(LayoutTiles.PLAYER);
+		).toBeVisible();
 	});
 
 	it("replaces the rendered dungeon and resets the player when New Dungeon is clicked", async () => {
@@ -592,7 +630,7 @@ describe("Home tests", () => {
 			screen.getByRole("cell", {
 				name: `row${movedPosition.row}col${movedPosition.col} - player`,
 			}),
-		).toHaveTextContent(LayoutTiles.PLAYER);
+		).toBeVisible();
 
 		const callsBeforeClick = generateSpy.mock.calls.length;
 
@@ -617,7 +655,7 @@ describe("Home tests", () => {
 			screen.getByRole("cell", {
 				name: `row${secondStart.row}col${secondStart.col} - player`,
 			}),
-		).toHaveTextContent(LayoutTiles.PLAYER);
+		).toBeVisible();
 	});
 
 	it("resets the player on every new dungeon even when the seed and starting position repeat", async () => {
@@ -639,16 +677,16 @@ describe("Home tests", () => {
 
 			expect(
 				screen.getByRole("cell", { name: "row2col4 - player" }),
-			).toHaveTextContent(LayoutTiles.PLAYER);
+			).toBeVisible();
 
 			await user.click(screen.getByRole("button", { name: "New Dungeon" }));
 
 			expect(
 				screen.getByRole("cell", { name: "row2col3 - player" }),
-			).toHaveTextContent(LayoutTiles.PLAYER);
-			expect(screen.getByRole("cell", { name: "row2col4" })).toHaveTextContent(
-				LayoutTiles.FLOOR,
-			);
+			).toBeVisible();
+			expect(
+				screen.getByRole("cell", { name: "row2col4 - floor" }),
+			).toBeVisible();
 		}
 	});
 
@@ -679,24 +717,22 @@ describe("Home tests", () => {
 
 		await user.keyboard("{ArrowUp}");
 
-		expect(screen.getByRole("cell", { name: "row1col3" })).toHaveTextContent(
-			LayoutTiles.WALL,
-		);
+		expect(screen.getByRole("cell", { name: "row1col3 - wall" })).toBeVisible();
 		expect(
 			screen.getByRole("cell", { name: "row2col3 - player" }),
-		).toHaveTextContent(LayoutTiles.PLAYER);
+		).toBeVisible();
 
 		await user.keyboard("{ArrowRight}");
 
-		expect(screen.getByRole("cell", { name: "row2col3" })).toHaveTextContent(
-			LayoutTiles.FLOOR,
-		);
+		expect(
+			screen.getByRole("cell", { name: "row2col3 - floor" }),
+		).toBeVisible();
 		expect(
 			screen.getByRole("cell", { name: "row2col4 - player" }),
-		).toHaveTextContent(LayoutTiles.PLAYER);
-		expect(screen.getByRole("cell", { name: "row2col5" })).toHaveTextContent(
-			LayoutTiles.FLOOR,
-		);
+		).toBeVisible();
+		expect(
+			screen.getByRole("cell", { name: "row2col5 - floor" }),
+		).toBeVisible();
 	});
 
 	it("renders the active floor and its stair markers", () => {
@@ -726,7 +762,7 @@ describe("Home tests", () => {
 			screen.getByRole("cell", {
 				name: `row${activeFloor.downStair.coordinate.row}col${activeFloor.downStair.coordinate.col} - stairs down`,
 			}),
-		).toHaveTextContent(LayoutTiles.STAIRS_DOWN);
+		).toBeVisible();
 	});
 
 	it("renders only the active floor", () => {
@@ -800,13 +836,13 @@ describe("Home tests", () => {
 			screen.getByRole("cell", {
 				name: `row${floor2.downStair.coordinate.row}col${floor2.downStair.coordinate.col} - stairs down`,
 			}),
-		).toHaveTextContent(STAIRS_DOWN);
+		).toBeVisible();
 
 		expect(
 			screen.getByRole("cell", {
 				name: `row${floor2.upStair.coordinate.row}col${floor2.upStair.coordinate.col} - stairs up`,
 			}),
-		).toHaveTextContent(STAIRS_UP);
+		).toBeVisible();
 	});
 
 	it("descends onto the destination floor and renders that floor", async () => {
@@ -854,7 +890,7 @@ describe("Home tests", () => {
 			screen.getByRole("cell", {
 				name: "row1col1 - player",
 			}),
-		).toHaveTextContent(LayoutTiles.PLAYER);
+		).toBeVisible();
 
 		const dungeon = screen.getByRole("table", { name: "Dungeon" });
 		const rows = within(dungeon).getAllByRole("row");
@@ -912,7 +948,7 @@ describe("Home tests", () => {
 			screen.getByRole("cell", {
 				name: "row1col1 - player",
 			}),
-		).toHaveTextContent(LayoutTiles.PLAYER);
+		).toBeVisible();
 
 		// Move normally on floor 2.
 		await user.keyboard("{ArrowRight}");
@@ -921,13 +957,13 @@ describe("Home tests", () => {
 			screen.getByRole("cell", {
 				name: "row1col2 - player",
 			}),
-		).toHaveTextContent(LayoutTiles.PLAYER);
+		).toBeVisible();
 
 		expect(
 			screen.getByRole("cell", {
 				name: "row1col1 - stairs up",
 			}),
-		).toHaveTextContent(LayoutTiles.STAIRS_UP);
+		).toBeVisible();
 	});
 
 	it("does not trigger another floor transition when arriving on the up stair", async () => {
@@ -977,7 +1013,7 @@ describe("Home tests", () => {
 			screen.getByRole("cell", {
 				name: "row1col1 - player",
 			}),
-		).toHaveTextContent(LayoutTiles.PLAYER);
+		).toBeVisible();
 
 		// Prove floor 2 is still the rendered floor.
 		const dungeon = screen.getByRole("table", { name: "Dungeon" });
@@ -1039,13 +1075,13 @@ describe("Home tests", () => {
 			screen.getByRole("cell", {
 				name: "row1col2 - player",
 			}),
-		).toHaveTextContent(LayoutTiles.PLAYER);
+		).toBeVisible();
 
 		expect(
 			screen.getByRole("cell", {
-				name: "row1col3",
+				name: "row1col3 - floor",
 			}),
-		).toHaveTextContent(LayoutTiles.FLOOR);
+		).toBeVisible();
 	});
 
 	it("ascends onto the linked shallower floor and arrives on its down stair", async () => {
@@ -1069,7 +1105,7 @@ describe("Home tests", () => {
 			screen.getByRole("cell", {
 				name: "row1col2 - player",
 			}),
-		).toHaveTextContent(LayoutTiles.PLAYER);
+		).toBeVisible();
 
 		const dungeon = screen.getByRole("table", { name: "Dungeon" });
 		const rows = within(dungeon).getAllByRole("row");
@@ -1102,7 +1138,7 @@ describe("Home tests", () => {
 			screen.getByRole("cell", {
 				name: "row1col2 - player",
 			}),
-		).toHaveTextContent(LayoutTiles.PLAYER);
+		).toBeVisible();
 
 		// Floor 1 is still rendered.
 		const dungeon = screen.getByRole("table", { name: "Dungeon" });
@@ -1140,13 +1176,13 @@ describe("Home tests", () => {
 			screen.getByRole("cell", {
 				name: "row1col1 - player",
 			}),
-		).toHaveTextContent(LayoutTiles.PLAYER);
+		).toBeVisible();
 
 		expect(
 			screen.getByRole("cell", {
 				name: "row1col2 - stairs down",
 			}),
-		).toHaveTextContent(LayoutTiles.STAIRS_DOWN);
+		).toBeVisible();
 	});
 
 	it("travels from floor 1 to 2 to 3 and back to 2 and 1 without regenerating floors", async () => {
@@ -1170,7 +1206,7 @@ describe("Home tests", () => {
 			screen.getByRole("cell", {
 				name: "row1col1 - player",
 			}),
-		).toHaveTextContent(LayoutTiles.PLAYER);
+		).toBeVisible();
 
 		// Walk across floor 2 to its down stair.
 		await user.keyboard("{ArrowRight}");
@@ -1181,7 +1217,7 @@ describe("Home tests", () => {
 			screen.getByRole("cell", {
 				name: "row1col1 - player",
 			}),
-		).toHaveTextContent(LayoutTiles.PLAYER);
+		).toBeVisible();
 
 		let dungeon = screen.getByRole("table", { name: "Dungeon" });
 		let rows = within(dungeon).getAllByRole("row");
@@ -1201,7 +1237,7 @@ describe("Home tests", () => {
 			screen.getByRole("cell", {
 				name: "row1col3 - player",
 			}),
-		).toHaveTextContent(LayoutTiles.PLAYER);
+		).toBeVisible();
 
 		dungeon = screen.getByRole("table", { name: "Dungeon" });
 		rows = within(dungeon).getAllByRole("row");
@@ -1221,7 +1257,7 @@ describe("Home tests", () => {
 			screen.getByRole("cell", {
 				name: "row1col2 - player",
 			}),
-		).toHaveTextContent(LayoutTiles.PLAYER);
+		).toBeVisible();
 
 		dungeon = screen.getByRole("table", { name: "Dungeon" });
 		rows = within(dungeon).getAllByRole("row");
@@ -1304,7 +1340,7 @@ describe("Home tests", () => {
 		await user.keyboard("{ArrowRight}");
 		expect(
 			screen.getByRole("cell", { name: "row1col2 - player" }),
-		).toHaveTextContent(LayoutTiles.PLAYER);
+		).toBeVisible();
 		expect(screen.getByRole("heading", { name: "Floor 1 of 1" })).toBeVisible();
 	});
 

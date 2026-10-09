@@ -1,6 +1,7 @@
 import { type SubmitEvent, useState } from "react";
 import APICheck from "./APICheck.tsx";
 import DungeonLayout from "./DungeonLayout.tsx";
+import DungeonLegend from "./DungeonLegend.tsx";
 import {
 	ascendDungeonRun,
 	connectDungeonFloors,
@@ -119,6 +120,7 @@ const Home = () => {
 				</section>
 
 				<section>
+					<DungeonLegend />
 					<DungeonLayout
 						dungeon={activeFloor.terrain}
 						playerPosition={run.playerCoordinate}

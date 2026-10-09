@@ -92,6 +92,10 @@ Move the player with either control scheme:
 
 The player can move through rooms and corridors but cannot move through wall tiles or beyond the dungeon boundary.
 
+Tiles use gray brick walls, faint floor dots, and a red player from Lucide, plus custom amber staircase silhouettes. Steps rising from left to right indicate up stairs; steps falling from left to right indicate down stairs. The player icon covers a stair while occupying it; the stair reappears after moving away. Icon choices, colors, and accessible labels are centralized in `frontend/src/TileVisuals.ts`; the custom SVGs live in `frontend/src/StairIcons.tsx`.
+
+A compact legend above the map identifies the player and both stair directions. Map tiles stay square at 24×24 pixels. Scroll within the map to explore portions outside the viewport; the map container is capped at 70% of the window height. Keyboard users can focus the map and use Page Up/Page Down for vertical scrolling; arrow keys and WASD continue to move the player.
+
 Stepping onto a stair automatically changes floors. The depth heading shows the current floor and total floor count.
 
 To replay a dungeon, enter its displayed seed in **Dungeon seed** and select **Start from seed** or press Enter. Seed input accepts decimal whole numbers from `0` to `4294967295`; surrounding whitespace and leading zeroes are normalized. Replay starts on floor 1 and reproduces every floor and stair link for the same generation configuration. Editing the seed alone does not change the run, and invalid input leaves it intact. Keyboard input in the seed field edits the field without moving the player; click outside it to resume movement.
@@ -100,8 +104,8 @@ To replay a dungeon, enter its displayed seed in **Dungeon seed** and select **S
 
 To demonstrate the exploration milestone:
 
-1. Note the displayed seed and explore toward `>` to descend from floor 1 to floor 2, then floor 3.
-2. Step onto `<` to return through the same floors to floor 1. Arrival places the player on the matching stair; move away and step back onto it to use it again.
+1. Note the displayed seed and explore toward a descending staircase to descend from floor 1 to floor 2, then floor 3.
+2. Step onto an ascending staircase to return through the same floors to floor 1. Arrival places the player on the matching stair; move away and step back onto it to use it again.
 3. Enter the noted seed and start from it to recreate the complete run at its original start.
 4. Select **New Dungeon**, then explore again. Subsequent transitions use the new run's floors.
 

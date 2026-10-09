@@ -17,6 +17,7 @@ type DungeonLayoutProps = {
 	downStair?: Coordinate;
 	upStair?: Coordinate;
 	onPlayerMove: (coordinate: Coordinate) => void;
+	movementEnabled?: boolean;
 };
 
 const DungeonLayout = ({
@@ -25,6 +26,7 @@ const DungeonLayout = ({
 	downStair,
 	upStair,
 	onPlayerMove,
+	movementEnabled = true,
 }: DungeonLayoutProps) => {
 	const movePlayer = useCallback(
 		(changeUpDown: number, changeLeftRight: number) => {
@@ -62,6 +64,7 @@ const DungeonLayout = ({
 	);
 
 	useEffect(() => {
+		if (!movementEnabled) return;
 		const handleKeyDown = (event: KeyboardEvent) => {
 			if (
 				event.target instanceof HTMLInputElement ||
@@ -103,7 +106,7 @@ const DungeonLayout = ({
 		return () => {
 			window.removeEventListener("keydown", handleKeyDown);
 		};
-	}, [movePlayer]);
+	}, [movePlayer, movementEnabled]);
 
 	const renderCell = (
 		rowIndex: number,

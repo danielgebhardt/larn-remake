@@ -1,7 +1,7 @@
+import { Settings } from "lucide-react";
 import { type SubmitEvent, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { Sheet, SheetTrigger } from "@/components/ui/sheet";
 import APICheck from "./APICheck.tsx";
 import DungeonLayout from "./DungeonLayout.tsx";
 import DungeonLegend from "./DungeonLegend.tsx";
@@ -12,6 +12,7 @@ import {
 	descendDungeonRun,
 	generateDungeonRun,
 } from "./DungeonRun.ts";
+import DungeonSettings from "./DungeonSettings.tsx";
 import Header from "./Header.tsx";
 import type { Coordinate, DungeonConfig } from "./LayoutTiles.ts";
 import { MAX_SEED, parseSeedInput } from "./Seed.ts";
@@ -30,6 +31,7 @@ const Home = () => {
 	const [run, setRun] = useState<DungeonRun>(() => createRun(0));
 	const [seedInput, setSeedInput] = useState(() => String(run.seed));
 	const [seedError, setSeedError] = useState<string | null>(null);
+	const [settingsOpen, setSettingsOpen] = useState(false);
 
 	const activeFloor = run.floors[run.activeFloor - 1];
 
@@ -51,6 +53,7 @@ const Home = () => {
 		setRun(createRun(seed));
 		setSeedInput(String(seed));
 		setSeedError(null);
+		setSettingsOpen(false);
 	};
 
 	const handlePlayerMove = (coordinate: Coordinate) => {
@@ -74,74 +77,49 @@ const Home = () => {
 	};
 
 	return (
-		<div className="flex min-h-svh flex-col bg-muted/30">
-			<Header
-				floorNumber={activeFloor.floorNumber}
-				floorCount={run.floors.length}
-				onNewDungeon={handleNewDungeon}
-			/>
+		<Sheet open={settingsOpen} onOpenChange={setSettingsOpen}>
+			<div className="flex min-h-svh flex-col bg-muted/30">
+				<Header
+					floorNumber={activeFloor.floorNumber}
+					floorCount={run.floors.length}
+					onNewDungeon={handleNewDungeon}
+					settingsAction={
+						<SheetTrigger render={<Button type="button" variant="outline" />}>
+							<Settings aria-hidden="true" focusable="false" />
+							Settings
+						</SheetTrigger>
+					}
+				/>
 
-			<main className="min-w-0 flex-1 space-y-4 p-4 sm:p-6">
-				<section className="grid gap-3 rounded-lg border border-border bg-card p-4">
-					<p className="text-sm text-muted-foreground">
-						Current seed:{" "}
-						<output
-							aria-label="Current dungeon seed"
-							className="font-mono text-foreground"
-						>
-							{run.seed}
-						</output>
-					</p>
-					<form
-						className="flex flex-wrap items-end gap-3"
-						onSubmit={handleSeedSubmit}
-					>
-						<div className="grid w-full gap-2 sm:w-64">
-							<Label htmlFor="dungeon-seed">Dungeon seed</Label>
-							<Input
-								id="dungeon-seed"
-								type="text"
-								inputMode="numeric"
-								value={seedInput}
-								aria-invalid={seedError !== null}
-								aria-describedby={seedError ? "seed-error" : undefined}
-								onChange={(event) => {
-									setSeedInput(event.target.value);
-									setSeedError(null);
-								}}
-							/>
-						</div>
-						<Button type="submit" variant="outline">
-							Start from seed
-						</Button>
-						{seedError && (
-							<p
-								id="seed-error"
-								role="alert"
-								className="w-full text-sm text-destructive"
-							>
-								{seedError}
-							</p>
-						)}
-					</form>
-				</section>
-
-				<section className="min-w-0 rounded-lg border border-border bg-card p-3 sm:p-4">
-					<DungeonLegend />
-					<DungeonLayout
-						dungeon={activeFloor.terrain}
-						playerPosition={run.playerCoordinate}
-						upStair={activeFloor.upStair?.coordinate}
-						downStair={activeFloor.downStair?.coordinate}
-						onPlayerMove={handlePlayerMove}
-					/>
-				</section>
-			</main>
-			<footer className="flex flex-wrap items-center gap-x-2 gap-y-1 border-t border-border px-4 py-2 text-xs text-muted-foreground sm:px-6">
-				<span>Server:</span>
-				<APICheck />
-			</footer>
-		</div>
+				<main className="min-w-0 flex-1 space-y-4 p-4 sm:p-6">
+					<section className="min-w-0 rounded-lg border border-border bg-card p-3 sm:p-4">
+						<DungeonLegend />
+						<DungeonLayout
+							dungeon={activeFloor.terrain}
+							playerPosition={run.playerCoordinate}
+							upStair={activeFloor.upStair?.coordinate}
+							downStair={activeFloor.downStair?.coordinate}
+							onPlayerMove={handlePlayerMove}
+							movementEnabled={!settingsOpen}
+						/>
+					</section>
+				</main>
+				<footer className="flex flex-wrap items-center gap-x-2 gap-y-1 border-t border-border px-4 py-2 text-xs text-muted-foreground sm:px-6">
+					<span>Server:</span>
+					<APICheck />
+				</footer>
+				<DungeonSettings
+					seed={run.seed}
+					seedInput={seedInput}
+					seedError={seedError}
+					onSeedInputChange={(value) => {
+						setSeedInput(value);
+						setSeedError(null);
+					}}
+					onSeedSubmit={handleSeedSubmit}
+				/>
+			</div>
+		</Sheet>
 	);
 };
 

@@ -1,4 +1,4 @@
-import { render, screen, within } from "@testing-library/react";
+import { render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { HttpResponse, http } from "msw";
 import { afterEach, describe, expect, it, vi } from "vitest";
@@ -12,6 +12,24 @@ import { createTestDungeonFloor } from "./testhelpers.ts";
 afterEach(() => {
 	vi.restoreAllMocks();
 });
+
+const openSettings = async (user: ReturnType<typeof userEvent.setup>) => {
+	await user.click(screen.getByRole("button", { name: "Settings" }));
+	await screen.findByRole("dialog", { name: "Settings" });
+	return screen.getByRole("textbox", { name: "Dungeon seed" });
+};
+
+const waitForSettingsClosed = () =>
+	waitFor(() => {
+		expect(
+			screen.queryByRole("dialog", { name: "Settings" }),
+		).not.toBeInTheDocument();
+	});
+
+const closeSettings = async (user: ReturnType<typeof userEvent.setup>) => {
+	await user.keyboard("{Escape}");
+	await waitForSettingsClosed();
+};
 
 const createThreeFloorTraversalRun = (): DungeonRun.DungeonRun => {
 	const floor1 = createTestDungeonFloor({
@@ -64,6 +82,50 @@ const createThreeFloorTraversalRun = (): DungeonRun.DungeonRun => {
 };
 
 describe("Home tests", () => {
+	it("opens settings from the header, focuses the seed field, and restores focus on dismissal", async () => {
+		const run = createThreeFloorTraversalRun();
+		const generate = vi
+			.spyOn(DungeonRun, "generateDungeonRun")
+			.mockReturnValue(run);
+		vi.spyOn(DungeonRun, "connectDungeonFloors").mockReturnValue(run);
+		const user = userEvent.setup();
+		render(<Home />);
+		const trigger = within(screen.getByRole("banner")).getByRole("button", {
+			name: "Settings",
+		});
+		expect(
+			screen.queryByRole("textbox", { name: "Dungeon seed" }),
+		).not.toBeInTheDocument();
+		expect(
+			screen.queryByLabelText("Current dungeon seed"),
+		).not.toBeInTheDocument();
+		await user.click(trigger);
+		const panel = await screen.findByRole("dialog", { name: "Settings" });
+		expect(
+			within(panel).getByLabelText("Current dungeon seed"),
+		).toHaveTextContent("123");
+		expect(
+			within(panel).getByRole("textbox", { name: "Dungeon seed" }),
+		).toHaveFocus();
+		await user.keyboard("{Escape}");
+		await waitFor(() =>
+			expect(screen.queryByRole("dialog")).not.toBeInTheDocument(),
+		);
+		expect(trigger).toHaveFocus();
+		expect(generate).toHaveBeenCalledTimes(1);
+		await user.click(trigger);
+		await user.click(
+			within(await screen.findByRole("dialog", { name: "Settings" })).getByRole(
+				"button",
+				{ name: "Close" },
+			),
+		);
+		await waitFor(() =>
+			expect(screen.queryByRole("dialog")).not.toBeInTheDocument(),
+		);
+		expect(trigger).toHaveFocus();
+		expect(generate).toHaveBeenCalledTimes(1);
+	});
 	it("keeps a failed server check in the footer while dungeon exploration works", async () => {
 		server.use(
 			http.get("/initial", () => new HttpResponse(null, { status: 500 })),
@@ -83,6 +145,33 @@ describe("Home tests", () => {
 		).not.toBeInTheDocument();
 		await user.keyboard("{ArrowRight}");
 		expect(screen.getByRole("heading", { name: "Floor 2 of 3" })).toBeVisible();
+	});
+	it("opens settings with the keyboard without restarting or moving the player", async () => {
+		const run = createThreeFloorTraversalRun();
+		const generate = vi
+			.spyOn(DungeonRun, "generateDungeonRun")
+			.mockReturnValue(run);
+		vi.spyOn(DungeonRun, "connectDungeonFloors").mockReturnValue(run);
+		const user = userEvent.setup();
+		render(<Home />);
+		await user.tab();
+		expect(screen.getByRole("button", { name: "New Dungeon" })).toHaveFocus();
+		await user.tab();
+		expect(screen.getByRole("button", { name: "Settings" })).toHaveFocus();
+		await user.keyboard("{Enter}");
+		expect(
+			await screen.findByRole("dialog", { name: "Settings" }),
+		).toBeVisible();
+		await waitFor(() =>
+			expect(
+				screen.getByRole("textbox", { name: "Dungeon seed" }),
+			).toHaveFocus(),
+		);
+		await closeSettings(user);
+		expect(
+			screen.getByRole("cell", { name: "row1col1 - player" }),
+		).toBeVisible();
+		expect(generate).toHaveBeenCalledTimes(1);
 	});
 	it("groups the title, current depth, and New Dungeon action in the header", () => {
 		const run = createThreeFloorTraversalRun();
@@ -212,9 +301,6 @@ describe("Home tests", () => {
 			expect(
 				screen.getByRole("heading", { name: `Floor ${floorNumber} of 3` }),
 			).toBeVisible();
-			expect(screen.getByLabelText("Current dungeon seed").textContent).toBe(
-				String(seed),
-			);
 		};
 
 		const { rerender } = render(<Home />);
@@ -228,9 +314,10 @@ describe("Home tests", () => {
 		await user.keyboard("{ArrowLeft}{ArrowLeft}");
 		expectFloor(0, 1, { row: 1, col: 2 });
 
-		const input = screen.getByRole("textbox", { name: "Dungeon seed" });
+		const input = await openSettings(user);
 		await user.clear(input);
 		await user.type(input, "0{Enter}");
+		await waitForSettingsClosed();
 		expectFloor(0, 1, { row: 1, col: 1 });
 		expect(generate).toHaveBeenCalledTimes(2);
 		await user.click(screen.getByRole("heading", { name: "Floor 1 of 3" }));
@@ -244,7 +331,11 @@ describe("Home tests", () => {
 			vi.spyOn(Math, "random").mockReturnValue(seed / 4294967296);
 			await user.click(screen.getByRole("button", { name: "New Dungeon" }));
 			expectFloor(seed, 1, { row: 1, col: 1 + offset });
-			expect(input).toHaveValue(String(seed));
+			expect(await openSettings(user)).toHaveValue(String(seed));
+			expect(screen.getByLabelText("Current dungeon seed")).toHaveTextContent(
+				String(seed),
+			);
+			await closeSettings(user);
 			await user.keyboard("{ArrowRight}");
 			expectFloor(seed, 2, { row: 1, col: 1 + offset });
 			await user.keyboard("{ArrowRight}{ArrowRight}");
@@ -261,7 +352,7 @@ describe("Home tests", () => {
 		expect(runs).toEqual(before);
 	});
 
-	describe("Seed replay", () => {
+	describe("Seed replay in settings", () => {
 		const mockRunGeneration = () => {
 			const generate = vi
 				.spyOn(DungeonRun, "generateDungeonRun")
@@ -277,20 +368,22 @@ describe("Home tests", () => {
 
 		it("displays the current run seed independently of the edited seed", async () => {
 			const user = userEvent.setup();
-			mockRunGeneration();
+			const generate = mockRunGeneration();
 			render(<Home />);
+			const input = await openSettings(user);
 			expect(screen.getByLabelText("Current dungeon seed")).toHaveTextContent(
 				/^0$/,
 			);
-			const input = screen.getByRole("textbox", { name: "Dungeon seed" });
 			await user.clear(input);
 			await user.type(input, "123");
 			expect(screen.getByLabelText("Current dungeon seed")).toHaveTextContent(
 				/^0$/,
 			);
+			await closeSettings(user);
+			expect(generate).toHaveBeenCalledTimes(1);
 		});
 
-		it("submits an entered seed with the current generation configuration and resets depth and position", async () => {
+		it("submits an entered seed with the current configuration, closes settings, and resets depth and position", async () => {
 			const user = userEvent.setup();
 			const generate = mockRunGeneration();
 			render(<Home />);
@@ -298,10 +391,12 @@ describe("Home tests", () => {
 			expect(
 				screen.getByRole("heading", { name: "Floor 2 of 3" }),
 			).toBeVisible();
-			const input = screen.getByRole("textbox", { name: "Dungeon seed" });
+			const input = await openSettings(user);
 			await user.clear(input);
 			await user.type(input, "123");
 			await user.click(screen.getByRole("button", { name: "Start from seed" }));
+			await waitForSettingsClosed();
+			expect(screen.getByRole("button", { name: "Settings" })).toHaveFocus();
 			expect(generate).toHaveBeenCalledTimes(2);
 			expect(generate).toHaveBeenLastCalledWith(123, 3, {
 				rows: 30,
@@ -309,15 +404,16 @@ describe("Home tests", () => {
 				minPartitionSize: 5,
 				roomPadding: 1,
 			});
-			expect(screen.getByLabelText("Current dungeon seed")).toHaveTextContent(
-				/^123$/,
-			);
 			expect(
 				screen.getByRole("heading", { name: "Floor 1 of 3" }),
 			).toBeVisible();
 			expect(
 				screen.getByRole("cell", { name: "row1col1 - player" }),
 			).toBeVisible();
+			expect(await openSettings(user)).toHaveValue("123");
+			expect(screen.getByLabelText("Current dungeon seed")).toHaveTextContent(
+				/^123$/,
+			);
 		});
 
 		it("resets repeated replays of the same seed, including submission with Enter", async () => {
@@ -325,14 +421,14 @@ describe("Home tests", () => {
 			const generate = mockRunGeneration();
 			render(<Home />);
 			for (let replay = 0; replay < 2; replay++) {
-				await user.click(screen.getByRole("heading", { name: "Floor 1 of 3" }));
 				await user.keyboard("{ArrowRight}");
 				expect(
 					screen.getByRole("heading", { name: "Floor 2 of 3" }),
 				).toBeVisible();
-				const input = screen.getByRole("textbox", { name: "Dungeon seed" });
+				const input = await openSettings(user);
 				await user.clear(input);
 				await user.type(input, "0{Enter}");
+				await waitForSettingsClosed();
 				expect(
 					screen.getByRole("heading", { name: "Floor 1 of 3" }),
 				).toBeVisible();
@@ -343,13 +439,13 @@ describe("Home tests", () => {
 			expect(generate).toHaveBeenCalledTimes(3);
 		});
 
-		it("keeps typing and arrow keys in the seed field separate from movement and retains the run on rerender", async () => {
+		it("keeps typing and arrow keys separate from movement and retains the run on rerender", async () => {
 			const user = userEvent.setup();
 			const generate = mockRunGeneration();
 			const { rerender } = render(<Home />);
 			const dungeon = screen.getByRole("table", { name: "Dungeon" });
 			const before = dungeon.innerHTML;
-			const input = screen.getByRole("textbox", { name: "Dungeon seed" });
+			const input = await openSettings(user);
 			await user.clear(input);
 			await user.type(input, "wasd");
 			await user.keyboard("{ArrowLeft}{ArrowRight}{ArrowUp}{ArrowDown}");
@@ -360,7 +456,7 @@ describe("Home tests", () => {
 		});
 
 		it.each(["", "abc", "-1", "1.5", "1e3", "0x10", "4294967296"])(
-			"reports invalid seed %j accessibly without changing the explored run",
+			"reports invalid seed %j and keeps settings open without changing the explored run",
 			async (value) => {
 				const user = userEvent.setup();
 				const generate = mockRunGeneration();
@@ -368,12 +464,13 @@ describe("Home tests", () => {
 				await user.keyboard("{ArrowRight}");
 				const dungeon = screen.getByRole("table", { name: "Dungeon" });
 				const before = dungeon.innerHTML;
-				const input = screen.getByRole("textbox", { name: "Dungeon seed" });
+				const input = await openSettings(user);
 				await user.clear(input);
 				if (value) await user.type(input, value);
 				await user.click(
 					screen.getByRole("button", { name: "Start from seed" }),
 				);
+				expect(screen.getByRole("dialog", { name: "Settings" })).toBeVisible();
 				expect(screen.getByRole("alert")).toHaveTextContent(
 					"Enter a whole number from 0 to 4294967295.",
 				);
@@ -381,13 +478,14 @@ describe("Home tests", () => {
 				expect(input).toHaveAccessibleDescription(
 					"Enter a whole number from 0 to 4294967295.",
 				);
-				expect(
-					screen.getByRole("heading", { name: "Floor 2 of 3" }),
-				).toBeVisible();
 				expect(dungeon.innerHTML).toBe(before);
 				expect(screen.getByLabelText("Current dungeon seed")).toHaveTextContent(
 					/^0$/,
 				);
+				await closeSettings(user);
+				expect(
+					screen.getByRole("heading", { name: "Floor 2 of 3" }),
+				).toBeVisible();
 				expect(generate).toHaveBeenCalledTimes(1);
 			},
 		);
@@ -396,15 +494,18 @@ describe("Home tests", () => {
 			const user = userEvent.setup();
 			const generate = mockRunGeneration();
 			render(<Home />);
-			const input = screen.getByRole("textbox", { name: "Dungeon seed" });
+			const input = await openSettings(user);
 			await user.clear(input);
 			await user.type(input, "bad{Enter}");
 			expect(screen.getByRole("alert")).toBeVisible();
 			await user.clear(input);
-			await user.type(input, " 00123 {Enter}");
 			expect(screen.queryByRole("alert")).not.toBeInTheDocument();
-			expect(input).toHaveAttribute("aria-invalid", "false");
-			expect(input).toHaveValue("123");
+			await user.type(input, " 00123 {Enter}");
+			await waitForSettingsClosed();
+			const reopenedInput = await openSettings(user);
+			expect(screen.queryByRole("alert")).not.toBeInTheDocument();
+			expect(reopenedInput).toHaveAttribute("aria-invalid", "false");
+			expect(reopenedInput).toHaveValue("123");
 			expect(screen.getByLabelText("Current dungeon seed")).toHaveTextContent(
 				/^123$/,
 			);
@@ -416,20 +517,21 @@ describe("Home tests", () => {
 			{ random: 0.5, expected: "2147483648" },
 			{ random: 1 - Number.EPSILON, expected: "4294967295" },
 		])(
-			"starts a random new dungeon with seed $expected and clears invalid feedback",
+			"shows the current random seed $expected on reopening and clears invalid feedback",
 			async ({ random, expected }) => {
 				const user = userEvent.setup();
 				mockRunGeneration();
 				vi.spyOn(Math, "random").mockReturnValue(random);
 				render(<Home />);
-				const input = screen.getByRole("textbox", { name: "Dungeon seed" });
+				const input = await openSettings(user);
 				await user.clear(input);
 				await user.type(input, "bad{Enter}");
+				await closeSettings(user);
 				await user.click(screen.getByRole("button", { name: "New Dungeon" }));
+				expect(await openSettings(user)).toHaveValue(expected);
 				expect(screen.getByLabelText("Current dungeon seed").textContent).toBe(
 					expected,
 				);
-				expect(input).toHaveValue(expected);
 				expect(screen.queryByRole("alert")).not.toBeInTheDocument();
 			},
 		);
@@ -438,14 +540,20 @@ describe("Home tests", () => {
 			const user = userEvent.setup();
 			const generate = mockRunGeneration();
 			render(<Home />);
-			const input = screen.getByRole("textbox", { name: "Dungeon seed" });
+			const input = await openSettings(user);
 			await user.clear(input);
 			await user.type(input, "4294967295{Enter}");
-			expect(screen.queryByRole("alert")).not.toBeInTheDocument();
+			await waitForSettingsClosed();
+			expect(generate).toHaveBeenLastCalledWith(
+				4294967295,
+				3,
+				expect.any(Object),
+			);
+			expect(generate).toHaveBeenCalledTimes(2);
+			expect(await openSettings(user)).toHaveValue("4294967295");
 			expect(screen.getByLabelText("Current dungeon seed")).toHaveTextContent(
 				/^4294967295$/,
 			);
-			expect(generate).toHaveBeenCalledTimes(2);
 		});
 
 		it("replays the actual complete dungeon and its rendered first floor after another seed", async () => {
@@ -456,14 +564,17 @@ describe("Home tests", () => {
 			const originalTerrain = screen.getByRole("table", {
 				name: "Dungeon",
 			}).innerHTML;
-			const input = screen.getByRole("textbox", { name: "Dungeon seed" });
+			let input = await openSettings(user);
 			await user.clear(input);
 			await user.type(input, "123{Enter}");
+			await waitForSettingsClosed();
 			expect(screen.getByRole("table", { name: "Dungeon" }).innerHTML).not.toBe(
 				originalTerrain,
 			);
+			input = await openSettings(user);
 			await user.clear(input);
 			await user.type(input, "0{Enter}");
+			await waitForSettingsClosed();
 			expect(connect.mock.results[2].value).toEqual(originalRun);
 			expect(screen.getByRole("table", { name: "Dungeon" }).innerHTML).toBe(
 				originalTerrain,
@@ -471,6 +582,89 @@ describe("Home tests", () => {
 			expect(
 				screen.getByRole("heading", { name: "Floor 1 of 3" }),
 			).toBeVisible();
+		});
+
+		it("preserves depth, player, terrain, and links when a draft is dismissed", async () => {
+			const user = userEvent.setup();
+			const generate = mockRunGeneration();
+			render(<Home />);
+			await user.keyboard("{ArrowRight}{ArrowRight}");
+			const before = screen.getByRole("table", { name: "Dungeon" }).innerHTML;
+			const input = await openSettings(user);
+			await user.clear(input);
+			await user.type(input, "456");
+			await closeSettings(user);
+			expect(
+				screen.getByRole("heading", { name: "Floor 2 of 3" }),
+			).toBeVisible();
+			expect(
+				screen.getByRole("cell", { name: "row1col2 - player" }),
+			).toBeVisible();
+			expect(screen.getByRole("table", { name: "Dungeon" }).innerHTML).toBe(
+				before,
+			);
+			expect(generate).toHaveBeenCalledTimes(1);
+			expect(await openSettings(user)).toHaveValue("456");
+			expect(screen.getByLabelText("Current dungeon seed")).toHaveTextContent(
+				/^0$/,
+			);
+			await closeSettings(user);
+			await user.keyboard("{ArrowRight}");
+			expect(
+				screen.getByRole("heading", { name: "Floor 3 of 3" }),
+			).toBeVisible();
+		});
+
+		it("suspends all game movement and stair transitions while focus is on a settings button", async () => {
+			const user = userEvent.setup();
+			const generate = mockRunGeneration();
+			render(<Home />);
+			const dungeon = screen.getByRole("table", { name: "Dungeon" });
+			const before = dungeon.innerHTML;
+			await openSettings(user);
+			screen.getByRole("button", { name: "Start from seed" }).focus();
+			for (const key of [
+				"{ArrowRight}",
+				"{ArrowLeft}",
+				"{ArrowUp}",
+				"{ArrowDown}",
+				"w",
+				"a",
+				"s",
+				"d",
+			]) {
+				await user.keyboard(key);
+				expect(dungeon.innerHTML).toBe(before);
+			}
+			await closeSettings(user);
+			expect(
+				screen.getByRole("cell", { name: "row1col1 - player" }),
+			).toBeVisible();
+			await user.keyboard("{ArrowRight}");
+			expect(
+				screen.getByRole("heading", { name: "Floor 2 of 3" }),
+			).toBeVisible();
+			expect(generate).toHaveBeenCalledTimes(1);
+		});
+
+		it("contains keyboard focus in settings while tabbing forward and backward", async () => {
+			const user = userEvent.setup();
+			mockRunGeneration();
+			render(<Home />);
+			await openSettings(user);
+			const panel = screen.getByRole("dialog", { name: "Settings" });
+			for (let i = 0; i < 6; i++) {
+				await user.tab();
+				await waitFor(() =>
+					expect(panel).toContainElement(document.activeElement as HTMLElement),
+				);
+			}
+			for (let i = 0; i < 6; i++) {
+				await user.tab({ shift: true });
+				await waitFor(() =>
+					expect(panel).toContainElement(document.activeElement as HTMLElement),
+				);
+			}
 		});
 	});
 

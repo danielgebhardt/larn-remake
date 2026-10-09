@@ -82,9 +82,9 @@ Vite serves the frontend and proxies `/initial` requests to the backend at `http
 
 ## Controls
 
-The header shows the current floor and the **New Dungeon** action. Below it, the seed form allows replaying a run; the map and its legend occupy the main play area. A small footer shows the backend connectivity diagnostic. Exploration runs in the frontend and remains available if that check fails.
+The header shows the current floor, **New Dungeon**, and **Settings**. The map and its legend occupy the main play area. Settings opens a modal side panel containing the current seed and seed replay form. A small footer shows the backend connectivity diagnostic. Exploration runs in the frontend and remains available if that check fails.
 
-Shared shadcn styling and theme tokens live in `frontend/src/App.css`, imported by `App.tsx`. Page layout uses Tailwind utilities, and reusable controls live in `frontend/src/components/ui`. A [settings panel](https://github.com/danielgebhardt/larn-remake/issues/41) and [Light/Dark/System preference](https://github.com/danielgebhardt/larn-remake/issues/42) are planned next.
+Shared shadcn styling and theme tokens live in `frontend/src/App.css`, imported by `App.tsx`. Page layout uses Tailwind utilities, and reusable controls live in `frontend/src/components/ui`. A [Light/Dark/System preference](https://github.com/danielgebhardt/larn-remake/issues/42) is planned next.
 
 Move the player with either control scheme:
 
@@ -103,7 +103,9 @@ A compact legend above the map identifies the player and both stair directions. 
 
 Stepping onto a stair automatically changes floors. The depth heading shows the current floor and total floor count.
 
-To replay a dungeon, enter its displayed seed in **Dungeon seed** and select **Start from seed** or press Enter. Seed input accepts decimal whole numbers from `0` to `4294967295`; surrounding whitespace and leading zeroes are normalized. Replay starts on floor 1 and reproduces every floor and stair link for the same generation configuration. Editing the seed alone does not change the run, and invalid input leaves it intact. Keyboard input in the seed field edits the field without moving the player; click outside it to resume movement.
+To replay a dungeon, open **Settings**, enter a seed in **Dungeon seed**, and select **Start from seed** or press Enter. Seed input accepts decimal whole numbers from `0` to `4294967295`; surrounding whitespace and leading zeroes are normalized. Replay starts on floor 1 and reproduces every floor and stair link for the same generation configuration. Successful replay closes settings; invalid input keeps the panel open with an accessible error and leaves the run intact.
+
+Settings focuses the seed input when opened and contains keyboard focus while open. Game movement and stair transitions are suspended throughout the panel. Use Escape or **Close** to dismiss it without applying a draft; focus returns to the Settings button and game controls resume. Opening, closing, or editing settings does not regenerate the dungeon. Unsubmitted drafts are retained during this session; **New Dungeon** resets the draft and feedback to match the new run.
 
 **New Dungeon** requests a random seed across that same range and replaces the entire run: all floors and stair links, depth, and player position. It returns the player to floor 1 at the new run's selected start. The displayed seed and input update to the new seed. A random seed can repeat; restarting still resets exploration, including when the seed repeats.
 
@@ -111,7 +113,7 @@ To demonstrate the exploration milestone:
 
 1. Note the displayed seed and explore toward a descending staircase to descend from floor 1 to floor 2, then floor 3.
 2. Step onto an ascending staircase to return through the same floors to floor 1. Arrival places the player on the matching stair; move away and step back onto it to use it again.
-3. Enter the noted seed and start from it to recreate the complete run at its original start.
+3. Open **Settings**, enter the noted seed, and start from it to recreate the complete run at its original start.
 4. Select **New Dungeon**, then explore again. Subsequent transitions use the new run's floors.
 
 Floor 1 has no up stair, and the deepest floor has no down stair. The domain supports configurable floor counts, including a one-floor run with no transitions; the current UI uses three floors. Town, monsters, combat, inventory, and persistence belong to later work.

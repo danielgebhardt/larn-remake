@@ -1,4 +1,4 @@
-import { type ReactNode, useCallback, useEffect, useState } from "react";
+import { type ReactNode, useCallback, useEffect } from "react";
 import {
 	type Coordinate,
 	type Dungeon,
@@ -11,7 +11,7 @@ import {
 
 type DungeonLayoutProps = {
 	dungeon: Dungeon;
-	startingPlayerPosition: Coordinate;
+	playerPosition: Coordinate;
 	downStair?: Coordinate;
 	upStair?: Coordinate;
 	onPlayerMove: (coordinate: Coordinate) => void;
@@ -19,13 +19,11 @@ type DungeonLayoutProps = {
 
 const DungeonLayout = ({
 	dungeon,
-	startingPlayerPosition,
+	playerPosition,
 	downStair,
 	upStair,
 	onPlayerMove,
 }: DungeonLayoutProps) => {
-	const [playerPosition, setPlayerPosition] = useState(startingPlayerPosition);
-
 	const movePlayer = useCallback(
 		(changeUpDown: number, changeLeftRight: number) => {
 			const newRow = playerPosition.row + changeUpDown;
@@ -56,7 +54,6 @@ const DungeonLayout = ({
 				col: newCol,
 			};
 
-			setPlayerPosition(nextCoordinate);
 			onPlayerMove(nextCoordinate);
 		},
 		[dungeon, onPlayerMove, playerPosition],

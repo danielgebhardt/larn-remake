@@ -11,11 +11,6 @@ import {
 import Header from "./Header.tsx";
 import type { Coordinate, DungeonConfig } from "./LayoutTiles.ts";
 
-type HomeState = {
-	run: DungeonRun;
-	generation: number;
-};
-
 const dungeonConfig: DungeonConfig = {
 	rows: 30,
 	cols: 100,
@@ -27,45 +22,33 @@ const createRun = (seed: number): DungeonRun =>
 	connectDungeonFloors(generateDungeonRun(seed, 3, dungeonConfig));
 
 const Home = () => {
-	const [{ run, generation }, setDungeon] = useState<HomeState>(() => ({
-		run: createRun(0),
-		generation: 0,
-	}));
+	const [run, setRun] = useState<DungeonRun>(() => createRun(0));
 
 	const activeFloor = run.floors[run.activeFloor - 1];
 
 	const handleNewDungeon = () => {
 		const seed = Math.floor(Math.random() * 1000);
 
-		setDungeon((current) => ({
-			run: createRun(seed),
-			generation: current.generation + 1,
-		}));
+		setRun(createRun(seed));
 	};
 
 	const handlePlayerMove = (coordinate: Coordinate) => {
-		setDungeon((current) => {
+		setRun((current) => {
 			const movedRunCheckDescend = descendDungeonRun({
-				...current.run,
+				...current,
 				playerCoordinate: coordinate,
 			});
 
 			if (movedRunCheckDescend.transitioned) {
-				return {
-					...current,
-					run: movedRunCheckDescend.run,
-				};
+				return movedRunCheckDescend.run;
 			}
 
 			const movedRunCheckAscend = ascendDungeonRun({
-				...current.run,
+				...current,
 				playerCoordinate: coordinate,
 			});
 
-			return {
-				...current,
-				run: movedRunCheckAscend.run,
-			};
+			return movedRunCheckAscend.run;
 		});
 	};
 
@@ -86,9 +69,8 @@ const Home = () => {
 
 				<section>
 					<DungeonLayout
-						key={`${generation}-${run.activeFloor}`}
 						dungeon={activeFloor.terrain}
-						startingPlayerPosition={run.playerCoordinate}
+						playerPosition={run.playerCoordinate}
 						upStair={activeFloor.upStair?.coordinate}
 						downStair={activeFloor.downStair?.coordinate}
 						onPlayerMove={handlePlayerMove}

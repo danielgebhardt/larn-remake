@@ -1,5 +1,6 @@
 import { createEvent, fireEvent, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { type ComponentProps, useState } from "react";
 import { describe, expect, it, vi } from "vitest";
 import DungeonLayout from "../DungeonLayout.tsx";
 import {
@@ -39,15 +40,96 @@ const openDungeon = [
 
 const noopPlayerMove = () => {};
 
+// Model a parent accepting valid movement requests from the controlled layout.
+const TestDungeonLayout = ({
+	playerPosition: initialPosition,
+	onPlayerMove,
+	...props
+}: ComponentProps<typeof DungeonLayout>) => {
+	const [playerPosition, setPlayerPosition] = useState(initialPosition);
+
+	return (
+		<DungeonLayout
+			{...props}
+			playerPosition={playerPosition}
+			onPlayerMove={(coordinate) => {
+				setPlayerPosition(coordinate);
+				onPlayerMove(coordinate);
+			}}
+		/>
+	);
+};
+
 describe("DungeonLayout tests", () => {
+	it("keeps the supplied position until the parent accepts a movement request", async () => {
+		const onPlayerMove = vi.fn();
+		const { rerender } = render(
+			<DungeonLayout
+				dungeon={openDungeon}
+				playerPosition={{ row: 1, col: 1 }}
+				onPlayerMove={onPlayerMove}
+			/>,
+		);
+
+		await userEvent.keyboard("{ArrowRight}");
+
+		expect(onPlayerMove).toHaveBeenCalledExactlyOnceWith({ row: 1, col: 2 });
+		expect(
+			screen.getByRole("cell", { name: "row1col1 - player" }),
+		).toHaveTextContent(PLAYER);
+
+		rerender(
+			<DungeonLayout
+				dungeon={openDungeon}
+				playerPosition={{ row: 1, col: 2 }}
+				onPlayerMove={onPlayerMove}
+			/>,
+		);
+
+		await userEvent.keyboard("{ArrowLeft}");
+
+		expect(onPlayerMove).toHaveBeenCalledTimes(2);
+		expect(onPlayerMove).toHaveBeenLastCalledWith({ row: 1, col: 1 });
+		expect(
+			screen.getByRole("cell", { name: "row1col2 - player" }),
+		).toHaveTextContent(PLAYER);
+	});
+
+	it("renders a parent position update on the same floor without remounting", () => {
+		const onPlayerMove = vi.fn();
+		const { rerender } = render(
+			<DungeonLayout
+				dungeon={openDungeon}
+				playerPosition={{ row: 1, col: 1 }}
+				onPlayerMove={onPlayerMove}
+			/>,
+		);
+
+		rerender(
+			<DungeonLayout
+				dungeon={openDungeon}
+				playerPosition={{ row: 1, col: 2 }}
+				onPlayerMove={onPlayerMove}
+			/>,
+		);
+
+		expect(
+			screen.getByRole("cell", { name: "row1col2 - player" }),
+		).toHaveTextContent(PLAYER);
+		expect(screen.getByRole("cell", { name: "row1col1" })).toHaveTextContent(
+			FLOOR,
+		);
+		expect(onPlayerMove).not.toHaveBeenCalled();
+	});
+
 	describe("Dungeon keyboard browser behavior", () => {
 		it.each(movementKeys)(
 			"prevents the default action of $key while moving the player",
 			({ key, row, col }) => {
 				render(
-					<DungeonLayout
+					<TestDungeonLayout
 						dungeon={openDungeon}
-						startingPlayerPosition={{ row: 1, col: 1 }}
+						playerPosition={{ row: 1, col: 1 }}
 						onPlayerMove={noopPlayerMove}
 					/>,
 				);
@@ -71,9 +153,9 @@ describe("DungeonLayout tests", () => {
 			"prevents the default action of $key even at a wall",
 			({ key, row, col }) => {
 				render(
-					<DungeonLayout
+					<TestDungeonLayout
 						dungeon={fixedDungeon}
-						startingPlayerPosition={{ row, col }}
+						playerPosition={{ row, col }}
 						onPlayerMove={noopPlayerMove}
 					/>,
 				);
@@ -90,9 +172,9 @@ describe("DungeonLayout tests", () => {
 
 		it("leaves an unrelated key's default action and player position unchanged", () => {
 			render(
-				<DungeonLayout
+				<TestDungeonLayout
 					dungeon={openDungeon}
-					startingPlayerPosition={{ row: 1, col: 1 }}
+					playerPosition={{ row: 1, col: 1 }}
 					onPlayerMove={noopPlayerMove}
 				/>,
 			);
@@ -147,9 +229,9 @@ describe("DungeonLayout tests", () => {
 					render(
 						<>
 							{editor}
-							<DungeonLayout
+							<TestDungeonLayout
 								dungeon={openDungeon}
-								startingPlayerPosition={{ row: 1, col: 1 }}
+								playerPosition={{ row: 1, col: 1 }}
 								onPlayerMove={noopPlayerMove}
 							/>
 						</>,
@@ -187,9 +269,9 @@ describe("DungeonLayout tests", () => {
 			render(
 				<>
 					{editor}
-					<DungeonLayout
+					<TestDungeonLayout
 						dungeon={openDungeon}
-						startingPlayerPosition={{ row: 1, col: 1 }}
+						playerPosition={{ row: 1, col: 1 }}
 						onPlayerMove={noopPlayerMove}
 					/>
 				</>,
@@ -208,9 +290,9 @@ describe("DungeonLayout tests", () => {
 	describe("DungeonLayout Tests", () => {
 		it("renders a simple 5 x 5 dungeon by default", () => {
 			render(
-				<DungeonLayout
+				<TestDungeonLayout
 					dungeon={fixedDungeon}
-					startingPlayerPosition={START_COORDINATE}
+					playerPosition={START_COORDINATE}
 					onPlayerMove={noopPlayerMove}
 				/>,
 			);
@@ -234,9 +316,9 @@ describe("DungeonLayout tests", () => {
 
 		it("should start with Player in 1,1 position by default", () => {
 			render(
-				<DungeonLayout
+				<TestDungeonLayout
 					dungeon={fixedDungeon}
-					startingPlayerPosition={START_COORDINATE}
+					playerPosition={START_COORDINATE}
 					onPlayerMove={noopPlayerMove}
 				/>,
 			);
@@ -248,9 +330,9 @@ describe("DungeonLayout tests", () => {
 
 		it("should move player down and up when pressing Up, Down, 's', and 'w' keys", async () => {
 			render(
-				<DungeonLayout
+				<TestDungeonLayout
 					dungeon={fixedDungeon}
-					startingPlayerPosition={START_COORDINATE}
+					playerPosition={START_COORDINATE}
 					onPlayerMove={noopPlayerMove}
 				/>,
 			);
@@ -302,9 +384,9 @@ describe("DungeonLayout tests", () => {
 
 		it("should move player right and left when pressing Right, Left, 'd', and 'a' keys", async () => {
 			render(
-				<DungeonLayout
+				<TestDungeonLayout
 					dungeon={fixedDungeon}
-					startingPlayerPosition={START_COORDINATE}
+					playerPosition={START_COORDINATE}
 					onPlayerMove={noopPlayerMove}
 				/>,
 			);
@@ -356,9 +438,9 @@ describe("DungeonLayout tests", () => {
 
 		it("should not let player move into a wall when moving left or up", async () => {
 			render(
-				<DungeonLayout
+				<TestDungeonLayout
 					dungeon={fixedDungeon}
-					startingPlayerPosition={START_COORDINATE}
+					playerPosition={START_COORDINATE}
 					onPlayerMove={noopPlayerMove}
 				/>,
 			);
@@ -382,9 +464,9 @@ describe("DungeonLayout tests", () => {
 
 		it("should not let player move into a wall when moving right or down", async () => {
 			render(
-				<DungeonLayout
+				<TestDungeonLayout
 					dungeon={fixedDungeon}
-					startingPlayerPosition={{ row: 3, col: 3 }}
+					playerPosition={{ row: 3, col: 3 }}
 					onPlayerMove={noopPlayerMove}
 				/>,
 			);
@@ -408,9 +490,9 @@ describe("DungeonLayout tests", () => {
 
 		it("should not allow player to move out of bounds for moving left or up", async () => {
 			render(
-				<DungeonLayout
+				<TestDungeonLayout
 					dungeon={fixedDungeon}
-					startingPlayerPosition={{ row: 0, col: 0 }}
+					playerPosition={{ row: 0, col: 0 }}
 					onPlayerMove={noopPlayerMove}
 				/>,
 			);
@@ -434,9 +516,9 @@ describe("DungeonLayout tests", () => {
 
 		it("should not allow player to move out of bounds for moving right or down", async () => {
 			render(
-				<DungeonLayout
+				<TestDungeonLayout
 					dungeon={fixedDungeon}
-					startingPlayerPosition={{ row: 4, col: 4 }}
+					playerPosition={{ row: 4, col: 4 }}
 					onPlayerMove={noopPlayerMove}
 				/>,
 			);
@@ -460,13 +542,13 @@ describe("DungeonLayout tests", () => {
 
 		it("should not allow movement out of bounds in asymmetric dungeon", async () => {
 			render(
-				<DungeonLayout
+				<TestDungeonLayout
 					dungeon={[
 						[FLOOR, FLOOR, FLOOR, FLOOR, FLOOR],
 						[FLOOR, FLOOR, FLOOR, FLOOR, FLOOR],
 						[FLOOR, FLOOR, FLOOR, FLOOR, FLOOR],
 					]}
-					startingPlayerPosition={{ row: 1, col: 3 }}
+					playerPosition={{ row: 1, col: 3 }}
 					onPlayerMove={noopPlayerMove}
 				/>,
 			);
@@ -502,9 +584,9 @@ describe("DungeonLayout tests", () => {
 
 		it("moves from a room through a corridor into another room", async () => {
 			render(
-				<DungeonLayout
+				<TestDungeonLayout
 					dungeon={connectedDungeon}
-					startingPlayerPosition={{ row: 2, col: 2 }}
+					playerPosition={{ row: 2, col: 2 }}
 					onPlayerMove={noopPlayerMove}
 				/>,
 			);
@@ -522,9 +604,9 @@ describe("DungeonLayout tests", () => {
 
 		it("blocks movement from a corridor into a wall", async () => {
 			render(
-				<DungeonLayout
+				<TestDungeonLayout
 					dungeon={connectedDungeon}
-					startingPlayerPosition={{ row: 2, col: 4 }}
+					playerPosition={{ row: 2, col: 4 }}
 					onPlayerMove={noopPlayerMove}
 				/>,
 			);
@@ -544,9 +626,9 @@ describe("DungeonLayout tests", () => {
 			const onPlayerMove = vi.fn();
 
 			render(
-				<DungeonLayout
+				<TestDungeonLayout
 					dungeon={openDungeon}
-					startingPlayerPosition={{ row: 1, col: 1 }}
+					playerPosition={{ row: 1, col: 1 }}
 					onPlayerMove={onPlayerMove}
 				/>,
 			);
@@ -564,13 +646,13 @@ describe("DungeonLayout tests", () => {
 			const onPlayerMove = vi.fn();
 
 			render(
-				<DungeonLayout
+				<TestDungeonLayout
 					dungeon={[
 						[WALL, WALL, WALL],
 						[WALL, FLOOR, WALL],
 						[WALL, WALL, WALL],
 					]}
-					startingPlayerPosition={{ row: 1, col: 1 }}
+					playerPosition={{ row: 1, col: 1 }}
 					onPlayerMove={onPlayerMove}
 				/>,
 			);
@@ -584,9 +666,9 @@ describe("DungeonLayout tests", () => {
 	describe("Stair tests", () => {
 		it("renders a down stair marker on the supplied stair coordinate", () => {
 			render(
-				<DungeonLayout
+				<TestDungeonLayout
 					dungeon={openDungeon}
-					startingPlayerPosition={{ row: 0, col: 0 }}
+					playerPosition={{ row: 0, col: 0 }}
 					downStair={{ row: 1, col: 1 }}
 					onPlayerMove={noopPlayerMove}
 				/>,
@@ -599,9 +681,9 @@ describe("DungeonLayout tests", () => {
 
 		it("renders an up stair marker on the supplied stair coordinate", () => {
 			render(
-				<DungeonLayout
+				<TestDungeonLayout
 					dungeon={openDungeon}
-					startingPlayerPosition={{ row: 0, col: 0 }}
+					playerPosition={{ row: 0, col: 0 }}
 					upStair={{ row: 1, col: 1 }}
 					onPlayerMove={noopPlayerMove}
 				/>,
@@ -614,9 +696,9 @@ describe("DungeonLayout tests", () => {
 
 		it("renders the player instead of a down stair when occupying the same coordinate", () => {
 			render(
-				<DungeonLayout
+				<TestDungeonLayout
 					dungeon={openDungeon}
-					startingPlayerPosition={{ row: 1, col: 1 }}
+					playerPosition={{ row: 1, col: 1 }}
 					downStair={{ row: 1, col: 1 }}
 					onPlayerMove={noopPlayerMove}
 				/>,
@@ -629,9 +711,9 @@ describe("DungeonLayout tests", () => {
 
 		it("allows the player to occupy a down stair and restores the marker after moving away", async () => {
 			render(
-				<DungeonLayout
+				<TestDungeonLayout
 					dungeon={openDungeon}
-					startingPlayerPosition={{ row: 1, col: 1 }}
+					playerPosition={{ row: 1, col: 1 }}
 					downStair={{ row: 1, col: 1 }}
 					onPlayerMove={noopPlayerMove}
 				/>,
@@ -656,9 +738,9 @@ describe("DungeonLayout tests", () => {
 
 		it("renders the player instead of an up stair when occupying the same coordinate", () => {
 			render(
-				<DungeonLayout
+				<TestDungeonLayout
 					dungeon={openDungeon}
-					startingPlayerPosition={{ row: 1, col: 1 }}
+					playerPosition={{ row: 1, col: 1 }}
 					upStair={{ row: 1, col: 1 }}
 					onPlayerMove={noopPlayerMove}
 				/>,
@@ -671,9 +753,9 @@ describe("DungeonLayout tests", () => {
 
 		it("allows the player to occupy an up stair and restores the marker after moving away", async () => {
 			render(
-				<DungeonLayout
+				<TestDungeonLayout
 					dungeon={openDungeon}
-					startingPlayerPosition={{ row: 1, col: 1 }}
+					playerPosition={{ row: 1, col: 1 }}
 					upStair={{ row: 1, col: 1 }}
 					onPlayerMove={noopPlayerMove}
 				/>,
@@ -698,9 +780,9 @@ describe("DungeonLayout tests", () => {
 
 		it("provides an accessible description for a down stair", () => {
 			render(
-				<DungeonLayout
+				<TestDungeonLayout
 					dungeon={openDungeon}
-					startingPlayerPosition={{ row: 0, col: 0 }}
+					playerPosition={{ row: 0, col: 0 }}
 					downStair={{ row: 1, col: 1 }}
 					onPlayerMove={noopPlayerMove}
 				/>,
@@ -715,9 +797,9 @@ describe("DungeonLayout tests", () => {
 
 		it("provides an accessible description for an up stair", () => {
 			render(
-				<DungeonLayout
+				<TestDungeonLayout
 					dungeon={openDungeon}
-					startingPlayerPosition={{ row: 0, col: 0 }}
+					playerPosition={{ row: 0, col: 0 }}
 					upStair={{ row: 1, col: 1 }}
 					onPlayerMove={noopPlayerMove}
 				/>,
@@ -734,9 +816,9 @@ describe("DungeonLayout tests", () => {
 			const onPlayerMove = vi.fn();
 
 			render(
-				<DungeonLayout
+				<TestDungeonLayout
 					dungeon={openDungeon}
-					startingPlayerPosition={{ row: 1, col: 2 }}
+					playerPosition={{ row: 1, col: 2 }}
 					upStair={{ row: 1, col: 1 }}
 					onPlayerMove={onPlayerMove}
 				/>,

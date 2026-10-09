@@ -1,8 +1,13 @@
 import "./App.css";
 import Home from "./Home.tsx";
+import { ThemeProvider } from "./ThemeProvider";
 
 function App() {
-	return <Home />;
+	return (
+		<ThemeProvider>
+			<Home />
+		</ThemeProvider>
+	);
 }
 
 export default App;

@@ -22,13 +22,13 @@ export const TILE_LABELS: Partial<Record<string, string>> = {
 };
 
 export const TILE_ICON_COLORS: Partial<Record<string, string>> = {
-	[WALL]: "text-gray-600 dark:text-gray-400",
-	[FLOOR]: "text-gray-300 dark:text-gray-600",
-	[PLAYER]: "text-red-600 dark:text-red-400",
-	[STAIRS_UP]: "text-amber-700 dark:text-amber-400",
-	[STAIRS_DOWN]: "text-amber-700 dark:text-amber-400",
+	[WALL]: "text-wall-icon",
+	[FLOOR]: "text-floor-dot",
+	[PLAYER]: "text-player",
+	[STAIRS_UP]: "text-stairs",
+	[STAIRS_DOWN]: "text-stairs",
 };
 
 export const TILE_BACKGROUNDS: Partial<Record<string, string>> = {
-	[WALL]: "bg-gray-200 dark:bg-gray-800",
+	[WALL]: "bg-wall-tile",
 };

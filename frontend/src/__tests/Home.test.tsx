@@ -1,15 +1,27 @@
-import { render, screen, waitFor, within } from "@testing-library/react";
+import {
+	render as renderUI,
+	screen,
+	waitFor,
+	within,
+} from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { HttpResponse, http } from "msw";
+import type { ReactElement } from "react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import * as DungeonRun from "../DungeonRun.ts";
 import Home from "../Home.tsx";
 import * as LayoutTiles from "../LayoutTiles.ts";
 import { STAIRS_DOWN, STAIRS_UP } from "../LayoutTiles.ts";
 import { server } from "../mocks/server.ts";
+import { ThemeProvider } from "../ThemeProvider";
 import { createTestDungeonFloor } from "./testhelpers.ts";
 
+const render = (ui: ReactElement) => renderUI(ui, { wrapper: ThemeProvider });
+
 afterEach(() => {
+	localStorage.clear();
+	document.documentElement.classList.remove("dark");
+	document.documentElement.style.removeProperty("color-scheme");
 	vi.restoreAllMocks();
 });
 
@@ -82,6 +94,53 @@ const createThreeFloorTraversalRun = (): DungeonRun.DungeonRun => {
 };
 
 describe("Home tests", () => {
+	it("changes appearance with mouse and keyboard without losing exploration, seed draft, or errors", async () => {
+		const run = createThreeFloorTraversalRun();
+		const generate = vi
+			.spyOn(DungeonRun, "generateDungeonRun")
+			.mockReturnValue(run);
+		vi.spyOn(DungeonRun, "connectDungeonFloors").mockReturnValue(run);
+		const user = userEvent.setup();
+		render(<Home />);
+		await user.keyboard("{ArrowRight}{ArrowRight}");
+		expect(screen.getByRole("heading", { name: "Floor 2 of 3" })).toBeVisible();
+		const board = screen.getByRole("table");
+		const terrain = board.innerHTML;
+		const input = await openSettings(user);
+		await user.clear(input);
+		await user.type(input, "invalid");
+		await user.click(screen.getByRole("button", { name: "Start from seed" }));
+		const error = screen.getByRole("alert").textContent;
+		expect(
+			screen.getByRole("button", { name: "Dark", pressed: true }),
+		).toBeVisible();
+		await user.click(screen.getByRole("button", { name: "Light" }));
+		expect(document.documentElement).not.toHaveClass("dark");
+		expect(
+			screen.getByRole("button", { name: "Light", pressed: true }),
+		).toHaveFocus();
+		await user.keyboard("{ArrowRight} ");
+		expect(
+			screen.getByRole("button", { name: "Dark", pressed: true }),
+		).toHaveFocus();
+		expect(document.documentElement).toHaveClass("dark");
+		expect(input).toHaveValue("invalid");
+		expect(screen.getByRole("alert")).toHaveTextContent(error ?? "");
+		expect(board.innerHTML).toBe(terrain);
+		expect(screen.getByLabelText("Current dungeon seed")).toHaveTextContent(
+			"123",
+		);
+		await closeSettings(user);
+		expect(screen.getByRole("heading", { name: "Floor 2 of 3" })).toBeVisible();
+		await openSettings(user);
+		expect(
+			screen.getByRole("button", { name: "Dark", pressed: true }),
+		).toBeVisible();
+		await closeSettings(user);
+		await user.keyboard("{ArrowLeft}{ArrowLeft}");
+		expect(screen.getByRole("heading", { name: "Floor 1 of 3" })).toBeVisible();
+		expect(generate).toHaveBeenCalledTimes(1);
+	});
 	it("opens settings from the header, focuses the seed field, and restores focus on dismissal", async () => {
 		const run = createThreeFloorTraversalRun();
 		const generate = vi
@@ -104,9 +163,11 @@ describe("Home tests", () => {
 		expect(
 			within(panel).getByLabelText("Current dungeon seed"),
 		).toHaveTextContent("123");
-		expect(
-			within(panel).getByRole("textbox", { name: "Dungeon seed" }),
-		).toHaveFocus();
+		await waitFor(() =>
+			expect(
+				within(panel).getByRole("textbox", { name: "Dungeon seed" }),
+			).toHaveFocus(),
+		);
 		await user.keyboard("{Escape}");
 		await waitFor(() =>
 			expect(screen.queryByRole("dialog")).not.toBeInTheDocument(),

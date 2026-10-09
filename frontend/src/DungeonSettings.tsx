@@ -11,12 +11,24 @@ import {
 	SheetHeader,
 	SheetTitle,
 } from "@/components/ui/sheet";
+import {
+	CONFIGURATION_LIMITS,
+	type ConfigurationDraft,
+	type ConfigurationErrors,
+	type ConfigurationField,
+	type RunConfiguration,
+} from "./RunConfiguration";
 import { useTheme } from "./ThemeProvider";
 
 type DungeonSettingsProps = {
 	seed: number;
 	seedInput: string;
 	seedError: string | null;
+	configuration: RunConfiguration;
+	configDraft: ConfigurationDraft;
+	configErrors: ConfigurationErrors;
+	generationError: string | null;
+	onConfigInputChange: (field: ConfigurationField, value: string) => void;
 	onSeedInputChange: (value: string) => void;
 	onSeedSubmit: (event: SubmitEvent<HTMLFormElement>) => void;
 };
@@ -25,6 +37,11 @@ const DungeonSettings = ({
 	seed,
 	seedInput,
 	seedError,
+	configuration,
+	configDraft,
+	configErrors,
+	generationError,
+	onConfigInputChange,
 	onSeedInputChange,
 	onSeedSubmit,
 }: DungeonSettingsProps) => {
@@ -51,6 +68,14 @@ const DungeonSettings = ({
 						{seed}
 					</output>
 				</p>
+				<p className="text-sm text-muted-foreground">
+					Current dungeon:{" "}
+					<output aria-label="Current dungeon configuration">
+						{configuration.rows} rows × {configuration.cols} columns ·{" "}
+						{configuration.floorCount}{" "}
+						{configuration.floorCount === 1 ? "floor" : "floors"}
+					</output>
+				</p>
 				<form className="grid gap-3" onSubmit={onSeedSubmit}>
 					<div className="grid gap-2">
 						<Label htmlFor="dungeon-seed">Dungeon seed</Label>
@@ -72,6 +97,63 @@ const DungeonSettings = ({
 							className="text-sm text-destructive"
 						>
 							{seedError}
+						</p>
+					)}
+					<fieldset className="grid grid-cols-2 gap-3">
+						<legend className="mb-2 text-sm font-medium">
+							Dungeon configuration
+						</legend>
+						{(
+							[
+								{ field: "rows", label: "Rows" },
+								{ field: "cols", label: "Columns" },
+								{ field: "floorCount", label: "Floors" },
+							] as const
+						).map(({ field, label }) => {
+							const { min, max } = CONFIGURATION_LIMITS[field];
+							return (
+								<div
+									key={field}
+									className={`grid gap-1.5${field === "floorCount" ? " col-span-2" : ""}`}
+								>
+									<Label htmlFor={`dungeon-${field}`}>{label}</Label>
+									<Input
+										id={`dungeon-${field}`}
+										type="text"
+										inputMode="numeric"
+										value={configDraft[field]}
+										aria-invalid={!!configErrors[field]}
+										aria-describedby={`${field}-hint${configErrors[field] ? ` ${field}-error` : ""}`}
+										onChange={(event) =>
+											onConfigInputChange(field, event.target.value)
+										}
+									/>
+									<p
+										id={`${field}-hint`}
+										className="text-xs text-muted-foreground"
+									>
+										{min}–{max}, whole numbers
+									</p>
+									{configErrors[field] && (
+										<p
+											id={`${field}-error`}
+											role="alert"
+											className="text-sm text-destructive"
+										>
+											{configErrors[field]}
+										</p>
+									)}
+								</div>
+							);
+						})}
+					</fieldset>
+					<p className="text-xs text-muted-foreground">
+						Start from seed applies these settings and restarts on floor 1.
+						Small dungeons may need another seed to fit stairs.
+					</p>
+					{generationError && (
+						<p role="alert" className="text-sm text-destructive">
+							{generationError}
 						</p>
 					)}
 					<Button type="submit" variant="outline">

@@ -14,46 +14,82 @@ import {
 } from "./DungeonRun.ts";
 import DungeonSettings from "./DungeonSettings.tsx";
 import Header from "./Header.tsx";
-import type { Coordinate, DungeonConfig } from "./LayoutTiles.ts";
+import type { Coordinate } from "./LayoutTiles.ts";
+import {
+	type ConfigurationErrors,
+	configurationDraft,
+	DEFAULT_RUN_CONFIGURATION,
+	parseRunConfiguration,
+	type RunConfiguration,
+} from "./RunConfiguration";
 import { MAX_SEED, parseSeedInput } from "./Seed.ts";
 
-const dungeonConfig: DungeonConfig = {
-	rows: 30,
-	cols: 100,
-	minPartitionSize: 5,
-	roomPadding: 1,
-};
-
-const createRun = (seed: number): DungeonRun =>
-	connectDungeonFloors(generateDungeonRun(seed, 3, dungeonConfig));
+const createRun = (seed: number, configuration: RunConfiguration): DungeonRun =>
+	connectDungeonFloors(
+		generateDungeonRun(seed, configuration.floorCount, {
+			rows: configuration.rows,
+			cols: configuration.cols,
+			minPartitionSize: 5,
+			roomPadding: 1,
+		}),
+	);
 
 const Home = () => {
-	const [run, setRun] = useState<DungeonRun>(() => createRun(0));
+	const [run, setRun] = useState<DungeonRun>(() =>
+		createRun(0, DEFAULT_RUN_CONFIGURATION),
+	);
+	const [configuration, setConfiguration] = useState(DEFAULT_RUN_CONFIGURATION);
+	const [configDraft, setConfigDraft] = useState(() =>
+		configurationDraft(DEFAULT_RUN_CONFIGURATION),
+	);
+	const [configErrors, setConfigErrors] = useState<ConfigurationErrors>({});
+	const [generationError, setGenerationError] = useState<string | null>(null);
 	const [seedInput, setSeedInput] = useState(() => String(run.seed));
 	const [seedError, setSeedError] = useState<string | null>(null);
 	const [settingsOpen, setSettingsOpen] = useState(false);
 
 	const activeFloor = run.floors[run.activeFloor - 1];
+	const startRun = (
+		seed: number,
+		nextConfiguration: RunConfiguration,
+	): boolean => {
+		let nextRun: DungeonRun;
+		try {
+			nextRun = createRun(seed, nextConfiguration);
+		} catch {
+			setGenerationError(
+				"Could not create a dungeon with this seed and configuration. Try a different seed or larger dimensions.",
+			);
+			setSettingsOpen(true);
+			return false;
+		}
+		setRun(nextRun);
+		setConfiguration(nextConfiguration);
+		setConfigDraft(configurationDraft(nextConfiguration));
+		setConfigErrors({});
+		setGenerationError(null);
+		setSeedInput(String(seed));
+		setSeedError(null);
+		return true;
+	};
 
 	const handleNewDungeon = () => {
 		const seed = Math.floor(Math.random() * (MAX_SEED + 1));
 
-		setRun(createRun(seed));
-		setSeedInput(String(seed));
-		setSeedError(null);
+		startRun(seed, configuration);
 	};
 
 	const handleSeedSubmit = (event: SubmitEvent<HTMLFormElement>) => {
 		event.preventDefault();
 		const seed = parseSeedInput(seedInput);
-		if (seed === undefined) {
-			setSeedError(`Enter a whole number from 0 to ${MAX_SEED}.`);
-			return;
-		}
-		setRun(createRun(seed));
-		setSeedInput(String(seed));
-		setSeedError(null);
-		setSettingsOpen(false);
+		const parsed = parseRunConfiguration(configDraft);
+		setSeedError(
+			seed === undefined ? `Enter a whole number from 0 to ${MAX_SEED}.` : null,
+		);
+		setConfigErrors(parsed.valid ? {} : parsed.errors);
+		setGenerationError(null);
+		if (seed === undefined || !parsed.valid) return;
+		if (startRun(seed, parsed.value)) setSettingsOpen(false);
 	};
 
 	const handlePlayerMove = (coordinate: Coordinate) => {
@@ -112,9 +148,19 @@ const Home = () => {
 					seed={run.seed}
 					seedInput={seedInput}
 					seedError={seedError}
+					configuration={configuration}
+					configDraft={configDraft}
+					configErrors={configErrors}
+					generationError={generationError}
+					onConfigInputChange={(field, value) => {
+						setConfigDraft((current) => ({ ...current, [field]: value }));
+						setConfigErrors((current) => ({ ...current, [field]: undefined }));
+						setGenerationError(null);
+					}}
 					onSeedInputChange={(value) => {
 						setSeedInput(value);
 						setSeedError(null);
+						setGenerationError(null);
 					}}
 					onSeedSubmit={handleSeedSubmit}
 				/>

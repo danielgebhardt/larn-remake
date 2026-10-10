@@ -83,6 +83,7 @@ describe("Home Help menu", () => {
 	it("opens from the keyboard and keeps Space on the Help button from waiting", async () => {
 		const user = renderHelpRun();
 		await user.tab(); // New Dungeon
+		await user.tab(); // Character
 		await user.tab(); // Settings
 		await user.tab(); // Help
 		expect(screen.getByRole("button", { name: "Help" })).toHaveFocus();

@@ -6,6 +6,7 @@ type HeaderProps = {
 	floorNumber: number;
 	floorCount: number;
 	onNewDungeon: () => void;
+	characterAction?: ReactNode;
 	settingsAction?: ReactNode;
 	helpAction?: ReactNode;
 };
@@ -14,6 +15,7 @@ const Header = ({
 	floorNumber,
 	floorCount,
 	onNewDungeon,
+	characterAction,
 	settingsAction,
 	helpAction,
 }: HeaderProps) => {
@@ -29,6 +31,7 @@ const Header = ({
 				<RefreshCw aria-hidden="true" focusable="false" />
 				New Dungeon
 			</Button>
+			{characterAction}
 			{settingsAction}
 			{helpAction}
 		</header>

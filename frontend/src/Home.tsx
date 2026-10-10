@@ -1,4 +1,4 @@
-import { HelpCircleIcon, Settings } from "lucide-react";
+import { HelpCircleIcon, Settings, UserRound } from "lucide-react";
 import { type SubmitEvent, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetTrigger } from "@/components/ui/sheet";
@@ -7,6 +7,7 @@ import APICheck from "./APICheck.tsx";
 import DungeonLayout from "./components/dungeon/DungeonLayout.tsx";
 import DungeonLegend from "./components/dungeon/DungeonLegend.tsx";
 import ActivityLog from "./components/game/ActivityLog.tsx";
+import CharacterSheet from "./components/game/CharacterSheet.tsx";
 import PlayerStatus from "./components/game/PlayerStatus.tsx";
 import {
 	connectDungeonFloors,
@@ -71,6 +72,7 @@ const Home = ({
 	const [seedError, setSeedError] = useState<string | null>(null);
 	const [settingsOpen, setSettingsOpen] = useState(false);
 	const [helpOpen, setHelpOpen] = useState(false);
+	const [characterOpen, setCharacterOpen] = useState(false);
 
 	const activeFloor = run.floors[run.activeFloor - 1];
 	const activeMonsters = useMemo(
@@ -160,6 +162,15 @@ const Home = ({
 				floorNumber={activeFloor.floorNumber}
 				floorCount={run.floors.length}
 				onNewDungeon={handleNewDungeon}
+				characterAction={
+					<Sheet open={characterOpen} onOpenChange={setCharacterOpen}>
+						<SheetTrigger render={<Button type="button" variant="outline" />}>
+							<UserRound aria-hidden="true" focusable="false" />
+							Character
+						</SheetTrigger>
+						<CharacterSheet player={player} equipment={game.state.equipment} />
+					</Sheet>
+				}
 				settingsAction={
 					<Sheet open={settingsOpen} onOpenChange={setSettingsOpen}>
 						<SheetTrigger render={<Button type="button" variant="outline" />}>
@@ -227,7 +238,9 @@ const Home = ({
 							handleActionRequested({ type: "move", direction })
 						}
 						onWaitRequested={() => handleActionRequested({ type: "wait" })}
-						movementEnabled={!settingsOpen && !helpOpen && player.health > 0}
+						movementEnabled={
+							!settingsOpen && !helpOpen && !characterOpen && player.health > 0
+						}
 					/>
 					<ActivityLog history={game.state.activityHistory} />
 				</section>

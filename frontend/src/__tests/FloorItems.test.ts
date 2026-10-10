@@ -125,7 +125,13 @@ describe("Floor item transfers", () => {
 		}).state;
 		expect(returned.run.activeFloor).toBe(1);
 		expect(returned.floorItems).toBe(dropped.floorItems);
-		expect(createGameState(before.run).floorItems).toEqual([]);
+		const fresh = createGameState(before.run);
+		expect(
+			fresh.floorItems.some((entry) => entry.item.id === "starting:bag:1"),
+		).toBe(false);
+		expect(fresh.bag.items.some((item) => item.id === "starting:bag:1")).toBe(
+			true,
+		);
 	});
 	it.each(["pickup", "drop"] as const)(
 		"runs one monster phase after a successful %s",

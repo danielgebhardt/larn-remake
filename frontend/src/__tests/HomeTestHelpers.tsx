@@ -8,6 +8,8 @@ import {
 	DEFAULT_FOG_CONFIGURATION,
 	DEFAULT_RUN_CONFIGURATION,
 } from "../domain/dungeon/RunConfiguration.ts";
+import type { FloorItem } from "../domain/items/FloorItems";
+import * as ItemPlacement from "../domain/items/ItemPlacement";
 import type { Monster } from "../domain/monsters/Monster.ts";
 import * as MonsterPlacement from "../domain/monsters/MonsterPlacement.ts";
 import type Home from "../Home.tsx";
@@ -23,6 +25,7 @@ export { DEFAULT_DUNGEON_CONFIG };
 export const renderHome = (ui: ReactElement<ComponentProps<typeof Home>>) => {
 	// Legacy page scenarios exercise exploration without monster occupancy.
 	vi.spyOn(MonsterPlacement, "spawnRunMonsters").mockReturnValue([]);
+	vi.spyOn(ItemPlacement, "spawnRunItems").mockReturnValue([]);
 	return renderUI(
 		cloneElement(ui, {
 			initialFogConfiguration: { ...DEFAULT_FOG_CONFIGURATION, enabled: false },
@@ -106,7 +109,9 @@ export const movementKeysTo = (
 export const stubDungeonRun = (
 	run: DungeonRun.DungeonRun,
 	monsters: readonly Monster[] = [],
+	floorItems: readonly FloorItem[] = [],
 ) => ({
+	items: vi.spyOn(ItemPlacement, "spawnRunItems").mockReturnValue(floorItems),
 	spawn: vi
 		.spyOn(MonsterPlacement, "spawnRunMonsters")
 		.mockReturnValue(monsters),

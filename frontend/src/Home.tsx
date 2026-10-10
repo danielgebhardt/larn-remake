@@ -134,7 +134,8 @@ const Home = ({
 	const handleNewDungeon = () => {
 		const seed = Math.floor(Math.random() * (MAX_SEED + 1));
 
-		startRun(seed, configuration);
+		if (startRun(seed, configuration))
+			mapRef.current?.focus({ preventScroll: true });
 	};
 
 	const handleSeedSubmit = (event: SubmitEvent<HTMLFormElement>) => {

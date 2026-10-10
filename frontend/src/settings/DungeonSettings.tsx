@@ -13,8 +13,10 @@ import {
 } from "@/components/ui/sheet";
 import {
 	CONFIGURATION_LIMITS,
+	type FogConfiguration,
 	type RunConfiguration,
 } from "../domain/dungeon/RunConfiguration.ts";
+import FogSettings from "./FogSettings.tsx";
 import type {
 	ConfigurationDraft,
 	ConfigurationErrors,
@@ -23,6 +25,9 @@ import type {
 import { useTheme } from "./ThemeProvider.tsx";
 
 type DungeonSettingsProps = {
+	fogConfiguration: FogConfiguration;
+	onFogEnabledChange: (enabled: boolean) => void;
+	onFogRadiusApply: (radius: number) => void;
 	seed: number;
 	seedInput: string;
 	seedError: string | null;
@@ -36,6 +41,9 @@ type DungeonSettingsProps = {
 };
 
 const DungeonSettings = ({
+	fogConfiguration,
+	onFogEnabledChange,
+	onFogRadiusApply,
 	seed,
 	seedInput,
 	seedError,
@@ -161,6 +169,11 @@ const DungeonSettings = ({
 						Start from seed
 					</Button>
 				</form>
+				<FogSettings
+					configuration={fogConfiguration}
+					onEnabledChange={onFogEnabledChange}
+					onRadiusApply={onFogRadiusApply}
+				/>
 				<div className="grid gap-2 border-t pt-4">
 					<p id="appearance-label" className="text-sm font-medium">
 						Appearance

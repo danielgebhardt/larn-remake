@@ -43,7 +43,9 @@ type HomeProps = { initialFogConfiguration?: FogConfiguration };
 const Home = ({
 	initialFogConfiguration = DEFAULT_FOG_CONFIGURATION,
 }: HomeProps) => {
-	const [fogConfiguration] = useState(initialFogConfiguration);
+	const [fogConfiguration, setFogConfiguration] = useState(
+		initialFogConfiguration,
+	);
 	const [game, setGame] = useState(() => {
 		const run = createRun(0, DEFAULT_RUN_CONFIGURATION);
 		return {
@@ -124,6 +126,14 @@ const Home = ({
 		});
 	};
 
+	const handleFogRadiusApply = (radius: number) => {
+		setFogConfiguration((current) => ({ ...current, radius }));
+		setGame((current) => ({
+			...current,
+			exploration: updateExploration(current.run, radius, current.exploration),
+		}));
+	};
+
 	return (
 		<Sheet open={settingsOpen} onOpenChange={setSettingsOpen}>
 			<div className="flex h-dvh flex-col bg-muted/30">
@@ -165,6 +175,11 @@ const Home = ({
 					<APICheck />
 				</footer>
 				<DungeonSettings
+					fogConfiguration={fogConfiguration}
+					onFogEnabledChange={(enabled) =>
+						setFogConfiguration((current) => ({ ...current, enabled }))
+					}
+					onFogRadiusApply={handleFogRadiusApply}
 					seed={run.seed}
 					seedInput={seedInput}
 					seedError={seedError}

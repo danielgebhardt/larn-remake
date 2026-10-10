@@ -25,6 +25,30 @@ export const createPotionHotbar = (): PotionHotbar => [null, null, null, null];
 const isPotionKind = (kind: ItemKind): kind is PotionKind =>
 	ITEM_DEFINITIONS[kind].type === "potion";
 
+// Called only after a successful pickup, with the bag from before the transfer.
+export const assignPickedUpPotion = (
+	potionHotbar: PotionHotbar,
+	bag: Bag,
+	kind: ItemKind,
+): PotionHotbar => {
+	if (
+		!isPotionKind(kind) ||
+		potionHotbar.includes(kind) ||
+		bag.items.some((item) => item.kind === kind)
+	)
+		return potionHotbar;
+	const emptyIndex = potionHotbar.indexOf(null);
+	if (emptyIndex === -1) return potionHotbar;
+	const next: [
+		PotionKind | null,
+		PotionKind | null,
+		PotionKind | null,
+		PotionKind | null,
+	] = [...potionHotbar];
+	next[emptyIndex] = kind;
+	return next;
+};
+
 export const changeHotbarAssignment = (
 	potionHotbar: PotionHotbar,
 	bag: Bag,

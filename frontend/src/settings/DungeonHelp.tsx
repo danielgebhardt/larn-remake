@@ -160,11 +160,13 @@ const DungeonHelp = () => (
 					</li>
 					<li>
 						<span className="font-medium text-foreground">Potions.</span> Select
-						a healing potion in Character and choose Drink potion, or assign it
-						to a shortcut and use keys 1–4 (or click its slot above the map). It
-						restores up to 5 health before monsters act, using one turn. At full
-						health, it costs nothing and stays in your bag. Empty or unavailable
-						shortcuts also cost nothing. Potions cannot be used after death.
+						a healing potion in Character and choose Drink potion. Picking up a
+						new potion kind assigns it to the first empty shortcut. You can also
+						assign it to a shortcut and use keys 1–4 (or click its slot above
+						the map). It restores up to 5 health before monsters act, using one
+						turn. At full health, it costs nothing and stays in your bag. Empty
+						or unavailable shortcuts also cost nothing. Potions cannot be used
+						after death.
 					</li>
 					<li>
 						<span className="font-medium text-foreground">Turns.</span>{" "}

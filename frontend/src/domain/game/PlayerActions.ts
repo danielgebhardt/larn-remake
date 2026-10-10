@@ -14,6 +14,7 @@ import {
 } from "../items/FloorItems";
 import { createMonsterDrop } from "../items/MonsterDrops";
 import {
+	assignPickedUpPotion,
 	changeHotbarAssignment,
 	HOTBAR_SLOTS,
 	type HotbarAction,
@@ -110,6 +111,14 @@ export const resolvePlayerAction = (
 				...state,
 				bag: transfer.bag,
 				floorItems: transfer.floorItems,
+				potionHotbar:
+					action.type === "pickup"
+						? assignPickedUpPotion(
+								state.potionHotbar,
+								state.bag,
+								transfer.event.item,
+							)
+						: state.potionHotbar,
 				turn,
 				activityHistory: appendActivityEvents(state.activityHistory, [
 					{ ...transfer.event, turn },

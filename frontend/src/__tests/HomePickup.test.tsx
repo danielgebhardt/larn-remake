@@ -39,6 +39,55 @@ const renderPickupRun = (
 afterEach(resetHomeTestState);
 
 describe("G pickup from gameplay", () => {
+	it.each(["G key", "pickup chooser", "Character"])(
+		"makes a picked-up potion immediately usable through the hotbar from %s",
+		async (route) => {
+			const user = renderPickupRun(
+				route === "pickup chooser" ? [potion, shield] : [potion],
+				{
+					monsters: [],
+					player: { health: 7, maxHealth: 10 },
+				},
+			);
+			if (route === "Character") {
+				await user.click(screen.getByRole("button", { name: "Character" }));
+				await screen.findByRole("dialog", { name: "Character" });
+				await user.click(
+					screen.getByRole("button", {
+						name: "Pick up Healing potion, item 1",
+					}),
+				);
+			} else {
+				await user.keyboard("g");
+				if (route === "pickup chooser") {
+					await screen.findByRole("dialog", { name: "Pick up items" });
+					await user.click(
+						screen.getByRole("button", {
+							name: "Pick up Healing potion, item 1",
+						}),
+					);
+				}
+			}
+			if (route !== "G key") {
+				await user.keyboard("{Escape}");
+				await waitFor(() =>
+					expect(screen.queryByRole("dialog")).not.toBeInTheDocument(),
+				);
+				screen.getByLabelText("Dungeon map", { exact: true }).focus();
+			}
+			expect(
+				screen.getByRole("button", {
+					name: "Potion slot 1: Healing potion, 1 carried",
+				}),
+			).toBeVisible();
+			expect(screen.getByLabelText("Turn count")).toHaveTextContent("Turn 1");
+			await user.keyboard("1");
+			expect(screen.getByLabelText("Player health")).toHaveTextContent(
+				"Health 10 / 10",
+			);
+			expect(screen.getByLabelText("Turn count")).toHaveTextContent("Turn 2");
+		},
+	);
 	it.each(["g", "G"])(
 		"collects one item with %s and resolves one monster phase",
 		async (key) => {
@@ -55,6 +104,11 @@ describe("G pickup from gameplay", () => {
 			});
 			await user.keyboard(key);
 			expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+			expect(
+				screen.getByRole("button", {
+					name: "Potion slot 1: Healing potion, 1 carried",
+				}),
+			).toBeVisible();
 			expect(screen.getByLabelText("Turn count")).toHaveTextContent("Turn 1");
 			expect(screen.getByLabelText("Player health")).toHaveTextContent(
 				"Health 9 / 10",

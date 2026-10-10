@@ -2,6 +2,7 @@ import {
 	type ActivityEvent,
 	appendActivityEvents,
 } from "../game/ActivityHistory";
+import { deriveCombatStats, resolveIncomingDamage } from "../game/CombatStats";
 import type { GameState } from "../game/GameState";
 import { MONSTER_DEFINITIONS } from "./Monster";
 import { orthogonalDistance } from "./MonsterLocations";
@@ -12,6 +13,7 @@ export const resolveMonsterPhase = (state: GameState): GameState => {
 	let player = state.player;
 	let monsters = state.monsters;
 	const events: ActivityEvent[] = [];
+	const { armor } = deriveCombatStats(state.equipment);
 	// IDs encode floor:spawnIndex; sort numeric indices, not incidental storage order.
 	const active = state.monsters
 		.filter(
@@ -32,7 +34,10 @@ export const resolveMonsterPhase = (state: GameState): GameState => {
 				);
 			continue;
 		}
-		const damage = MONSTER_DEFINITIONS[monster.kind].attackDamage;
+		const damage = resolveIncomingDamage(
+			MONSTER_DEFINITIONS[monster.kind].attackDamage,
+			armor,
+		);
 		player = { ...player, health: Math.max(0, player.health - damage) };
 		events.push({
 			type: "monster-hit",

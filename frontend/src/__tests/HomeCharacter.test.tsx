@@ -32,6 +32,33 @@ const dismissCharacter = async (user: ReturnType<typeof userEvent.setup>) => {
 afterEach(resetHomeTestState);
 
 describe("Character sheet", () => {
+	it("shows derived attack and armor with an understandable weapon breakdown", async () => {
+		const user = renderCharacterRun();
+		const panel = within(await openCharacter(user));
+		expect(panel.getByLabelText("Character attack")).toHaveTextContent(
+			"Attack 2",
+		);
+		expect(panel.getByLabelText("Character armor")).toHaveTextContent(
+			"Armor 1",
+		);
+		expect(panel.getByText("Base 1 + weapon 1")).toBeVisible();
+		expect(panel.getByText(/Hits always deal at least 1 damage/)).toBeVisible();
+	});
+	it("shows base combat values when both equipment slots are empty", async () => {
+		const create = GameState.createGameState;
+		vi.spyOn(GameState, "createGameState").mockImplementationOnce((run) => ({
+			...create(run),
+			equipment: createEquipment(),
+		}));
+		const user = renderCharacterRun();
+		const panel = within(await openCharacter(user));
+		expect(panel.getByLabelText("Character attack")).toHaveTextContent(
+			"Attack 1",
+		);
+		expect(panel.getByLabelText("Character armor")).toHaveTextContent(
+			"Armor 0",
+		);
+	});
 	it("shows current health and starting gear in named slots", async () => {
 		const user = renderCharacterRun();
 		const character = within(await openCharacter(user));

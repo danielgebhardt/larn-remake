@@ -13,7 +13,7 @@ import { createCorridorEncounter } from "./MonsterEncounterTestHelpers";
 import { createThreeFloorTraversalRun } from "./testhelpers";
 
 describe("Starting equipment", () => {
-	it("retains gear during combat without changing the existing damage rules", () => {
+	it("retains starting gear and the original starting damage during combat", () => {
 		const goblin: Monster = {
 			id: "1:1",
 			kind: "goblin",
@@ -33,9 +33,11 @@ describe("Starting equipment", () => {
 		expect(result.monsters[0].health).toBe(2);
 		expect(result.player.health).toBe(9);
 		expect(result.turn).toBe(1);
-		expect(result.monsters).toEqual(withoutGear.monsters);
+		expect(withoutGear.monsters[0].health).toBe(3);
 		expect(result.player).toEqual(withoutGear.player);
-		expect(result.activityHistory).toEqual(withoutGear.activityHistory);
+		expect(withoutGear.activityHistory.entries[0].event).toMatchObject({
+			damage: 1,
+		});
 	});
 	it("gives a fresh character a named weapon and shield without changing health or terrain", () => {
 		const run = createThreeFloorTraversalRun();

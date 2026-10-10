@@ -4,7 +4,7 @@ export type PlayerStats = {
 };
 
 export const DEFAULT_PLAYER_MAX_HEALTH = 10;
-export const DEFAULT_PLAYER_ATTACK_DAMAGE = 2;
+export const BASE_PLAYER_ATTACK_DAMAGE = 1;
 
 export const createPlayerStats = (): PlayerStats => ({
 	health: DEFAULT_PLAYER_MAX_HEALTH,

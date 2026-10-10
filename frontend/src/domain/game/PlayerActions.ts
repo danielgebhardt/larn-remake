@@ -5,8 +5,8 @@ import {
 import type { Monster } from "../monsters/Monster.ts";
 import { resolveMonsterPhase } from "../monsters/MonsterTurns";
 import { type ActivityEvent, appendActivityEvents } from "./ActivityHistory.ts";
+import { deriveCombatStats } from "./CombatStats";
 import type { GameState } from "./GameState.ts";
-import { DEFAULT_PLAYER_ATTACK_DAMAGE } from "./PlayerStats.ts";
 
 export type PlayerAction =
 	| { type: "move"; direction: MovementDirection }
@@ -51,13 +51,14 @@ export const resolvePlayerAction = (
 
 const resolveAttack = (state: GameState, monster: Monster): GameState => {
 	const turn = state.turn + 1;
-	const health = Math.max(0, monster.health - DEFAULT_PLAYER_ATTACK_DAMAGE);
+	const damage = deriveCombatStats(state.equipment).attack;
+	const health = Math.max(0, monster.health - damage);
 	const events: ActivityEvent[] = [
 		{
 			type: "player-hit",
 			turn,
 			monster: monster.kind,
-			damage: DEFAULT_PLAYER_ATTACK_DAMAGE,
+			damage,
 		},
 	];
 	if (health === 0)

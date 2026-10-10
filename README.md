@@ -91,7 +91,7 @@ Vite serves the frontend and proxies `/initial` requests to the backend at `http
 
 ## Controls
 
-The header shows the current floor, **New Dungeon**, and **Settings**. The map and its legend occupy the main play area. Settings opens a modal side panel containing the current seed and seed replay form. A small footer shows the backend connectivity diagnostic. Exploration runs in the frontend and remains available if that check fails.
+The header shows the current floor, **New Dungeon**, **Settings**, and **Help**. Help opens a keyboard-controls sheet with movement/wait keycaps and notes about attacks, stairs, and turns. The map and its legend occupy the main play area. Settings opens a modal side panel containing the current seed and seed replay form. A small footer shows the backend connectivity diagnostic. Exploration runs in the frontend and remains available if that check fails.
 
 Shared shadcn styling and theme tokens live in `frontend/src/App.css`, imported by `App.tsx`. Page layout uses Tailwind utilities, and reusable controls live in `frontend/src/components/ui`.
 
@@ -105,7 +105,7 @@ Move the player with either control scheme:
 | Right | → | D |
 | Wait | Spacebar | — |
 
-The player can move through rooms and corridors but cannot move through wall tiles or beyond the dungeon boundary. **Spacebar** waits one turn without moving or attacking, allowing a lone goblin to approach or hit while you stand still. Waiting does not activate a stair or add a log message of its own. It runs the normal monster phase and costs one turn even when no monster acts. Holding Spacebar does not repeat waits; press it again for another turn. Space retains its normal behavior in Settings, editors, focused controls and the activity log. Waiting is disabled after death.
+The player can move through rooms and corridors but cannot move through wall tiles or beyond the dungeon boundary. **Spacebar** waits one turn without moving or attacking, allowing a lone goblin to approach or hit while you stand still. Waiting does not activate a stair or add a log message of its own. It runs the normal monster phase and costs one turn even when no monster acts. Holding Spacebar does not repeat waits; press it again for another turn. Gameplay movement and waiting are paused while Settings or Help is open. Escape dismisses either sheet and restores focus to its header button. Focus the map to resume gameplay; Space retains its normal behavior on focused controls, in editors, and in the activity log. Waiting is disabled after death.
 
 The **Activity** log below the map retains the most recent 100 events, with turn numbers and messages in resolution order. It has its own scroll area and politely announces new entries without changing focus. New messages follow automatically while you are at the bottom; scrolling back keeps your reading position, including when older entries are trimmed. Returning to the bottom resumes following. If the entry being read is removed by the history limit, the log shows the oldest remaining entry. Keyboard users can focus the log to scroll without moving the player, then focus the map to resume movement.
 

@@ -1,7 +1,8 @@
-import { Settings } from "lucide-react";
+import { HelpCircleIcon, Settings } from "lucide-react";
 import { type SubmitEvent, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetTrigger } from "@/components/ui/sheet";
+import DungeonHelp from "@/settings/DungeonHelp.tsx";
 import APICheck from "./APICheck.tsx";
 import DungeonLayout from "./components/dungeon/DungeonLayout.tsx";
 import DungeonLegend from "./components/dungeon/DungeonLegend.tsx";
@@ -69,6 +70,7 @@ const Home = ({
 	const [seedInput, setSeedInput] = useState(() => String(run.seed));
 	const [seedError, setSeedError] = useState<string | null>(null);
 	const [settingsOpen, setSettingsOpen] = useState(false);
+	const [helpOpen, setHelpOpen] = useState(false);
 
 	const activeFloor = run.floors[run.activeFloor - 1];
 	const activeMonsters = useMemo(
@@ -153,78 +155,88 @@ const Home = ({
 	};
 
 	return (
-		<Sheet open={settingsOpen} onOpenChange={setSettingsOpen}>
-			<div className="flex h-dvh flex-col bg-muted/30">
-				<Header
-					floorNumber={activeFloor.floorNumber}
-					floorCount={run.floors.length}
-					onNewDungeon={handleNewDungeon}
-					settingsAction={
+		<div className="flex h-dvh flex-col bg-muted/30">
+			<Header
+				floorNumber={activeFloor.floorNumber}
+				floorCount={run.floors.length}
+				onNewDungeon={handleNewDungeon}
+				settingsAction={
+					<Sheet open={settingsOpen} onOpenChange={setSettingsOpen}>
 						<SheetTrigger render={<Button type="button" variant="outline" />}>
 							<Settings aria-hidden="true" focusable="false" />
 							Settings
 						</SheetTrigger>
-					}
-				/>
-
-				<main className="flex min-h-0 min-w-0 flex-1 p-4 sm:p-6">
-					<section className="flex min-h-0 min-w-0 flex-1 flex-col rounded-lg border border-border bg-card p-3 sm:p-4">
-						<PlayerStatus turn={turn} player={player} />
-						<DungeonLegend fogEnabled={fogConfiguration.enabled} />
-						<DungeonLayout
-							monsters={activeMonsters}
-							dungeon={activeFloor.terrain}
-							visible={
-								fogConfiguration.enabled ? exploration.visible : undefined
+						<DungeonSettings
+							fogConfiguration={fogConfiguration}
+							onFogEnabledChange={(enabled) =>
+								setFogConfiguration((current) => ({ ...current, enabled }))
 							}
-							explored={
-								fogConfiguration.enabled
-									? exploration.explored.get(run.activeFloor)
-									: undefined
-							}
-							playerPosition={run.playerCoordinate}
-							upStair={activeFloor.upStair?.coordinate}
-							downStair={activeFloor.downStair?.coordinate}
-							onMoveRequested={(direction) =>
-								handleActionRequested({ type: "move", direction })
-							}
-							onWaitRequested={() => handleActionRequested({ type: "wait" })}
-							movementEnabled={!settingsOpen && player.health > 0}
+							onFogRadiusApply={handleFogRadiusApply}
+							seed={run.seed}
+							seedInput={seedInput}
+							seedError={seedError}
+							configuration={configuration}
+							configDraft={configDraft}
+							configErrors={configErrors}
+							generationError={generationError}
+							onConfigInputChange={(field, value) => {
+								setConfigDraft((current) => ({ ...current, [field]: value }));
+								setConfigErrors((current) => ({
+									...current,
+									[field]: undefined,
+								}));
+								setGenerationError(null);
+							}}
+							onSeedInputChange={(value) => {
+								setSeedInput(value);
+								setSeedError(null);
+								setGenerationError(null);
+							}}
+							onSeedSubmit={handleSeedSubmit}
 						/>
-						<ActivityLog history={game.state.activityHistory} />
-					</section>
-				</main>
-				<footer className="flex shrink-0 flex-wrap items-center gap-x-2 gap-y-1 border-t border-border px-4 py-2 text-xs text-muted-foreground sm:px-6">
-					<span>Server:</span>
-					<APICheck />
-				</footer>
-				<DungeonSettings
-					fogConfiguration={fogConfiguration}
-					onFogEnabledChange={(enabled) =>
-						setFogConfiguration((current) => ({ ...current, enabled }))
-					}
-					onFogRadiusApply={handleFogRadiusApply}
-					seed={run.seed}
-					seedInput={seedInput}
-					seedError={seedError}
-					configuration={configuration}
-					configDraft={configDraft}
-					configErrors={configErrors}
-					generationError={generationError}
-					onConfigInputChange={(field, value) => {
-						setConfigDraft((current) => ({ ...current, [field]: value }));
-						setConfigErrors((current) => ({ ...current, [field]: undefined }));
-						setGenerationError(null);
-					}}
-					onSeedInputChange={(value) => {
-						setSeedInput(value);
-						setSeedError(null);
-						setGenerationError(null);
-					}}
-					onSeedSubmit={handleSeedSubmit}
-				/>
-			</div>
-		</Sheet>
+					</Sheet>
+				}
+				helpAction={
+					<Sheet open={helpOpen} onOpenChange={setHelpOpen}>
+						<SheetTrigger render={<Button type="button" variant="outline" />}>
+							<HelpCircleIcon aria-hidden="true" focusable="false" />
+							Help
+						</SheetTrigger>
+						<DungeonHelp />
+					</Sheet>
+				}
+			/>
+
+			<main className="flex min-h-0 min-w-0 flex-1 p-4 sm:p-6">
+				<section className="flex min-h-0 min-w-0 flex-1 flex-col rounded-lg border border-border bg-card p-3 sm:p-4">
+					<PlayerStatus turn={turn} player={player} />
+					<DungeonLegend fogEnabled={fogConfiguration.enabled} />
+					<DungeonLayout
+						monsters={activeMonsters}
+						dungeon={activeFloor.terrain}
+						visible={fogConfiguration.enabled ? exploration.visible : undefined}
+						explored={
+							fogConfiguration.enabled
+								? exploration.explored.get(run.activeFloor)
+								: undefined
+						}
+						playerPosition={run.playerCoordinate}
+						upStair={activeFloor.upStair?.coordinate}
+						downStair={activeFloor.downStair?.coordinate}
+						onMoveRequested={(direction) =>
+							handleActionRequested({ type: "move", direction })
+						}
+						onWaitRequested={() => handleActionRequested({ type: "wait" })}
+						movementEnabled={!settingsOpen && !helpOpen && player.health > 0}
+					/>
+					<ActivityLog history={game.state.activityHistory} />
+				</section>
+			</main>
+			<footer className="flex shrink-0 flex-wrap items-center gap-x-2 gap-y-1 border-t border-border px-4 py-2 text-xs text-muted-foreground sm:px-6">
+				<span>Server:</span>
+				<APICheck />
+			</footer>
+		</div>
 	);
 };
 

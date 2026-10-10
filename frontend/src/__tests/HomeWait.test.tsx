@@ -38,7 +38,6 @@ afterEach(resetHomeTestState);
 describe("Waiting on the play screen", () => {
 	it("lets one goblin approach then hit without a player attack or movement", async () => {
 		const user = renderWaitingRun();
-		expect(screen.getByText("Spacebar: wait")).toBeVisible();
 		await user.keyboard(" ");
 		expect(screen.getByLabelText("row1col2 - goblin")).toBeVisible();
 		expect(screen.getByLabelText("Player health")).toHaveTextContent(

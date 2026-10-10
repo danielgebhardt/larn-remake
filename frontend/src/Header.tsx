@@ -7,6 +7,7 @@ type HeaderProps = {
 	floorCount: number;
 	onNewDungeon: () => void;
 	settingsAction?: ReactNode;
+	helpAction?: ReactNode;
 };
 
 const Header = ({
@@ -14,6 +15,7 @@ const Header = ({
 	floorCount,
 	onNewDungeon,
 	settingsAction,
+	helpAction,
 }: HeaderProps) => {
 	return (
 		<header className="flex shrink-0 flex-wrap items-center gap-4 border-b border-border bg-card px-4 py-3 sm:px-6">
@@ -28,6 +30,7 @@ const Header = ({
 				New Dungeon
 			</Button>
 			{settingsAction}
+			{helpAction}
 		</header>
 	);
 };

@@ -34,7 +34,6 @@ const DungeonLegend = ({ fogEnabled = false }: { fogEnabled?: boolean }) => (
 					<span>{label}</span>
 				</li>
 			))}
-		<li className="flex items-center text-muted-foreground">Spacebar: wait</li>
 	</ul>
 );
 

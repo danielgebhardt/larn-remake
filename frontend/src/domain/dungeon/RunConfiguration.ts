@@ -30,3 +30,10 @@ export const CONFIGURATION_LIMITS = {
 	cols: { min: 10, max: MAX_SIZE },
 	floorCount: { min: 1, max: 10 },
 };
+
+export type FogConfiguration = { enabled: boolean; radius: number };
+export const DEFAULT_FOG_CONFIGURATION: FogConfiguration = {
+	enabled: true,
+	radius: 6,
+};
+export const FOG_RADIUS_LIMITS = { min: 1, max: 20 };

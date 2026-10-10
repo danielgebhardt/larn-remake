@@ -54,7 +54,7 @@ const Home = ({
 			exploration: updateExploration(run, fogConfiguration.radius),
 		};
 	});
-	const { run, turn, exploration } = game;
+	const { run, turn, player, exploration } = game;
 	const [configuration, setConfiguration] = useState(DEFAULT_RUN_CONFIGURATION);
 	const [configDraft, setConfigDraft] = useState(() =>
 		configurationDraft(DEFAULT_RUN_CONFIGURATION),
@@ -152,7 +152,7 @@ const Home = ({
 
 				<main className="flex min-h-0 min-w-0 flex-1 p-4 sm:p-6">
 					<section className="flex min-h-0 min-w-0 flex-1 flex-col rounded-lg border border-border bg-card p-3 sm:p-4">
-						<PlayerStatus turn={turn} />
+						<PlayerStatus turn={turn} player={player} />
 						<DungeonLegend fogEnabled={fogConfiguration.enabled} />
 						<DungeonLayout
 							dungeon={activeFloor.terrain}

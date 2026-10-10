@@ -5,12 +5,12 @@ import { Sheet, SheetTrigger } from "@/components/ui/sheet";
 import APICheck from "./APICheck.tsx";
 import DungeonLayout from "./components/dungeon/DungeonLayout.tsx";
 import DungeonLegend from "./components/dungeon/DungeonLegend.tsx";
+import PlayerStatus from "./components/game/PlayerStatus.tsx";
 import {
 	connectDungeonFloors,
 	type DungeonRun,
 	generateDungeonRun,
 	type MovementDirection,
-	moveDungeonRun,
 } from "./domain/dungeon/DungeonRun.ts";
 import { updateExploration } from "./domain/dungeon/Exploration.ts";
 import {
@@ -20,6 +20,7 @@ import {
 	type RunConfiguration,
 } from "./domain/dungeon/RunConfiguration.ts";
 import { MAX_SEED, parseSeedInput } from "./domain/dungeon/Seed.ts";
+import { createGameState, movePlayer } from "./domain/game/GameState.ts";
 import Header from "./Header.tsx";
 import DungeonSettings from "./settings/DungeonSettings.tsx";
 import {
@@ -49,11 +50,11 @@ const Home = ({
 	const [game, setGame] = useState(() => {
 		const run = createRun(0, DEFAULT_RUN_CONFIGURATION);
 		return {
-			run,
+			...createGameState(run),
 			exploration: updateExploration(run, fogConfiguration.radius),
 		};
 	});
-	const { run, exploration } = game;
+	const { run, turn, exploration } = game;
 	const [configuration, setConfiguration] = useState(DEFAULT_RUN_CONFIGURATION);
 	const [configDraft, setConfigDraft] = useState(() =>
 		configurationDraft(DEFAULT_RUN_CONFIGURATION),
@@ -80,7 +81,7 @@ const Home = ({
 			return false;
 		}
 		setGame({
-			run: nextRun,
+			...createGameState(nextRun),
 			exploration: updateExploration(nextRun, fogConfiguration.radius),
 		});
 		setConfiguration(nextConfiguration);
@@ -113,12 +114,12 @@ const Home = ({
 
 	const handleMoveRequested = (direction: MovementDirection) => {
 		setGame((current) => {
-			const nextRun = moveDungeonRun(current.run, direction);
-			if (nextRun === current.run) return current;
+			const next = movePlayer(current, direction);
+			if (next === current) return current;
 			return {
-				run: nextRun,
+				...next,
 				exploration: updateExploration(
-					nextRun,
+					next.run,
 					fogConfiguration.radius,
 					current.exploration,
 				),
@@ -151,6 +152,7 @@ const Home = ({
 
 				<main className="flex min-h-0 min-w-0 flex-1 p-4 sm:p-6">
 					<section className="flex min-h-0 min-w-0 flex-1 flex-col rounded-lg border border-border bg-card p-3 sm:p-4">
+						<PlayerStatus turn={turn} />
 						<DungeonLegend fogEnabled={fogConfiguration.enabled} />
 						<DungeonLayout
 							dungeon={activeFloor.terrain}

@@ -15,6 +15,23 @@ const messages = () =>
 afterEach(resetHomeTestState);
 
 describe("Combat on the play screen", () => {
+	it.each(["sd", "{ArrowDown}{ArrowRight}"])(
+		"lets the goblin attack after walking into adjacency through %s",
+		async (keys) => {
+			const { user } = renderEncounter();
+			await user.keyboard(keys);
+			expect(screen.getByLabelText("row2col2 - player")).toBeVisible();
+			expect(screen.getByLabelText("row1col2 - goblin")).toBeVisible();
+			expect(screen.getByLabelText("Player health")).toHaveTextContent(
+				"Health 9 / 10",
+			);
+			expect(screen.getByLabelText("Turn count")).toHaveTextContent("Turn 2");
+			expect(messages()).toEqual([
+				"Turn 2 — The goblin hits you for 1 damage.",
+			]);
+		},
+	);
+
 	it.each(["d", "{ArrowRight}"])(
 		"attacks and kills through %s, showing ordered messages and the vacated tile",
 		async (key) => {
@@ -70,14 +87,14 @@ describe("Combat on the play screen", () => {
 		await user.keyboard("da");
 		expect(screen.getByRole("heading", { name: "Floor 1 of 2" })).toBeVisible();
 		expect(screen.getByLabelText("Player health")).toHaveTextContent(
-			"Health 9 / 10",
+			"Health 8 / 10",
 		);
-		expect(messages()).toHaveLength(2);
+		expect(messages()).toHaveLength(3);
 		// Approach from the right; one remaining hit should kill it.
 		await user.keyboard("wa");
 		expect(screen.getByLabelText("row1col2 - floor")).toBeVisible();
 		expect(screen.getByLabelText("Player health")).toHaveTextContent(
-			"Health 9 / 10",
+			"Health 7 / 10",
 		);
 		expect(messages().slice(-2)).toEqual([
 			"Turn 8 — You hit the goblin for 2 damage.",

@@ -2,7 +2,8 @@ import {
 	type MovementDirection,
 	moveDungeonRun,
 } from "../dungeon/DungeonRun.ts";
-import { MONSTER_DEFINITIONS, type Monster } from "../monsters/Monster.ts";
+import type { Monster } from "../monsters/Monster.ts";
+import { resolveMonsterPhase } from "../monsters/MonsterTurns";
 import { type ActivityEvent, appendActivityEvents } from "./ActivityHistory.ts";
 import type { GameState } from "./GameState.ts";
 import { DEFAULT_PLAYER_ATTACK_DAMAGE } from "./PlayerStats.ts";
@@ -32,17 +33,16 @@ export const resolvePlayerAction = (
 			monster.coordinate.row === run.playerCoordinate.row &&
 			monster.coordinate.col === run.playerCoordinate.col,
 	);
-	if (monster) return resolveAttack(state, monster);
+	const playerResult = monster
+		? resolveAttack(state, monster)
+		: { ...state, run, turn: state.turn + 1 };
 	return {
-		state: { ...state, run, turn: state.turn + 1 },
+		state: resolveMonsterPhase(playerResult),
 		turnAdvanced: true,
 	};
 };
 
-const resolveAttack = (
-	state: GameState,
-	monster: Monster,
-): ActionResolution => {
+const resolveAttack = (state: GameState, monster: Monster): GameState => {
 	const turn = state.turn + 1;
 	const health = Math.max(0, monster.health - DEFAULT_PLAYER_ATTACK_DAMAGE);
 	const events: ActivityEvent[] = [
@@ -53,15 +53,8 @@ const resolveAttack = (
 			damage: DEFAULT_PLAYER_ATTACK_DAMAGE,
 		},
 	];
-	let player = state.player;
-	if (health > 0) {
-		const damage = MONSTER_DEFINITIONS[monster.kind].attackDamage;
-		player = { ...player, health: Math.max(0, player.health - damage) };
-		events.push({ type: "monster-hit", turn, monster: monster.kind, damage });
-		if (player.health === 0) events.push({ type: "player-died", turn });
-	} else {
+	if (health === 0)
 		events.push({ type: "monster-died", turn, monster: monster.kind });
-	}
 	const monsters =
 		health > 0
 			? state.monsters.map((actor) =>
@@ -69,13 +62,9 @@ const resolveAttack = (
 				)
 			: state.monsters.filter((actor) => actor.id !== monster.id);
 	return {
-		state: {
-			...state,
-			turn,
-			player,
-			monsters,
-			activityHistory: appendActivityEvents(state.activityHistory, events),
-		},
-		turnAdvanced: true,
+		...state,
+		turn,
+		monsters,
+		activityHistory: appendActivityEvents(state.activityHistory, events),
 	};
 };

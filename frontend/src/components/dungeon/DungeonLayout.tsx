@@ -87,7 +87,9 @@ const DungeonLayout = ({
 			if (
 				event.target instanceof HTMLInputElement ||
 				event.target instanceof HTMLTextAreaElement ||
-				(event.target instanceof HTMLElement && event.target.isContentEditable)
+				(event.target instanceof HTMLElement &&
+					(event.target.isContentEditable ||
+						event.target.closest('[role="log"]')))
 			) {
 				return;
 			}

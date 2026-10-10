@@ -106,6 +106,10 @@ Move the player with either control scheme:
 
 The player can move through rooms and corridors but cannot move through wall tiles or beyond the dungeon boundary.
 
+The **Activity** log below the map retains the most recent 100 events, with turn numbers and messages in resolution order. It has its own scroll area and politely announces new entries without changing focus. New messages follow automatically while you are at the bottom; scrolling back keeps your reading position, including when older entries are trimmed. Returning to the bottom resumes following. If the entry being read is removed by the history limit, the log shows the oldest remaining entry. Keyboard users can focus the log to scroll without moving the player, then focus the map to resume movement.
+
+History survives floor visits and Settings/appearance changes; New Dungeon and seed replay clear it. Ordinary movement does not create log entries. The log currently shows **No activity yet.** during gameplay; the next combat story will emit player-hit, monster-hit, monster-death, and player-death events. `ActivityHistory.ts` stores structured events and the shared history limit; `ActivityMessages.ts` controls their readable wording, and `ActivityLog.tsx` handles display and scrolling.
+
 A fresh run places one stationary goblin on floor 1 when an eligible floor tile exists. Placement uses an independent seed namespace, `seed:floor:monsters:1`, excluding the player and stairs. The goblin retains its identity, location, and current health across floor visits. It is displayed only within current sight, or with fog disabled; remembered tiles retain terrain rather than a monster silhouette. Bumping the goblin currently blocks movement without spending a turn. Attacks and retaliation belong to the next combat story.
 
 Goblin base stats (maximum health 4 and attack damage 1) live in `frontend/src/domain/monsters/Monster.ts`. Its SVG, color class, and accessible label are mapped in `frontend/src/components/monsters/MonsterVisuals.ts`; the custom SVG is `GoblinIcon.tsx`, and light/dark green colors are defined in `App.css`. Monster instances are stored in game state separately from dungeon terrain and discovery. Floors with no eligible tile have no monster.
@@ -124,7 +128,7 @@ To replay a dungeon, open **Settings**, enter a seed in **Dungeon seed**, and se
 
 The map automatically scrolls just enough to keep the player visible, with roughly one tile of surrounding space where possible. Following works horizontally and vertically, after stairs or a fresh run, and when the map viewport resizes. You can still scroll manually to inspect the map; ordinary rerenders, Settings, and appearance changes leave that view alone. The next successful move or floor/run change resumes following. Blocked movement does not scroll, and following does not move focus or scroll the outer page.
 
-**Dungeon configuration** in Settings lets you choose 10–100 rows, 10–100 columns, and 1–10 floors. Defaults remain 30 × 100 with 3 floors, with minimum partition size 8 and room padding 1. **Start from seed** applies the seed and configuration together, starting a new run on floor 1. Editing or dismissing settings retains drafts without changing the run. **New Dungeon** uses the last successfully applied configuration and resets drafts to it. These settings last for this session; only appearance is saved across reloads.
+**Dungeon configuration** in Settings lets you choose 10–100 rows, 10–100 columns, and 1–10 floors. Defaults are 15 × 15 with 3 floors, with minimum partition size 8 and room padding 1. **Start from seed** applies the seed and configuration together, starting a new run on floor 1. Editing or dismissing settings retains drafts without changing the run. **New Dungeon** uses the last successfully applied configuration and resets drafts to it. These settings last for this session; only appearance is saved across reloads.
 
 Inputs require decimal whole numbers. Invalid fields show feedback without replacing the run. Generation failures show a retry message and preserve the current run, active configuration, and draft.
 
@@ -164,6 +168,7 @@ Start with `domain/dungeon/RunConfiguration.ts` when tuning dungeon generation. 
 | [FogConfigurationDraft.ts](frontend/src/settings/FogConfigurationDraft.ts) | Parsing and validation of the visibility-radius setting against the shared limits. |
 | [App.css](frontend/src/App.css) | Tile size, light/dark theme colors, fog backgrounds and remembered-icon opacity, and shared styling. The `--dungeon-tile-size` variable sizes dungeon cells, grid columns, and legend icons together. |
 | [TileVisuals.ts](frontend/src/components/dungeon/TileVisuals.ts) | Tile icon choices, color classes, backgrounds, and accessible labels. |
+| [ActivityHistory.ts](frontend/src/domain/game/ActivityHistory.ts) | Structured activity events, stable entry IDs, and the recent-history limit (100 entries). |
 | [Monster.ts](frontend/src/domain/monsters/Monster.ts) | Monster types and shared base stats; goblin maximum health 4 and attack damage 1. |
 | [MonsterVisuals.ts](frontend/src/components/monsters/MonsterVisuals.ts) | Per-monster SVG, color class, and accessible label. |
 | [PlayerStats.ts](frontend/src/domain/game/PlayerStats.ts) | Internal starting maximum health (10); fresh players start with current health equal to this value. |

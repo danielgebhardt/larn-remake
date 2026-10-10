@@ -5,6 +5,7 @@ import { Sheet, SheetTrigger } from "@/components/ui/sheet";
 import APICheck from "./APICheck.tsx";
 import DungeonLayout from "./components/dungeon/DungeonLayout.tsx";
 import DungeonLegend from "./components/dungeon/DungeonLegend.tsx";
+import ActivityLog from "./components/game/ActivityLog.tsx";
 import PlayerStatus from "./components/game/PlayerStatus.tsx";
 import {
 	connectDungeonFloors,
@@ -182,6 +183,7 @@ const Home = ({
 							onMoveRequested={handleMoveRequested}
 							movementEnabled={!settingsOpen}
 						/>
+						<ActivityLog history={game.state.activityHistory} />
 					</section>
 				</main>
 				<footer className="flex shrink-0 flex-wrap items-center gap-x-2 gap-y-1 border-t border-border px-4 py-2 text-xs text-muted-foreground sm:px-6">

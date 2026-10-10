@@ -85,7 +85,7 @@ describe("Home dungeon configuration", () => {
 			expect(screen.getByRole("textbox", { name: "Rows" })).toHaveValue("10");
 			expect(
 				screen.getByLabelText("Current dungeon configuration"),
-			).toHaveTextContent("30 rows × 100 columns · 3 floors");
+			).toHaveTextContent("15 rows × 15 columns · 3 floors");
 			await closeSettings(user);
 			expect(
 				screen.getByRole("heading", { name: "Floor 2 of 3" }),
@@ -97,7 +97,7 @@ describe("Home dungeon configuration", () => {
 				DEFAULT_DUNGEON_CONFIG,
 			);
 			await openSettings(user);
-			expect(screen.getByRole("textbox", { name: "Rows" })).toHaveValue("30");
+			expect(screen.getByRole("textbox", { name: "Rows" })).toHaveValue("15");
 			expect(screen.queryByRole("alert")).not.toBeInTheDocument();
 		},
 	);
@@ -174,8 +174,8 @@ describe("Home dungeon configuration", () => {
 		const board = screen.getByRole("table");
 		const original = readDungeonCells(board);
 		await openSettings(user);
-		expect(screen.getByRole("textbox", { name: "Rows" })).toHaveValue("30");
-		expect(screen.getByRole("textbox", { name: "Columns" })).toHaveValue("100");
+		expect(screen.getByRole("textbox", { name: "Rows" })).toHaveValue("15");
+		expect(screen.getByRole("textbox", { name: "Columns" })).toHaveValue("15");
 		expect(screen.getByRole("textbox", { name: "Floors" })).toHaveValue("3");
 		for (const [name, value] of [
 			["Rows", "10"],

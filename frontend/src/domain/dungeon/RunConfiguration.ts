@@ -17,8 +17,8 @@ export type RunConfiguration = Required<DungeonConfig> & {
 };
 
 export const DEFAULT_RUN_CONFIGURATION: RunConfiguration = {
-	rows: 30,
-	cols: 100,
+	rows: 15,
+	cols: 15,
 	floorCount: 3,
 	minPartitionSize: 8,
 	roomPadding: 1,

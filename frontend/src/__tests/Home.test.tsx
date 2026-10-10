@@ -58,20 +58,14 @@ describe("Home rendering and movement", () => {
 		).toBeVisible();
 	});
 
-	it("explains the player and both stair directions with a graphical legend", () => {
-		const run = createThreeFloorTraversalRun();
-		stubDungeonRun(run);
+	it("keeps the map legend out of the play area", () => {
+		stubDungeonRun(createThreeFloorTraversalRun());
 		render(<Home />);
 
-		const legend = screen.getByRole("list", { name: "Dungeon legend" });
-		for (const label of ["Player", "Stairs up", "Stairs down"]) {
-			const text = within(legend).getByText(label);
-			expect(text).toBeVisible();
-			expect(text.closest("li")?.querySelector("svg")).toHaveAttribute(
-				"aria-hidden",
-				"true",
-			);
-		}
+		expect(screen.getByRole("table", { name: "Dungeon" })).toBeVisible();
+		expect(
+			screen.queryByRole("list", { name: "Dungeon legend" }),
+		).not.toBeInTheDocument();
 	});
 
 	it("shows the header and main element", () => {

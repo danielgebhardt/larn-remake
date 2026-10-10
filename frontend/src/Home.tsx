@@ -6,7 +6,6 @@ import { Sheet, SheetTrigger } from "@/components/ui/sheet";
 import DungeonHelp from "@/settings/DungeonHelp.tsx";
 import APICheck from "./APICheck.tsx";
 import DungeonLayout from "./components/dungeon/DungeonLayout.tsx";
-import DungeonLegend from "./components/dungeon/DungeonLegend.tsx";
 import ActivityLog from "./components/game/ActivityLog.tsx";
 import CharacterDialog from "./components/game/CharacterDialog.tsx";
 import PickupDialog from "./components/game/PickupDialog";
@@ -299,7 +298,6 @@ const Home = ({
 						/>
 						<PlayerStatus turn={turn} player={player} />
 					</div>
-					<DungeonLegend fogEnabled={fogConfiguration.enabled} />
 					<DungeonLayout
 						mapRef={mapRef}
 						monsters={activeMonsters}

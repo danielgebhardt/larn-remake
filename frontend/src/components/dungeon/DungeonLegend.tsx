@@ -1,39 +1,69 @@
 import { PLAYER, STAIRS_DOWN, STAIRS_UP } from "../../domain/dungeon/Tiles.ts";
 import TileIcon from "./TileIcon.tsx";
 
-const entries = [
-	{ tile: PLAYER, label: "Player" },
-	{ tile: STAIRS_UP, label: "Stairs up" },
-	{ tile: STAIRS_DOWN, label: "Stairs down" },
+const tileEntries = [
+	{ tile: PLAYER, label: "Player", description: "Your current position." },
+	{
+		tile: STAIRS_UP,
+		label: "Stairs up",
+		description: "Leads to the floor above.",
+	},
+	{
+		tile: STAIRS_DOWN,
+		label: "Stairs down",
+		description: "Leads to the floor below.",
+	},
+];
+const fogEntries = [
+	{
+		label: "Visible",
+		className: "bg-fog-visible",
+		description: "Currently in sight.",
+	},
+	{
+		label: "Remembered",
+		className: "bg-fog-remembered",
+		description: "Explored before, but outside current sight.",
+	},
+	{
+		label: "Undiscovered",
+		className: "bg-fog-unseen",
+		description: "Not explored yet.",
+	},
 ];
 
-const DungeonLegend = ({ fogEnabled = false }: { fogEnabled?: boolean }) => (
+const DungeonLegend = () => (
 	<ul
 		aria-label="Dungeon legend"
-		className="my-2 flex shrink-0 flex-wrap justify-center gap-x-5 gap-y-2 text-sm"
+		className="grid gap-4 rounded-lg border bg-muted/30 p-3 text-sm"
 	>
-		{entries.map(({ tile, label }) => (
-			<li key={tile} className="flex items-center gap-2">
-				<span className="block size-[var(--dungeon-tile-size)]">
+		{tileEntries.map(({ tile, label, description }) => (
+			<li key={tile} className="flex items-center gap-3">
+				<span className="block size-[var(--dungeon-tile-size)] shrink-0">
 					<TileIcon tile={tile} />
 				</span>
-				<span>{label}</span>
+				<div>
+					<p className="font-medium">{label}</p>
+					<p className="text-xs leading-relaxed text-muted-foreground">
+						{description}
+					</p>
+				</div>
 			</li>
 		))}
-		{fogEnabled &&
-			[
-				{ label: "Visible", className: "bg-fog-visible" },
-				{ label: "Remembered", className: "bg-fog-remembered" },
-				{ label: "Undiscovered", className: "bg-fog-unseen" },
-			].map(({ label, className }) => (
-				<li key={label} className="flex items-center gap-2">
-					<span
-						aria-hidden="true"
-						className={`size-4 rounded-sm border-2 ${className}`}
-					/>
-					<span>{label}</span>
-				</li>
-			))}
+		{fogEntries.map(({ label, className, description }) => (
+			<li key={label} className="flex items-center gap-3">
+				<span
+					aria-hidden="true"
+					className={`size-[var(--dungeon-tile-size)] shrink-0 rounded-sm border-2 ${className}`}
+				/>
+				<div>
+					<p className="font-medium">{label}</p>
+					<p className="text-xs leading-relaxed text-muted-foreground">
+						{description}
+					</p>
+				</div>
+			</li>
+		))}
 	</ul>
 );
 

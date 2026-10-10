@@ -5,6 +5,7 @@ import {
 	ArrowUp,
 	Footprints,
 	Keyboard,
+	Map as MapIcon,
 	Shield,
 } from "lucide-react";
 import type { ReactNode } from "react";
@@ -14,6 +15,7 @@ import {
 	SheetHeader,
 	SheetTitle,
 } from "@/components/ui/sheet";
+import DungeonLegend from "../components/dungeon/DungeonLegend.tsx";
 
 const Keycap = ({
 	children,
@@ -100,6 +102,22 @@ const DungeonHelp = () => (
 				<p className="text-xs leading-relaxed text-muted-foreground">
 					Click the dungeon map to focus gameplay. While a menu is open,
 					gameplay keys are paused.
+				</p>
+			</section>
+			<section aria-labelledby="map-symbols-title" className="grid gap-3">
+				<h3
+					id="map-symbols-title"
+					className="flex items-center gap-2 font-medium"
+				>
+					<MapIcon
+						aria-hidden="true"
+						className="size-4 text-muted-foreground"
+					/>
+					Map symbols
+				</h3>
+				<DungeonLegend />
+				<p className="text-xs leading-relaxed text-muted-foreground">
+					Visibility shading applies when fog of war is enabled.
 				</p>
 			</section>
 			<section aria-labelledby="gameplay-notes-title" className="grid gap-3">

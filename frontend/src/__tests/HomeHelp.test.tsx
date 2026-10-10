@@ -147,12 +147,29 @@ describe("Home Help menu", () => {
 		).toHaveValue("456");
 		expect(screen.getByLabelText("Turn count")).toHaveTextContent("Turn 0");
 	});
-	it("keeps the dungeon legend focused on map symbols", () => {
-		renderHelpRun();
+	it("explains map symbols and fog states in Help even when fog is disabled", async () => {
+		const user = renderHelpRun();
+		const help = await openHelp(user);
+		const symbols = within(help).getByRole("region", { name: "Map symbols" });
+		const legend = within(symbols).getByRole("list", {
+			name: "Dungeon legend",
+		});
+
+		for (const [label, description] of [
+			["Player", "Your current position."],
+			["Stairs up", "Leads to the floor above."],
+			["Stairs down", "Leads to the floor below."],
+			["Visible", "Currently in sight."],
+			["Remembered", "Explored before, but outside current sight."],
+			["Undiscovered", "Not explored yet."],
+		]) {
+			expect(within(legend).getByText(label)).toBeVisible();
+			expect(within(legend).getByText(description)).toBeVisible();
+		}
 		expect(
-			within(screen.getByRole("list", { name: "Dungeon legend" })).queryByText(
-				"Spacebar: wait",
+			within(symbols).getByText(
+				"Visibility shading applies when fog of war is enabled.",
 			),
-		).not.toBeInTheDocument();
+		).toBeVisible();
 	});
 });

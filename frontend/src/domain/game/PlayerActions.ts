@@ -6,6 +6,7 @@ import {
 	changeEquipment,
 	type EquipmentAction,
 } from "../items/EquipmentChanges";
+import { type FloorItemAction, transferFloorItem } from "../items/FloorItems";
 import type { Monster } from "../monsters/Monster.ts";
 import { resolveMonsterPhase } from "../monsters/MonsterTurns";
 import { type ActivityEvent, appendActivityEvents } from "./ActivityHistory.ts";
@@ -15,7 +16,8 @@ import type { GameState } from "./GameState.ts";
 export type PlayerAction =
 	| { type: "move"; direction: MovementDirection }
 	| { type: "wait" }
-	| EquipmentAction;
+	| EquipmentAction
+	| FloorItemAction;
 
 export type ActionResolution = {
 	state: GameState;
@@ -28,6 +30,24 @@ export const resolvePlayerAction = (
 	action: PlayerAction,
 ): ActionResolution => {
 	if (state.player.health <= 0) return { state, turnAdvanced: false };
+	if (action.type === "pickup" || action.type === "drop") {
+		const transfer = transferFloorItem(state, action);
+		if ("error" in transfer)
+			return { state, turnAdvanced: false, error: transfer.error };
+		const turn = state.turn + 1;
+		return {
+			state: resolveMonsterPhase({
+				...state,
+				bag: transfer.bag,
+				floorItems: transfer.floorItems,
+				turn,
+				activityHistory: appendActivityEvents(state.activityHistory, [
+					{ ...transfer.event, turn },
+				]),
+			}),
+			turnAdvanced: true,
+		};
+	}
 	if (action.type === "equip" || action.type === "unequip") {
 		const change = changeEquipment(state.equipment, state.bag, action);
 		if ("error" in change)

@@ -22,5 +22,9 @@ export const formatActivityEvent = (event: ActivityEvent): string => {
 		}
 		case "item-unequipped":
 			return `${prefix}You put ${ITEM_DEFINITIONS[event.item].name} in your bag.`;
+		case "item-picked-up":
+			return `${prefix}You pick up ${ITEM_DEFINITIONS[event.item].name}.`;
+		case "item-dropped":
+			return `${prefix}You drop ${ITEM_DEFINITIONS[event.item].name}.`;
 	}
 };

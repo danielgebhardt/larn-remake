@@ -8,6 +8,7 @@ import {
 import type { MovementDirection } from "../../domain/dungeon/DungeonRun.ts";
 import type { Coordinate, Dungeon } from "../../domain/dungeon/DungeonTypes.ts";
 import type { VisibilityGrid } from "../../domain/dungeon/Visibility.ts";
+import type { FloorItem } from "../../domain/items/FloorItems";
 import type { Monster } from "../../domain/monsters/Monster.ts";
 import DungeonRow from "./DungeonRow.tsx";
 import { getScrollOffset } from "./MapScroll.ts";
@@ -23,9 +24,11 @@ type DungeonLayoutProps = {
 	visible?: VisibilityGrid;
 	explored?: VisibilityGrid;
 	monsters?: readonly Monster[];
+	floorItems?: readonly FloorItem[];
 };
 
 const NO_MONSTERS: readonly Monster[] = [];
+const NO_ITEMS: readonly FloorItem[] = [];
 
 const DungeonLayout = ({
 	dungeon,
@@ -38,7 +41,17 @@ const DungeonLayout = ({
 	visible,
 	explored,
 	monsters = NO_MONSTERS,
+	floorItems = NO_ITEMS,
 }: DungeonLayoutProps) => {
+	const itemRows = useMemo(() => {
+		const rows = new Map<number, FloorItem[]>();
+		for (const item of floorItems) {
+			const row = rows.get(item.coordinate.row) ?? [];
+			row.push(item);
+			rows.set(item.coordinate.row, row);
+		}
+		return rows;
+	}, [floorItems]);
 	const monsterRows = useMemo(() => {
 		const rows = new Map<number, Monster[]>();
 		for (const monster of monsters) {
@@ -177,6 +190,7 @@ const DungeonLayout = ({
 							row={row}
 							rowIndex={rowIndex}
 							monsters={monsterRows.get(rowIndex)}
+							floorItems={itemRows.get(rowIndex)}
 							visible={visible?.[rowIndex]}
 							explored={explored?.[rowIndex]}
 							playerColumn={

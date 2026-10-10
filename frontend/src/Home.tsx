@@ -27,6 +27,7 @@ import {
 	type PlayerAction,
 	resolvePlayerAction,
 } from "./domain/game/PlayerActions.ts";
+import { itemsAtPlayer } from "./domain/items/FloorItems";
 import Header from "./Header.tsx";
 import DungeonSettings from "./settings/DungeonSettings.tsx";
 import {
@@ -83,6 +84,13 @@ const Home = ({
 					monster.floorNumber === run.activeFloor && monster.health > 0,
 			),
 		[game.state.monsters, run.activeFloor],
+	);
+	const activeItems = useMemo(
+		() =>
+			game.state.floorItems.filter(
+				(item) => item.floorNumber === run.activeFloor,
+			),
+		[game.state.floorItems, run.activeFloor],
 	);
 	const startRun = (
 		seed: number,
@@ -176,10 +184,11 @@ const Home = ({
 							player={player}
 							equipment={game.state.equipment}
 							bag={game.state.bag}
+							floorItems={itemsAtPlayer(game.state)}
 							turn={turn}
 							history={game.state.activityHistory}
 							actionError={game.actionError}
-							onEquipmentAction={handleActionRequested}
+							onAction={handleActionRequested}
 						/>
 					</Sheet>
 				}
@@ -236,6 +245,7 @@ const Home = ({
 					<DungeonLegend fogEnabled={fogConfiguration.enabled} />
 					<DungeonLayout
 						monsters={activeMonsters}
+						floorItems={activeItems}
 						dungeon={activeFloor.terrain}
 						visible={fogConfiguration.enabled ? exploration.visible : undefined}
 						explored={

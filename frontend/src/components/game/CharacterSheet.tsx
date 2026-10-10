@@ -9,22 +9,25 @@ import {
 } from "@/components/ui/sheet";
 import type { ActivityHistory } from "../../domain/game/ActivityHistory";
 import { deriveCombatStats } from "../../domain/game/CombatStats";
+import type { PlayerAction } from "../../domain/game/PlayerActions";
 import type { PlayerStats } from "../../domain/game/PlayerStats";
 import type { Bag } from "../../domain/items/Bag";
 import type { Equipment } from "../../domain/items/Equipment";
-import type { EquipmentAction } from "../../domain/items/EquipmentChanges";
+import type { FloorItem } from "../../domain/items/FloorItems";
 import { ITEM_DEFINITIONS } from "../../domain/items/Item";
 import { formatActivityEvent } from "./ActivityMessages";
 import BagContents from "./BagContents";
+import FloorItemsView from "./FloorItemsView";
 
 type CharacterSheetProps = {
 	player: PlayerStats;
 	equipment: Equipment;
 	bag: Bag;
+	floorItems: readonly FloorItem[];
 	turn: number;
 	history: ActivityHistory;
 	actionError: string;
-	onEquipmentAction: (action: EquipmentAction) => void;
+	onAction: (action: PlayerAction) => void;
 };
 
 const slots = [
@@ -36,10 +39,11 @@ const CharacterSheet = ({
 	player,
 	equipment,
 	bag,
+	floorItems,
 	turn,
 	history,
 	actionError,
-	onEquipmentAction,
+	onAction,
 }: CharacterSheetProps) => {
 	const combat = deriveCombatStats(equipment);
 	const titleRef = useRef<HTMLHeadingElement>(null);
@@ -154,7 +158,7 @@ const CharacterSheet = ({
 										className="mt-3"
 										disabled={player.health <= 0}
 										onClick={() => {
-											onEquipmentAction({ type: "unequip", slot: key });
+											onAction({ type: "unequip", slot: key });
 											equipmentHeadingRef.current?.focus({
 												preventScroll: true,
 											});
@@ -170,11 +174,16 @@ const CharacterSheet = ({
 				<BagContents
 					bag={bag}
 					canChangeGear={player.health > 0}
-					onEquipmentAction={onEquipmentAction}
+					onAction={onAction}
+				/>
+				<FloorItemsView
+					items={floorItems}
+					alive={player.health > 0}
+					onAction={onAction}
 				/>
 				<p className="rounded-lg border bg-muted/30 p-3 text-xs leading-relaxed text-muted-foreground">
 					Opening this sheet and inspecting items is free. Each successful gear
-					change uses one turn, and monsters act afterward.
+					change, pickup, or drop uses one turn, and monsters act afterward.
 				</p>
 			</div>
 			<div className="sticky bottom-0 grid shrink-0 gap-2 border-t bg-popover px-4 py-3">

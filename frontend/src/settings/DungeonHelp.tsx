@@ -117,6 +117,12 @@ const DungeonHelp = () => (
 						is free.
 					</li>
 					<li>
+						<span className="font-medium text-foreground">Items.</span> Use
+						Character to drop carried items or pick up items on your current
+						tile. Successful transfers use a turn. Unequip worn gear before
+						dropping it.
+					</li>
+					<li>
 						<span className="font-medium text-foreground">Turns.</span>{" "}
 						Successful movement, attacks, and waiting use a turn. Blocked
 						movement does not use a turn.

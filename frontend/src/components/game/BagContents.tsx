@@ -1,19 +1,19 @@
 import { Backpack, Shield, Sword } from "lucide-react";
 import { useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
+import type { PlayerAction } from "../../domain/game/PlayerActions";
 import { BAG_CAPACITY, type Bag } from "../../domain/items/Bag";
 import { equipmentSlotFor } from "../../domain/items/Equipment";
-import type { EquipmentAction } from "../../domain/items/EquipmentChanges";
 import { ITEM_DEFINITIONS } from "../../domain/items/Item";
 
 const BagContents = ({
 	bag,
 	canChangeGear,
-	onEquipmentAction,
+	onAction,
 }: {
 	bag: Bag;
 	canChangeGear: boolean;
-	onEquipmentAction: (action: EquipmentAction) => void;
+	onAction: (action: PlayerAction) => void;
 }) => {
 	const [selectedId, setSelectedId] = useState<string | null>(null);
 	const headingRef = useRef<HTMLHeadingElement>(null);
@@ -102,9 +102,22 @@ const BagContents = ({
 					{selected && (
 						<Button
 							type="button"
+							variant="outline"
 							disabled={!canChangeGear}
 							onClick={() => {
-								onEquipmentAction({
+								onAction({ type: "drop", itemId: selected.id });
+								headingRef.current?.focus({ preventScroll: true });
+							}}
+						>
+							Drop item
+						</Button>
+					)}
+					{selected && (
+						<Button
+							type="button"
+							disabled={!canChangeGear}
+							onClick={() => {
+								onAction({
 									type: "equip",
 									itemId: selected.id,
 									slot: equipmentSlotFor(selected),

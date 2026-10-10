@@ -37,7 +37,7 @@ export const makeLocationSelectionSource = (
 	const maxRow = Math.max(...rooms.map((room) => room.endRow));
 	const maxCol = Math.max(...rooms.map((room) => room.endCol));
 
-	const terrain: Dungeon = Array.from({ length: maxRow + 1 }, () =>
+	const terrain: string[][] = Array.from({ length: maxRow + 1 }, () =>
 		Array.from({ length: maxCol + 1 }, () => WALL),
 	);
 
@@ -123,7 +123,7 @@ export const createTestDungeonFloor = ({
 	downStair,
 }: TestDungeonFloorOptions): DungeonFloor => {
 	// These traversal fixtures describe one room, with no corridors or RNG.
-	const terrain: Dungeon = Array.from({ length: rows }, (_, row) =>
+	const terrain: string[][] = Array.from({ length: rows }, (_, row) =>
 		Array.from({ length: cols }, (_, col) =>
 			row >= room.startRow &&
 			row <= room.endRow &&

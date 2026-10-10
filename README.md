@@ -45,7 +45,7 @@ larn-remake/
 └── README.md
 ```
 
-Dungeon responsibilities are split into focused modules in `domain/dungeon`: `DungeonTypes.ts` defines shared shapes, `Tiles.ts` defines tile identifiers, `Terrain.ts` creates and carves grids, `DungeonGeneration.ts` coordinates generation, and `DungeonLocations.ts` selects player and stair positions. `Partitioning.ts`, `Room.ts`, and `Corridor.ts` implement the generation steps; `DungeonRun.ts` manages floors and stair transitions. The domain has no React or settings dependencies. The fixed dungeon and its starting coordinate live in `__tests__/testhelpers.ts`.
+Dungeon responsibilities are split into focused modules in `domain/dungeon`: `DungeonTypes.ts` defines shared shapes, `Tiles.ts` defines tile identifiers, `Terrain.ts` creates and carves grids, `DungeonGeneration.ts` coordinates generation, and `DungeonLocations.ts` selects player and stair positions. `Partitioning.ts`, `Room.ts`, and `Corridor.ts` implement the generation steps; `DungeonRun.ts` manages floors, movement validation, and stair transitions. `moveDungeonRun` accepts a direction, returns the unchanged run for blocked moves, and applies at most one stair transition after a successful move. Map components translate keyboard input into direction requests; Home applies those requests through the domain. Terrain grids and rows are readonly to preserve the references used by rendering memoization. The domain has no React or settings dependencies. The fixed dungeon and its starting coordinate live in `__tests__/testhelpers.ts`.
 
 ## Prerequisites
 

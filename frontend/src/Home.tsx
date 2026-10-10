@@ -6,13 +6,12 @@ import APICheck from "./APICheck.tsx";
 import DungeonLayout from "./components/dungeon/DungeonLayout.tsx";
 import DungeonLegend from "./components/dungeon/DungeonLegend.tsx";
 import {
-	ascendDungeonRun,
 	connectDungeonFloors,
 	type DungeonRun,
-	descendDungeonRun,
 	generateDungeonRun,
+	type MovementDirection,
+	moveDungeonRun,
 } from "./domain/dungeon/DungeonRun.ts";
-import type { Coordinate } from "./domain/dungeon/DungeonTypes.ts";
 import {
 	DEFAULT_RUN_CONFIGURATION,
 	type RunConfiguration,
@@ -94,24 +93,8 @@ const Home = () => {
 		if (startRun(seed, parsed.value)) setSettingsOpen(false);
 	};
 
-	const handlePlayerMove = (coordinate: Coordinate) => {
-		setRun((current) => {
-			const movedRunCheckDescend = descendDungeonRun({
-				...current,
-				playerCoordinate: coordinate,
-			});
-
-			if (movedRunCheckDescend.transitioned) {
-				return movedRunCheckDescend.run;
-			}
-
-			const movedRunCheckAscend = ascendDungeonRun({
-				...current,
-				playerCoordinate: coordinate,
-			});
-
-			return movedRunCheckAscend.run;
-		});
+	const handleMoveRequested = (direction: MovementDirection) => {
+		setRun((current) => moveDungeonRun(current, direction));
 	};
 
 	return (
@@ -137,7 +120,7 @@ const Home = () => {
 							playerPosition={run.playerCoordinate}
 							upStair={activeFloor.upStair?.coordinate}
 							downStair={activeFloor.downStair?.coordinate}
-							onPlayerMove={handlePlayerMove}
+							onMoveRequested={handleMoveRequested}
 							movementEnabled={!settingsOpen}
 						/>
 					</section>

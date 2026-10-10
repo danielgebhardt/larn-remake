@@ -4,6 +4,10 @@ import { type ComponentProps, useState } from "react";
 import { describe, expect, it, vi } from "vitest";
 import DungeonLayout from "../components/dungeon/DungeonLayout.tsx";
 import {
+	type DungeonRun,
+	moveDungeonRun,
+} from "../domain/dungeon/DungeonRun.ts";
+import {
 	FLOOR,
 	PLAYER,
 	STAIRS_DOWN,
@@ -37,23 +41,43 @@ const openDungeon = [
 	[FLOOR, FLOOR, FLOOR],
 ];
 
-const noopPlayerMove = () => {};
+const noopMoveRequested = () => {};
 
-// Model a parent accepting valid movement requests from the controlled layout.
+// Model the parent applying requested directions through the domain.
 const TestDungeonLayout = ({
 	playerPosition: initialPosition,
-	onPlayerMove,
+	onMoveRequested,
 	...props
 }: ComponentProps<typeof DungeonLayout>) => {
-	const [playerPosition, setPlayerPosition] = useState(initialPosition);
+	const [run, setRun] = useState<DungeonRun>(() => ({
+		seed: 0,
+		activeFloor: 1,
+		playerCoordinate: initialPosition,
+		floors: [
+			{
+				floorNumber: 1,
+				terrain: props.dungeon,
+				rooms: [],
+				corridors: [],
+				partitions: {
+					region: {
+						startRow: 0,
+						endRow: props.dungeon.length - 1,
+						startCol: 0,
+						endCol: (props.dungeon[0]?.length ?? 0) - 1,
+					},
+				},
+			},
+		],
+	}));
 
 	return (
 		<DungeonLayout
 			{...props}
-			playerPosition={playerPosition}
-			onPlayerMove={(coordinate) => {
-				setPlayerPosition(coordinate);
-				onPlayerMove(coordinate);
+			playerPosition={run.playerCoordinate}
+			onMoveRequested={(direction) => {
+				setRun((current) => moveDungeonRun(current, direction));
+				onMoveRequested(direction);
 			}}
 		/>
 	);
@@ -61,12 +85,12 @@ const TestDungeonLayout = ({
 
 describe("DungeonLayout tests", () => {
 	it("accepts one step per repeated keydown and stops at the map boundary", () => {
-		const onPlayerMove = vi.fn();
+		const onMoveRequested = vi.fn();
 		render(
 			<TestDungeonLayout
 				dungeon={openDungeon}
 				playerPosition={{ row: 1, col: 0 }}
-				onPlayerMove={onPlayerMove}
+				onMoveRequested={onMoveRequested}
 			/>,
 		);
 
@@ -75,9 +99,10 @@ describe("DungeonLayout tests", () => {
 		fireEvent.keyDown(window, { key: "ArrowRight", repeat: true });
 		fireEvent.keyUp(window, { key: "ArrowRight" });
 
-		expect(onPlayerMove.mock.calls).toEqual([
-			[{ row: 1, col: 1 }],
-			[{ row: 1, col: 2 }],
+		expect(onMoveRequested.mock.calls).toEqual([
+			["right"],
+			["right"],
+			["right"],
 		]);
 		expect(
 			screen.getByRole("cell", { name: "row1col2 - player" }),
@@ -85,18 +110,18 @@ describe("DungeonLayout tests", () => {
 	});
 
 	it("keeps the supplied position until the parent accepts a movement request", async () => {
-		const onPlayerMove = vi.fn();
+		const onMoveRequested = vi.fn();
 		const { rerender } = render(
 			<DungeonLayout
 				dungeon={openDungeon}
 				playerPosition={{ row: 1, col: 1 }}
-				onPlayerMove={onPlayerMove}
+				onMoveRequested={onMoveRequested}
 			/>,
 		);
 
 		await userEvent.keyboard("{ArrowRight}");
 
-		expect(onPlayerMove).toHaveBeenCalledExactlyOnceWith({ row: 1, col: 2 });
+		expect(onMoveRequested).toHaveBeenCalledExactlyOnceWith("right");
 		expect(
 			screen.getByRole("cell", { name: "row1col1 - player" }),
 		).toBeVisible();
@@ -105,26 +130,26 @@ describe("DungeonLayout tests", () => {
 			<DungeonLayout
 				dungeon={openDungeon}
 				playerPosition={{ row: 1, col: 2 }}
-				onPlayerMove={onPlayerMove}
+				onMoveRequested={onMoveRequested}
 			/>,
 		);
 
 		await userEvent.keyboard("{ArrowLeft}");
 
-		expect(onPlayerMove).toHaveBeenCalledTimes(2);
-		expect(onPlayerMove).toHaveBeenLastCalledWith({ row: 1, col: 1 });
+		expect(onMoveRequested).toHaveBeenCalledTimes(2);
+		expect(onMoveRequested).toHaveBeenLastCalledWith("left");
 		expect(
 			screen.getByRole("cell", { name: "row1col2 - player" }),
 		).toBeVisible();
 	});
 
 	it("renders a parent position update on the same floor without remounting", () => {
-		const onPlayerMove = vi.fn();
+		const onMoveRequested = vi.fn();
 		const { rerender } = render(
 			<DungeonLayout
 				dungeon={openDungeon}
 				playerPosition={{ row: 1, col: 1 }}
-				onPlayerMove={onPlayerMove}
+				onMoveRequested={onMoveRequested}
 			/>,
 		);
 
@@ -132,7 +157,7 @@ describe("DungeonLayout tests", () => {
 			<DungeonLayout
 				dungeon={openDungeon}
 				playerPosition={{ row: 1, col: 2 }}
-				onPlayerMove={onPlayerMove}
+				onMoveRequested={onMoveRequested}
 			/>,
 		);
 
@@ -142,7 +167,7 @@ describe("DungeonLayout tests", () => {
 		expect(
 			screen.getByRole("cell", { name: "row1col1 - floor" }),
 		).toBeVisible();
-		expect(onPlayerMove).not.toHaveBeenCalled();
+		expect(onMoveRequested).not.toHaveBeenCalled();
 	});
 
 	describe("Dungeon keyboard browser behavior", () => {
@@ -153,7 +178,7 @@ describe("DungeonLayout tests", () => {
 					<TestDungeonLayout
 						dungeon={openDungeon}
 						playerPosition={{ row: 1, col: 1 }}
-						onPlayerMove={noopPlayerMove}
+						onMoveRequested={noopMoveRequested}
 					/>,
 				);
 
@@ -179,7 +204,7 @@ describe("DungeonLayout tests", () => {
 					<TestDungeonLayout
 						dungeon={fixedDungeon}
 						playerPosition={{ row, col }}
-						onPlayerMove={noopPlayerMove}
+						onMoveRequested={noopMoveRequested}
 					/>,
 				);
 
@@ -198,7 +223,7 @@ describe("DungeonLayout tests", () => {
 				<TestDungeonLayout
 					dungeon={openDungeon}
 					playerPosition={{ row: 1, col: 1 }}
-					onPlayerMove={noopPlayerMove}
+					onMoveRequested={noopMoveRequested}
 				/>,
 			);
 
@@ -255,7 +280,7 @@ describe("DungeonLayout tests", () => {
 							<TestDungeonLayout
 								dungeon={openDungeon}
 								playerPosition={{ row: 1, col: 1 }}
-								onPlayerMove={noopPlayerMove}
+								onMoveRequested={noopMoveRequested}
 							/>
 						</>,
 					);
@@ -295,7 +320,7 @@ describe("DungeonLayout tests", () => {
 					<TestDungeonLayout
 						dungeon={openDungeon}
 						playerPosition={{ row: 1, col: 1 }}
-						onPlayerMove={noopPlayerMove}
+						onMoveRequested={noopMoveRequested}
 					/>
 				</>,
 			);
@@ -316,7 +341,7 @@ describe("DungeonLayout tests", () => {
 				<DungeonLayout
 					dungeon={openDungeon}
 					playerPosition={{ row: 0, col: 0 }}
-					onPlayerMove={noopPlayerMove}
+					onMoveRequested={noopMoveRequested}
 				/>,
 			);
 			const map = screen.getByRole("region", { name: "Dungeon map" });
@@ -340,7 +365,7 @@ describe("DungeonLayout tests", () => {
 						}
 						upStair={tile === STAIRS_UP ? { row: 1, col: 1 } : undefined}
 						downStair={tile === STAIRS_DOWN ? { row: 1, col: 1 } : undefined}
-						onPlayerMove={noopPlayerMove}
+						onMoveRequested={noopMoveRequested}
 					/>,
 				);
 				const cell = screen.getByRole("cell", {
@@ -360,7 +385,7 @@ describe("DungeonLayout tests", () => {
 				<TestDungeonLayout
 					dungeon={fixedDungeon}
 					playerPosition={START_COORDINATE}
-					onPlayerMove={noopPlayerMove}
+					onMoveRequested={noopMoveRequested}
 				/>,
 			);
 
@@ -387,7 +412,7 @@ describe("DungeonLayout tests", () => {
 				<TestDungeonLayout
 					dungeon={fixedDungeon}
 					playerPosition={START_COORDINATE}
-					onPlayerMove={noopPlayerMove}
+					onMoveRequested={noopMoveRequested}
 				/>,
 			);
 
@@ -401,7 +426,7 @@ describe("DungeonLayout tests", () => {
 				<TestDungeonLayout
 					dungeon={fixedDungeon}
 					playerPosition={START_COORDINATE}
-					onPlayerMove={noopPlayerMove}
+					onMoveRequested={noopMoveRequested}
 				/>,
 			);
 
@@ -455,7 +480,7 @@ describe("DungeonLayout tests", () => {
 				<TestDungeonLayout
 					dungeon={fixedDungeon}
 					playerPosition={START_COORDINATE}
-					onPlayerMove={noopPlayerMove}
+					onMoveRequested={noopMoveRequested}
 				/>,
 			);
 
@@ -509,7 +534,7 @@ describe("DungeonLayout tests", () => {
 				<TestDungeonLayout
 					dungeon={fixedDungeon}
 					playerPosition={START_COORDINATE}
-					onPlayerMove={noopPlayerMove}
+					onMoveRequested={noopMoveRequested}
 				/>,
 			);
 
@@ -535,7 +560,7 @@ describe("DungeonLayout tests", () => {
 				<TestDungeonLayout
 					dungeon={fixedDungeon}
 					playerPosition={{ row: 3, col: 3 }}
-					onPlayerMove={noopPlayerMove}
+					onMoveRequested={noopMoveRequested}
 				/>,
 			);
 
@@ -561,7 +586,7 @@ describe("DungeonLayout tests", () => {
 				<TestDungeonLayout
 					dungeon={fixedDungeon}
 					playerPosition={{ row: 0, col: 0 }}
-					onPlayerMove={noopPlayerMove}
+					onMoveRequested={noopMoveRequested}
 				/>,
 			);
 
@@ -587,7 +612,7 @@ describe("DungeonLayout tests", () => {
 				<TestDungeonLayout
 					dungeon={fixedDungeon}
 					playerPosition={{ row: 4, col: 4 }}
-					onPlayerMove={noopPlayerMove}
+					onMoveRequested={noopMoveRequested}
 				/>,
 			);
 
@@ -617,7 +642,7 @@ describe("DungeonLayout tests", () => {
 						[FLOOR, FLOOR, FLOOR, FLOOR, FLOOR],
 					]}
 					playerPosition={{ row: 1, col: 3 }}
-					onPlayerMove={noopPlayerMove}
+					onMoveRequested={noopMoveRequested}
 				/>,
 			);
 
@@ -655,7 +680,7 @@ describe("DungeonLayout tests", () => {
 				<TestDungeonLayout
 					dungeon={connectedDungeon}
 					playerPosition={{ row: 2, col: 2 }}
-					onPlayerMove={noopPlayerMove}
+					onMoveRequested={noopMoveRequested}
 				/>,
 			);
 
@@ -675,7 +700,7 @@ describe("DungeonLayout tests", () => {
 				<TestDungeonLayout
 					dungeon={connectedDungeon}
 					playerPosition={{ row: 2, col: 4 }}
-					onPlayerMove={noopPlayerMove}
+					onMoveRequested={noopMoveRequested}
 				/>,
 			);
 
@@ -690,28 +715,25 @@ describe("DungeonLayout tests", () => {
 			).toBeVisible();
 		});
 
-		it("calls onPlayerMove with the new coordinate after a valid move", async () => {
-			const onPlayerMove = vi.fn();
+		it("requests the direction of a movement key", async () => {
+			const onMoveRequested = vi.fn();
 
 			render(
 				<TestDungeonLayout
 					dungeon={openDungeon}
 					playerPosition={{ row: 1, col: 1 }}
-					onPlayerMove={onPlayerMove}
+					onMoveRequested={onMoveRequested}
 				/>,
 			);
 
 			await userEvent.keyboard("{ArrowRight}");
 
-			expect(onPlayerMove).toHaveBeenCalledTimes(1);
-			expect(onPlayerMove).toHaveBeenCalledWith({
-				row: 1,
-				col: 2,
-			});
+			expect(onMoveRequested).toHaveBeenCalledTimes(1);
+			expect(onMoveRequested).toHaveBeenCalledWith("right");
 		});
 
-		it("does not call onPlayerMove when movement is blocked", async () => {
-			const onPlayerMove = vi.fn();
+		it("requests movement even when the domain will block it", async () => {
+			const onMoveRequested = vi.fn();
 
 			render(
 				<TestDungeonLayout
@@ -721,13 +743,16 @@ describe("DungeonLayout tests", () => {
 						[WALL, WALL, WALL],
 					]}
 					playerPosition={{ row: 1, col: 1 }}
-					onPlayerMove={onPlayerMove}
+					onMoveRequested={onMoveRequested}
 				/>,
 			);
 
 			await userEvent.keyboard("{ArrowRight}");
 
-			expect(onPlayerMove).not.toHaveBeenCalled();
+			expect(onMoveRequested).toHaveBeenCalledExactlyOnceWith("right");
+			expect(
+				screen.getByRole("cell", { name: "row1col1 - player" }),
+			).toBeVisible();
 		});
 	});
 
@@ -738,7 +763,7 @@ describe("DungeonLayout tests", () => {
 					dungeon={openDungeon}
 					playerPosition={{ row: 0, col: 0 }}
 					downStair={{ row: 1, col: 1 }}
-					onPlayerMove={noopPlayerMove}
+					onMoveRequested={noopMoveRequested}
 				/>,
 			);
 
@@ -753,7 +778,7 @@ describe("DungeonLayout tests", () => {
 					dungeon={openDungeon}
 					playerPosition={{ row: 0, col: 0 }}
 					upStair={{ row: 1, col: 1 }}
-					onPlayerMove={noopPlayerMove}
+					onMoveRequested={noopMoveRequested}
 				/>,
 			);
 
@@ -768,7 +793,7 @@ describe("DungeonLayout tests", () => {
 					dungeon={openDungeon}
 					playerPosition={{ row: 1, col: 1 }}
 					downStair={{ row: 1, col: 1 }}
-					onPlayerMove={noopPlayerMove}
+					onMoveRequested={noopMoveRequested}
 				/>,
 			);
 
@@ -783,7 +808,7 @@ describe("DungeonLayout tests", () => {
 					dungeon={openDungeon}
 					playerPosition={{ row: 1, col: 1 }}
 					downStair={{ row: 1, col: 1 }}
-					onPlayerMove={noopPlayerMove}
+					onMoveRequested={noopMoveRequested}
 				/>,
 			);
 
@@ -810,7 +835,7 @@ describe("DungeonLayout tests", () => {
 					dungeon={openDungeon}
 					playerPosition={{ row: 1, col: 1 }}
 					upStair={{ row: 1, col: 1 }}
-					onPlayerMove={noopPlayerMove}
+					onMoveRequested={noopMoveRequested}
 				/>,
 			);
 
@@ -825,7 +850,7 @@ describe("DungeonLayout tests", () => {
 					dungeon={openDungeon}
 					playerPosition={{ row: 1, col: 1 }}
 					upStair={{ row: 1, col: 1 }}
-					onPlayerMove={noopPlayerMove}
+					onMoveRequested={noopMoveRequested}
 				/>,
 			);
 
@@ -852,7 +877,7 @@ describe("DungeonLayout tests", () => {
 					dungeon={openDungeon}
 					playerPosition={{ row: 0, col: 0 }}
 					downStair={{ row: 1, col: 1 }}
-					onPlayerMove={noopPlayerMove}
+					onMoveRequested={noopMoveRequested}
 				/>,
 			);
 
@@ -869,7 +894,7 @@ describe("DungeonLayout tests", () => {
 					dungeon={openDungeon}
 					playerPosition={{ row: 0, col: 0 }}
 					upStair={{ row: 1, col: 1 }}
-					onPlayerMove={noopPlayerMove}
+					onMoveRequested={noopMoveRequested}
 				/>,
 			);
 
@@ -880,25 +905,22 @@ describe("DungeonLayout tests", () => {
 			expect(stairCell).toBeVisible();
 		});
 
-		it("reports movement onto an up stair through onPlayerMove", async () => {
-			const onPlayerMove = vi.fn();
+		it("reports movement onto an up stair through onMoveRequested", async () => {
+			const onMoveRequested = vi.fn();
 
 			render(
 				<TestDungeonLayout
 					dungeon={openDungeon}
 					playerPosition={{ row: 1, col: 2 }}
 					upStair={{ row: 1, col: 1 }}
-					onPlayerMove={onPlayerMove}
+					onMoveRequested={onMoveRequested}
 				/>,
 			);
 
 			await userEvent.keyboard("{ArrowLeft}");
 
-			expect(onPlayerMove).toHaveBeenCalledTimes(1);
-			expect(onPlayerMove).toHaveBeenCalledWith({
-				row: 1,
-				col: 1,
-			});
+			expect(onMoveRequested).toHaveBeenCalledTimes(1);
+			expect(onMoveRequested).toHaveBeenCalledWith("left");
 		});
 	});
 });

@@ -97,7 +97,7 @@ describe("Dungeon Tests", () => {
 		}
 	});
 
-	it("should allow coordinates to change independently", () => {
+	it("should carve one coordinate without changing other rows or the original terrain", () => {
 		const dungeon = makeDungeon(2, 2);
 
 		expect(dungeon).toBeDefined();
@@ -106,9 +106,13 @@ describe("Dungeon Tests", () => {
 			throw new Error("Expected dungeon to be created");
 		}
 
-		dungeon[0][0] = FLOOR;
+		const carved = carveRooms(dungeon, [
+			{ startRow: 0, endRow: 0, startCol: 0, endCol: 0 },
+		]);
 
-		expect(dungeon[0][0]).toBe(FLOOR);
+		expect(carved[0][0]).toBe(FLOOR);
+		expect(carved[1][0]).toBe(WALL);
+		expect(dungeon[0][0]).toBe(WALL);
 		expect(dungeon[1][0]).toBe(WALL);
 	});
 
@@ -972,7 +976,7 @@ describe("Dungeon Tests", () => {
 				endCol: 14,
 			};
 
-			const terrain: Dungeon = Array.from({ length: 9 }, () =>
+			const terrain: string[][] = Array.from({ length: 9 }, () =>
 				Array.from({ length: 16 }, () => WALL),
 			);
 
@@ -1020,7 +1024,7 @@ describe("Dungeon Tests", () => {
 				endCol: 13,
 			};
 
-			const terrain: Dungeon = Array.from({ length: 10 }, () =>
+			const terrain: string[][] = Array.from({ length: 10 }, () =>
 				Array.from({ length: 15 }, () => WALL),
 			);
 

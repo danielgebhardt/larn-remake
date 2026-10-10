@@ -1,4 +1,5 @@
 import {
+	act,
 	render as renderUI,
 	screen,
 	waitFor,
@@ -1288,6 +1289,38 @@ describe("Home tests", () => {
 		).toBeVisible();
 	});
 
+	it("applies consecutive direction requests to the latest run within one render batch", () => {
+		const run: DungeonRun.DungeonRun = {
+			seed: 123,
+			activeFloor: 1,
+			playerCoordinate: { row: 1, col: 1 },
+			floors: [
+				createTestDungeonFloor({
+					floorNumber: 1,
+					rows: 3,
+					cols: 6,
+					room: { startRow: 1, endRow: 1, startCol: 1, endCol: 4 },
+				}),
+			],
+		};
+		vi.spyOn(DungeonRun, "generateDungeonRun").mockReturnValue(run);
+		vi.spyOn(DungeonRun, "connectDungeonFloors").mockReturnValue(run);
+		render(<Home />);
+
+		act(() => {
+			for (let i = 0; i < 3; i++) {
+				window.dispatchEvent(
+					new KeyboardEvent("keydown", { key: "ArrowRight" }),
+				);
+			}
+		});
+
+		expect(
+			screen.getByRole("cell", { name: "row1col4 - player" }),
+		).toBeVisible();
+		expect(run.playerCoordinate).toEqual({ row: 1, col: 1 });
+	});
+
 	it("renders the active floor and its stair markers", () => {
 		const run = DungeonRun.connectDungeonFloors(
 			DungeonRun.generateDungeonRun(123, 3, {
@@ -1336,8 +1369,12 @@ describe("Home tests", () => {
 		const floor2 = run.floors[1];
 
 		// Give the two floors an obvious display difference.
-		floor1.terrain[0][0] = "1";
-		floor2.terrain[0][0] = "2";
+		floor1.terrain = floor1.terrain.map((row, rowIndex) =>
+			rowIndex === 0 ? ["1", ...row.slice(1)] : row,
+		);
+		floor2.terrain = floor2.terrain.map((row, rowIndex) =>
+			rowIndex === 0 ? ["2", ...row.slice(1)] : row,
+		);
 
 		const activeRun = {
 			...run,

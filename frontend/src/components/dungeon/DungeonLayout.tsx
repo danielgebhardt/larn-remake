@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useLayoutEffect, useRef } from "react";
+import type { MovementDirection } from "../../domain/dungeon/DungeonRun.ts";
 import type { Coordinate, Dungeon } from "../../domain/dungeon/DungeonTypes.ts";
-import { getDungeonCoordinateValue } from "../../domain/dungeon/Terrain.ts";
-import { WALL } from "../../domain/dungeon/Tiles.ts";
 import DungeonRow from "./DungeonRow.tsx";
 import { getScrollOffset } from "./MapScroll.ts";
 
@@ -10,7 +9,7 @@ type DungeonLayoutProps = {
 	playerPosition: Coordinate;
 	downStair?: Coordinate;
 	upStair?: Coordinate;
-	onPlayerMove: (coordinate: Coordinate) => void;
+	onMoveRequested: (direction: MovementDirection) => void;
 	movementEnabled?: boolean;
 };
 
@@ -19,7 +18,7 @@ const DungeonLayout = ({
 	playerPosition,
 	downStair,
 	upStair,
-	onPlayerMove,
+	onMoveRequested,
 	movementEnabled = true,
 }: DungeonLayoutProps) => {
 	const viewportRef = useRef<HTMLElement>(null);
@@ -74,41 +73,6 @@ const DungeonLayout = ({
 		return () => observer.disconnect();
 	}, [followPlayer]);
 
-	const movePlayer = useCallback(
-		(changeUpDown: number, changeLeftRight: number) => {
-			const newRow = playerPosition.row + changeUpDown;
-			const newCol = playerPosition.col + changeLeftRight;
-
-			const isOutOfBounds =
-				newRow < 0 ||
-				newRow >= dungeon.length ||
-				newCol < 0 ||
-				newCol >= (dungeon[newRow]?.length ?? 0);
-
-			if (isOutOfBounds) {
-				return;
-			}
-
-			const coordinateValueInPositionToMoveTo = getDungeonCoordinateValue(
-				newCol,
-				newRow,
-				dungeon,
-			);
-
-			if (coordinateValueInPositionToMoveTo === WALL) {
-				return;
-			}
-
-			const nextCoordinate = {
-				row: newRow,
-				col: newCol,
-			};
-
-			onPlayerMove(nextCoordinate);
-		},
-		[dungeon, onPlayerMove, playerPosition],
-	);
-
 	useEffect(() => {
 		if (!movementEnabled) return;
 		const handleKeyDown = (event: KeyboardEvent) => {
@@ -124,25 +88,25 @@ const DungeonLayout = ({
 				case "ArrowUp":
 				case "w":
 					event.preventDefault();
-					movePlayer(-1, 0);
+					onMoveRequested("up");
 					break;
 
 				case "ArrowDown":
 				case "s":
 					event.preventDefault();
-					movePlayer(1, 0);
+					onMoveRequested("down");
 					break;
 
 				case "ArrowLeft":
 				case "a":
 					event.preventDefault();
-					movePlayer(0, -1);
+					onMoveRequested("left");
 					break;
 
 				case "ArrowRight":
 				case "d":
 					event.preventDefault();
-					movePlayer(0, 1);
+					onMoveRequested("right");
 					break;
 			}
 		};
@@ -152,7 +116,7 @@ const DungeonLayout = ({
 		return () => {
 			window.removeEventListener("keydown", handleKeyDown);
 		};
-	}, [movePlayer, movementEnabled]);
+	}, [onMoveRequested, movementEnabled]);
 
 	return (
 		<section

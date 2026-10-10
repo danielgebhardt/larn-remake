@@ -64,7 +64,7 @@ describe("dungeon viewport following", () => {
 			<DungeonLayout
 				dungeon={terrain}
 				playerPosition={{ row: 10, col: 15 }}
-				onPlayerMove={onMove}
+				onMoveRequested={onMove}
 			/>,
 		);
 		const viewport = screen.getByRole("region", { name: "Dungeon map" });
@@ -79,7 +79,7 @@ describe("dungeon viewport following", () => {
 		const props = {
 			dungeon: terrain,
 			playerPosition: { row: 1, col: 1 },
-			onPlayerMove: noop,
+			onMoveRequested: noop,
 		};
 		const { rerender } = render(<DungeonLayout {...props} />);
 		const viewport = screen.getByRole("region", { name: "Dungeon map" });
@@ -89,7 +89,7 @@ describe("dungeon viewport following", () => {
 			<DungeonLayout
 				{...props}
 				playerPosition={{ row: 1, col: 1 }}
-				onPlayerMove={() => {}}
+				onMoveRequested={() => {}}
 				movementEnabled={false}
 			/>,
 		);
@@ -100,7 +100,7 @@ describe("dungeon viewport following", () => {
 		expect(viewport.scrollLeft).toBe(24);
 		expect(viewport.scrollTop).toBe(0);
 	});
-	it("does not recenter for blocked or unaccepted movement", () => {
+	it("does not recenter until the parent updates the player position", () => {
 		const onMove = vi.fn();
 		render(
 			<DungeonLayout
@@ -110,23 +110,23 @@ describe("dungeon viewport following", () => {
 					[WALL, WALL, WALL],
 				]}
 				playerPosition={{ row: 1, col: 1 }}
-				onPlayerMove={onMove}
+				onMoveRequested={onMove}
 			/>,
 		);
 		const viewport = screen.getByRole("region", { name: "Dungeon map" });
 		viewport.scrollLeft = 300;
 		fireEvent.keyDown(window, { key: "ArrowLeft" });
-		expect(onMove).not.toHaveBeenCalled();
+		expect(onMove).toHaveBeenCalledExactlyOnceWith("left");
 		expect(viewport.scrollLeft).toBe(300);
 		fireEvent.keyDown(window, { key: "ArrowRight" });
-		expect(onMove).toHaveBeenCalledExactlyOnceWith({ row: 1, col: 2 });
+		expect(onMove.mock.calls).toEqual([["left"], ["right"]]);
 		expect(viewport.scrollLeft).toBe(300);
 	});
 	it("follows replacement terrain even when a stair arrival or restart has the same coordinates", () => {
 		const props = {
 			dungeon: terrain,
 			playerPosition: { row: 1, col: 1 },
-			onPlayerMove: noop,
+			onMoveRequested: noop,
 		};
 		const { rerender } = render(<DungeonLayout {...props} />);
 		const viewport = screen.getByRole("region", { name: "Dungeon map" });
@@ -145,7 +145,7 @@ describe("dungeon viewport following", () => {
 			<DungeonLayout
 				dungeon={terrain}
 				playerPosition={{ row: 10, col: 15 }}
-				onPlayerMove={noop}
+				onMoveRequested={noop}
 			/>,
 		);
 		const viewport = screen.getByRole("region", { name: "Dungeon map" });

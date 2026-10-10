@@ -3,7 +3,7 @@ import { selectPlayerStart, selectStairLocation } from "./DungeonLocations.ts";
 import type { Coordinate, GeneratedDungeon } from "./DungeonTypes.ts";
 import type { DungeonConfig } from "./RunConfiguration.ts";
 import { createSeededRandom } from "./Seed.ts";
-import { FLOOR } from "./Tiles.ts";
+import { FLOOR, WALL } from "./Tiles.ts";
 
 export type DungeonFloor = GeneratedDungeon & {
 	floorNumber: number;
@@ -263,4 +263,32 @@ export const ascendDungeonRun = (run: DungeonRun): DungeonTransitionResult => {
 		},
 		transitioned: true,
 	};
+};
+
+export type MovementDirection = "up" | "down" | "left" | "right";
+
+const MOVEMENT_OFFSETS: Record<MovementDirection, Coordinate> = {
+	up: { row: -1, col: 0 },
+	down: { row: 1, col: 0 },
+	left: { row: 0, col: -1 },
+	right: { row: 0, col: 1 },
+};
+
+export const moveDungeonRun = (
+	run: DungeonRun,
+	direction: MovementDirection,
+): DungeonRun => {
+	const floor = getActiveFloor(run);
+	const offset = MOVEMENT_OFFSETS[direction];
+	const coordinate = {
+		row: run.playerCoordinate.row + offset.row,
+		col: run.playerCoordinate.col + offset.col,
+	};
+	const tile = floor.terrain[coordinate.row]?.[coordinate.col];
+	if (tile === undefined || tile === WALL) return run;
+
+	const moved = { ...run, playerCoordinate: coordinate };
+	const descended = descendDungeonRun(moved);
+	if (descended.transitioned) return descended.run;
+	return ascendDungeonRun(moved).run;
 };

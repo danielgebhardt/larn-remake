@@ -38,7 +38,7 @@ const DungeonRow = memo(function DungeonRow({
 	downStairColumn,
 	playerRef,
 }: {
-	row: string[];
+	row: readonly string[];
 	rowIndex: number;
 	playerColumn?: number;
 	upStairColumn?: number;

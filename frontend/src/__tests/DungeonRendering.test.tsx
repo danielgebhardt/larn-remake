@@ -16,7 +16,7 @@ const props = {
 	playerPosition: { row: 1, col: 1 },
 	upStair: { row: 1, col: 1 },
 	downStair: { row: 2, col: 1 },
-	onPlayerMove: vi.fn(),
+	onMoveRequested: vi.fn(),
 };
 
 describe("Dungeon rendering", () => {
@@ -51,7 +51,7 @@ describe("Dungeon rendering", () => {
 			<DungeonLayout
 				{...props}
 				playerPosition={{ ...props.playerPosition }}
-				onPlayerMove={vi.fn()}
+				onMoveRequested={vi.fn()}
 				movementEnabled={false}
 			/>,
 		);

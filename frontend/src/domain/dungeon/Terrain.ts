@@ -27,7 +27,7 @@ export const makeDungeon = (
 		return undefined;
 	}
 
-	const newDungeon: Dungeon = [];
+	const newDungeon: string[][] = [];
 
 	for (let row = 0; row < rows; row++) {
 		const currentRow: string[] = [];

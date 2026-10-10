@@ -1,4 +1,13 @@
 export const ITEM_DEFINITIONS = {
+	"healing-potion": {
+		name: "Healing potion",
+		type: "potion",
+		attackBonus: 0,
+		armor: 0,
+		healing: 5,
+		description:
+			"Restores up to 5 health when consumed. Drinking uses one turn.",
+	},
 	"iron-sword": {
 		name: "Iron sword",
 		type: "weapon",

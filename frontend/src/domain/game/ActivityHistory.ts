@@ -1,3 +1,4 @@
+import type { ConsumptionEvent } from "../items/Consumables";
 import type { EquipmentChangeEvent } from "../items/EquipmentChanges";
 import type { FloorItemEvent } from "../items/FloorItems";
 import type { ItemKind } from "../items/Item";
@@ -10,6 +11,7 @@ export type ActivityEvent = { turn: number } & (
 	| { type: "player-died" }
 	| EquipmentChangeEvent
 	| FloorItemEvent
+	| ConsumptionEvent
 	| { type: "monster-loot"; monster: MonsterKind; item: ItemKind }
 );
 

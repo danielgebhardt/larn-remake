@@ -2,6 +2,7 @@ import {
 	type MovementDirection,
 	moveDungeonRun,
 } from "../dungeon/DungeonRun.ts";
+import { type ConsumeAction, consumeItem } from "../items/Consumables";
 import {
 	changeEquipment,
 	type EquipmentAction,
@@ -18,6 +19,7 @@ export type PlayerAction =
 	| { type: "move"; direction: MovementDirection }
 	| { type: "wait" }
 	| EquipmentAction
+	| ConsumeAction
 	| FloorItemAction;
 
 export type ActionResolution = {
@@ -31,6 +33,24 @@ export const resolvePlayerAction = (
 	action: PlayerAction,
 ): ActionResolution => {
 	if (state.player.health <= 0) return { state, turnAdvanced: false };
+	if (action.type === "consume") {
+		const consumed = consumeItem(state.player, state.bag, action);
+		if ("error" in consumed)
+			return { state, turnAdvanced: false, error: consumed.error };
+		const turn = state.turn + 1;
+		return {
+			state: resolveMonsterPhase({
+				...state,
+				player: consumed.player,
+				bag: consumed.bag,
+				turn,
+				activityHistory: appendActivityEvents(state.activityHistory, [
+					{ ...consumed.event, turn },
+				]),
+			}),
+			turnAdvanced: true,
+		};
+	}
 	if (action.type === "pickup" || action.type === "drop") {
 		const transfer = transferFloorItem(state, action);
 		if ("error" in transfer)

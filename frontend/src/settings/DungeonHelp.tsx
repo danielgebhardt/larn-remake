@@ -123,6 +123,13 @@ const DungeonHelp = () => (
 						dropping it.
 					</li>
 					<li>
+						<span className="font-medium text-foreground">Potions.</span> Select
+						a healing potion in Character and choose Drink potion. It restores
+						up to 5 health before monsters act, using one turn. At full health,
+						it costs nothing and stays in your bag. Potions cannot be used after
+						death.
+					</li>
+					<li>
 						<span className="font-medium text-foreground">Turns.</span>{" "}
 						Successful movement, attacks, and waiting use a turn. Blocked
 						movement does not use a turn.

@@ -183,7 +183,8 @@ const CharacterSheet = ({
 				/>
 				<p className="rounded-lg border bg-muted/30 p-3 text-xs leading-relaxed text-muted-foreground">
 					Opening this sheet and inspecting items is free. Each successful gear
-					change, pickup, or drop uses one turn, and monsters act afterward.
+					change, pickup, drop, or potion use costs one turn, and monsters act
+					afterward.
 				</p>
 			</div>
 			<div className="sticky bottom-0 grid shrink-0 gap-2 border-t bg-popover px-4 py-3">

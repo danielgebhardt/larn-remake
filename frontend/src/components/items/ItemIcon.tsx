@@ -1,7 +1,8 @@
-import { type LucideIcon, Shield, Sword } from "lucide-react";
+import { FlaskRound, type LucideIcon, Shield, Sword } from "lucide-react";
 import type { ItemKind } from "../../domain/items/Item";
 
 const icons: Record<ItemKind, LucideIcon> = {
+	"healing-potion": FlaskRound,
 	"short-sword": Sword,
 	"iron-sword": Sword,
 	"wooden-shield": Shield,

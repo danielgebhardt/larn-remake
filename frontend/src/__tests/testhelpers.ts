@@ -1,5 +1,9 @@
 import { expect } from "vitest";
-import type { DungeonFloor, StairLink } from "../domain/dungeon/DungeonRun.ts";
+import type {
+	DungeonFloor,
+	DungeonRun,
+	StairLink,
+} from "../domain/dungeon/DungeonRun.ts";
 import type {
 	Coordinate,
 	Dungeon,
@@ -55,54 +59,76 @@ export const makeLocationSelectionSource = (
 	};
 };
 
+const coordinateKey = ({ row, col }: Coordinate): string => `${row},${col}`;
+
+type ReachableTile = { coordinate: Coordinate; previous?: string };
+
+// Record each tile once when adding it to the queue. An index avoids shifting
+// the queue for every tile, and the predecessor supports path reconstruction.
+const traverseFloorTiles = (terrain: Dungeon, start: Coordinate) => {
+	expect(terrain[start.row]?.[start.col]).toBe(FLOOR);
+	const tiles = new Map<string, ReachableTile>([
+		[coordinateKey(start), { coordinate: start }],
+	]);
+	const queue = [start];
+	for (let index = 0; index < queue.length; index++) {
+		const current = queue[index];
+		for (const [rowChange, colChange] of [
+			[-1, 0],
+			[1, 0],
+			[0, -1],
+			[0, 1],
+		]) {
+			const neighbor = {
+				row: current.row + rowChange,
+				col: current.col + colChange,
+			};
+			const key = coordinateKey(neighbor);
+			if (terrain[neighbor.row]?.[neighbor.col] !== FLOOR || tiles.has(key))
+				continue;
+			tiles.set(key, {
+				coordinate: neighbor,
+				previous: coordinateKey(current),
+			});
+			queue.push(neighbor);
+		}
+	}
+	return tiles;
+};
+
+export const getReachableFloorTiles = (
+	terrain: Dungeon,
+	start: Coordinate,
+): Set<string> => new Set(traverseFloorTiles(terrain, start).keys());
+
 export const expectAllFloorTilesReachable = (
 	terrain: Dungeon,
 	start: Coordinate,
 ) => {
-	expect(terrain[start.row][start.col]).toBe(FLOOR);
+	const reachable = getReachableFloorTiles(terrain, start);
+	const floorTileCount = terrain.reduce(
+		(count, row) => count + row.filter((tile) => tile === FLOOR).length,
+		0,
+	);
+	// Traversal visits only floor tiles, so equal counts mean none are disconnected.
+	expect(reachable.size).toBe(floorTileCount);
+};
 
-	const visited = new Set<string>();
-	const queue = [start];
-
-	while (queue.length > 0) {
-		const current = queue.shift();
-
-		if (!current) {
-			continue;
-		}
-
-		const key = `${current.row},${current.col}`;
-
-		if (visited.has(key)) {
-			continue;
-		}
-
-		visited.add(key);
-
-		const neighbors = [
-			{ row: current.row - 1, col: current.col },
-			{ row: current.row + 1, col: current.col },
-			{ row: current.row, col: current.col - 1 },
-			{ row: current.row, col: current.col + 1 },
-		];
-
-		for (const neighbor of neighbors) {
-			if (
-				terrain[neighbor.row]?.[neighbor.col] === FLOOR &&
-				!visited.has(`${neighbor.row},${neighbor.col}`)
-			) {
-				queue.push(neighbor);
-			}
-		}
+export const findFloorPath = (
+	terrain: Dungeon,
+	start: Coordinate,
+	target: Coordinate,
+): Coordinate[] => {
+	const tiles = traverseFloorTiles(terrain, start);
+	const path: Coordinate[] = [];
+	let key: string | undefined = coordinateKey(target);
+	while (key !== undefined) {
+		const tile = tiles.get(key);
+		if (!tile) throw new Error("Test fixture has no floor path to the target");
+		path.push(tile.coordinate);
+		key = tile.previous;
 	}
-
-	for (const [rowIndex, row] of terrain.entries()) {
-		for (const [colIndex, tile] of row.entries()) {
-			if (tile === FLOOR) {
-				expect(visited.has(`${rowIndex},${colIndex}`)).toBe(true);
-			}
-		}
-	}
+	return path.reverse();
 };
 
 type TestDungeonFloorOptions = {
@@ -157,3 +183,89 @@ export const fixedDungeon: Dungeon = [
 	[WALL, FLOOR, FLOOR, FLOOR, WALL],
 	[WALL, WALL, WALL, WALL, WALL],
 ];
+
+export const createThreeFloorTraversalRun = (): DungeonRun => {
+	const floor1 = createTestDungeonFloor({
+		floorNumber: 1,
+		rows: 3,
+		cols: 4,
+		room: { startRow: 1, endRow: 1, startCol: 1, endCol: 2 },
+		downStair: {
+			coordinate: { row: 1, col: 2 },
+			destinationFloor: 2,
+			arrivalCoordinate: { row: 1, col: 1 },
+		},
+	});
+
+	const floor2 = createTestDungeonFloor({
+		floorNumber: 2,
+		rows: 3,
+		cols: 5,
+		room: { startRow: 1, endRow: 1, startCol: 1, endCol: 3 },
+		upStair: {
+			coordinate: { row: 1, col: 1 },
+			destinationFloor: 1,
+			arrivalCoordinate: { row: 1, col: 2 },
+		},
+		downStair: {
+			coordinate: { row: 1, col: 3 },
+			destinationFloor: 3,
+			arrivalCoordinate: { row: 1, col: 1 },
+		},
+	});
+
+	const floor3 = createTestDungeonFloor({
+		floorNumber: 3,
+		rows: 4,
+		cols: 4,
+		room: { startRow: 1, endRow: 2, startCol: 1, endCol: 2 },
+		upStair: {
+			coordinate: { row: 1, col: 1 },
+			destinationFloor: 2,
+			arrivalCoordinate: { row: 1, col: 3 },
+		},
+	});
+
+	return {
+		seed: 123,
+		floors: [floor1, floor2, floor3],
+		activeFloor: 1,
+		playerCoordinate: { row: 1, col: 1 },
+	};
+};
+
+// A single step right enters floor 1's down stair. Floor 2's arrival stair is
+// at (1, 1), leaving room to move away before returning to ascend.
+export const createTwoFloorTraversalRun = (
+	destination: Pick<TestDungeonFloorOptions, "rows" | "cols" | "room"> = {
+		rows: 4,
+		cols: 5,
+		room: { startRow: 1, endRow: 2, startCol: 1, endCol: 3 },
+	},
+): DungeonRun => ({
+	seed: 123,
+	activeFloor: 1,
+	playerCoordinate: { row: 1, col: 1 },
+	floors: [
+		createTestDungeonFloor({
+			floorNumber: 1,
+			rows: 3,
+			cols: 3,
+			room: { startRow: 1, endRow: 1, startCol: 1, endCol: 2 },
+			downStair: {
+				coordinate: { row: 1, col: 2 },
+				destinationFloor: 2,
+				arrivalCoordinate: { row: 1, col: 1 },
+			},
+		}),
+		createTestDungeonFloor({
+			...destination,
+			floorNumber: 2,
+			upStair: {
+				coordinate: { row: 1, col: 1 },
+				destinationFloor: 1,
+				arrivalCoordinate: { row: 1, col: 2 },
+			},
+		}),
+	],
+});

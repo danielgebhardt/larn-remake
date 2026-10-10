@@ -1,3 +1,5 @@
+// @vitest-environment node
+
 import { describe, expect, it } from "vitest";
 import { generateDungeon } from "../domain/dungeon/DungeonGeneration.ts";
 import {
@@ -7,6 +9,7 @@ import {
 import { createRoom } from "../domain/dungeon/Room.ts";
 import { MAX_SEED } from "../domain/dungeon/Seed.ts";
 import { FLOOR } from "../domain/dungeon/Tiles.ts";
+import { getReachableFloorTiles } from "./testhelpers.ts";
 
 describe("Room proportions", () => {
 	it("applies configured room sizing to every generated room", () => {
@@ -22,11 +25,11 @@ describe("Room proportions", () => {
 			123,
 		);
 		for (const room of dungeon.rooms) {
-			const height = room.endRow - room.startRow + 1;
-			const width = room.endCol - room.startCol + 1;
-			expect(Math.min(height, width)).toBeGreaterThanOrEqual(4);
+			const roomHeight = room.endRow - room.startRow + 1;
+			const roomWidth = room.endCol - room.startCol + 1;
+			expect(Math.min(roomHeight, roomWidth)).toBeGreaterThanOrEqual(4);
 			expect(
-				Math.max(height, width) / Math.min(height, width),
+				Math.max(roomHeight, roomWidth) / Math.min(roomHeight, roomWidth),
 			).toBeLessThanOrEqual(2);
 		}
 	});
@@ -76,11 +79,13 @@ describe("Room proportions", () => {
 				};
 				const choices = [heightChoice, widthChoice, 0.999999, 0.999999];
 				const room = createRoom(region, 1, () => choices.shift() ?? 0);
-				const h = room.endRow - room.startRow + 1,
-					w = room.endCol - room.startCol + 1;
-				expect(h).toBeGreaterThanOrEqual(3);
-				expect(w).toBeGreaterThanOrEqual(3);
-				expect(Math.max(h, w) / Math.min(h, w)).toBeLessThanOrEqual(3);
+				const roomHeight = room.endRow - room.startRow + 1;
+				const roomWidth = room.endCol - room.startCol + 1;
+				expect(roomHeight).toBeGreaterThanOrEqual(3);
+				expect(roomWidth).toBeGreaterThanOrEqual(3);
+				expect(
+					Math.max(roomHeight, roomWidth) / Math.min(roomHeight, roomWidth),
+				).toBeLessThanOrEqual(3);
 				expect(room.startRow).toBeGreaterThanOrEqual(11);
 				expect(room.endRow).toBeLessThanOrEqual(region.endRow - 1);
 				expect(room.startCol).toBeGreaterThanOrEqual(21);
@@ -107,11 +112,13 @@ describe("Room proportions", () => {
 			for (const random of [undefined, () => 0, () => 0.999999]) {
 				const room = createRoom(region, 1, random);
 				expect(createRoom(region, 1, random)).toEqual(room);
-				const h = room.endRow - room.startRow + 1,
-					w = room.endCol - room.startCol + 1;
-				expect(h).toBeGreaterThanOrEqual(Math.min(3, height));
-				expect(w).toBeGreaterThanOrEqual(Math.min(3, width));
-				expect(Math.max(h, w) / Math.min(h, w)).toBeLessThanOrEqual(3);
+				const roomHeight = room.endRow - room.startRow + 1;
+				const roomWidth = room.endCol - room.startCol + 1;
+				expect(roomHeight).toBeGreaterThanOrEqual(Math.min(3, height));
+				expect(roomWidth).toBeGreaterThanOrEqual(Math.min(3, width));
+				expect(
+					Math.max(roomHeight, roomWidth) / Math.min(roomHeight, roomWidth),
+				).toBeLessThanOrEqual(3);
 				expect(room.startRow).toBeGreaterThanOrEqual(1);
 				expect(room.endRow).toBeLessThanOrEqual(height);
 				expect(room.startCol).toBeGreaterThanOrEqual(1);
@@ -145,41 +152,32 @@ describe("Room proportions", () => {
 				).toEqual(run);
 				for (const floor of run.floors) {
 					for (const room of floor.rooms) {
-						const h = room.endRow - room.startRow + 1,
-							w = room.endCol - room.startCol + 1;
-						expect(Math.min(h, w)).toBeGreaterThanOrEqual(3);
-						expect(Math.max(h, w) / Math.min(h, w)).toBeLessThanOrEqual(3);
+						const roomHeight = room.endRow - room.startRow + 1;
+						const roomWidth = room.endCol - room.startCol + 1;
+						expect(Math.min(roomHeight, roomWidth)).toBeGreaterThanOrEqual(3);
+						expect(
+							Math.max(roomHeight, roomWidth) / Math.min(roomHeight, roomWidth),
+						).toBeLessThanOrEqual(3);
 					}
-					const start = floor.rooms[0];
-					const queue = [{ row: start.startRow, col: start.startCol }];
-					const visited = new Set([`${start.startRow},${start.startCol}`]);
-					for (let i = 0; i < queue.length; i++) {
-						const { row, col } = queue[i];
-						for (const [dr, dc] of [
-							[0, 1],
-							[1, 0],
-							[0, -1],
-							[-1, 0],
-						]) {
-							const r = row + dr,
-								c = col + dc,
-								key = `${r},${c}`;
-							if (floor.terrain[r]?.[c] === FLOOR && !visited.has(key)) {
-								visited.add(key);
-								queue.push({ row: r, col: c });
-							}
-						}
-					}
-					expect(visited.size).toBe(
-						floor.terrain.flat().filter((tile) => tile === FLOOR).length,
+					const firstRoom = floor.rooms[0];
+					const reachableTiles = getReachableFloorTiles(floor.terrain, {
+						row: firstRoom.startRow,
+						col: firstRoom.startCol,
+					});
+					const floorTileCount = floor.terrain.reduce(
+						(count, row) => count + row.filter((tile) => tile === FLOOR).length,
+						0,
 					);
+					expect(reachableTiles.size).toBe(floorTileCount);
 					for (const [link, reciprocalKey] of [
 						[floor.downStair, "upStair"],
 						[floor.upStair, "downStair"],
 					] as const) {
 						if (!link) continue;
 						expect(
-							visited.has(`${link.coordinate.row},${link.coordinate.col}`),
+							reachableTiles.has(
+								`${link.coordinate.row},${link.coordinate.col}`,
+							),
 						).toBe(true);
 						const reciprocal =
 							run.floors[link.destinationFloor - 1][reciprocalKey];

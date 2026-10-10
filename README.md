@@ -197,6 +197,10 @@ On Windows:
 .\gradlew.bat test
 ```
 
+Frontend suites in `frontend/src/__tests__` are grouped by behavior. Home has separate suites for rendering/movement, configuration, settings/appearance, seed replay, restarts, floor traversal, and a complete exploration scenario. Domain suites cover terrain, generation, location selection, floor seeds, stair links, transitions, and partitioning separately.
+
+Pure domain and geometry tests use the Node environment; React interaction tests use jsdom. Keep suites to a top-level `describe` with at most one nested `describe`. Prefer named scenario fixtures, explicit actions, and observable outcomes. `testhelpers.ts` contains domain fixtures and shared connectivity/path checks; `HomeTestHelpers.tsx` contains page rendering and settings interactions. Dungeon comparisons use cell labels rather than complete HTML, while icon-specific tests verify SVG rendering separately.
+
 ## Technology
 
 ### Backend

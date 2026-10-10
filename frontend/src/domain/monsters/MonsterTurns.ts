@@ -12,10 +12,15 @@ export const resolveMonsterPhase = (state: GameState): GameState => {
 	let player = state.player;
 	let monsters = state.monsters;
 	const events: ActivityEvent[] = [];
-	for (const monster of state.monsters) {
+	// IDs encode floor:spawnIndex; sort numeric indices, not incidental storage order.
+	const active = state.monsters
+		.filter(
+			(monster) =>
+				monster.health > 0 && monster.floorNumber === state.run.activeFloor,
+		)
+		.sort((a, b) => Number(a.id.split(":")[1]) - Number(b.id.split(":")[1]));
+	for (const monster of active) {
 		if (player.health <= 0) break;
-		if (monster.health <= 0 || monster.floorNumber !== state.run.activeFloor)
-			continue;
 		if (!detectsPlayer(state.run, monster)) continue;
 		if (
 			orthogonalDistance(monster.coordinate, state.run.playerCoordinate) !== 1

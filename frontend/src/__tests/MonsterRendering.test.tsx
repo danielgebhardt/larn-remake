@@ -22,10 +22,33 @@ const props = {
 	dungeon: floor.terrain,
 	playerPosition: { row: 1, col: 1 },
 	onMoveRequested: vi.fn(),
-	monster: goblin,
+	monsters: [goblin],
 };
 
 describe("Goblin map rendering", () => {
+	it("shows multiple goblins in the same row and on a different row", () => {
+		const dungeon = createTestDungeonFloor({
+			floorNumber: 1,
+			rows: 4,
+			cols: 5,
+			room: { startRow: 1, endRow: 2, startCol: 1, endCol: 3 },
+		}).terrain;
+		render(
+			<DungeonLayout
+				{...props}
+				dungeon={dungeon}
+				monsters={[
+					goblin,
+					{ ...goblin, id: "1:2", coordinate: { row: 1, col: 2 } },
+					{ ...goblin, id: "1:3", coordinate: { row: 2, col: 3 } },
+				]}
+			/>,
+		);
+		expect(screen.getAllByLabelText(/goblin/)).toHaveLength(3);
+		expect(screen.getByLabelText("row1col2 - goblin")).toBeVisible();
+		expect(screen.getByLabelText("row2col3 - goblin")).toBeVisible();
+	});
+
 	it("shows a distinct SVG and accessible goblin label on a visible tile", () => {
 		render(<DungeonLayout {...props} visible={mask(true)} />);
 		const cell = screen.getByLabelText("row1col3 - goblin");

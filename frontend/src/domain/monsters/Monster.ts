@@ -3,6 +3,7 @@ import type { Coordinate } from "../dungeon/DungeonTypes.ts";
 export type MonsterKind = "goblin";
 
 export type Monster = {
+	// Stable identity: floorNumber:spawnIndex (index starts at 1).
 	id: string;
 	kind: MonsterKind;
 	floorNumber: number;

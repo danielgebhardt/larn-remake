@@ -57,69 +57,87 @@ const DungeonCell = memo(function DungeonCell({
 });
 
 // Terrain and discovery rows keep their identity when unchanged. Only rows
-// with a player or visibility change need to revisit their cells.
-const DungeonRow = memo(function DungeonRow({
-	row,
-	rowIndex,
-	visible,
-	explored,
-	playerColumn,
-	upStairColumn,
-	downStairColumn,
-	monster,
-	playerRef,
-}: {
-	row: readonly string[];
-	visible?: readonly boolean[];
-	explored?: readonly boolean[];
-	rowIndex: number;
-	playerColumn?: number;
-	upStairColumn?: number;
-	downStairColumn?: number;
-	monster?: Monster;
-	playerRef: PlayerRef;
-}) {
-	return (
-		<tr
-			className="grid"
-			style={{
-				gridTemplateColumns: `repeat(${row.length}, var(--dungeon-tile-size))`,
-			}}
-		>
-			{row.map((terrain, columnIndex) => {
-				const visibility: TileVisibility =
-					columnIndex === playerColumn ||
-					visible === undefined ||
-					visible[columnIndex]
-						? "visible"
-						: explored?.[columnIndex]
-							? "remembered"
-							: "unknown";
-				let tile = terrain;
-				if (columnIndex === playerColumn) tile = PLAYER;
-				else if (columnIndex === upStairColumn) tile = STAIRS_UP;
-				else if (columnIndex === downStairColumn) tile = STAIRS_DOWN;
-				return (
-					<DungeonCell
-						key={columnIndex}
-						rowIndex={rowIndex}
-						columnIndex={columnIndex}
-						tile={visibility === "unknown" ? undefined : tile}
-						visibility={visibility}
-						monsterKind={
-							visibility === "visible" &&
-							tile !== PLAYER &&
-							monster?.coordinate.col === columnIndex &&
-							monster.health > 0
-								? monster.kind
-								: undefined
-						}
-						playerRef={tile === PLAYER ? playerRef : undefined}
-					/>
-				);
-			})}
-		</tr>
-	);
-});
+// with a player, visibility or actor change need to revisit their cells.
+const DungeonRow = memo(
+	function DungeonRow({
+		row,
+		rowIndex,
+		visible,
+		explored,
+		playerColumn,
+		upStairColumn,
+		downStairColumn,
+		monsters,
+		playerRef,
+	}: {
+		row: readonly string[];
+		visible?: readonly boolean[];
+		explored?: readonly boolean[];
+		rowIndex: number;
+		playerColumn?: number;
+		upStairColumn?: number;
+		downStairColumn?: number;
+		monsters?: readonly Monster[];
+		playerRef: PlayerRef;
+	}) {
+		return (
+			<tr
+				className="grid"
+				style={{
+					gridTemplateColumns: `repeat(${row.length}, var(--dungeon-tile-size))`,
+				}}
+			>
+				{row.map((terrain, columnIndex) => {
+					const visibility: TileVisibility =
+						columnIndex === playerColumn ||
+						visible === undefined ||
+						visible[columnIndex]
+							? "visible"
+							: explored?.[columnIndex]
+								? "remembered"
+								: "unknown";
+					const monster = monsters?.find(
+						(actor) => actor.coordinate.col === columnIndex,
+					);
+					let tile = terrain;
+					if (columnIndex === playerColumn) tile = PLAYER;
+					else if (columnIndex === upStairColumn) tile = STAIRS_UP;
+					else if (columnIndex === downStairColumn) tile = STAIRS_DOWN;
+					return (
+						<DungeonCell
+							key={columnIndex}
+							rowIndex={rowIndex}
+							columnIndex={columnIndex}
+							tile={visibility === "unknown" ? undefined : tile}
+							visibility={visibility}
+							monsterKind={
+								visibility === "visible" &&
+								tile !== PLAYER &&
+								monster?.coordinate.col === columnIndex &&
+								monster.health > 0
+									? monster.kind
+									: undefined
+							}
+							playerRef={tile === PLAYER ? playerRef : undefined}
+						/>
+					);
+				})}
+			</tr>
+		);
+	},
+	(previous, next) =>
+		previous.row === next.row &&
+		previous.rowIndex === next.rowIndex &&
+		previous.visible === next.visible &&
+		previous.explored === next.explored &&
+		previous.playerColumn === next.playerColumn &&
+		previous.upStairColumn === next.upStairColumn &&
+		previous.downStairColumn === next.downStairColumn &&
+		previous.playerRef === next.playerRef &&
+		(previous.monsters?.length ?? 0) === (next.monsters?.length ?? 0) &&
+		(previous.monsters ?? []).every(
+			(monster, index) => monster === next.monsters?.[index],
+		),
+);
 
 export default DungeonRow;

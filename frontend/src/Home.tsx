@@ -1,5 +1,5 @@
 import { Settings } from "lucide-react";
-import { type SubmitEvent, useState } from "react";
+import { type SubmitEvent, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetTrigger } from "@/components/ui/sheet";
 import APICheck from "./APICheck.tsx";
@@ -69,6 +69,14 @@ const Home = ({
 	const [settingsOpen, setSettingsOpen] = useState(false);
 
 	const activeFloor = run.floors[run.activeFloor - 1];
+	const activeMonsters = useMemo(
+		() =>
+			game.state.monsters.filter(
+				(monster) =>
+					monster.floorNumber === run.activeFloor && monster.health > 0,
+			),
+		[game.state.monsters, run.activeFloor],
+	);
 	const startRun = (
 		seed: number,
 		nextConfiguration: RunConfiguration,
@@ -165,9 +173,7 @@ const Home = ({
 						<PlayerStatus turn={turn} player={player} />
 						<DungeonLegend fogEnabled={fogConfiguration.enabled} />
 						<DungeonLayout
-							monster={game.state.monsters.find(
-								(monster) => monster.floorNumber === run.activeFloor,
-							)}
+							monsters={activeMonsters}
 							dungeon={activeFloor.terrain}
 							visible={
 								fogConfiguration.enabled ? exploration.visible : undefined

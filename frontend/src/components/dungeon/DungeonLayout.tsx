@@ -1,4 +1,10 @@
-import { useCallback, useEffect, useLayoutEffect, useRef } from "react";
+import {
+	useCallback,
+	useEffect,
+	useLayoutEffect,
+	useMemo,
+	useRef,
+} from "react";
 import type { MovementDirection } from "../../domain/dungeon/DungeonRun.ts";
 import type { Coordinate, Dungeon } from "../../domain/dungeon/DungeonTypes.ts";
 import type { VisibilityGrid } from "../../domain/dungeon/Visibility.ts";
@@ -15,8 +21,10 @@ type DungeonLayoutProps = {
 	movementEnabled?: boolean;
 	visible?: VisibilityGrid;
 	explored?: VisibilityGrid;
-	monster?: Monster;
+	monsters?: readonly Monster[];
 };
+
+const NO_MONSTERS: readonly Monster[] = [];
 
 const DungeonLayout = ({
 	dungeon,
@@ -27,8 +35,18 @@ const DungeonLayout = ({
 	movementEnabled = true,
 	visible,
 	explored,
-	monster,
+	monsters = NO_MONSTERS,
 }: DungeonLayoutProps) => {
+	const monsterRows = useMemo(() => {
+		const rows = new Map<number, Monster[]>();
+		for (const monster of monsters) {
+			if (monster.health <= 0) continue;
+			const row = rows.get(monster.coordinate.row) ?? [];
+			row.push(monster);
+			rows.set(monster.coordinate.row, row);
+		}
+		return rows;
+	}, [monsters]);
 	const viewportRef = useRef<HTMLElement>(null);
 	const playerRef = useRef<HTMLTableCellElement>(null);
 	const followPlayer = useCallback(() => {
@@ -143,9 +161,7 @@ const DungeonLayout = ({
 							key={rowIndex}
 							row={row}
 							rowIndex={rowIndex}
-							monster={
-								monster?.coordinate.row === rowIndex ? monster : undefined
-							}
+							monsters={monsterRows.get(rowIndex)}
 							visible={visible?.[rowIndex]}
 							explored={explored?.[rowIndex]}
 							playerColumn={

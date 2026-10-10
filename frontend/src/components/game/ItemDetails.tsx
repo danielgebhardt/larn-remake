@@ -7,6 +7,11 @@ import {
 } from "../../domain/items/Equipment";
 import { ITEM_DEFINITIONS, type ItemInstance } from "../../domain/items/Item";
 
+import {
+	HOTBAR_SLOTS,
+	type PotionHotbar,
+} from "../../domain/items/PotionHotbar";
+
 const labels = { weapon: "Weapon", shield: "Shield", potion: "Potion" };
 const ItemDetails = ({
 	item,
@@ -14,12 +19,14 @@ const ItemDetails = ({
 	alive,
 	onAction,
 	afterAction,
+	potionHotbar,
 }: {
 	item: ItemInstance;
 	equippedSlot?: EquipmentSlot;
 	alive: boolean;
 	onAction: (action: PlayerAction) => void;
 	afterAction: () => void;
+	potionHotbar: PotionHotbar;
 }) => {
 	const titleId = useId();
 	const details = ITEM_DEFINITIONS[item.kind];
@@ -89,6 +96,31 @@ const ItemDetails = ({
 					</>
 				)}
 			</div>
+			{details.type === "potion" && !equippedSlot && (
+				<div className="grid gap-2 border-t pt-3">
+					<p className="text-xs text-muted-foreground">
+						Assign a shortcut (free). Choosing another slot moves this potion's
+						assignment.
+					</p>
+					<fieldset aria-label="Assign potion shortcut" className="flex gap-2">
+						{HOTBAR_SLOTS.map((slot) => (
+							<Button
+								key={slot}
+								type="button"
+								variant="outline"
+								size="sm"
+								aria-label={`Assign to potion slot ${slot}`}
+								aria-pressed={potionHotbar[slot - 1] === item.kind}
+								onClick={() =>
+									onAction({ type: "assign-hotbar", slot, itemId: item.id })
+								}
+							>
+								{slot}
+							</Button>
+						))}
+					</fieldset>
+				</div>
+			)}
 		</section>
 	);
 };

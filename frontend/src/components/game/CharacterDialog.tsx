@@ -7,17 +7,20 @@ import type { PlayerStats } from "../../domain/game/PlayerStats";
 import type { Bag } from "../../domain/items/Bag";
 import type { Equipment, EquipmentSlot } from "../../domain/items/Equipment";
 import type { FloorItem } from "../../domain/items/FloorItems";
+import type { PotionHotbar } from "../../domain/items/PotionHotbar";
 import { formatActivityEvent } from "./ActivityMessages";
 import BagContents from "./BagContents";
 import CharacterStats from "./CharacterStats";
 import EquipmentView from "./EquipmentView";
 import FloorItemsView from "./FloorItemsView";
 import ItemDetails from "./ItemDetails";
+import PotionAssignments from "./PotionAssignments";
 
 type CharacterDialogProps = {
 	player: PlayerStats;
 	equipment: Equipment;
 	bag: Bag;
+	potionHotbar: PotionHotbar;
 	floorItems: readonly FloorItem[];
 	turn: number;
 	history: ActivityHistory;
@@ -31,6 +34,7 @@ const CharacterDialog = ({
 	player,
 	equipment,
 	bag,
+	potionHotbar,
 	floorItems,
 	turn,
 	history,
@@ -129,6 +133,7 @@ const CharacterDialog = ({
 								<div ref={detailsRef}>
 									<ItemDetails
 										item={selected}
+										potionHotbar={potionHotbar}
 										equippedSlot={
 											selection.source === "equipment"
 												? selection.slot
@@ -152,6 +157,11 @@ const CharacterDialog = ({
 							)}
 						</BagContents>
 					</div>
+					<PotionAssignments
+						bag={bag}
+						potionHotbar={potionHotbar}
+						onAction={onAction}
+					/>
 					<FloorItemsView
 						items={floorItems}
 						alive={player.health > 0}

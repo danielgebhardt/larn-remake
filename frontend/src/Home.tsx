@@ -225,6 +225,7 @@ const Home = ({
 							player={player}
 							equipment={game.state.equipment}
 							bag={game.state.bag}
+							potionHotbar={game.state.potionHotbar}
 							floorItems={currentItems}
 							turn={turn}
 							history={game.state.activityHistory}

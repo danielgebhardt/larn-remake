@@ -2,6 +2,7 @@ import { screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import * as GameState from "../domain/game/GameState";
+import { createBag } from "../domain/items/Bag";
 import { createEquipment } from "../domain/items/Equipment";
 import Home from "../Home";
 import {
@@ -19,7 +20,13 @@ const renderCharacterRun = () => {
 };
 const openCharacter = async (user: ReturnType<typeof userEvent.setup>) => {
 	await user.click(screen.getByRole("button", { name: "Character" }));
-	return screen.findByRole("dialog", { name: "Character" });
+	const panel = await screen.findByRole("dialog", { name: "Character" });
+	await waitFor(() =>
+		expect(
+			within(panel).getByRole("heading", { name: "Character" }),
+		).toHaveFocus(),
+	);
+	return panel;
 };
 const dismissCharacter = async (user: ReturnType<typeof userEvent.setup>) => {
 	await user.keyboard("{Escape}");
@@ -49,6 +56,7 @@ describe("Character sheet", () => {
 		vi.spyOn(GameState, "createGameState").mockImplementationOnce((run) => ({
 			...create(run),
 			equipment: createEquipment(),
+			bag: createBag(),
 		}));
 		const user = renderCharacterRun();
 		const panel = within(await openCharacter(user));
@@ -62,6 +70,11 @@ describe("Character sheet", () => {
 	it("shows current health and starting gear in named slots", async () => {
 		const user = renderCharacterRun();
 		const character = within(await openCharacter(user));
+		await waitFor(() =>
+			expect(
+				character.getByRole("heading", { name: "Character" }),
+			).toHaveFocus(),
+		);
 		expect(character.getByLabelText("Character health")).toHaveTextContent(
 			"Health 10 / 10",
 		);
@@ -114,10 +127,14 @@ describe("Character sheet", () => {
 	});
 	it("pauses movement and waiting while open and resumes them on the map", async () => {
 		const user = renderCharacterRun();
-		const map = readDungeonCells();
-		await openCharacter(user);
+		const board = screen.getByRole("table", { name: "Dungeon" });
+		const map = readDungeonCells(board);
+		const panel = await openCharacter(user);
 		await user.keyboard("{ArrowRight}d ");
-		expect(readDungeonCells()).toEqual(map);
+		expect(panel).toBeVisible();
+		// The modal hides the background from accessibility queries, but its
+		// captured map element still lets us verify that gameplay did not change.
+		expect(readDungeonCells(board)).toEqual(map);
 		expect(screen.getByLabelText("Turn count")).toHaveTextContent("Turn 0");
 		await dismissCharacter(user);
 		screen.getByLabelText("Dungeon map", { exact: true }).focus();
@@ -147,7 +164,11 @@ describe("Character sheet", () => {
 		expect(character.getByLabelText("Character health")).toHaveTextContent(
 			"Health 7 / 10",
 		);
-		expect(character.getByText("Wooden shield")).toBeVisible();
+		expect(
+			within(character.getByRole("region", { name: "Off hand" })).getByText(
+				"Wooden shield",
+			),
+		).toBeVisible();
 	});
 	it.each(["New Dungeon", "Start from seed"])(
 		"restores health and starting gear after %s",
@@ -156,12 +177,14 @@ describe("Character sheet", () => {
 			vi.spyOn(GameState, "createGameState").mockImplementationOnce((run) => ({
 				...create(run),
 				equipment: createEquipment(),
+				bag: createBag(),
 				player: { health: 0, maxHealth: 10 },
 			}));
 			const user = renderCharacterRun();
 			const before = within(await openCharacter(user));
 			expect(before.getByText("Main hand empty")).toBeVisible();
 			expect(before.getByText("Off hand empty")).toBeVisible();
+			expect(before.getByText("Your bag is empty.")).toBeVisible();
 			expect(before.getByLabelText("Character health")).toHaveTextContent(
 				"Health 0 / 10",
 			);
@@ -179,7 +202,12 @@ describe("Character sheet", () => {
 				"Health 10 / 10",
 			);
 			expect(after.getByText("Short sword")).toBeVisible();
-			expect(after.getByText("Wooden shield")).toBeVisible();
+			expect(
+				within(after.getByRole("region", { name: "Off hand" })).getByText(
+					"Wooden shield",
+				),
+			).toBeVisible();
+			expect(after.getByLabelText("Bag capacity")).toHaveTextContent("2 / 20");
 		},
 	);
 });

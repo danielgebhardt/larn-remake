@@ -1,4 +1,5 @@
 import { Heart, Shield, Sword, UserRound } from "lucide-react";
+import { useRef } from "react";
 import {
 	SheetContent,
 	SheetDescription,
@@ -7,23 +8,37 @@ import {
 } from "@/components/ui/sheet";
 import { deriveCombatStats } from "../../domain/game/CombatStats";
 import type { PlayerStats } from "../../domain/game/PlayerStats";
+import type { Bag } from "../../domain/items/Bag";
 import type { Equipment } from "../../domain/items/Equipment";
 import { ITEM_DEFINITIONS } from "../../domain/items/Item";
+import BagContents from "./BagContents";
 
-type CharacterSheetProps = { player: PlayerStats; equipment: Equipment };
+type CharacterSheetProps = {
+	player: PlayerStats;
+	equipment: Equipment;
+	bag: Bag;
+};
 
 const slots = [
 	{ key: "mainHand", label: "Main hand", Icon: Sword },
 	{ key: "offHand", label: "Off hand", Icon: Shield },
 ] as const;
 
-const CharacterSheet = ({ player, equipment }: CharacterSheetProps) => {
+const CharacterSheet = ({ player, equipment, bag }: CharacterSheetProps) => {
 	const combat = deriveCombatStats(equipment);
+	const titleRef = useRef<HTMLHeadingElement>(null);
 	return (
-		<SheetContent className="overflow-y-auto data-[side=right]:w-full">
+		<SheetContent
+			initialFocus={titleRef}
+			className="overflow-y-auto data-[side=right]:w-full"
+		>
 			<SheetHeader>
-				<SheetTitle>Character</SheetTitle>
-				<SheetDescription>Your health and equipped gear.</SheetDescription>
+				<SheetTitle ref={titleRef} tabIndex={-1} className="outline-none">
+					Character
+				</SheetTitle>
+				<SheetDescription>
+					Your health, equipment, and carried items.
+				</SheetDescription>
 			</SheetHeader>
 			<div className="grid gap-6 px-4 pb-6">
 				<div className="flex items-center gap-3 rounded-lg border bg-muted/30 p-4">
@@ -115,6 +130,7 @@ const CharacterSheet = ({ player, equipment }: CharacterSheetProps) => {
 						);
 					})}
 				</section>
+				<BagContents bag={bag} />
 				<p className="rounded-lg border bg-muted/30 p-3 text-xs leading-relaxed text-muted-foreground">
 					This view is read-only. Opening it does not use a turn.
 				</p>

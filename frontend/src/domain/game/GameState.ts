@@ -1,4 +1,5 @@
 import type { DungeonRun } from "../dungeon/DungeonRun.ts";
+import { type Bag, createStartingBag } from "../items/Bag";
 import { createStartingEquipment, type Equipment } from "../items/Equipment";
 import type { Monster } from "../monsters/Monster.ts";
 import { spawnRunMonsters } from "../monsters/MonsterPlacement.ts";
@@ -13,6 +14,7 @@ export type GameState = {
 	turn: number;
 	player: PlayerStats;
 	equipment: Equipment;
+	bag: Bag;
 	monsters: readonly Monster[];
 	activityHistory: ActivityHistory;
 };
@@ -22,6 +24,7 @@ export const createGameState = (run: DungeonRun): GameState => ({
 	turn: 0,
 	player: createPlayerStats(),
 	equipment: createStartingEquipment(),
+	bag: createStartingBag(),
 	monsters: spawnRunMonsters(run),
 	activityHistory: createActivityHistory(),
 });

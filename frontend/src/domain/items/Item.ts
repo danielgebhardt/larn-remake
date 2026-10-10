@@ -1,4 +1,12 @@
 export const ITEM_DEFINITIONS = {
+	"iron-sword": {
+		name: "Iron sword",
+		type: "weapon",
+		attackBonus: 2,
+		armor: 0,
+		description:
+			"A heavier blade with a stronger edge than your starting sword.",
+	},
 	"short-sword": {
 		name: "Short sword",
 		type: "weapon",

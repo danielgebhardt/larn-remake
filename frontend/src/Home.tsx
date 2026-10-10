@@ -168,7 +168,11 @@ const Home = ({
 							<UserRound aria-hidden="true" focusable="false" />
 							Character
 						</SheetTrigger>
-						<CharacterSheet player={player} equipment={game.state.equipment} />
+						<CharacterSheet
+							player={player}
+							equipment={game.state.equipment}
+							bag={game.state.bag}
+						/>
 					</Sheet>
 				}
 				settingsAction={

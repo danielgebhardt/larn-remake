@@ -84,6 +84,15 @@ const DungeonHelp = () => (
 						<Keycap>I</Keycap>
 					</li>
 					<li className="flex items-center justify-between gap-3 py-3">
+						<span>Use potion shortcut</span>
+						<span className="flex gap-1">
+							<Keycap>1</Keycap>
+							<Keycap>2</Keycap>
+							<Keycap>3</Keycap>
+							<Keycap>4</Keycap>
+						</span>
+					</li>
+					<li className="flex items-center justify-between gap-3 py-3">
 						<span>Close this sheet</span>
 						<Keycap>Esc</Keycap>
 					</li>
@@ -133,10 +142,11 @@ const DungeonHelp = () => (
 					</li>
 					<li>
 						<span className="font-medium text-foreground">Potions.</span> Select
-						a healing potion in Character and choose Drink potion. It restores
-						up to 5 health before monsters act, using one turn. At full health,
-						it costs nothing and stays in your bag. Potions cannot be used after
-						death.
+						a healing potion in Character and choose Drink potion, or assign it
+						to a shortcut and use keys 1–4 (or click its slot above the map). It
+						restores up to 5 health before monsters act, using one turn. At full
+						health, it costs nothing and stays in your bag. Empty or unavailable
+						shortcuts also cost nothing. Potions cannot be used after death.
 					</li>
 					<li>
 						<span className="font-medium text-foreground">Turns.</span>{" "}

@@ -10,6 +10,7 @@ import type { MovementDirection } from "../../domain/dungeon/DungeonRun.ts";
 import type { Coordinate, Dungeon } from "../../domain/dungeon/DungeonTypes.ts";
 import type { VisibilityGrid } from "../../domain/dungeon/Visibility.ts";
 import type { FloorItem } from "../../domain/items/FloorItems";
+import { HOTBAR_SLOTS, type HotbarSlot } from "../../domain/items/PotionHotbar";
 import type { Monster } from "../../domain/monsters/Monster.ts";
 import DungeonRow from "./DungeonRow.tsx";
 import { getScrollOffset } from "./MapScroll.ts";
@@ -23,6 +24,7 @@ type DungeonLayoutProps = {
 	onWaitRequested?: () => void;
 	onPickupRequested?: () => void;
 	onCharacterRequested?: () => void;
+	onPotionRequested?: (slot: HotbarSlot) => void;
 	mapRef?: RefObject<HTMLElement | null>;
 	movementEnabled?: boolean;
 	visible?: VisibilityGrid;
@@ -45,6 +47,7 @@ const DungeonLayout = ({
 	onWaitRequested,
 	onPickupRequested,
 	onCharacterRequested,
+	onPotionRequested,
 	mapRef,
 	movementEnabled = true,
 	visible,
@@ -152,6 +155,23 @@ const DungeonLayout = ({
 				return;
 			}
 			if (!movementEnabled) return;
+			const potionSlot = HOTBAR_SLOTS.find(
+				(slot) => event.key === String(slot),
+			);
+			if (potionSlot) {
+				if (
+					!onPotionRequested ||
+					event.ctrlKey ||
+					event.metaKey ||
+					event.altKey ||
+					(event.target instanceof HTMLElement &&
+						event.target.closest(FOCUSED_CONTROLS))
+				)
+					return;
+				event.preventDefault();
+				if (!event.repeat) onPotionRequested(potionSlot);
+				return;
+			}
 
 			switch (event.key) {
 				case "g":
@@ -215,6 +235,7 @@ const DungeonLayout = ({
 		onWaitRequested,
 		onPickupRequested,
 		onCharacterRequested,
+		onPotionRequested,
 		movementEnabled,
 	]);
 

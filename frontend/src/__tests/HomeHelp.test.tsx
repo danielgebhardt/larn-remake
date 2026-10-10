@@ -51,6 +51,9 @@ describe("Home Help menu", () => {
 		}
 		expect(help.getByText("Wait one turn")).toBeVisible();
 		expect(help.getByText("Pick up an item")).toBeVisible();
+		expect(help.getByText("Use potion shortcut")).toBeVisible();
+		for (const key of ["1", "2", "3", "4"])
+			expect(help.getByText(key, { selector: "kbd" })).toBeVisible();
 		expect(
 			help.getByText(/G to pick up an item on your current tile/),
 		).toBeVisible();

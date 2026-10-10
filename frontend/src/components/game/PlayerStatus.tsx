@@ -1,3 +1,4 @@
+import { UserRound } from "lucide-react";
 import type { PlayerStats } from "../../domain/game/PlayerStats.ts";
 
 const PlayerStatus = ({
@@ -9,8 +10,9 @@ const PlayerStatus = ({
 }) => (
 	<section
 		aria-label="Player status"
-		className="flex shrink-0 flex-wrap items-center justify-center gap-x-6 gap-y-2 pb-2 text-sm tabular-nums"
+		className="flex shrink-0 flex-wrap items-center justify-center gap-x-4 gap-y-2 text-sm tabular-nums"
 	>
+		<UserRound aria-hidden="true" className="size-6 shrink-0 text-player" />
 		<output aria-label="Turn count">Turn {turn}</output>
 		<output aria-label="Player health">
 			Health {player.health} / {player.maxHealth}

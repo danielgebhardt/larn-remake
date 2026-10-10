@@ -11,6 +11,7 @@ import ActivityLog from "./components/game/ActivityLog.tsx";
 import CharacterDialog from "./components/game/CharacterDialog.tsx";
 import PickupDialog from "./components/game/PickupDialog";
 import PlayerStatus from "./components/game/PlayerStatus.tsx";
+import PotionHotbarView from "./components/game/PotionHotbarView";
 import {
 	connectDungeonFloors,
 	type DungeonRun,
@@ -31,6 +32,7 @@ import {
 } from "./domain/game/PlayerActions.ts";
 import { BAG_CAPACITY } from "./domain/items/Bag";
 import { itemsAtPlayer } from "./domain/items/FloorItems";
+import type { HotbarSlot } from "./domain/items/PotionHotbar";
 import Header from "./Header.tsx";
 import DungeonSettings from "./settings/DungeonSettings.tsx";
 import {
@@ -173,6 +175,11 @@ const Home = ({
 		});
 	};
 
+	const handlePotionRequested = (slot: HotbarSlot) => {
+		handleActionRequested({ type: "use-hotbar", slot });
+		mapRef.current?.focus({ preventScroll: true });
+	};
+
 	const handleFogRadiusApply = (radius: number) => {
 		setFogConfiguration((current) => ({ ...current, radius }));
 		setGame((current) => ({
@@ -283,7 +290,15 @@ const Home = ({
 
 			<main className="flex min-h-0 min-w-0 flex-1 p-4 sm:p-6">
 				<section className="flex min-h-0 min-w-0 flex-1 flex-col rounded-lg border border-border bg-card p-3 sm:p-4">
-					<PlayerStatus turn={turn} player={player} />
+					<div className="flex shrink-0 flex-wrap items-center justify-center gap-x-5 gap-y-2 pb-3">
+						<PotionHotbarView
+							bag={game.state.bag}
+							potionHotbar={game.state.potionHotbar}
+							alive={player.health > 0}
+							onActivate={handlePotionRequested}
+						/>
+						<PlayerStatus turn={turn} player={player} />
+					</div>
 					<DungeonLegend fogEnabled={fogConfiguration.enabled} />
 					<DungeonLayout
 						mapRef={mapRef}
@@ -304,6 +319,7 @@ const Home = ({
 						}
 						onWaitRequested={() => handleActionRequested({ type: "wait" })}
 						onPickupRequested={handlePickupRequested}
+						onPotionRequested={handlePotionRequested}
 						onCharacterRequested={
 							!settingsOpen && !helpOpen && !characterOpen && !pickupOpen
 								? () => {

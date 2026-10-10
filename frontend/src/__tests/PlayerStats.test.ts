@@ -1,7 +1,8 @@
 // @vitest-environment node
 
 import { describe, expect, it } from "vitest";
-import { createGameState, movePlayer } from "../domain/game/GameState.ts";
+import { createGameState } from "../domain/game/GameState.ts";
+import { resolvePlayerAction } from "../domain/game/PlayerActions.ts";
 import { createThreeFloorTraversalRun } from "./testhelpers.ts";
 
 describe("Player health", () => {
@@ -16,10 +17,22 @@ describe("Player health", () => {
 			...createGameState(run),
 			player: { health: 4, maxHealth: 10 },
 		};
-		const descended = movePlayer(game, "right");
-		const away = movePlayer(descended, "right");
-		const returned = movePlayer(away, "left");
-		const blocked = movePlayer(returned, "up");
+		const descended = resolvePlayerAction(game, {
+			type: "move",
+			direction: "right",
+		}).state;
+		const away = resolvePlayerAction(descended, {
+			type: "move",
+			direction: "right",
+		}).state;
+		const returned = resolvePlayerAction(away, {
+			type: "move",
+			direction: "left",
+		}).state;
+		const blocked = resolvePlayerAction(returned, {
+			type: "move",
+			direction: "up",
+		}).state;
 		expect(returned.run.activeFloor).toBe(1);
 		expect(blocked.player).toBe(game.player);
 		expect(blocked.player).toEqual({ health: 4, maxHealth: 10 });

@@ -20,7 +20,8 @@ import {
 	type RunConfiguration,
 } from "./domain/dungeon/RunConfiguration.ts";
 import { MAX_SEED, parseSeedInput } from "./domain/dungeon/Seed.ts";
-import { createGameState, movePlayer } from "./domain/game/GameState.ts";
+import { createGameState } from "./domain/game/GameState.ts";
+import { resolvePlayerAction } from "./domain/game/PlayerActions.ts";
 import Header from "./Header.tsx";
 import DungeonSettings from "./settings/DungeonSettings.tsx";
 import {
@@ -50,11 +51,12 @@ const Home = ({
 	const [game, setGame] = useState(() => {
 		const run = createRun(0, DEFAULT_RUN_CONFIGURATION);
 		return {
-			...createGameState(run),
+			state: createGameState(run),
 			exploration: updateExploration(run, fogConfiguration.radius),
 		};
 	});
-	const { run, turn, player, exploration } = game;
+	const { run, turn, player } = game.state;
+	const { exploration } = game;
 	const [configuration, setConfiguration] = useState(DEFAULT_RUN_CONFIGURATION);
 	const [configDraft, setConfigDraft] = useState(() =>
 		configurationDraft(DEFAULT_RUN_CONFIGURATION),
@@ -81,7 +83,7 @@ const Home = ({
 			return false;
 		}
 		setGame({
-			...createGameState(nextRun),
+			state: createGameState(nextRun),
 			exploration: updateExploration(nextRun, fogConfiguration.radius),
 		});
 		setConfiguration(nextConfiguration);
@@ -114,12 +116,15 @@ const Home = ({
 
 	const handleMoveRequested = (direction: MovementDirection) => {
 		setGame((current) => {
-			const next = movePlayer(current, direction);
-			if (next === current) return current;
+			const result = resolvePlayerAction(current.state, {
+				type: "move",
+				direction,
+			});
+			if (!result.turnAdvanced) return current;
 			return {
-				...next,
+				state: result.state,
 				exploration: updateExploration(
-					next.run,
+					result.state.run,
 					fogConfiguration.radius,
 					current.exploration,
 				),
@@ -131,7 +136,11 @@ const Home = ({
 		setFogConfiguration((current) => ({ ...current, radius }));
 		setGame((current) => ({
 			...current,
-			exploration: updateExploration(current.run, radius, current.exploration),
+			exploration: updateExploration(
+				current.state.run,
+				radius,
+				current.exploration,
+			),
 		}));
 	};
 

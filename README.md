@@ -13,6 +13,7 @@ The application currently includes:
 - A player who starts on a valid floor tile inside a generated room.
 - Keyboard movement using the arrow keys or WASD.
 - Collision rules that prevent movement into walls or outside dungeon bounds.
+- Turn counting for successful movement and a current/max-health status display.
 - Configurable dungeon creation with rectangular dimensions.
 - Binary space partitioning that divides dungeon space into terminal regions.
 - Rooms carved into terminal regions and corridors connecting those rooms.
@@ -36,8 +37,10 @@ larn-remake/
 │       ├── Home.tsx          # Play screen and run/settings state
 │       ├── Header.tsx        # Floor display and toolbar
 │       ├── domain/dungeon/   # Pure generation, run state, seeds, and configuration
+│       ├── domain/game/      # Game state, player health, and action resolution
 │       ├── components/
 │       │   ├── dungeon/      # Map rendering, icons, legend, and scroll geometry
+│       │   ├── game/         # Player status display
 │       │   └── ui/           # Shared shadcn controls
 │       ├── settings/         # Settings panel, draft parsing, and theme preference
 │       ├── __tests__/        # Frontend/domain tests and shared fixtures
@@ -103,6 +106,10 @@ Move the player with either control scheme:
 
 The player can move through rooms and corridors but cannot move through wall tiles or beyond the dungeon boundary.
 
+The player status above the legend shows **Turn** and **Health**. A fresh run starts at turn 0 with 10 / 10 health. Each successful movement action costs one turn, including entering a staircase and arriving on the linked floor. Walking into a wall or beyond the map costs no turn. Settings, fog changes, appearance changes, unused keys, and manual scrolling also cost no turns. Health and the turn count are retained across floors; **New Dungeon** and seed replay reset both, even when the seed repeats. Health has no damage or healing mechanic yet.
+
+Player actions resolve in this order: validate and apply movement, apply at most one stair transition, then advance the turn once if movement succeeded. Home refreshes visibility from the final position and updates game state and discovery together. Blocked movement retains the original state. A broken stair link still raises the existing domain error without modifying the input state. `domain/game/PlayerActions.ts` is the turn-aware action entry point; `GameState.ts` creates fresh run/player state, and `PlayerStats.ts` holds the shared health default. Dungeon generation and fog remain separate responsibilities.
+
 Tiles use gray brick walls, faint floor dots, and a red player from Lucide, plus custom amber staircase silhouettes. Steps rising from left to right indicate up stairs; steps falling from left to right indicate down stairs. The player icon covers a stair while occupying it; the stair reappears after moving away. Icon choices, colors, and accessible labels are centralized in `frontend/src/components/dungeon/TileVisuals.ts`; the custom SVGs live in `frontend/src/components/dungeon/StairIcons.tsx`.
 
 A compact legend above the map identifies the player and both stair directions. Map tiles stay square at 24×24 pixels. Scroll within the map to explore portions outside the viewport; the map container is capped at 70% of the window height. Keyboard users can focus the map and use Page Up/Page Down for vertical scrolling; arrow keys and WASD continue to move the player.
@@ -153,6 +160,7 @@ Start with `domain/dungeon/RunConfiguration.ts` when tuning dungeon generation. 
 | [FogConfigurationDraft.ts](frontend/src/settings/FogConfigurationDraft.ts) | Parsing and validation of the visibility-radius setting against the shared limits. |
 | [App.css](frontend/src/App.css) | Tile size, light/dark theme colors, fog backgrounds and remembered-icon opacity, and shared styling. The `--dungeon-tile-size` variable sizes dungeon cells, grid columns, and legend icons together. |
 | [TileVisuals.ts](frontend/src/components/dungeon/TileVisuals.ts) | Tile icon choices, color classes, backgrounds, and accessible labels. |
+| [PlayerStats.ts](frontend/src/domain/game/PlayerStats.ts) | Internal starting maximum health (10); fresh players start with current health equal to this value. |
 | [Seed.ts](frontend/src/domain/dungeon/Seed.ts) | Seed range, input validation, and seeded randomness. |
 | [ThemeProvider.tsx](frontend/src/settings/ThemeProvider.tsx) | Default appearance and saved Light/Dark/System preference. |
 | [vite.config.ts](frontend/vite.config.ts) | Frontend tooling, import aliases, backend development proxy, and test environment. |
@@ -203,7 +211,7 @@ On Windows:
 .\gradlew.bat test
 ```
 
-Frontend suites in `frontend/src/__tests__` are grouped by behavior. Home has separate suites for rendering/movement, configuration, settings/appearance, seed replay, restarts, floor traversal, fog settings and discovery, and complete exploration scenarios. Domain suites cover terrain, generation, location selection, floor seeds, stair links, transitions, partitioning, line of sight, and per-floor exploration memory separately. A maximum-size map regression checks that movement redraws nearby icons rather than the whole map.
+Frontend suites in `frontend/src/__tests__` are grouped by behavior. Home has separate suites for turns, player status, complete action cycles, rendering/movement, configuration, settings/appearance, seed replay, restarts, floor traversal, fog settings and discovery, and complete exploration scenarios. Domain suites cover terrain, generation, location selection, floor seeds, stair links, transitions, partitioning, line of sight, and per-floor exploration memory separately. Game-domain tests cover fresh state, health retention, turn-aware action results, blocked steps, and stair travel. A maximum-size map regression checks that movement redraws nearby icons rather than the whole map.
 
 Pure domain and geometry tests use the Node environment; React interaction tests use jsdom. Keep suites to a top-level `describe` with at most one nested `describe`. Prefer named scenario fixtures, explicit actions, and observable outcomes. `testhelpers.ts` contains domain fixtures and shared connectivity/path checks; `HomeTestHelpers.tsx` contains page rendering and settings interactions. Dungeon comparisons use cell labels rather than complete HTML, while icon-specific tests verify SVG rendering separately.
 
@@ -256,4 +264,4 @@ Backlog and completed stories are tracked in [GitHub Issues](https://github.com/
 
 ## Current development status
 
-The dungeon creation and exploration milestone now supports three generated floors, seeded stair placement, automatic descent and ascent, stable revisits, depth and seed display, complete seed replay, and whole-run restart. Rendering and movement support rectangular dungeons. Repeatability is guaranteed for the same seed, configuration, and generator version. UI improvements and later gameplay can build on this foundation.
+The dungeon creation and exploration milestone now supports three generated floors, seeded stair placement, automatic descent and ascent, stable revisits, depth and seed display, complete seed replay, and whole-run restart. Rendering and movement support rectangular dungeons. Repeatability is guaranteed for the same seed, configuration, and generator version. The game now tracks turns and player health through a pure movement-action resolver, ready for the first combat stories.

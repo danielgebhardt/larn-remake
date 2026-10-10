@@ -49,6 +49,24 @@ describe("Goblin map rendering", () => {
 		expect(screen.getByLabelText("row2col3 - goblin")).toBeVisible();
 	});
 
+	it("removes a moving goblin from remembered terrain when its new position is hidden", () => {
+		const { rerender } = render(
+			<DungeonLayout {...props} visible={mask(true)} />,
+		);
+		expect(screen.getByLabelText("row1col3 - goblin")).toBeVisible();
+		rerender(
+			<DungeonLayout
+				{...props}
+				visible={mask(false)}
+				explored={mask(true)}
+				monsters={[{ ...goblin, coordinate: { row: 1, col: 2 } }]}
+			/>,
+		);
+		expect(screen.getByLabelText("row1col3 - remembered floor")).toBeVisible();
+		expect(screen.getByLabelText("row1col2 - remembered floor")).toBeVisible();
+		expect(screen.queryByLabelText(/goblin/)).not.toBeInTheDocument();
+	});
+
 	it("shows a distinct SVG and accessible goblin label on a visible tile", () => {
 		render(<DungeonLayout {...props} visible={mask(true)} />);
 		const cell = screen.getByLabelText("row1col3 - goblin");

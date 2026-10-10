@@ -11,7 +11,6 @@ import {
 	connectDungeonFloors,
 	type DungeonRun,
 	generateDungeonRun,
-	type MovementDirection,
 } from "./domain/dungeon/DungeonRun.ts";
 import { updateExploration } from "./domain/dungeon/Exploration.ts";
 import {
@@ -22,7 +21,10 @@ import {
 } from "./domain/dungeon/RunConfiguration.ts";
 import { MAX_SEED, parseSeedInput } from "./domain/dungeon/Seed.ts";
 import { createGameState } from "./domain/game/GameState.ts";
-import { resolvePlayerAction } from "./domain/game/PlayerActions.ts";
+import {
+	type PlayerAction,
+	resolvePlayerAction,
+} from "./domain/game/PlayerActions.ts";
 import Header from "./Header.tsx";
 import DungeonSettings from "./settings/DungeonSettings.tsx";
 import {
@@ -123,12 +125,9 @@ const Home = ({
 		if (startRun(seed, parsed.value)) setSettingsOpen(false);
 	};
 
-	const handleMoveRequested = (direction: MovementDirection) => {
+	const handleActionRequested = (action: PlayerAction) => {
 		setGame((current) => {
-			const result = resolvePlayerAction(current.state, {
-				type: "move",
-				direction,
-			});
+			const result = resolvePlayerAction(current.state, action);
 			if (!result.turnAdvanced) return current;
 			return {
 				state: result.state,
@@ -186,7 +185,10 @@ const Home = ({
 							playerPosition={run.playerCoordinate}
 							upStair={activeFloor.upStair?.coordinate}
 							downStair={activeFloor.downStair?.coordinate}
-							onMoveRequested={handleMoveRequested}
+							onMoveRequested={(direction) =>
+								handleActionRequested({ type: "move", direction })
+							}
+							onWaitRequested={() => handleActionRequested({ type: "wait" })}
 							movementEnabled={!settingsOpen && player.health > 0}
 						/>
 						<ActivityLog history={game.state.activityHistory} />

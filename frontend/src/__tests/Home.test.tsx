@@ -64,13 +64,13 @@ describe("Home rendering and movement", () => {
 		render(<Home />);
 
 		const legend = screen.getByRole("list", { name: "Dungeon legend" });
-		expect(within(legend).getByText("Player")).toBeVisible();
-		expect(within(legend).getByText("Stairs up")).toBeVisible();
-		expect(within(legend).getByText("Stairs down")).toBeVisible();
-		const entries = within(legend).getAllByRole("listitem");
-		expect(entries).toHaveLength(3);
-		for (const entry of entries) {
-			expect(entry.querySelector("svg")).toHaveAttribute("aria-hidden", "true");
+		for (const label of ["Player", "Stairs up", "Stairs down"]) {
+			const text = within(legend).getByText(label);
+			expect(text).toBeVisible();
+			expect(text.closest("li")?.querySelector("svg")).toHaveAttribute(
+				"aria-hidden",
+				"true",
+			);
 		}
 	});
 

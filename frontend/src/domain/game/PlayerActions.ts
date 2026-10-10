@@ -8,7 +8,9 @@ import { type ActivityEvent, appendActivityEvents } from "./ActivityHistory.ts";
 import type { GameState } from "./GameState.ts";
 import { DEFAULT_PLAYER_ATTACK_DAMAGE } from "./PlayerStats.ts";
 
-export type PlayerAction = { type: "move"; direction: MovementDirection };
+export type PlayerAction =
+	| { type: "move"; direction: MovementDirection }
+	| { type: "wait" };
 
 export type ActionResolution = {
 	state: GameState;
@@ -20,6 +22,11 @@ export const resolvePlayerAction = (
 	action: PlayerAction,
 ): ActionResolution => {
 	if (state.player.health <= 0) return { state, turnAdvanced: false };
+	if (action.type === "wait")
+		return {
+			state: resolveMonsterPhase({ ...state, turn: state.turn + 1 }),
+			turnAdvanced: true,
+		};
 	// Movement validates collision and applies at most one stair transition.
 	// An occupied destination resolves combat from the original position instead.
 	// Spawn placement excludes stairs and their arrival tiles.

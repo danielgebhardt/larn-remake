@@ -18,6 +18,7 @@ type DungeonLayoutProps = {
 	downStair?: Coordinate;
 	upStair?: Coordinate;
 	onMoveRequested: (direction: MovementDirection) => void;
+	onWaitRequested?: () => void;
 	movementEnabled?: boolean;
 	visible?: VisibilityGrid;
 	explored?: VisibilityGrid;
@@ -32,6 +33,7 @@ const DungeonLayout = ({
 	downStair,
 	upStair,
 	onMoveRequested,
+	onWaitRequested,
 	movementEnabled = true,
 	visible,
 	explored,
@@ -113,6 +115,19 @@ const DungeonLayout = ({
 			}
 
 			switch (event.key) {
+				case " ":
+					// Space belongs to focused controls and log scrolling first.
+					if (
+						!onWaitRequested ||
+						(event.target instanceof HTMLElement &&
+							event.target.closest(
+								'button, a[href], select, input, [role="button"], [role="checkbox"], [role="switch"], [role="combobox"], [role="slider"]',
+							))
+					)
+						return;
+					event.preventDefault();
+					if (!event.repeat) onWaitRequested();
+					break;
 				case "ArrowUp":
 				case "w":
 					event.preventDefault();
@@ -144,7 +159,7 @@ const DungeonLayout = ({
 		return () => {
 			window.removeEventListener("keydown", handleKeyDown);
 		};
-	}, [onMoveRequested, movementEnabled]);
+	}, [onMoveRequested, onWaitRequested, movementEnabled]);
 
 	return (
 		<section

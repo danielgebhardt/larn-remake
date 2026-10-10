@@ -89,6 +89,12 @@ pnpm frontend:dev
 
 Vite serves the frontend and proxies `/initial` requests to the backend at `http://localhost:8080`.
 
+## Starting equipment
+
+Every new or replayed run starts with a short sword in the main hand and a wooden shield in the off hand. Equipment is retained through movement, combat, waiting, and floor traversal. Each item copy has a stable run-local ID separate from its shared item kind. Starting IDs are reproducible across resets; item objects are created fresh for each run.
+
+`domain/items/Item.ts` defines the initial item names, types, and descriptions. `domain/items/Equipment.ts` defines the two equipment slots, validates ownership/slot compatibility, and creates the starting loadout. Equipment is part of `GameState`; health remains in `PlayerStats`. This initial slice does not change damage or armor, and does not include inventory or gear-changing actions.
+
 ## Controls
 
 The header shows the current floor, **New Dungeon**, **Settings**, and **Help**. Help opens a keyboard-controls sheet with movement/wait keycaps and notes about attacks, stairs, and turns. The map and its legend occupy the main play area. Settings opens a modal side panel containing the current seed and seed replay form. A small footer shows the backend connectivity diagnostic. Exploration runs in the frontend and remains available if that check fails.

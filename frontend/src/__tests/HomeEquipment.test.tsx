@@ -59,6 +59,9 @@ describe("Changing gear in Character", () => {
 		render(<Home />);
 		const user = userEvent.setup();
 		const panel = await openCharacter(user);
+		await user.click(
+			panel.getByRole("button", { name: "Main hand: Short sword" }),
+		);
 		const unequip = panel.getByRole("button", { name: "Unequip main hand" });
 		unequip.focus();
 		await user.keyboard("{Enter}");
@@ -98,6 +101,9 @@ describe("Changing gear in Character", () => {
 		render(<Home />);
 		const user = userEvent.setup();
 		const panel = await openCharacter(user);
+		await user.click(
+			panel.getByRole("button", { name: "Main hand: Short sword" }),
+		);
 		await user.click(panel.getByRole("button", { name: "Unequip main hand" }));
 		expect(panel.getByRole("alert")).toHaveTextContent("Your bag is full");
 		expect(panel.getByLabelText("Character attack")).toHaveTextContent(
@@ -124,9 +130,15 @@ describe("Changing gear in Character", () => {
 		expect(
 			panel.getByRole("status", { name: "Character activity" }),
 		).toHaveTextContent("You die.");
+		await user.click(
+			panel.getByRole("button", { name: "Main hand: Iron sword" }),
+		);
 		expect(
 			panel.getByRole("button", { name: "Unequip main hand" }),
 		).toBeDisabled();
+		await user.click(
+			panel.getByRole("button", { name: "Off hand: Wooden shield" }),
+		);
 		expect(
 			panel.getByRole("button", { name: "Unequip off hand" }),
 		).toBeDisabled();

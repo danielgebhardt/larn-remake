@@ -80,10 +80,16 @@ describe("Character sheet", () => {
 		);
 		const weapon = within(character.getByRole("region", { name: "Main hand" }));
 		expect(weapon.getByText("Short sword")).toBeVisible();
-		expect(weapon.getByText(/simple, dependable blade/)).toBeVisible();
+		await user.click(
+			weapon.getByRole("button", { name: "Main hand: Short sword" }),
+		);
+		expect(character.getByText(/simple, dependable blade/)).toBeVisible();
 		const shield = within(character.getByRole("region", { name: "Off hand" }));
 		expect(shield.getByText("Wooden shield")).toBeVisible();
-		expect(shield.getByText(/small wooden shield/)).toBeVisible();
+		await user.click(
+			shield.getByRole("button", { name: "Off hand: Wooden shield" }),
+		);
+		expect(character.getByText(/small wooden shield/)).toBeVisible();
 		expect(
 			screen.queryByRole("dialog", { name: "Settings" }),
 		).not.toBeInTheDocument();

@@ -120,7 +120,7 @@ describe("First goblin placement", () => {
 });
 
 describe("Monster occupancy and retention", () => {
-	it("blocks an occupied destination without spending a turn or dealing damage", () => {
+	it("attacks an occupied destination while retaining the original player position", () => {
 		const initial = createGameState(roomyRun());
 		const game = {
 			...initial,
@@ -138,9 +138,11 @@ describe("Monster occupancy and retention", () => {
 			type: "move",
 			direction: "right",
 		});
-		expect(result.turnAdvanced).toBe(false);
-		expect(result.state).toBe(game);
-		expect(result.state.monsters[0].health).toBe(3);
+		expect(result.turnAdvanced).toBe(true);
+		expect(result.state.run).toBe(game.run);
+		expect(result.state.turn).toBe(game.turn + 1);
+		expect(result.state.monsters[0].health).toBe(1);
+		expect(game.monsters[0].health).toBe(3);
 	});
 
 	it("retains the same injured monster through ordinary movement and floor revisits", () => {

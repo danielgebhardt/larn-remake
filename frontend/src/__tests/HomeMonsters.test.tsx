@@ -53,15 +53,15 @@ const goblin: Monster = {
 afterEach(resetHomeTestState);
 
 describe("Goblin on the play screen", () => {
-	it("blocks a bump without advancing the turn until combat is implemented", async () => {
+	it("removes a goblin on a killing bump without moving or taking damage", async () => {
 		stubDungeonRun(encounterRun(), [goblin]);
 		render(<Home initialFogConfiguration={{ enabled: false, radius: 1 }} />, {
 			wrapper: ThemeProvider,
 		});
 		await userEvent.keyboard("ddd");
 		expect(screen.getByLabelText("row1col3 - player")).toBeVisible();
-		expect(screen.getByLabelText("row1col4 - goblin")).toBeVisible();
-		expect(screen.getByLabelText("Turn count")).toHaveTextContent("Turn 2");
+		expect(screen.getByLabelText("row1col4 - floor")).toBeVisible();
+		expect(screen.getByLabelText("Turn count")).toHaveTextContent("Turn 3");
 		expect(screen.getByLabelText("Player health")).toHaveTextContent(
 			"Health 10 / 10",
 		);

@@ -46,10 +46,14 @@ describe("Home Help menu", () => {
 			expect(help.getByText(`Move ${direction}`)).toBeVisible();
 			expect(help.getByLabelText(`Arrow ${direction}`)).toBeVisible();
 		}
-		for (const key of ["W", "A", "S", "D", "Space", "Esc"]) {
+		for (const key of ["W", "A", "S", "D", "Space", "G", "Esc"]) {
 			expect(help.getByText(key, { selector: "kbd" })).toBeVisible();
 		}
 		expect(help.getByText("Wait one turn")).toBeVisible();
+		expect(help.getByText("Pick up an item")).toBeVisible();
+		expect(
+			help.getByText(/G to pick up an item on your current tile/),
+		).toBeVisible();
 		expect(
 			help.getByText(/Stay in place while monsters take their turn/),
 		).toBeVisible();

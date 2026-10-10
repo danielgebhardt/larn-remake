@@ -1,5 +1,5 @@
 import { HelpCircleIcon, Settings, UserRound } from "lucide-react";
-import { type SubmitEvent, useMemo, useState } from "react";
+import { type SubmitEvent, useEffect, useMemo, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetTrigger } from "@/components/ui/sheet";
 import DungeonHelp from "@/settings/DungeonHelp.tsx";
@@ -8,6 +8,7 @@ import DungeonLayout from "./components/dungeon/DungeonLayout.tsx";
 import DungeonLegend from "./components/dungeon/DungeonLegend.tsx";
 import ActivityLog from "./components/game/ActivityLog.tsx";
 import CharacterSheet from "./components/game/CharacterSheet.tsx";
+import PickupDialog from "./components/game/PickupDialog";
 import PlayerStatus from "./components/game/PlayerStatus.tsx";
 import {
 	connectDungeonFloors,
@@ -27,6 +28,7 @@ import {
 	type PlayerAction,
 	resolvePlayerAction,
 } from "./domain/game/PlayerActions.ts";
+import { BAG_CAPACITY } from "./domain/items/Bag";
 import { itemsAtPlayer } from "./domain/items/FloorItems";
 import Header from "./Header.tsx";
 import DungeonSettings from "./settings/DungeonSettings.tsx";
@@ -75,6 +77,14 @@ const Home = ({
 	const [settingsOpen, setSettingsOpen] = useState(false);
 	const [helpOpen, setHelpOpen] = useState(false);
 	const [characterOpen, setCharacterOpen] = useState(false);
+	const [pickupOpen, setPickupOpen] = useState(false);
+	const mapRef = useRef<HTMLElement>(null);
+	const currentItems = itemsAtPlayer(game.state);
+	// Empty loot or death ends selection; later movement must not reopen it.
+	useEffect(() => {
+		if (pickupOpen && (currentItems.length === 0 || player.health <= 0))
+			setPickupOpen(false);
+	}, [pickupOpen, currentItems.length, player.health]);
 
 	const activeFloor = run.floors[run.activeFloor - 1];
 	const activeMonsters = useMemo(
@@ -111,6 +121,7 @@ const Home = ({
 			exploration: updateExploration(nextRun, fogConfiguration.radius),
 			actionError: "",
 		});
+		setPickupOpen(false);
 		setConfiguration(nextConfiguration);
 		setConfigDraft(configurationDraft(nextConfiguration));
 		setConfigErrors({});
@@ -167,6 +178,25 @@ const Home = ({
 			),
 		}));
 	};
+	const handlePickupRequested = () => {
+		if (currentItems.length === 0) {
+			setGame((current) => ({
+				...current,
+				actionError: "No items on this tile.",
+			}));
+		} else if (
+			currentItems.length === 1 ||
+			game.state.bag.items.length >= BAG_CAPACITY
+		) {
+			handleActionRequested({
+				type: "pickup",
+				itemId: currentItems[0].item.id,
+			});
+		} else {
+			setGame((current) => ({ ...current, actionError: "" }));
+			setPickupOpen(true);
+		}
+	};
 
 	return (
 		<div className="flex h-dvh flex-col bg-muted/30">
@@ -184,7 +214,7 @@ const Home = ({
 							player={player}
 							equipment={game.state.equipment}
 							bag={game.state.bag}
-							floorItems={itemsAtPlayer(game.state)}
+							floorItems={currentItems}
 							turn={turn}
 							history={game.state.activityHistory}
 							actionError={game.actionError}
@@ -244,6 +274,7 @@ const Home = ({
 					<PlayerStatus turn={turn} player={player} />
 					<DungeonLegend fogEnabled={fogConfiguration.enabled} />
 					<DungeonLayout
+						mapRef={mapRef}
 						monsters={activeMonsters}
 						floorItems={activeItems}
 						dungeon={activeFloor.terrain}
@@ -260,13 +291,38 @@ const Home = ({
 							handleActionRequested({ type: "move", direction })
 						}
 						onWaitRequested={() => handleActionRequested({ type: "wait" })}
+						onPickupRequested={handlePickupRequested}
 						movementEnabled={
-							!settingsOpen && !helpOpen && !characterOpen && player.health > 0
+							!settingsOpen &&
+							!helpOpen &&
+							!characterOpen &&
+							!pickupOpen &&
+							player.health > 0
 						}
 					/>
+					{game.actionError && (
+						<p
+							role="status"
+							aria-label="Action feedback"
+							className="py-2 text-sm text-muted-foreground"
+						>
+							{game.actionError}
+						</p>
+					)}
 					<ActivityLog history={game.state.activityHistory} />
 				</section>
 			</main>
+			<PickupDialog
+				open={pickupOpen}
+				onOpenChange={setPickupOpen}
+				items={currentItems}
+				player={player}
+				turn={turn}
+				history={game.state.activityHistory}
+				error={game.actionError}
+				onAction={handleActionRequested}
+				mapRef={mapRef}
+			/>
 			<footer className="flex shrink-0 flex-wrap items-center gap-x-2 gap-y-1 border-t border-border px-4 py-2 text-xs text-muted-foreground sm:px-6">
 				<span>Server:</span>
 				<APICheck />

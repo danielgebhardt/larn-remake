@@ -1,4 +1,5 @@
 import {
+	type RefObject,
 	useCallback,
 	useEffect,
 	useLayoutEffect,
@@ -20,6 +21,8 @@ type DungeonLayoutProps = {
 	upStair?: Coordinate;
 	onMoveRequested: (direction: MovementDirection) => void;
 	onWaitRequested?: () => void;
+	onPickupRequested?: () => void;
+	mapRef?: RefObject<HTMLElement | null>;
 	movementEnabled?: boolean;
 	visible?: VisibilityGrid;
 	explored?: VisibilityGrid;
@@ -29,6 +32,8 @@ type DungeonLayoutProps = {
 
 const NO_MONSTERS: readonly Monster[] = [];
 const NO_ITEMS: readonly FloorItem[] = [];
+const FOCUSED_CONTROLS =
+	'button, a[href], select, input, [role="button"], [role="checkbox"], [role="switch"], [role="combobox"], [role="slider"]';
 
 const DungeonLayout = ({
 	dungeon,
@@ -37,6 +42,8 @@ const DungeonLayout = ({
 	upStair,
 	onMoveRequested,
 	onWaitRequested,
+	onPickupRequested,
+	mapRef,
 	movementEnabled = true,
 	visible,
 	explored,
@@ -62,7 +69,8 @@ const DungeonLayout = ({
 		}
 		return rows;
 	}, [monsters]);
-	const viewportRef = useRef<HTMLElement>(null);
+	const localViewportRef = useRef<HTMLElement>(null);
+	const viewportRef = mapRef ?? localViewportRef;
 	const playerRef = useRef<HTMLTableCellElement>(null);
 	const followPlayer = useCallback(() => {
 		const viewport = viewportRef.current;
@@ -95,7 +103,7 @@ const DungeonLayout = ({
 		});
 		if (left !== viewport.scrollLeft) viewport.scrollLeft = left;
 		if (top !== viewport.scrollTop) viewport.scrollTop = top;
-	}, []);
+	}, [viewportRef]);
 
 	useLayoutEffect(() => {
 		if (dungeon[playerPosition.row]?.[playerPosition.col] !== undefined)
@@ -112,7 +120,7 @@ const DungeonLayout = ({
 		const observer = new ResizeObserver(followPlayer);
 		observer.observe(viewport);
 		return () => observer.disconnect();
-	}, [followPlayer]);
+	}, [followPlayer, viewportRef]);
 
 	useEffect(() => {
 		if (!movementEnabled) return;
@@ -128,14 +136,26 @@ const DungeonLayout = ({
 			}
 
 			switch (event.key) {
+				case "g":
+				case "G":
+					if (
+						!onPickupRequested ||
+						event.ctrlKey ||
+						event.metaKey ||
+						event.altKey ||
+						(event.target instanceof HTMLElement &&
+							event.target.closest(FOCUSED_CONTROLS))
+					)
+						return;
+					event.preventDefault();
+					if (!event.repeat) onPickupRequested();
+					break;
 				case " ":
 					// Space belongs to focused controls and log scrolling first.
 					if (
 						!onWaitRequested ||
 						(event.target instanceof HTMLElement &&
-							event.target.closest(
-								'button, a[href], select, input, [role="button"], [role="checkbox"], [role="switch"], [role="combobox"], [role="slider"]',
-							))
+							event.target.closest(FOCUSED_CONTROLS))
 					)
 						return;
 					event.preventDefault();
@@ -172,7 +192,7 @@ const DungeonLayout = ({
 		return () => {
 			window.removeEventListener("keydown", handleKeyDown);
 		};
-	}, [onMoveRequested, onWaitRequested, movementEnabled]);
+	}, [onMoveRequested, onWaitRequested, onPickupRequested, movementEnabled]);
 
 	return (
 		<section

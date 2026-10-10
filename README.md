@@ -124,6 +124,9 @@ Move the player with either control scheme:
 | Left | ← | A |
 | Right | → | D |
 | Wait | Spacebar | — |
+| Pick up | G | — |
+
+**G** (or lowercase **g**) picks up the sole item on your tile immediately. With multiple items, a compact chooser lists current-tile loot; each selection uses one turn and runs the normal monster phase. Opening or dismissing it is free, and Escape/Close returns focus to the map. The chooser closes when the tile is empty or the player dies. Empty tiles and full bags show feedback without spending a turn. Held-key repeats and Ctrl/Alt/Meta shortcuts do not pick up; gameplay keys pause in all menus and the chooser, and G is ignored in focused controls, editors, and the activity log. Character pickup controls remain available.
 
 The player can move through rooms and corridors but cannot move through wall tiles or beyond the dungeon boundary. **Spacebar** waits one turn without moving or attacking, allowing a lone goblin to approach or hit while you stand still. Waiting does not activate a stair or add a log message of its own. It runs the normal monster phase and costs one turn even when no monster acts. Holding Spacebar does not repeat waits; press it again for another turn. Gameplay movement and waiting are paused while Settings, Help, or Character is open. Escape dismisses the open sheet and restores focus to its header button. Focus the map to resume gameplay; Space retains its normal behavior on focused controls, in editors, and in the activity log. Waiting is disabled after death.
 

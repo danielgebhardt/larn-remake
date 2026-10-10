@@ -76,6 +76,10 @@ const DungeonHelp = () => (
 						<Keycap>Space</Keycap>
 					</li>
 					<li className="flex items-center justify-between gap-3 py-3">
+						<span>Pick up an item</span>
+						<Keycap>G</Keycap>
+					</li>
+					<li className="flex items-center justify-between gap-3 py-3">
 						<span>Close this sheet</span>
 						<Keycap>Esc</Keycap>
 					</li>
@@ -117,10 +121,11 @@ const DungeonHelp = () => (
 						is free.
 					</li>
 					<li>
-						<span className="font-medium text-foreground">Items.</span> Use
-						Character to drop carried items or pick up items on your current
-						tile. Successful transfers use a turn. Unequip worn gear before
-						dropping it.
+						<span className="font-medium text-foreground">Items.</span> Use G to
+						pick up an item on your current tile; multiple items open a chooser.
+						You can also use Character to pick up or drop items. Successful
+						transfers use a turn; opening or dismissing the chooser is free.
+						Unequip worn gear before dropping it.
 					</li>
 					<li>
 						<span className="font-medium text-foreground">Potions.</span> Select

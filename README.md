@@ -17,6 +17,7 @@ The application currently includes:
 - Binary space partitioning that divides dungeon space into terminal regions.
 - Rooms carved into terminal regions and corridors connecting those rooms.
 - Three-floor exploration with automatic stair transitions and a depth display.
+- Configurable fog of war with wall-blocked sight and exploration memory per floor.
 - Current run seed display and replay of the complete dungeon from an entered seed.
 - A compact play screen using Tailwind CSS and shadcn/ui (Base UI, Nova), with styled controls, a tile legend, and scrollable dungeon tiles.
 
@@ -122,6 +123,10 @@ Smaller domain-level maps remain available for test fixtures. When padding leave
 
 Room sizing and the partition default intentionally changed in #45. Previously recorded seeds may produce different layouts and stair locations. Repeatability applies to the same seed, configuration, and generator version; it does not guarantee compatibility with earlier generator versions.
 
+**Fog of war** starts enabled with a visibility radius of 6 tiles. Sight uses a circular radius and stops at walls: the first wall is visible, but tiles behind it are hidden. Two walls touching diagonally block sight through their shared corner. Visible tiles use their normal colors; previously seen tiles remain dimmed; undiscovered tiles reveal neither terrain nor stairs. Each floor remembers its own discoveries when you leave and return.
+
+In **Settings**, **Enable fog of war** immediately switches between exploration and a full-map view. **Visibility radius** accepts whole numbers from 1 to 20; select **Apply visibility radius** or press Enter to apply it without restarting or moving the player. Reducing the radius retains previous discoveries. Disabling fog reveals the map for viewing, while exploration memory continues to record only tiles within normal sight. Re-enabling restores that memory. These preferences last for the current session and survive new dungeons, seed replay, and appearance changes; reloading restores the defaults. New dungeons and seed replay clear every floor's discovery memory, even when the seed repeats. Fog never changes generated terrain, seeded randomness, collision, or stair links.
+
 **Appearance** in Settings offers Light, Dark, and System. Dark is the default. Your choice is saved locally on this device; System follows changes to the operating system appearance. Changing appearance preserves exploration, seed drafts, and validation feedback. UI and dungeon colors are defined together in `frontend/src/App.css`, with charcoal/amber dark colors and a warm stone light palette.
 
 Settings focuses the seed input when opened and contains keyboard focus while open. Game movement and stair transitions are suspended throughout the panel. Use Escape or **Close** to dismiss it without applying a draft; focus returns to the Settings button and game controls resume. Opening, closing, or editing settings does not regenerate the dungeon. Unsubmitted drafts are retained during this session; **New Dungeon** resets the draft and feedback to match the new run.
@@ -143,15 +148,16 @@ Start with `domain/dungeon/RunConfiguration.ts` when tuning dungeon generation. 
 
 | File | What it controls |
 | --- | --- |
-| [RunConfiguration.ts](frontend/src/domain/dungeon/RunConfiguration.ts) | Dungeon defaults, configuration types, and input limits: rows, columns, floor count, minimum partition size, room padding, minimum room size, and maximum room aspect ratio. |
+| [RunConfiguration.ts](frontend/src/domain/dungeon/RunConfiguration.ts) | Dungeon defaults, configuration types, and input limits: rows, columns, floor count, minimum partition size, room padding, minimum room size, maximum room aspect ratio, and fog defaults/radius limits. |
 | [RunConfigurationDraft.ts](frontend/src/settings/RunConfigurationDraft.ts) | Settings draft types, conversion to input strings, and parsing/validation against the shared limits. |
-| [App.css](frontend/src/App.css) | Tile size, light/dark theme colors, and shared styling. The `--dungeon-tile-size` variable sizes dungeon cells, grid columns, and legend icons together. |
+| [FogConfigurationDraft.ts](frontend/src/settings/FogConfigurationDraft.ts) | Parsing and validation of the visibility-radius setting against the shared limits. |
+| [App.css](frontend/src/App.css) | Tile size, light/dark theme colors, fog backgrounds and remembered-icon opacity, and shared styling. The `--dungeon-tile-size` variable sizes dungeon cells, grid columns, and legend icons together. |
 | [TileVisuals.ts](frontend/src/components/dungeon/TileVisuals.ts) | Tile icon choices, color classes, backgrounds, and accessible labels. |
 | [Seed.ts](frontend/src/domain/dungeon/Seed.ts) | Seed range, input validation, and seeded randomness. |
 | [ThemeProvider.tsx](frontend/src/settings/ThemeProvider.tsx) | Default appearance and saved Light/Dark/System preference. |
 | [vite.config.ts](frontend/vite.config.ts) | Frontend tooling, import aliases, backend development proxy, and test environment. |
 
-Settings exposes rows, columns, and floor count. Partition size, padding, room size, and aspect ratio remain internal configuration values and are preserved when applying a Settings draft. Appearance is saved locally; dungeon settings last for the current session.
+Settings exposes rows, columns, floor count, fog enablement, and visibility radius. Partition size, padding, room size, and aspect ratio remain internal configuration values and are preserved when applying a Settings draft. Appearance is saved locally; dungeon and fog settings last for the current session. `Visibility.ts` calculates sight independently of React; `Exploration.ts` combines it with per-floor discovery memory. Unchanged visibility and discovery rows retain their references so memoized map rows and cells can avoid unnecessary rendering.
 
 ## Testing and quality checks
 
@@ -197,7 +203,7 @@ On Windows:
 .\gradlew.bat test
 ```
 
-Frontend suites in `frontend/src/__tests__` are grouped by behavior. Home has separate suites for rendering/movement, configuration, settings/appearance, seed replay, restarts, floor traversal, and a complete exploration scenario. Domain suites cover terrain, generation, location selection, floor seeds, stair links, transitions, and partitioning separately.
+Frontend suites in `frontend/src/__tests__` are grouped by behavior. Home has separate suites for rendering/movement, configuration, settings/appearance, seed replay, restarts, floor traversal, fog settings and discovery, and complete exploration scenarios. Domain suites cover terrain, generation, location selection, floor seeds, stair links, transitions, partitioning, line of sight, and per-floor exploration memory separately. A maximum-size map regression checks that movement redraws nearby icons rather than the whole map.
 
 Pure domain and geometry tests use the Node environment; React interaction tests use jsdom. Keep suites to a top-level `describe` with at most one nested `describe`. Prefer named scenario fixtures, explicit actions, and observable outcomes. `testhelpers.ts` contains domain fixtures and shared connectivity/path checks; `HomeTestHelpers.tsx` contains page rendering and settings interactions. Dungeon comparisons use cell labels rather than complete HTML, while icon-specific tests verify SVG rendering separately.
 

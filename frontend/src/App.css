@@ -7,6 +7,7 @@
 
 @theme inline {
 	--font-heading: var(--font-sans);
+	--color-fog-visible: var(--fog-visible);
 	--color-fog-unseen: var(--fog-unseen);
 	--color-fog-remembered: var(--fog-remembered);
 	--color-wall-icon: var(--wall-icon);
@@ -57,6 +58,7 @@
 
 :root {
 	--dungeon-tile-size: 24px;
+	--fog-visible: #ffffff;
 	--fog-unseen: #dedbd3;
 	--fog-remembered: #eeece7;
 	--remembered-icon-opacity: 0.45;
@@ -100,8 +102,9 @@
 }
 
 .dark {
-	--fog-unseen: #101218;
-	--fog-remembered: #191d25;
+	--fog-visible: #364152;
+	--fog-unseen: #090c12;
+	--fog-remembered: #1f2631;
 	--background: #17191f;
 	--foreground: #eeece7;
 	--card: #20232b;
@@ -152,6 +155,6 @@
 	}
 }
 
-[data-visibility="remembered"] > svg {
+[data-visibility="remembered"] svg {
 	opacity: var(--remembered-icon-opacity);
 }

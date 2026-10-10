@@ -28,6 +28,22 @@ describe("Dungeon visibility", () => {
 		expect(visible[2][3]).toBe(true);
 	});
 
+	it.each([
+		{ direction: "up", rowStep: -1, colStep: 0 },
+		{ direction: "down", rowStep: 1, colStep: 0 },
+		{ direction: "left", rowStep: 0, colStep: -1 },
+		{ direction: "right", rowStep: 0, colStep: 1 },
+	])("blocks sight beyond a wall to the $direction", ({ rowStep, colStep }) => {
+		const terrain = openRoom(7, 7);
+		const origin = { row: 3, col: 3 };
+		const wall = { row: 3 + rowStep, col: 3 + colStep };
+		const behind = { row: 3 + 2 * rowStep, col: 3 + 2 * colStep };
+		terrain[wall.row][wall.col] = WALL;
+		const visible = calculateVisibility(terrain, origin, 6);
+		expect(visible[wall.row][wall.col]).toBe(true);
+		expect(visible[behind.row][behind.col]).toBe(false);
+	});
+
 	it("does not see through a diagonal crack between two walls", () => {
 		const terrain = openRoom(3, 3);
 		terrain[0][1] = WALL;

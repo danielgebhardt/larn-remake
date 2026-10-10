@@ -30,7 +30,7 @@ const DungeonCell = memo(function DungeonCell({
 				? "bg-fog-remembered"
 				: tile === undefined
 					? ""
-					: (TILE_BACKGROUNDS[tile] ?? "");
+					: (TILE_BACKGROUNDS[tile] ?? "bg-fog-visible");
 	return (
 		<td
 			ref={playerRef}

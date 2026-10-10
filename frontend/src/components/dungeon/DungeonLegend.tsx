@@ -22,14 +22,14 @@ const DungeonLegend = ({ fogEnabled = false }: { fogEnabled?: boolean }) => (
 		))}
 		{fogEnabled &&
 			[
-				{ label: "Visible", className: "bg-card" },
+				{ label: "Visible", className: "bg-fog-visible" },
 				{ label: "Remembered", className: "bg-fog-remembered" },
 				{ label: "Undiscovered", className: "bg-fog-unseen" },
 			].map(({ label, className }) => (
 				<li key={label} className="flex items-center gap-2">
 					<span
 						aria-hidden="true"
-						className={`size-3 rounded-sm border ${className}`}
+						className={`size-4 rounded-sm border-2 ${className}`}
 					/>
 					<span>{label}</span>
 				</li>

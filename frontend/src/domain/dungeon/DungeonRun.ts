@@ -100,6 +100,19 @@ export const generateDungeonRun = (
 	return createDungeonRun(seed, floors);
 };
 
+// Also used to reserve entry space for a future deeper floor during spawning.
+export const selectFloorDownStair = (
+	seed: number,
+	floor: DungeonFloor,
+): Coordinate =>
+	selectStairLocation(
+		floor,
+		selectPlayerStart(floor),
+		createSeededRandom(
+			hashStringToUint32(`${seed}:${floor.floorNumber}:stairs`),
+		),
+	);
+
 export const connectAdjacentFloors = (
 	seed: number,
 	shallowerFloor: DungeonFloor,
@@ -109,18 +122,8 @@ export const connectAdjacentFloors = (
 		throw new RangeError("Stair links must connect adjacent floors");
 	}
 
-	const shallowerEntry = selectPlayerStart(shallowerFloor);
 	const deeperEntry = selectPlayerStart(deeperFloor);
-	// A fresh source per floor makes placement independent of connection order
-	// and keeps stair random draws separate from terrain-generation draws.
-	const stairSeed = hashStringToUint32(
-		`${seed}:${shallowerFloor.floorNumber}:stairs`,
-	);
-	const shallowerStair = selectStairLocation(
-		shallowerFloor,
-		shallowerEntry,
-		createSeededRandom(stairSeed),
-	);
+	const shallowerStair = selectFloorDownStair(seed, shallowerFloor);
 
 	return [
 		{

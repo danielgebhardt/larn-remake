@@ -106,6 +106,10 @@ Move the player with either control scheme:
 
 The player can move through rooms and corridors but cannot move through wall tiles or beyond the dungeon boundary.
 
+A fresh run places one stationary goblin on floor 1 when an eligible floor tile exists. Placement uses an independent seed namespace, `seed:floor:monsters:1`, excluding the player and stairs. The goblin retains its identity, location, and current health across floor visits. It is displayed only within current sight, or with fog disabled; remembered tiles retain terrain rather than a monster silhouette. Bumping the goblin currently blocks movement without spending a turn. Attacks and retaliation belong to the next combat story.
+
+Goblin base stats (maximum health 4 and attack damage 1) live in `frontend/src/domain/monsters/Monster.ts`. Its SVG, color class, and accessible label are mapped in `frontend/src/components/monsters/MonsterVisuals.ts`; the custom SVG is `GoblinIcon.tsx`, and light/dark green colors are defined in `App.css`. Monster instances are stored in game state separately from dungeon terrain and discovery. Floors with no eligible tile have no monster.
+
 The player status above the legend shows **Turn** and **Health**. A fresh run starts at turn 0 with 10 / 10 health. Each successful movement action costs one turn, including entering a staircase and arriving on the linked floor. Walking into a wall or beyond the map costs no turn. Settings, fog changes, appearance changes, unused keys, and manual scrolling also cost no turns. Health and the turn count are retained across floors; **New Dungeon** and seed replay reset both, even when the seed repeats. Health has no damage or healing mechanic yet.
 
 Player actions resolve in this order: validate and apply movement, apply at most one stair transition, then advance the turn once if movement succeeded. Home refreshes visibility from the final position and updates game state and discovery together. Blocked movement retains the original state. A broken stair link still raises the existing domain error without modifying the input state. `domain/game/PlayerActions.ts` is the turn-aware action entry point; `GameState.ts` creates fresh run/player state, and `PlayerStats.ts` holds the shared health default. Dungeon generation and fog remain separate responsibilities.
@@ -160,6 +164,8 @@ Start with `domain/dungeon/RunConfiguration.ts` when tuning dungeon generation. 
 | [FogConfigurationDraft.ts](frontend/src/settings/FogConfigurationDraft.ts) | Parsing and validation of the visibility-radius setting against the shared limits. |
 | [App.css](frontend/src/App.css) | Tile size, light/dark theme colors, fog backgrounds and remembered-icon opacity, and shared styling. The `--dungeon-tile-size` variable sizes dungeon cells, grid columns, and legend icons together. |
 | [TileVisuals.ts](frontend/src/components/dungeon/TileVisuals.ts) | Tile icon choices, color classes, backgrounds, and accessible labels. |
+| [Monster.ts](frontend/src/domain/monsters/Monster.ts) | Monster types and shared base stats; goblin maximum health 4 and attack damage 1. |
+| [MonsterVisuals.ts](frontend/src/components/monsters/MonsterVisuals.ts) | Per-monster SVG, color class, and accessible label. |
 | [PlayerStats.ts](frontend/src/domain/game/PlayerStats.ts) | Internal starting maximum health (10); fresh players start with current health equal to this value. |
 | [Seed.ts](frontend/src/domain/dungeon/Seed.ts) | Seed range, input validation, and seeded randomness. |
 | [ThemeProvider.tsx](frontend/src/settings/ThemeProvider.tsx) | Default appearance and saved Light/Dark/System preference. |

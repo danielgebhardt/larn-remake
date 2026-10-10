@@ -19,6 +19,16 @@ export const resolvePlayerAction = (
 	// Only after that succeeds does the action consume a turn.
 	const run = moveDungeonRun(state.run, action.direction);
 	if (run === state.run) return { state, turnAdvanced: false };
+	if (
+		state.monsters.some(
+			(monster) =>
+				monster.floorNumber === run.activeFloor &&
+				monster.health > 0 &&
+				monster.coordinate.row === run.playerCoordinate.row &&
+				monster.coordinate.col === run.playerCoordinate.col,
+		)
+	)
+		return { state, turnAdvanced: false };
 	return {
 		state: { ...state, run, turn: state.turn + 1 },
 		turnAdvanced: true,

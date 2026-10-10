@@ -8,6 +8,8 @@ import {
 	DEFAULT_FOG_CONFIGURATION,
 	DEFAULT_RUN_CONFIGURATION,
 } from "../domain/dungeon/RunConfiguration.ts";
+import type { Monster } from "../domain/monsters/Monster.ts";
+import * as MonsterPlacement from "../domain/monsters/MonsterPlacement.ts";
 import type Home from "../Home.tsx";
 import { ThemeProvider } from "../settings/ThemeProvider.tsx";
 import { findFloorPath } from "./testhelpers.ts";
@@ -18,13 +20,16 @@ export { DEFAULT_DUNGEON_CONFIG };
 
 // These existing suites inspect the complete map. Fog-specific suites render
 // Home directly to exercise its enabled default and discovery behavior.
-export const renderHome = (ui: ReactElement<ComponentProps<typeof Home>>) =>
-	renderUI(
+export const renderHome = (ui: ReactElement<ComponentProps<typeof Home>>) => {
+	// Legacy page scenarios exercise exploration without monster occupancy.
+	vi.spyOn(MonsterPlacement, "spawnRunMonsters").mockReturnValue([]);
+	return renderUI(
 		cloneElement(ui, {
 			initialFogConfiguration: { ...DEFAULT_FOG_CONFIGURATION, enabled: false },
 		}),
 		{ wrapper: ThemeProvider },
 	);
+};
 
 export const resetHomeTestState = () => {
 	localStorage.clear();
@@ -98,7 +103,13 @@ export const movementKeysTo = (
 		.join("");
 };
 
-export const stubDungeonRun = (run: DungeonRun.DungeonRun) => ({
+export const stubDungeonRun = (
+	run: DungeonRun.DungeonRun,
+	monsters: readonly Monster[] = [],
+) => ({
+	spawn: vi
+		.spyOn(MonsterPlacement, "spawnRunMonsters")
+		.mockReturnValue(monsters),
 	generate: vi.spyOn(DungeonRun, "generateDungeonRun").mockReturnValue(run),
 	connect: vi.spyOn(DungeonRun, "connectDungeonFloors").mockReturnValue(run),
 });

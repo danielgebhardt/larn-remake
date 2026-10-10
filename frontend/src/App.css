@@ -14,6 +14,7 @@
 	--color-wall-tile: var(--wall-tile);
 	--color-floor-dot: var(--floor-dot);
 	--color-player: var(--player);
+	--color-goblin: var(--goblin);
 	--color-stairs: var(--stairs);
 	--font-sans: "Geist Variable", sans-serif;
 	--color-sidebar-ring: var(--sidebar-ring);
@@ -98,6 +99,7 @@
 	--wall-tile: #e1e4e9;
 	--floor-dot: #a6abb4;
 	--player: #dc2626;
+	--goblin: #3f6212;
 	--stairs: #a16207;
 }
 
@@ -140,6 +142,7 @@
 	--wall-tile: #292f3b;
 	--floor-dot: #596273;
 	--player: #f87171;
+	--goblin: #a3e635;
 	--stairs: #fbbf24;
 }
 

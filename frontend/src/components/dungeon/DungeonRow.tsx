@@ -1,5 +1,8 @@
 import { memo, type RefObject } from "react";
 import { PLAYER, STAIRS_DOWN, STAIRS_UP } from "../../domain/dungeon/Tiles.ts";
+import type { Monster, MonsterKind } from "../../domain/monsters/Monster.ts";
+import MonsterIcon from "../monsters/MonsterIcon.tsx";
+import { MONSTER_VISUALS } from "../monsters/MonsterVisuals.ts";
 import TileIcon from "./TileIcon.tsx";
 import { TILE_BACKGROUNDS, TILE_LABELS } from "./TileVisuals.ts";
 
@@ -13,14 +16,20 @@ const DungeonCell = memo(function DungeonCell({
 	tile,
 	visibility,
 	playerRef,
+	monsterKind,
 }: {
 	rowIndex: number;
 	columnIndex: number;
 	tile?: string;
 	visibility: TileVisibility;
 	playerRef?: PlayerRef;
+	monsterKind?: MonsterKind;
 }) {
-	const description = tile === undefined ? "undiscovered" : TILE_LABELS[tile];
+	const description = monsterKind
+		? MONSTER_VISUALS[monsterKind].label
+		: tile === undefined
+			? "undiscovered"
+			: TILE_LABELS[tile];
 	const label =
 		visibility === "remembered" ? `remembered ${description}` : description;
 	const background =
@@ -38,7 +47,11 @@ const DungeonCell = memo(function DungeonCell({
 			data-visibility={visibility}
 			className={`size-[var(--dungeon-tile-size)] ${background}`}
 		>
-			{tile !== undefined && <TileIcon tile={tile} />}
+			{monsterKind ? (
+				<MonsterIcon kind={monsterKind} />
+			) : (
+				tile !== undefined && <TileIcon tile={tile} />
+			)}
 		</td>
 	);
 });
@@ -53,6 +66,7 @@ const DungeonRow = memo(function DungeonRow({
 	playerColumn,
 	upStairColumn,
 	downStairColumn,
+	monster,
 	playerRef,
 }: {
 	row: readonly string[];
@@ -62,6 +76,7 @@ const DungeonRow = memo(function DungeonRow({
 	playerColumn?: number;
 	upStairColumn?: number;
 	downStairColumn?: number;
+	monster?: Monster;
 	playerRef: PlayerRef;
 }) {
 	return (
@@ -91,6 +106,14 @@ const DungeonRow = memo(function DungeonRow({
 						columnIndex={columnIndex}
 						tile={visibility === "unknown" ? undefined : tile}
 						visibility={visibility}
+						monsterKind={
+							visibility === "visible" &&
+							tile !== PLAYER &&
+							monster?.coordinate.col === columnIndex &&
+							monster.health > 0
+								? monster.kind
+								: undefined
+						}
 						playerRef={tile === PLAYER ? playerRef : undefined}
 					/>
 				);

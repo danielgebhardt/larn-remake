@@ -164,6 +164,9 @@ const Home = ({
 						<PlayerStatus turn={turn} player={player} />
 						<DungeonLegend fogEnabled={fogConfiguration.enabled} />
 						<DungeonLayout
+							monster={game.state.monsters.find(
+								(monster) => monster.floorNumber === run.activeFloor,
+							)}
 							dungeon={activeFloor.terrain}
 							visible={
 								fogConfiguration.enabled ? exploration.visible : undefined

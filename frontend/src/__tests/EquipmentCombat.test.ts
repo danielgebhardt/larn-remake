@@ -19,7 +19,7 @@ afterEach(() => {
 	MONSTER_DEFINITIONS.goblin.attackDamage = originalGoblinDamage;
 });
 const encounter = () => ({
-	...createGameState(createCorridorEncounter()),
+	...createGameState({ ...createCorridorEncounter(), seed: 0 }),
 	monsters: [
 		{
 			id: "1:1",

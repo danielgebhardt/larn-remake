@@ -11,7 +11,7 @@ import { createTestDungeonFloor } from "./testhelpers.ts";
 
 const encounter = (): GameState => ({
 	...createGameState({
-		seed: 123,
+		seed: 0, // A non-dropping seed keeps these scenarios focused on combat.
 		activeFloor: 1,
 		playerCoordinate: { row: 1, col: 1 },
 		floors: [

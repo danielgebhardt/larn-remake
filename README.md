@@ -103,6 +103,8 @@ Select an item with the mouse, or Tab to it and press Enter/Space, to read its t
 
 Floor items are retained across visits and reset with the run. The map shows them only in current sight (remembered tiles retain terrain), with player/monster/stair symbols taking priority. Multiple items can share a tile and do not block movement or stairs. Each floor starts with up to two equipment items on distinct walkable room tiles, excluding stairs, arrivals, player start, and initial monsters. `ItemPlacement.ts` creates this population once per run using indexed `seed:floor:items:index` namespaces; `Loot.ts` holds the small shared loot catalog. Positions are chosen before item kinds, and loot never consumes terrain/stair/monster random streams.
 
+Goblin deaths have a 50% chance to drop one item from the shared loot catalog. `MonsterDrops.ts` derives that decision from `seed:floor:monster-drops:monsterId`, independent of kill order and other streams. Drops appear on the death tile, may coexist with other items, and persist across visits. The hit and death log entries precede any loot announcement; the defeated monster is removed, so later actions cannot resolve its drop again.
+
 ## Controls
 
 The header shows the current floor, **New Dungeon**, **Character**, **Settings**, and **Help**. Help opens a keyboard-controls sheet with movement/wait keycaps and notes about attacks, stairs, and turns. The map and its legend occupy the main play area. Settings opens a modal side panel containing the current seed and seed replay form. A small footer shows the backend connectivity diagnostic. Exploration runs in the frontend and remains available if that check fails.

@@ -10,6 +10,7 @@ import {
 } from "../domain/dungeon/RunConfiguration.ts";
 import type { FloorItem } from "../domain/items/FloorItems";
 import * as ItemPlacement from "../domain/items/ItemPlacement";
+import * as MonsterDrops from "../domain/items/MonsterDrops";
 import type { Monster } from "../domain/monsters/Monster.ts";
 import * as MonsterPlacement from "../domain/monsters/MonsterPlacement.ts";
 import type Home from "../Home.tsx";
@@ -111,6 +112,7 @@ export const stubDungeonRun = (
 	monsters: readonly Monster[] = [],
 	floorItems: readonly FloorItem[] = [],
 ) => ({
+	drops: vi.spyOn(MonsterDrops, "createMonsterDrop").mockReturnValue(undefined),
 	items: vi.spyOn(ItemPlacement, "spawnRunItems").mockReturnValue(floorItems),
 	spawn: vi
 		.spyOn(MonsterPlacement, "spawnRunMonsters")

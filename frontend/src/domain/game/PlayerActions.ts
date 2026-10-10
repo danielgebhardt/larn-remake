@@ -7,6 +7,7 @@ import {
 	type EquipmentAction,
 } from "../items/EquipmentChanges";
 import { type FloorItemAction, transferFloorItem } from "../items/FloorItems";
+import { createMonsterDrop } from "../items/MonsterDrops";
 import type { Monster } from "../monsters/Monster.ts";
 import { resolveMonsterPhase } from "../monsters/MonsterTurns";
 import { type ActivityEvent, appendActivityEvents } from "./ActivityHistory.ts";
@@ -107,6 +108,21 @@ const resolveAttack = (state: GameState, monster: Monster): GameState => {
 	];
 	if (health === 0)
 		events.push({ type: "monster-died", turn, monster: monster.kind });
+	let floorItems = state.floorItems;
+	if (health === 0) {
+		const drop = createMonsterDrop(state.run.seed, monster);
+		if (drop && !floorItems.some((entry) => entry.item.id === drop.item.id)) {
+			floorItems = [...floorItems, drop];
+			// A bump kill is on a visible adjacent walkable tile. No hidden-floor
+			// or remote monster deaths are resolved by this action.
+			events.push({
+				type: "monster-loot",
+				turn,
+				monster: monster.kind,
+				item: drop.item.kind,
+			});
+		}
+	}
 	const monsters =
 		health > 0
 			? state.monsters.map((actor) =>
@@ -117,6 +133,7 @@ const resolveAttack = (state: GameState, monster: Monster): GameState => {
 		...state,
 		turn,
 		monsters,
+		floorItems,
 		activityHistory: appendActivityEvents(state.activityHistory, events),
 	};
 };

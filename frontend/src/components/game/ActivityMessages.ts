@@ -26,5 +26,7 @@ export const formatActivityEvent = (event: ActivityEvent): string => {
 			return `${prefix}You pick up ${ITEM_DEFINITIONS[event.item].name}.`;
 		case "item-dropped":
 			return `${prefix}You drop ${ITEM_DEFINITIONS[event.item].name}.`;
+		case "monster-loot":
+			return `${prefix}The ${MONSTER_VISUALS[event.monster].label} drops ${ITEM_DEFINITIONS[event.item].name}.`;
 	}
 };

@@ -1,5 +1,6 @@
 import type { EquipmentChangeEvent } from "../items/EquipmentChanges";
 import type { FloorItemEvent } from "../items/FloorItems";
+import type { ItemKind } from "../items/Item";
 import type { MonsterKind } from "../monsters/Monster.ts";
 
 export type ActivityEvent = { turn: number } & (
@@ -9,6 +10,7 @@ export type ActivityEvent = { turn: number } & (
 	| { type: "player-died" }
 	| EquipmentChangeEvent
 	| FloorItemEvent
+	| { type: "monster-loot"; monster: MonsterKind; item: ItemKind }
 );
 
 export type ActivityEntry = { id: number; event: ActivityEvent };

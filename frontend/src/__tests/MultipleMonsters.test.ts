@@ -130,6 +130,7 @@ describe("Multiple monster turns", () => {
 		expect(result.activityHistory.entries.map((e) => e.event.type)).toEqual([
 			"player-hit",
 			"monster-died",
+			"monster-loot",
 			"monster-hit",
 		]);
 	});

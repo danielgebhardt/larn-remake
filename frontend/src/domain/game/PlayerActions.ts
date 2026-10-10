@@ -18,6 +18,7 @@ export const resolvePlayerAction = (
 	state: GameState,
 	action: PlayerAction,
 ): ActionResolution => {
+	if (state.player.health <= 0) return { state, turnAdvanced: false };
 	// Movement validates collision and applies at most one stair transition.
 	// An occupied destination resolves combat from the original position instead.
 	// Spawn placement excludes stairs and their arrival tiles.
@@ -57,6 +58,7 @@ const resolveAttack = (
 		const damage = MONSTER_DEFINITIONS[monster.kind].attackDamage;
 		player = { ...player, health: Math.max(0, player.health - damage) };
 		events.push({ type: "monster-hit", turn, monster: monster.kind, damage });
+		if (player.health === 0) events.push({ type: "player-died", turn });
 	} else {
 		events.push({ type: "monster-died", turn, monster: monster.kind });
 	}

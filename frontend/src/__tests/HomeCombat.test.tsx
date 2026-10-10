@@ -1,61 +1,12 @@
-import { render, screen, within } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
+import { screen, within } from "@testing-library/react";
 import { afterEach, describe, expect, it } from "vitest";
-import type { DungeonRun } from "../domain/dungeon/DungeonRun.ts";
-import type { Monster } from "../domain/monsters/Monster.ts";
-import Home from "../Home.tsx";
-import { ThemeProvider } from "../settings/ThemeProvider.tsx";
+import { renderEncounter } from "./HomeEncounterTestHelpers.tsx";
 import {
 	closeSettings,
 	openSettings,
 	resetHomeTestState,
-	stubDungeonRun,
 } from "./HomeTestHelpers.tsx";
-import { createTestDungeonFloor } from "./testhelpers.ts";
 
-const renderEncounter = () => {
-	const run: DungeonRun = {
-		seed: 123,
-		activeFloor: 1,
-		playerCoordinate: { row: 1, col: 1 },
-		floors: [
-			createTestDungeonFloor({
-				floorNumber: 1,
-				rows: 4,
-				cols: 5,
-				room: { startRow: 1, endRow: 2, startCol: 1, endCol: 3 },
-				downStair: {
-					coordinate: { row: 2, col: 3 },
-					destinationFloor: 2,
-					arrivalCoordinate: { row: 1, col: 1 },
-				},
-			}),
-			createTestDungeonFloor({
-				floorNumber: 2,
-				rows: 3,
-				cols: 4,
-				room: { startRow: 1, endRow: 1, startCol: 1, endCol: 2 },
-				upStair: {
-					coordinate: { row: 1, col: 1 },
-					destinationFloor: 1,
-					arrivalCoordinate: { row: 2, col: 3 },
-				},
-			}),
-		],
-	};
-	const goblin: Monster = {
-		id: "1:1",
-		kind: "goblin",
-		floorNumber: 1,
-		coordinate: { row: 1, col: 2 },
-		health: 4,
-	};
-	const stubs = stubDungeonRun(run, [goblin]);
-	render(<Home initialFogConfiguration={{ enabled: true, radius: 1 }} />, {
-		wrapper: ThemeProvider,
-	});
-	return { user: userEvent.setup(), ...stubs };
-};
 const messages = () =>
 	within(screen.getByRole("log"))
 		.getAllByRole("listitem")
@@ -93,6 +44,13 @@ describe("Combat on the play screen", () => {
 			await user.keyboard(key);
 			expect(screen.getByLabelText("row1col2 - player")).toBeVisible();
 			expect(screen.getByLabelText("Turn count")).toHaveTextContent("Turn 3");
+			expect(messages()).toHaveLength(4);
+			// The defeated goblin must stay removed after leaving and returning.
+			await user.keyboard("sdda");
+			expect(
+				screen.getByRole("heading", { name: "Floor 1 of 2" }),
+			).toBeVisible();
+			expect(screen.queryByLabelText(/goblin/)).not.toBeInTheDocument();
 			expect(messages()).toHaveLength(4);
 			expect(generate).toHaveBeenCalledTimes(1);
 			expect(spawn).toHaveBeenCalledTimes(1);

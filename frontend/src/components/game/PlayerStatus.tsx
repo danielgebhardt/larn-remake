@@ -15,6 +15,14 @@ const PlayerStatus = ({
 		<output aria-label="Player health">
 			Health {player.health} / {player.maxHealth}
 		</output>
+		{player.health === 0 && (
+			<p
+				role="alert"
+				className="w-full rounded-md border border-destructive/30 bg-destructive/10 px-3 py-2 text-center text-destructive"
+			>
+				You died. Start a new dungeon or replay the seed to try again.
+			</p>
+		)}
 	</section>
 );
 

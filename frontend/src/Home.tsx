@@ -181,7 +181,7 @@ const Home = ({
 							upStair={activeFloor.upStair?.coordinate}
 							downStair={activeFloor.downStair?.coordinate}
 							onMoveRequested={handleMoveRequested}
-							movementEnabled={!settingsOpen}
+							movementEnabled={!settingsOpen && player.health > 0}
 						/>
 						<ActivityLog history={game.state.activityHistory} />
 					</section>

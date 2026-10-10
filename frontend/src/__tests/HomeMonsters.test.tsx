@@ -1,8 +1,9 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { DungeonRun } from "../domain/dungeon/DungeonRun.ts";
 import type { Monster } from "../domain/monsters/Monster.ts";
+import * as MonsterPursuit from "../domain/monsters/MonsterPursuit";
 import Home from "../Home.tsx";
 import { ThemeProvider } from "../settings/ThemeProvider.tsx";
 import {
@@ -50,6 +51,10 @@ const goblin: Monster = {
 	health: 2,
 };
 
+// Placement and visibility fixtures retain their actors; pursuit has its own suite.
+beforeEach(() =>
+	vi.spyOn(MonsterPursuit, "selectPursuitStep").mockReturnValue(undefined),
+);
 afterEach(resetHomeTestState);
 
 describe("Goblin on the play screen", () => {

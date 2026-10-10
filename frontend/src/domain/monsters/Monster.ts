@@ -12,7 +12,7 @@ export type Monster = {
 
 export const MONSTER_DEFINITIONS: Record<
 	MonsterKind,
-	{ maxHealth: number; attackDamage: number }
+	{ maxHealth: number; attackDamage: number; detectionRadius: number }
 > = {
-	goblin: { maxHealth: 4, attackDamage: 1 },
+	goblin: { maxHealth: 4, attackDamage: 1, detectionRadius: 6 },
 };

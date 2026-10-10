@@ -62,6 +62,7 @@ describe("First goblin placement", () => {
 			health: 4,
 		});
 		expect(MONSTER_DEFINITIONS.goblin).toEqual({
+			detectionRadius: 6,
 			maxHealth: 4,
 			attackDamage: 1,
 		});

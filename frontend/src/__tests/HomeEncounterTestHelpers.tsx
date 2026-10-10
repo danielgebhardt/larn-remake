@@ -4,6 +4,7 @@ import { vi } from "vitest";
 import type { DungeonRun } from "../domain/dungeon/DungeonRun.ts";
 import * as GameState from "../domain/game/GameState.ts";
 import type { Monster } from "../domain/monsters/Monster.ts";
+import * as MonsterPursuit from "../domain/monsters/MonsterPursuit";
 import Home from "../Home.tsx";
 import { ThemeProvider } from "../settings/ThemeProvider.tsx";
 import { stubDungeonRun } from "./HomeTestHelpers.tsx";
@@ -47,6 +48,8 @@ export const renderEncounter = (initialHealth?: number) => {
 		health: 4,
 	};
 	const stubs = stubDungeonRun(run, [goblin]);
+	// These fixtures isolate combat and recovery; HomePursuit exercises real AI.
+	vi.spyOn(MonsterPursuit, "selectPursuitStep").mockReturnValue(undefined);
 	if (initialHealth !== undefined) {
 		const create = GameState.createGameState;
 		vi.spyOn(GameState, "createGameState").mockImplementationOnce((run) => ({

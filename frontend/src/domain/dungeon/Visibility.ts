@@ -6,7 +6,7 @@ export type VisibilityGrid = readonly (readonly boolean[])[];
 
 // Trace from tile center to tile center. Integer boundary comparisons avoid
 // floating-point corner ambiguity and work identically in every direction.
-const hasLineOfSight = (
+export const hasLineOfSight = (
 	terrain: Dungeon,
 	origin: Coordinate,
 	target: Coordinate,

@@ -81,7 +81,9 @@ describe("Bump combat", () => {
 			const game = encounter();
 			const result = resolvePlayerAction(game, { type: "move", direction });
 			expect(result.state.player).toBe(game.player);
-			expect(result.state.monsters).toBe(game.monsters);
+			if (direction === "up") expect(result.state.monsters).toBe(game.monsters);
+			else
+				expect(result.state.monsters[0].coordinate).toEqual({ row: 2, col: 2 });
 			expect(result.state.activityHistory).toBe(game.activityHistory);
 			expect(result.state.turn).toBe(direction === "down" ? 8 : 7);
 		},

@@ -1,18 +1,31 @@
 import { Backpack, Shield, Sword } from "lucide-react";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { BAG_CAPACITY, type Bag } from "../../domain/items/Bag";
+import { equipmentSlotFor } from "../../domain/items/Equipment";
+import type { EquipmentAction } from "../../domain/items/EquipmentChanges";
 import { ITEM_DEFINITIONS } from "../../domain/items/Item";
 
-const BagContents = ({ bag }: { bag: Bag }) => {
+const BagContents = ({
+	bag,
+	canChangeGear,
+	onEquipmentAction,
+}: {
+	bag: Bag;
+	canChangeGear: boolean;
+	onEquipmentAction: (action: EquipmentAction) => void;
+}) => {
 	const [selectedId, setSelectedId] = useState<string | null>(null);
+	const headingRef = useRef<HTMLHeadingElement>(null);
 	const selected = bag.items.find((item) => item.id === selectedId);
 	const details = selected ? ITEM_DEFINITIONS[selected.kind] : null;
 	return (
 		<section aria-labelledby="character-bag-title" className="grid gap-3">
 			<h3
+				ref={headingRef}
+				tabIndex={-1}
 				id="character-bag-title"
-				className="flex items-center gap-2 font-medium"
+				className="flex items-center gap-2 font-medium outline-none"
 			>
 				<Backpack aria-hidden="true" className="size-4 text-muted-foreground" />{" "}
 				Bag
@@ -86,6 +99,25 @@ const BagContents = ({ bag }: { bag: Bag }) => {
 							? `Attack bonus +${details.attackBonus}`
 							: `Armor ${details.armor}`}
 					</p>
+					{selected && (
+						<Button
+							type="button"
+							disabled={!canChangeGear}
+							onClick={() => {
+								onEquipmentAction({
+									type: "equip",
+									itemId: selected.id,
+									slot: equipmentSlotFor(selected),
+								});
+								headingRef.current?.focus({ preventScroll: true });
+							}}
+						>
+							Equip in{" "}
+							{equipmentSlotFor(selected) === "mainHand"
+								? "main hand"
+								: "off hand"}
+						</Button>
+					)}
 				</section>
 			) : bag.items.length > 0 ? (
 				<p className="text-xs text-muted-foreground">

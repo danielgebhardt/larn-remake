@@ -2,6 +2,10 @@ import {
 	type MovementDirection,
 	moveDungeonRun,
 } from "../dungeon/DungeonRun.ts";
+import {
+	changeEquipment,
+	type EquipmentAction,
+} from "../items/EquipmentChanges";
 import type { Monster } from "../monsters/Monster.ts";
 import { resolveMonsterPhase } from "../monsters/MonsterTurns";
 import { type ActivityEvent, appendActivityEvents } from "./ActivityHistory.ts";
@@ -10,11 +14,13 @@ import type { GameState } from "./GameState.ts";
 
 export type PlayerAction =
 	| { type: "move"; direction: MovementDirection }
-	| { type: "wait" };
+	| { type: "wait" }
+	| EquipmentAction;
 
 export type ActionResolution = {
 	state: GameState;
 	turnAdvanced: boolean;
+	error?: string;
 };
 
 export const resolvePlayerAction = (
@@ -22,6 +28,24 @@ export const resolvePlayerAction = (
 	action: PlayerAction,
 ): ActionResolution => {
 	if (state.player.health <= 0) return { state, turnAdvanced: false };
+	if (action.type === "equip" || action.type === "unequip") {
+		const change = changeEquipment(state.equipment, state.bag, action);
+		if ("error" in change)
+			return { state, turnAdvanced: false, error: change.error };
+		const turn = state.turn + 1;
+		return {
+			state: resolveMonsterPhase({
+				...state,
+				equipment: change.equipment,
+				bag: change.bag,
+				turn,
+				activityHistory: appendActivityEvents(state.activityHistory, [
+					{ ...change.event, turn },
+				]),
+			}),
+			turnAdvanced: true,
+		};
+	}
 	if (action.type === "wait")
 		return {
 			state: resolveMonsterPhase({ ...state, turn: state.turn + 1 }),

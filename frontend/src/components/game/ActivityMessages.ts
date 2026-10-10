@@ -1,4 +1,5 @@
 import type { ActivityEvent } from "../../domain/game/ActivityHistory.ts";
+import { ITEM_DEFINITIONS } from "../../domain/items/Item";
 import { MONSTER_VISUALS } from "../monsters/MonsterVisuals.ts";
 
 export const formatActivityEvent = (event: ActivityEvent): string => {
@@ -12,5 +13,14 @@ export const formatActivityEvent = (event: ActivityEvent): string => {
 			return `${prefix}The ${MONSTER_VISUALS[event.monster].label} dies.`;
 		case "player-died":
 			return `${prefix}You die.`;
+		case "item-equipped": {
+			const slot = event.slot === "mainHand" ? "main hand" : "off hand";
+			const replaced = event.replaced
+				? `, returning ${ITEM_DEFINITIONS[event.replaced].name} to your bag`
+				: "";
+			return `${prefix}You equip ${ITEM_DEFINITIONS[event.item].name} in your ${slot}${replaced}.`;
+		}
+		case "item-unequipped":
+			return `${prefix}You put ${ITEM_DEFINITIONS[event.item].name} in your bag.`;
 	}
 };

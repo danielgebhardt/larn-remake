@@ -1,22 +1,30 @@
 import { Heart, Shield, Sword, UserRound } from "lucide-react";
 import { useRef } from "react";
+import { Button } from "@/components/ui/button";
 import {
 	SheetContent,
 	SheetDescription,
 	SheetHeader,
 	SheetTitle,
 } from "@/components/ui/sheet";
+import type { ActivityHistory } from "../../domain/game/ActivityHistory";
 import { deriveCombatStats } from "../../domain/game/CombatStats";
 import type { PlayerStats } from "../../domain/game/PlayerStats";
 import type { Bag } from "../../domain/items/Bag";
 import type { Equipment } from "../../domain/items/Equipment";
+import type { EquipmentAction } from "../../domain/items/EquipmentChanges";
 import { ITEM_DEFINITIONS } from "../../domain/items/Item";
+import { formatActivityEvent } from "./ActivityMessages";
 import BagContents from "./BagContents";
 
 type CharacterSheetProps = {
 	player: PlayerStats;
 	equipment: Equipment;
 	bag: Bag;
+	turn: number;
+	history: ActivityHistory;
+	actionError: string;
+	onEquipmentAction: (action: EquipmentAction) => void;
 };
 
 const slots = [
@@ -24,9 +32,19 @@ const slots = [
 	{ key: "offHand", label: "Off hand", Icon: Shield },
 ] as const;
 
-const CharacterSheet = ({ player, equipment, bag }: CharacterSheetProps) => {
+const CharacterSheet = ({
+	player,
+	equipment,
+	bag,
+	turn,
+	history,
+	actionError,
+	onEquipmentAction,
+}: CharacterSheetProps) => {
 	const combat = deriveCombatStats(equipment);
 	const titleRef = useRef<HTMLHeadingElement>(null);
+	const equipmentHeadingRef = useRef<HTMLHeadingElement>(null);
+	const events = history.entries.filter((entry) => entry.event.turn === turn);
 	return (
 		<SheetContent
 			initialFocus={titleRef}
@@ -84,8 +102,10 @@ const CharacterSheet = ({ player, equipment, bag }: CharacterSheetProps) => {
 					className="grid gap-3"
 				>
 					<h3
+						ref={equipmentHeadingRef}
+						tabIndex={-1}
 						id="character-equipment-title"
-						className="flex items-center gap-2 font-medium"
+						className="flex items-center gap-2 font-medium outline-none"
 					>
 						<UserRound
 							aria-hidden="true"
@@ -126,14 +146,64 @@ const CharacterSheet = ({ player, equipment, bag }: CharacterSheetProps) => {
 										{definition.description}
 									</p>
 								)}
+								{item && (
+									<Button
+										type="button"
+										variant="outline"
+										size="sm"
+										className="mt-3"
+										disabled={player.health <= 0}
+										onClick={() => {
+											onEquipmentAction({ type: "unequip", slot: key });
+											equipmentHeadingRef.current?.focus({
+												preventScroll: true,
+											});
+										}}
+									>
+										Unequip {label.toLowerCase()}
+									</Button>
+								)}
 							</section>
 						);
 					})}
 				</section>
-				<BagContents bag={bag} />
+				<BagContents
+					bag={bag}
+					canChangeGear={player.health > 0}
+					onEquipmentAction={onEquipmentAction}
+				/>
 				<p className="rounded-lg border bg-muted/30 p-3 text-xs leading-relaxed text-muted-foreground">
-					This view is read-only. Opening it does not use a turn.
+					Opening this sheet and inspecting items is free. Each successful gear
+					change uses one turn, and monsters act afterward.
 				</p>
+			</div>
+			<div className="sticky bottom-0 grid shrink-0 gap-2 border-t bg-popover px-4 py-3">
+				{actionError && (
+					<p role="alert" className="text-sm text-destructive">
+						{actionError}
+					</p>
+				)}
+				{player.health <= 0 && (
+					<p role="alert" className="text-sm text-destructive">
+						You died. Start a new dungeon or replay a seed to try again.
+					</p>
+				)}
+				<div
+					role="status"
+					aria-label="Character activity"
+					aria-live="polite"
+					aria-atomic="true"
+					className="grid gap-1 text-xs leading-relaxed"
+				>
+					<p className="font-medium tabular-nums">
+						Turn {turn} · Health {player.health} / {player.maxHealth}
+					</p>
+					{events.map((entry) => (
+						<p key={entry.id} className="text-muted-foreground">
+							{formatActivityEvent(entry.event)}
+						</p>
+					))}
+				</div>
 			</div>
 		</SheetContent>
 	);

@@ -58,6 +58,7 @@ const Home = ({
 		return {
 			state: createGameState(run),
 			exploration: updateExploration(run, fogConfiguration.radius),
+			actionError: "",
 		};
 	});
 	const { run, turn, player } = game.state;
@@ -100,6 +101,7 @@ const Home = ({
 		setGame({
 			state: createGameState(nextRun),
 			exploration: updateExploration(nextRun, fogConfiguration.radius),
+			actionError: "",
 		});
 		setConfiguration(nextConfiguration);
 		setConfigDraft(configurationDraft(nextConfiguration));
@@ -132,9 +134,11 @@ const Home = ({
 	const handleActionRequested = (action: PlayerAction) => {
 		setGame((current) => {
 			const result = resolvePlayerAction(current.state, action);
+			if (result.error) return { ...current, actionError: result.error };
 			if (!result.turnAdvanced) return current;
 			return {
 				state: result.state,
+				actionError: "",
 				exploration: updateExploration(
 					result.state.run,
 					fogConfiguration.radius,
@@ -172,6 +176,10 @@ const Home = ({
 							player={player}
 							equipment={game.state.equipment}
 							bag={game.state.bag}
+							turn={turn}
+							history={game.state.activityHistory}
+							actionError={game.actionError}
+							onEquipmentAction={handleActionRequested}
 						/>
 					</Sheet>
 				}

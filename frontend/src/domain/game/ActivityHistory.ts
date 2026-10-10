@@ -1,3 +1,4 @@
+import type { EquipmentChangeEvent } from "../items/EquipmentChanges";
 import type { MonsterKind } from "../monsters/Monster.ts";
 
 export type ActivityEvent = { turn: number } & (
@@ -5,6 +6,7 @@ export type ActivityEvent = { turn: number } & (
 	| { type: "monster-hit"; monster: MonsterKind; damage: number }
 	| { type: "monster-died"; monster: MonsterKind }
 	| { type: "player-died" }
+	| EquipmentChangeEvent
 );
 
 export type ActivityEntry = { id: number; event: ActivityEvent };

@@ -111,6 +111,12 @@ const DungeonHelp = () => (
 						stair tile to change floors automatically.
 					</li>
 					<li>
+						<span className="font-medium text-foreground">Equipment.</span> Open
+						Character to inspect items, equip carried gear, or unequip an
+						occupied slot. Successful gear changes use a turn; inspecting items
+						is free.
+					</li>
+					<li>
 						<span className="font-medium text-foreground">Turns.</span>{" "}
 						Successful movement, attacks, and waiting use a turn. Blocked
 						movement does not use a turn.
@@ -119,7 +125,7 @@ const DungeonHelp = () => (
 			</section>
 			<p className="flex items-start gap-2 rounded-lg border bg-muted/30 p-3 text-xs leading-relaxed text-muted-foreground">
 				<Shield aria-hidden="true" className="mt-0.5 size-4 shrink-0" />
-				Opening Help or Settings does not use a turn.
+				Opening Help, Settings, or Character does not use a turn.
 			</p>
 		</div>
 	</SheetContent>

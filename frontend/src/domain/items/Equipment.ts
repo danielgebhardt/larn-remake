@@ -4,6 +4,10 @@ export type Equipment = Readonly<{
 	mainHand: ItemInstance | null;
 	offHand: ItemInstance | null;
 }>;
+export type EquipmentSlot = keyof Equipment;
+
+export const equipmentSlotFor = (item: ItemInstance): EquipmentSlot =>
+	ITEM_DEFINITIONS[item.kind].type === "weapon" ? "mainHand" : "offHand";
 
 export const createEquipment = (
 	mainHand: ItemInstance | null = null,

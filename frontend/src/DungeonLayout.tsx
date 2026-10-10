@@ -163,9 +163,9 @@ const DungeonLayout = ({
 			aria-label="Dungeon map"
 			// biome-ignore lint/a11y/noNoninteractiveTabindex: Keyboard users need to focus the scrollable map region.
 			tabIndex={0}
-			className="max-h-[70vh] w-full overflow-auto focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-600"
+			className="min-h-0 w-full flex-1 overflow-auto focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-600"
 		>
-			<table aria-label="Dungeon" className="w-max border-collapse">
+			<table aria-label="Dungeon" className="mx-auto w-max border-collapse">
 				<tbody className="grid">
 					{dungeon.map((row, rowIndex) => (
 						<DungeonRow

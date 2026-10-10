@@ -1,13 +1,24 @@
 import { describe, expect, it } from "vitest";
-import { parseRunConfiguration } from "../RunConfiguration";
+import { configurationDraft, parseRunConfiguration } from "../RunConfiguration";
 
 describe("run configuration input", () => {
 	it("normalizes whole numbers and accepts a rectangular, single-floor dungeon", () => {
 		expect(
-			parseRunConfiguration({ rows: " 005 ", cols: "100", floorCount: "1" }),
-		).toEqual({ valid: true, value: { rows: 5, cols: 100, floorCount: 1 } });
+			parseRunConfiguration({ rows: " 010 ", cols: "100", floorCount: "1" }),
+		).toEqual({
+			valid: true,
+			value: {
+				rows: 10,
+				cols: 100,
+				floorCount: 1,
+				minPartitionSize: 8,
+				roomPadding: 1,
+				minRoomSize: 3,
+				maxRoomAspectRatio: 3,
+			},
+		});
 	});
-	it.each(["", "4", "101", "5.5", "-5", "1e2", "Infinity", "abc"])(
+	it.each(["", "5", "9", "101", "5.5", "-5", "1e2", "Infinity", "abc"])(
 		"rejects invalid rows: %s",
 		(rows) => {
 			const result = parseRunConfiguration({
@@ -17,18 +28,21 @@ describe("run configuration input", () => {
 			});
 			expect(result).toEqual({
 				valid: false,
-				errors: { rows: "Enter a whole number from 5 to 100." },
+				errors: { rows: "Enter a whole number from 10 to 100." },
 			});
 		},
 	);
-	it.each(["", "4", "101", "5.5"])("rejects invalid columns: %s", (cols) => {
-		expect(
-			parseRunConfiguration({ rows: "30", cols, floorCount: "3" }),
-		).toEqual({
-			valid: false,
-			errors: { cols: "Enter a whole number from 5 to 100." },
-		});
-	});
+	it.each(["", "5", "9", "101", "5.5"])(
+		"rejects invalid columns: %s",
+		(cols) => {
+			expect(
+				parseRunConfiguration({ rows: "30", cols, floorCount: "3" }),
+			).toEqual({
+				valid: false,
+				errors: { cols: "Enter a whole number from 10 to 100." },
+			});
+		},
+	);
 	it.each(["", "0", "11", "1.5"])(
 		"rejects invalid floor counts: %s",
 		(floorCount) => {
@@ -43,7 +57,59 @@ describe("run configuration input", () => {
 	it("accepts maximum dimensions and floor count", () => {
 		expect(
 			parseRunConfiguration({ rows: "100", cols: "100", floorCount: "10" }),
-		).toEqual({ valid: true, value: { rows: 100, cols: 100, floorCount: 10 } });
+		).toEqual({
+			valid: true,
+			value: {
+				rows: 100,
+				cols: 100,
+				floorCount: 10,
+				minPartitionSize: 8,
+				roomPadding: 1,
+				minRoomSize: 3,
+				maxRoomAspectRatio: 3,
+			},
+		});
+	});
+	it("keeps internal generation settings when applying an editable draft", () => {
+		const configuration = {
+			rows: 30,
+			cols: 100,
+			floorCount: 3,
+			minPartitionSize: 10,
+			roomPadding: 2,
+			minRoomSize: 4,
+			maxRoomAspectRatio: 2,
+		};
+		expect(
+			parseRunConfiguration(
+				{ rows: "20", cols: "40", floorCount: "2" },
+				configuration,
+			),
+		).toEqual({
+			valid: true,
+			value: {
+				rows: 20,
+				cols: 40,
+				floorCount: 2,
+				minPartitionSize: 10,
+				roomPadding: 2,
+				minRoomSize: 4,
+				maxRoomAspectRatio: 2,
+			},
+		});
+	});
+	it("includes only user-editable values in the settings draft", () => {
+		expect(
+			configurationDraft({
+				rows: 30,
+				cols: 100,
+				floorCount: 3,
+				minPartitionSize: 10,
+				roomPadding: 2,
+				minRoomSize: 4,
+				maxRoomAspectRatio: 2,
+			}),
+		).toEqual({ rows: "30", cols: "100", floorCount: "3" });
 	});
 	it("reports all invalid fields together", () => {
 		const result = parseRunConfiguration({

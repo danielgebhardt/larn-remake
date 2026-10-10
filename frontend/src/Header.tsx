@@ -16,7 +16,7 @@ const Header = ({
 	settingsAction,
 }: HeaderProps) => {
 	return (
-		<header className="flex flex-wrap items-center gap-4 border-b border-border bg-card px-4 py-3 sm:px-6">
+		<header className="flex shrink-0 flex-wrap items-center gap-4 border-b border-border bg-card px-4 py-3 sm:px-6">
 			<div className="flex min-w-0 flex-1 flex-wrap items-baseline gap-x-4 gap-y-1">
 				<h1 className="text-lg font-semibold tracking-tight">Larn Remake</h1>
 				<h2 className="text-sm font-medium text-muted-foreground">

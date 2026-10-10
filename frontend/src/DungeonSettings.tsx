@@ -149,7 +149,6 @@ const DungeonSettings = ({
 					</fieldset>
 					<p className="text-xs text-muted-foreground">
 						Start from seed applies these settings and restarts on floor 1.
-						Small dungeons may need another seed to fit stairs.
 					</p>
 					{generationError && (
 						<p role="alert" className="text-sm text-destructive">

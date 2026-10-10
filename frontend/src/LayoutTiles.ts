@@ -5,16 +5,18 @@ import {
 	recursivePartition,
 } from "./Partitioning.ts";
 import { assignRoomsToPartition, getTerminalRooms, type Room } from "./Room.ts";
+import {
+	DEFAULT_RUN_CONFIGURATION,
+	type DungeonConfig,
+	MAX_SIZE,
+} from "./RunConfiguration";
 import { createSeededRandom } from "./Seed.ts";
+
+export type { DungeonConfig } from "./RunConfiguration";
+export { MAX_SIZE } from "./RunConfiguration";
 
 export type Dungeon = string[][];
 export type Coordinate = { row: number; col: number };
-export type DungeonConfig = {
-	rows: number;
-	cols: number;
-	minPartitionSize: number;
-	roomPadding: number;
-};
 
 export type GeneratedDungeon = {
 	terrain: Dungeon;
@@ -34,7 +36,6 @@ export const PLAYER: string = "@";
 export const STAIRS_UP = "<";
 export const STAIRS_DOWN = ">";
 export const START_COORDINATE: Coordinate = { row: 1, col: 1 };
-export const MAX_SIZE = 100;
 
 export const fixedDungeon: Dungeon = [
 	[WALL, WALL, WALL, WALL, WALL],
@@ -168,6 +169,12 @@ export const generateDungeon = (
 		recursivePartition(region, config.minPartitionSize, random),
 		config.roomPadding,
 		random,
+		{
+			minRoomSize: config.minRoomSize ?? DEFAULT_RUN_CONFIGURATION.minRoomSize,
+			maxRoomAspectRatio:
+				config.maxRoomAspectRatio ??
+				DEFAULT_RUN_CONFIGURATION.maxRoomAspectRatio,
+		},
 	);
 	const rooms: Room[] = getTerminalRooms(partitionsWithRooms);
 	const corridors: Corridor[] = connectPartitionRooms(partitionsWithRooms);

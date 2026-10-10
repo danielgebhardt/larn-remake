@@ -10,11 +10,11 @@ const entries = [
 const DungeonLegend = () => (
 	<ul
 		aria-label="Dungeon legend"
-		className="my-2 flex flex-wrap justify-center gap-x-5 gap-y-2 text-sm"
+		className="my-2 flex shrink-0 flex-wrap justify-center gap-x-5 gap-y-2 text-sm"
 	>
 		{entries.map(({ tile, label }) => (
 			<li key={tile} className="flex items-center gap-2">
-				<span className="block size-[24px]">
+				<span className="block size-[var(--dungeon-tile-size)]">
 					<TileIcon tile={tile} />
 				</span>
 				<span>{label}</span>

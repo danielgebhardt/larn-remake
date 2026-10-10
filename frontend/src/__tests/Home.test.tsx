@@ -161,7 +161,7 @@ describe("Home tests", () => {
 			);
 		expect(
 			screen.getByRole("textbox", { name: "Rows" }),
-		).toHaveAccessibleDescription(/Enter a whole number from 5 to 100/);
+		).toHaveAccessibleDescription(/Enter a whole number from 10 to 100/);
 		expect(board.innerHTML).toBe(original);
 		expect(generate).toHaveBeenCalledTimes(1);
 		await closeSettings(user);
@@ -192,7 +192,7 @@ describe("Home tests", () => {
 			const board = screen.getByRole("table");
 			const original = board.innerHTML;
 			await openSettings(user);
-			await editConfiguration(user, "5", "5", "2");
+			await editConfiguration(user, "10", "10", "2");
 			(stage === "terrain" ? generate : connect).mockImplementationOnce(() => {
 				throw new Error("generation failed");
 			});
@@ -201,7 +201,7 @@ describe("Home tests", () => {
 				"Try a different seed or larger dimensions",
 			);
 			expect(board.innerHTML).toBe(original);
-			expect(screen.getByRole("textbox", { name: "Rows" })).toHaveValue("5");
+			expect(screen.getByRole("textbox", { name: "Rows" })).toHaveValue("10");
 			expect(
 				screen.getByLabelText("Current dungeon configuration"),
 			).toHaveTextContent("30 rows × 100 columns · 3 floors");
@@ -213,8 +213,10 @@ describe("Home tests", () => {
 			expect(generate).toHaveBeenLastCalledWith(expect.any(Number), 3, {
 				rows: 30,
 				cols: 100,
-				minPartitionSize: 5,
+				minPartitionSize: 8,
 				roomPadding: 1,
+				minRoomSize: 3,
+				maxRoomAspectRatio: 3,
 			});
 			await openSettings(user);
 			expect(screen.getByRole("textbox", { name: "Rows" })).toHaveValue("30");
@@ -231,8 +233,10 @@ describe("Home tests", () => {
 			originalGenerate(123, 2, {
 				rows: 10,
 				cols: 15,
-				minPartitionSize: 5,
+				minPartitionSize: 8,
 				roomPadding: 1,
+				minRoomSize: 3,
+				maxRoomAspectRatio: 3,
 			}),
 		);
 		const user = userEvent.setup();
@@ -271,8 +275,10 @@ describe("Home tests", () => {
 		expect(generate).toHaveBeenLastCalledWith(0, 2, {
 			rows: 10,
 			cols: 15,
-			minPartitionSize: 5,
+			minPartitionSize: 8,
 			roomPadding: 1,
+			minRoomSize: 3,
+			maxRoomAspectRatio: 3,
 		});
 		expect(screen.getByRole("heading", { name: "Floor 1 of 2" })).toBeVisible();
 		expect(within(screen.getByRole("table")).getAllByRole("cell")).toHaveLength(
@@ -693,8 +699,10 @@ describe("Home tests", () => {
 			expect(generate).toHaveBeenLastCalledWith(123, 3, {
 				rows: 30,
 				cols: 100,
-				minPartitionSize: 5,
+				minPartitionSize: 8,
 				roomPadding: 1,
+				minRoomSize: 3,
+				maxRoomAspectRatio: 3,
 			});
 			expect(
 				screen.getByRole("heading", { name: "Floor 1 of 3" }),
@@ -971,8 +979,10 @@ describe("Home tests", () => {
 		const generated = LayoutTiles.generateDungeon({
 			rows: 7,
 			cols: 11,
-			minPartitionSize: 5,
+			minPartitionSize: 8,
 			roomPadding: 1,
+			minRoomSize: 3,
+			maxRoomAspectRatio: 3,
 		});
 		vi.spyOn(LayoutTiles, "generateDungeon").mockReturnValue(generated);
 
@@ -992,8 +1002,10 @@ describe("Home tests", () => {
 			DungeonRun.generateDungeonRun(123, 3, {
 				rows: 5,
 				cols: 7,
-				minPartitionSize: 5,
+				minPartitionSize: 8,
 				roomPadding: 1,
+				minRoomSize: 3,
+				maxRoomAspectRatio: 3,
 			}),
 		);
 
@@ -1043,8 +1055,10 @@ describe("Home tests", () => {
 		const generated = LayoutTiles.generateDungeon({
 			rows: 5,
 			cols: 7,
-			minPartitionSize: 5,
+			minPartitionSize: 8,
 			roomPadding: 1,
+			minRoomSize: 3,
+			maxRoomAspectRatio: 3,
 		});
 		vi.spyOn(LayoutTiles, "generateDungeon").mockReturnValue(generated);
 
@@ -1064,8 +1078,10 @@ describe("Home tests", () => {
 		const generated = LayoutTiles.generateDungeon({
 			rows: 5,
 			cols: 7,
-			minPartitionSize: 5,
+			minPartitionSize: 8,
 			roomPadding: 1,
+			minRoomSize: 3,
+			maxRoomAspectRatio: 3,
 		});
 		const generateSpy = vi
 			.spyOn(LayoutTiles, "generateDungeon")
@@ -1083,8 +1099,10 @@ describe("Home tests", () => {
 		const generated = LayoutTiles.generateDungeon({
 			rows: 5,
 			cols: 7,
-			minPartitionSize: 5,
+			minPartitionSize: 8,
 			roomPadding: 1,
+			minRoomSize: 3,
+			maxRoomAspectRatio: 3,
 		});
 		vi.spyOn(LayoutTiles, "generateDungeon").mockReturnValue(generated);
 
@@ -1113,8 +1131,10 @@ describe("Home tests", () => {
 			DungeonRun.generateDungeonRun(123, 3, {
 				rows: 7,
 				cols: 11,
-				minPartitionSize: 5,
+				minPartitionSize: 8,
 				roomPadding: 1,
+				minRoomSize: 3,
+				maxRoomAspectRatio: 3,
 			}),
 		);
 
@@ -1122,8 +1142,10 @@ describe("Home tests", () => {
 			DungeonRun.generateDungeonRun(456, 3, {
 				rows: 5,
 				cols: 7,
-				minPartitionSize: 5,
+				minPartitionSize: 8,
 				roomPadding: 1,
+				minRoomSize: 3,
+				maxRoomAspectRatio: 3,
 			}),
 		);
 
@@ -1188,8 +1210,10 @@ describe("Home tests", () => {
 		const generated = LayoutTiles.generateDungeon({
 			rows: 5,
 			cols: 7,
-			minPartitionSize: 5,
+			minPartitionSize: 8,
 			roomPadding: 1,
+			minRoomSize: 3,
+			maxRoomAspectRatio: 3,
 		});
 
 		vi.spyOn(LayoutTiles, "generateDungeon").mockReturnValue(generated);
@@ -1220,8 +1244,10 @@ describe("Home tests", () => {
 		const first = LayoutTiles.generateDungeon({
 			rows: 5,
 			cols: 7,
-			minPartitionSize: 5,
+			minPartitionSize: 8,
 			roomPadding: 1,
+			minRoomSize: 3,
+			maxRoomAspectRatio: 3,
 		});
 		const second = {
 			...first,
@@ -1265,8 +1291,10 @@ describe("Home tests", () => {
 			DungeonRun.generateDungeonRun(123, 3, {
 				rows: 7,
 				cols: 11,
-				minPartitionSize: 5,
+				minPartitionSize: 8,
 				roomPadding: 1,
+				minRoomSize: 3,
+				maxRoomAspectRatio: 3,
 			}),
 		);
 
@@ -1295,8 +1323,10 @@ describe("Home tests", () => {
 			DungeonRun.generateDungeonRun(123, 3, {
 				rows: 7,
 				cols: 11,
-				minPartitionSize: 5,
+				minPartitionSize: 8,
 				roomPadding: 1,
+				minRoomSize: 3,
+				maxRoomAspectRatio: 3,
 			}),
 		);
 
@@ -1332,8 +1362,10 @@ describe("Home tests", () => {
 			DungeonRun.generateDungeonRun(123, 3, {
 				rows: 7,
 				cols: 11,
-				minPartitionSize: 5,
+				minPartitionSize: 8,
 				roomPadding: 1,
+				minRoomSize: 3,
+				maxRoomAspectRatio: 3,
 			}),
 		);
 

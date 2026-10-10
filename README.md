@@ -84,7 +84,7 @@ Vite serves the frontend and proxies `/initial` requests to the backend at `http
 
 The header shows the current floor, **New Dungeon**, and **Settings**. The map and its legend occupy the main play area. Settings opens a modal side panel containing the current seed and seed replay form. A small footer shows the backend connectivity diagnostic. Exploration runs in the frontend and remains available if that check fails.
 
-Shared shadcn styling and theme tokens live in `frontend/src/App.css`, imported by `App.tsx`. Page layout uses Tailwind utilities, and reusable controls live in `frontend/src/components/ui`. A [Light/Dark/System preference](https://github.com/danielgebhardt/larn-remake/issues/42) is planned next.
+Shared shadcn styling and theme tokens live in `frontend/src/App.css`, imported by `App.tsx`. Page layout uses Tailwind utilities, and reusable controls live in `frontend/src/components/ui`.
 
 Move the player with either control scheme:
 
@@ -107,9 +107,15 @@ To replay a dungeon, open **Settings**, enter a seed in **Dungeon seed**, and se
 
 The map automatically scrolls just enough to keep the player visible, with roughly one tile of surrounding space where possible. Following works horizontally and vertically, after stairs or a fresh run, and when the map viewport resizes. You can still scroll manually to inspect the map; ordinary rerenders, Settings, and appearance changes leave that view alone. The next successful move or floor/run change resumes following. Blocked movement does not scroll, and following does not move focus or scroll the outer page.
 
-**Dungeon configuration** in Settings lets you choose 5–100 rows, 5–100 columns, and 1–10 floors. Defaults remain 30 × 100 with 3 floors, partition size 5, and room padding 1. **Start from seed** applies the seed and configuration together, starting a new run on floor 1. Editing or dismissing settings retains drafts without changing the run. **New Dungeon** uses the last successfully applied configuration and resets drafts to it. These settings last for this session; only appearance is saved across reloads.
+**Dungeon configuration** in Settings lets you choose 10–100 rows, 10–100 columns, and 1–10 floors. Defaults remain 30 × 100 with 3 floors, with minimum partition size 8 and room padding 1. **Start from seed** applies the seed and configuration together, starting a new run on floor 1. Editing or dismissing settings retains drafts without changing the run. **New Dungeon** uses the last successfully applied configuration and resets drafts to it. These settings last for this session; only appearance is saved across reloads.
 
-Inputs require decimal whole numbers. Invalid fields show feedback without replacing the run. Very small generated rooms may have no distinct stair location; generation failures show a retry message and preserve the current run, active configuration, and draft. Try another seed or larger dimensions.
+Inputs require decimal whole numbers. Invalid fields show feedback without replacing the run. Generation failures show a retry message and preserve the current run, active configuration, and draft.
+
+Rooms have at least 3 walkable tiles on each axis and a longest-to-shortest side ratio no greater than 3:1. Seeded generation randomly chooses height, then a width compatible with that height, then placement within the padded partition. Corridors remain one tile wide and are not subject to room proportion rules. Partition minimum 8 provides fewer, larger rooms than the previous minimum 5 without making every room fill its partition.
+
+Smaller domain-level maps remain available for test fixtures. When padding leaves fewer than 3 tiles on an axis, the room minimum relaxes only on that axis, and the other side is capped to retain the 3:1 ratio. A region with no usable interior still throws a `RangeError`. Without a random source, the room uses the largest compatible dimensions at the padded origin.
+
+Room sizing and the partition default intentionally changed in #45. Previously recorded seeds may produce different layouts and stair locations. Repeatability applies to the same seed, configuration, and generator version; it does not guarantee compatibility with earlier generator versions.
 
 **Appearance** in Settings offers Light, Dark, and System. Dark is the default. Your choice is saved locally on this device; System follows changes to the operating system appearance. Changing appearance preserves exploration, seed drafts, and validation feedback. UI and dungeon colors are defined together in `frontend/src/App.css`, with charcoal/amber dark colors and a warm stone light palette.
 
@@ -124,7 +130,22 @@ To demonstrate the exploration milestone:
 3. Open **Settings**, enter the noted seed, and start from it to recreate the complete run at its original start.
 4. Select **New Dungeon**, then explore again. Subsequent transitions use the new run's floors.
 
-Floor 1 has no up stair, and the deepest floor has no down stair. The domain supports configurable floor counts, including a one-floor run with no transitions; the current UI uses three floors. Town, monsters, combat, inventory, and persistence belong to later work.
+Floor 1 has no up stair, and the deepest floor has no down stair. Floor count is configurable in Settings, including a one-floor run with no transitions; the default is three floors. Town, monsters, combat, inventory, and persistence belong to later work.
+
+## Configuration
+
+Start with `RunConfiguration.ts` when tuning dungeon generation. Configuration is organized by responsibility:
+
+| File | What it controls |
+| --- | --- |
+| [RunConfiguration.ts](frontend/src/RunConfiguration.ts) | Dungeon defaults, configuration types, and input limits: rows, columns, floor count, minimum partition size, room padding, minimum room size, and maximum room aspect ratio. |
+| [App.css](frontend/src/App.css) | Tile size, light/dark theme colors, and shared styling. The `--dungeon-tile-size` variable sizes dungeon cells, grid columns, and legend icons together. |
+| [TileVisuals.ts](frontend/src/TileVisuals.ts) | Tile icon choices, color classes, backgrounds, and accessible labels. |
+| [Seed.ts](frontend/src/Seed.ts) | Seed range, input validation, and seeded randomness. |
+| [ThemeProvider.tsx](frontend/src/ThemeProvider.tsx) | Default appearance and saved Light/Dark/System preference. |
+| [vite.config.ts](frontend/vite.config.ts) | Frontend tooling, import aliases, backend development proxy, and test environment. |
+
+Settings exposes rows, columns, and floor count. Partition size, padding, room size, and aspect ratio remain internal configuration values and are preserved when applying a Settings draft. Appearance is saved locally; dungeon settings last for the current session.
 
 ## Testing and quality checks
 

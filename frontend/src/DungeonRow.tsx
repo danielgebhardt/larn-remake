@@ -21,7 +21,7 @@ const DungeonCell = memo(function DungeonCell({
 		<td
 			ref={playerRef}
 			aria-label={`row${rowIndex}col${columnIndex}${label ? ` - ${label}` : ""}`}
-			className={`size-[24px] ${TILE_BACKGROUNDS[tile] ?? ""}`}
+			className={`size-[var(--dungeon-tile-size)] ${TILE_BACKGROUNDS[tile] ?? ""}`}
 		>
 			<TileIcon tile={tile} />
 		</td>
@@ -48,7 +48,9 @@ const DungeonRow = memo(function DungeonRow({
 	return (
 		<tr
 			className="grid"
-			style={{ gridTemplateColumns: `repeat(${row.length}, 24px)` }}
+			style={{
+				gridTemplateColumns: `repeat(${row.length}, var(--dungeon-tile-size))`,
+			}}
 		>
 			{row.map((terrain, columnIndex) => {
 				let tile = terrain;

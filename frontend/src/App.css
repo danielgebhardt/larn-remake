@@ -54,6 +54,7 @@
 }
 
 :root {
+	--dungeon-tile-size: 24px;
 	--background: #faf9f6;
 	--foreground: #292b30;
 	--card: #ffffff;

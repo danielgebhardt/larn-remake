@@ -1,4 +1,8 @@
 import type { PartitionNode, Region } from "./Partitioning.ts";
+import {
+	DEFAULT_RUN_CONFIGURATION,
+	type RoomConfiguration,
+} from "./RunConfiguration";
 
 export type Room = {
 	startRow: number;
@@ -27,7 +31,17 @@ export const createRoom = (
 	region: Region,
 	padding: number,
 	random?: () => number,
+	{
+		minRoomSize,
+		maxRoomAspectRatio,
+	}: RoomConfiguration = DEFAULT_RUN_CONFIGURATION,
 ): Room => {
+	if (!Number.isInteger(minRoomSize) || minRoomSize < 1) {
+		throw new RangeError("minRoomSize must be a positive integer");
+	}
+	if (!Number.isFinite(maxRoomAspectRatio) || maxRoomAspectRatio < 1) {
+		throw new RangeError("maxRoomAspectRatio must be finite and at least 1");
+	}
 	if (!Number.isInteger(padding) || padding < 0) {
 		throw new RangeError("padding must be zero or a positive integer");
 	}
@@ -41,25 +55,36 @@ export const createRoom = (
 		throw new RangeError("region is too small for the configured padding");
 	}
 
-	if (!random) {
-		return {
-			startRow: minRow,
-			endRow: maxRow,
-			startCol: minCol,
-			endCol: maxCol,
-		};
-	}
-
 	const availableHeight = maxRow - minRow + 1;
 	const availableWidth = maxCol - minCol + 1;
-
-	const roomHeight = Math.floor(random() * availableHeight) + 1;
-	const roomWidth = Math.floor(random() * availableWidth) + 1;
+	// Small interiors relax the minimum only on the constrained axis. Cap the
+	// other axis so those rooms still satisfy the aspect ratio.
+	const maxHeight = Math.min(
+		availableHeight,
+		Math.floor(availableWidth * maxRoomAspectRatio),
+	);
+	const minHeight = Math.min(minRoomSize, maxHeight);
+	const roomHeight = random
+		? minHeight + Math.floor(random() * (maxHeight - minHeight + 1))
+		: maxHeight;
+	const maxWidth = Math.min(
+		availableWidth,
+		Math.floor(roomHeight * maxRoomAspectRatio),
+	);
+	const minWidth = Math.max(
+		Math.min(minRoomSize, maxWidth),
+		Math.ceil(roomHeight / maxRoomAspectRatio),
+	);
+	const roomWidth = random
+		? minWidth + Math.floor(random() * (maxWidth - minWidth + 1))
+		: maxWidth;
 
 	const startRow =
-		minRow + Math.floor(random() * (availableHeight - roomHeight + 1));
+		minRow +
+		(random ? Math.floor(random() * (availableHeight - roomHeight + 1)) : 0);
 	const startCol =
-		minCol + Math.floor(random() * (availableWidth - roomWidth + 1));
+		minCol +
+		(random ? Math.floor(random() * (availableWidth - roomWidth + 1)) : 0);
 
 	return {
 		startRow,
@@ -73,6 +98,7 @@ export const assignRoomsToPartition = (
 	partition: PartitionNode,
 	padding: number,
 	random?: () => number,
+	roomConfiguration: RoomConfiguration = DEFAULT_RUN_CONFIGURATION,
 ): PartitionNode => {
 	const updatedPartition: PartitionNode = {
 		region: { ...partition.region },
@@ -84,17 +110,20 @@ export const assignRoomsToPartition = (
 			partition.children[0],
 			padding,
 			random,
+			roomConfiguration,
 		);
 		updatedPartition.children[1] = assignRoomsToPartition(
 			partition.children[1],
 			padding,
 			random,
+			roomConfiguration,
 		);
 	} else {
 		updatedPartition.room = createRoom(
 			updatedPartition.region,
 			padding,
 			random,
+			roomConfiguration,
 		);
 	}
 

@@ -24,15 +24,15 @@ import {
 } from "./RunConfiguration";
 import { MAX_SEED, parseSeedInput } from "./Seed.ts";
 
-const createRun = (seed: number, configuration: RunConfiguration): DungeonRun =>
-	connectDungeonFloors(
-		generateDungeonRun(seed, configuration.floorCount, {
-			rows: configuration.rows,
-			cols: configuration.cols,
-			minPartitionSize: 5,
-			roomPadding: 1,
-		}),
+const createRun = (
+	seed: number,
+	configuration: RunConfiguration,
+): DungeonRun => {
+	const { floorCount, ...dungeonConfig } = configuration;
+	return connectDungeonFloors(
+		generateDungeonRun(seed, floorCount, dungeonConfig),
 	);
+};
 
 const Home = () => {
 	const [run, setRun] = useState<DungeonRun>(() =>
@@ -82,7 +82,7 @@ const Home = () => {
 	const handleSeedSubmit = (event: SubmitEvent<HTMLFormElement>) => {
 		event.preventDefault();
 		const seed = parseSeedInput(seedInput);
-		const parsed = parseRunConfiguration(configDraft);
+		const parsed = parseRunConfiguration(configDraft, configuration);
 		setSeedError(
 			seed === undefined ? `Enter a whole number from 0 to ${MAX_SEED}.` : null,
 		);
@@ -114,7 +114,7 @@ const Home = () => {
 
 	return (
 		<Sheet open={settingsOpen} onOpenChange={setSettingsOpen}>
-			<div className="flex min-h-svh flex-col bg-muted/30">
+			<div className="flex h-dvh flex-col bg-muted/30">
 				<Header
 					floorNumber={activeFloor.floorNumber}
 					floorCount={run.floors.length}
@@ -127,8 +127,8 @@ const Home = () => {
 					}
 				/>
 
-				<main className="min-w-0 flex-1 space-y-4 p-4 sm:p-6">
-					<section className="min-w-0 rounded-lg border border-border bg-card p-3 sm:p-4">
+				<main className="flex min-h-0 min-w-0 flex-1 p-4 sm:p-6">
+					<section className="flex min-h-0 min-w-0 flex-1 flex-col rounded-lg border border-border bg-card p-3 sm:p-4">
 						<DungeonLegend />
 						<DungeonLayout
 							dungeon={activeFloor.terrain}
@@ -140,7 +140,7 @@ const Home = () => {
 						/>
 					</section>
 				</main>
-				<footer className="flex flex-wrap items-center gap-x-2 gap-y-1 border-t border-border px-4 py-2 text-xs text-muted-foreground sm:px-6">
+				<footer className="flex shrink-0 flex-wrap items-center gap-x-2 gap-y-1 border-t border-border px-4 py-2 text-xs text-muted-foreground sm:px-6">
 					<span>Server:</span>
 					<APICheck />
 				</footer>

@@ -163,9 +163,9 @@ describe("Room Tests", () => {
 
 			expect(createRoom(region, 1, random)).toStrictEqual({
 				startRow: 11,
-				endRow: 11,
+				endRow: 13,
 				startCol: 21,
-				endCol: 21,
+				endCol: 23,
 			});
 		});
 
@@ -196,10 +196,10 @@ describe("Room Tests", () => {
 			const random = () => 0.5;
 
 			expect(createRoom(region, 1, random)).toStrictEqual({
-				startRow: 13,
+				startRow: 12,
 				endRow: 17,
 				startCol: 23,
-				endCol: 28,
+				endCol: 29,
 			});
 		});
 
@@ -218,9 +218,9 @@ describe("Room Tests", () => {
 				.mockReturnValueOnce(0.99);
 
 			expect(createRoom(region, 1, random)).toStrictEqual({
-				startRow: 18,
+				startRow: 16,
 				endRow: 18,
-				startCol: 30,
+				startCol: 28,
 				endCol: 30,
 			});
 		});
@@ -453,7 +453,7 @@ describe("Room Tests", () => {
 			);
 		});
 
-		it("assigns varied rooms to every terminal partition using the supplied random source", () => {
+		it("assigns minimum-sized rooms to every terminal partition using the supplied random source", () => {
 			const partition: PartitionNode = {
 				region: {
 					startRow: 0,
@@ -497,14 +497,14 @@ describe("Room Tests", () => {
 			expect(getTerminalRooms(result)).toStrictEqual([
 				{
 					startRow: 1,
-					endRow: 1,
+					endRow: 3,
 					startCol: 1,
-					endCol: 1,
+					endCol: 3,
 				},
 				{
-					startRow: 3,
+					startRow: 1,
 					endRow: 3,
-					startCol: 8,
+					startCol: 6,
 					endCol: 8,
 				},
 			]);

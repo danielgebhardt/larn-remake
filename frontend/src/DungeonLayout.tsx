@@ -1,22 +1,12 @@
-import {
-	type ReactNode,
-	useCallback,
-	useEffect,
-	useLayoutEffect,
-	useRef,
-} from "react";
+import { useCallback, useEffect, useLayoutEffect, useRef } from "react";
+import DungeonRow from "./DungeonRow";
 import {
 	type Coordinate,
 	type Dungeon,
 	getDungeonCoordinateValue,
-	PLAYER,
-	STAIRS_DOWN,
-	STAIRS_UP,
 	WALL,
 } from "./LayoutTiles.ts";
 import { getScrollOffset } from "./MapScroll";
-import TileIcon from "./TileIcon.tsx";
-import { TILE_BACKGROUNDS, TILE_LABELS } from "./TileVisuals.ts";
 
 type DungeonLayoutProps = {
 	dungeon: Dungeon;
@@ -167,43 +157,6 @@ const DungeonLayout = ({
 		};
 	}, [movePlayer, movementEnabled]);
 
-	const renderCell = (
-		rowIndex: number,
-		columnIndex: number,
-		cell: string,
-	): ReactNode => {
-		let displayTile = cell;
-
-		if (playerPosition.row === rowIndex && playerPosition.col === columnIndex) {
-			displayTile = PLAYER;
-		} else if (
-			upStair &&
-			upStair.row === rowIndex &&
-			upStair.col === columnIndex
-		) {
-			displayTile = STAIRS_UP;
-		} else if (
-			downStair &&
-			downStair.row === rowIndex &&
-			downStair.col === columnIndex
-		) {
-			displayTile = STAIRS_DOWN;
-		}
-		const label = TILE_LABELS[displayTile];
-		const tileDescription = `row${rowIndex}col${columnIndex}${label ? ` - ${label}` : ""}`;
-
-		return (
-			<td
-				key={columnIndex}
-				ref={displayTile === PLAYER ? playerRef : undefined}
-				aria-label={tileDescription}
-				className={`size-[24px] ${TILE_BACKGROUNDS[displayTile] ?? ""}`}
-			>
-				<TileIcon tile={displayTile} />
-			</td>
-		);
-	};
-
 	return (
 		<section
 			ref={viewportRef}
@@ -215,17 +168,21 @@ const DungeonLayout = ({
 			<table aria-label="Dungeon" className="w-max border-collapse">
 				<tbody className="grid">
 					{dungeon.map((row, rowIndex) => (
-						<tr
+						<DungeonRow
 							key={rowIndex}
-							className="grid"
-							style={{
-								gridTemplateColumns: `repeat(${row.length}, 24px)`,
-							}}
-						>
-							{row.map((cell, columnIndex) =>
-								renderCell(rowIndex, columnIndex, cell),
-							)}
-						</tr>
+							row={row}
+							rowIndex={rowIndex}
+							playerColumn={
+								playerPosition.row === rowIndex ? playerPosition.col : undefined
+							}
+							upStairColumn={
+								upStair?.row === rowIndex ? upStair.col : undefined
+							}
+							downStairColumn={
+								downStair?.row === rowIndex ? downStair.col : undefined
+							}
+							playerRef={playerRef}
+						/>
 					))}
 				</tbody>
 			</table>

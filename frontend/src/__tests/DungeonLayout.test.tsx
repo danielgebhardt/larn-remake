@@ -61,6 +61,30 @@ const TestDungeonLayout = ({
 };
 
 describe("DungeonLayout tests", () => {
+	it("accepts one step per repeated keydown and stops at the map boundary", () => {
+		const onPlayerMove = vi.fn();
+		render(
+			<TestDungeonLayout
+				dungeon={openDungeon}
+				playerPosition={{ row: 1, col: 0 }}
+				onPlayerMove={onPlayerMove}
+			/>,
+		);
+
+		fireEvent.keyDown(window, { key: "ArrowRight" });
+		fireEvent.keyDown(window, { key: "ArrowRight", repeat: true });
+		fireEvent.keyDown(window, { key: "ArrowRight", repeat: true });
+		fireEvent.keyUp(window, { key: "ArrowRight" });
+
+		expect(onPlayerMove.mock.calls).toEqual([
+			[{ row: 1, col: 1 }],
+			[{ row: 1, col: 2 }],
+		]);
+		expect(
+			screen.getByRole("cell", { name: "row1col2 - player" }),
+		).toBeVisible();
+	});
+
 	it("keeps the supplied position until the parent accepts a movement request", async () => {
 		const onPlayerMove = vi.fn();
 		const { rerender } = render(

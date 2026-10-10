@@ -1,17 +1,18 @@
 import { Dialog } from "@base-ui/react/dialog";
-import { type RefObject, useRef } from "react";
+import { type RefObject, useLayoutEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import type { ActivityHistory } from "../../domain/game/ActivityHistory";
 import type { PlayerAction } from "../../domain/game/PlayerActions";
 import type { PlayerStats } from "../../domain/game/PlayerStats";
 import type { Bag } from "../../domain/items/Bag";
-import type { Equipment } from "../../domain/items/Equipment";
+import type { Equipment, EquipmentSlot } from "../../domain/items/Equipment";
 import type { FloorItem } from "../../domain/items/FloorItems";
 import { formatActivityEvent } from "./ActivityMessages";
 import BagContents from "./BagContents";
 import CharacterStats from "./CharacterStats";
 import EquipmentView from "./EquipmentView";
 import FloorItemsView from "./FloorItemsView";
+import ItemDetails from "./ItemDetails";
 
 type CharacterDialogProps = {
 	player: PlayerStats;
@@ -22,6 +23,7 @@ type CharacterDialogProps = {
 	history: ActivityHistory;
 	actionError: string;
 	onAction: (action: PlayerAction) => void;
+	onCloseRequested: () => void;
 	finalFocus?: RefObject<HTMLElement | null>;
 };
 
@@ -34,8 +36,28 @@ const CharacterDialog = ({
 	history,
 	actionError,
 	onAction,
+	onCloseRequested,
 	finalFocus,
 }: CharacterDialogProps) => {
+	const [selection, setSelection] = useState<
+		| { source: "bag"; id: string }
+		| { source: "equipment"; slot: EquipmentSlot; id: string }
+		| null
+	>(null);
+	const bagHeadingRef = useRef<HTMLHeadingElement>(null);
+	const equipmentHeadingRef = useRef<HTMLHeadingElement>(null);
+	const selected =
+		selection?.source === "bag"
+			? bag.items.find((item) => item.id === selection.id)
+			: selection?.source === "equipment" &&
+					equipment[selection.slot]?.id === selection.id
+				? equipment[selection.slot]
+				: null;
+	const detailsRef = useRef<HTMLDivElement>(null);
+	const selectedId = selected?.id;
+	useLayoutEffect(() => {
+		if (selectedId) detailsRef.current?.scrollIntoView?.({ block: "nearest" });
+	}, [selectedId]);
 	const titleRef = useRef<HTMLHeadingElement>(null);
 	const events = history.entries.filter((entry) => entry.event.turn === turn);
 	return (
@@ -44,9 +66,25 @@ const CharacterDialog = ({
 			<Dialog.Popup
 				initialFocus={titleRef}
 				finalFocus={finalFocus}
-				className="fixed top-1/2 left-1/2 z-50 flex max-h-[90dvh] w-[calc(100%-2rem)] max-w-3xl -translate-x-1/2 -translate-y-1/2 flex-col overflow-y-auto rounded-xl border bg-popover text-sm text-popover-foreground shadow-lg"
+				onKeyDown={(event) => {
+					if (event.key !== "i" && event.key !== "I") return;
+					if (
+						event.ctrlKey ||
+						event.metaKey ||
+						event.altKey ||
+						event.target instanceof HTMLInputElement ||
+						event.target instanceof HTMLTextAreaElement ||
+						(event.target instanceof HTMLElement &&
+							event.target.isContentEditable)
+					)
+						return;
+					event.preventDefault();
+					event.stopPropagation();
+					if (!event.repeat) onCloseRequested();
+				}}
+				className="fixed top-1/2 left-1/2 z-50 flex max-h-[90dvh] w-[calc(100%-2rem)] max-w-4xl -translate-x-1/2 -translate-y-1/2 flex-col overflow-hidden rounded-xl border bg-popover text-sm text-popover-foreground shadow-lg"
 			>
-				<div className="flex items-start justify-between gap-4 p-4">
+				<div className="flex shrink-0 items-start justify-between gap-4 border-b p-4">
 					<div>
 						<Dialog.Title ref={titleRef} tabIndex={-1} className="outline-none">
 							Character
@@ -59,19 +97,60 @@ const CharacterDialog = ({
 						Close
 					</Dialog.Close>
 				</div>
-				<div className="grid gap-6 px-4 pb-6">
+				<div className="shrink-0 border-b px-4 py-3">
 					<CharacterStats player={player} equipment={equipment} />
+				</div>
+				<div className="grid min-h-0 gap-5 overflow-y-auto p-4">
 					<div className="grid items-start gap-6 md:grid-cols-2">
 						<EquipmentView
 							equipment={equipment}
-							alive={player.health > 0}
-							onAction={onAction}
+							selectedId={
+								selection?.source === "equipment"
+									? (selected?.id ?? null)
+									: null
+							}
+							headingRef={equipmentHeadingRef}
+							onSelect={(slot) => {
+								const item = equipment[slot];
+								setSelection(
+									item ? { source: "equipment", slot, id: item.id } : null,
+								);
+							}}
 						/>
 						<BagContents
 							bag={bag}
-							canChangeGear={player.health > 0}
-							onAction={onAction}
-						/>
+							selectedId={
+								selection?.source === "bag" ? (selected?.id ?? null) : null
+							}
+							headingRef={bagHeadingRef}
+							onSelect={(id) => setSelection({ source: "bag", id })}
+						>
+							{selected && selection ? (
+								<div ref={detailsRef}>
+									<ItemDetails
+										item={selected}
+										equippedSlot={
+											selection.source === "equipment"
+												? selection.slot
+												: undefined
+										}
+										alive={player.health > 0}
+										onAction={onAction}
+										afterAction={() => {
+											const heading =
+												selection.source === "bag"
+													? bagHeadingRef
+													: equipmentHeadingRef;
+											heading.current?.focus({ preventScroll: true });
+										}}
+									/>
+								</div>
+							) : (
+								<p className="text-xs text-muted-foreground">
+									Select an item to see its details.
+								</p>
+							)}
+						</BagContents>
 					</div>
 					<FloorItemsView
 						items={floorItems}
@@ -79,12 +158,12 @@ const CharacterDialog = ({
 						onAction={onAction}
 					/>
 					<p className="rounded-lg border bg-muted/30 p-3 text-xs leading-relaxed text-muted-foreground">
-						Opening this sheet and inspecting items is free. Each successful
+						Opening this dialog and inspecting items is free. Each successful
 						gear change, pickup, drop, or potion use costs one turn, and
 						monsters act afterward.
 					</p>
 				</div>
-				<div className="sticky bottom-0 grid shrink-0 gap-2 border-t bg-popover px-4 py-3">
+				<div className="grid max-h-36 shrink-0 overflow-y-auto gap-2 border-t bg-popover px-4 py-3">
 					{actionError && (
 						<p role="alert" className="text-sm text-destructive">
 							{actionError}

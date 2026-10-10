@@ -217,6 +217,7 @@ const Home = ({
 							Character
 						</Dialog.Trigger>
 						<CharacterDialog
+							onCloseRequested={() => setCharacterOpen(false)}
 							finalFocus={characterOpenedFromMap ? mapRef : undefined}
 							player={player}
 							equipment={game.state.equipment}

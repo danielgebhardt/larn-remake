@@ -27,13 +27,37 @@ describe("Character shortcut", () => {
 			expect(
 				await screen.findByRole("dialog", { name: "Character" }),
 			).toBeVisible();
-			await user.keyboard("{ArrowRight} gi");
+			await user.keyboard("{ArrowRight} g");
 			expect(screen.getByLabelText("Turn count")).toHaveTextContent("Turn 0");
 			await user.keyboard("{Escape}");
 			await waitFor(() =>
 				expect(screen.queryByRole("dialog")).not.toBeInTheDocument(),
 			);
 			expect(map).toHaveFocus();
+		},
+	);
+	it.each(["button", "shortcut"])(
+		"I closes from an item button and restores the %s opener",
+		async (opener) => {
+			const { map, user } = setup();
+			const trigger = screen.getByRole("button", { name: "Character" });
+			if (opener === "button") await user.click(trigger);
+			else await user.keyboard("i");
+			await screen.findByRole("dialog", { name: "Character" });
+			await user.click(
+				screen.getByRole("button", { name: "Iron sword, slot 1" }),
+			);
+			fireEvent.keyDown(
+				screen.getByRole("button", { name: "Iron sword, slot 1" }),
+				{ key: "i", repeat: true },
+			);
+			expect(screen.getByRole("dialog", { name: "Character" })).toBeVisible();
+			await user.keyboard("I");
+			await waitFor(() =>
+				expect(screen.queryByRole("dialog")).not.toBeInTheDocument(),
+			);
+			expect(opener === "button" ? trigger : map).toHaveFocus();
+			expect(screen.getByLabelText("Turn count")).toHaveTextContent("Turn 0");
 		},
 	);
 	it("allows inspecting Character after death", async () => {

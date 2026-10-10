@@ -14,11 +14,11 @@ const CharacterStats = ({
 	return (
 		<section aria-label="Character stats" className="grid gap-2">
 			<div className="grid grid-cols-3 gap-2">
-				<div className="rounded-lg border bg-muted/30 p-3">
+				<div className="rounded-lg border bg-muted/30 p-2 sm:p-3">
 					<Heart aria-hidden="true" className="mb-2 size-4 text-player" />
 					<output
 						aria-label="Character health"
-						className="font-medium tabular-nums"
+						className="text-xs font-medium tabular-nums sm:text-sm"
 					>
 						Health {player.health} / {player.maxHealth}
 					</output>
@@ -26,14 +26,14 @@ const CharacterStats = ({
 						Current / maximum
 					</p>
 				</div>
-				<div className="rounded-lg border bg-muted/30 p-3">
+				<div className="rounded-lg border bg-muted/30 p-2 sm:p-3">
 					<Sword
 						aria-hidden="true"
 						className="mb-2 size-4 text-muted-foreground"
 					/>
 					<output
 						aria-label="Character attack"
-						className="font-medium tabular-nums"
+						className="text-xs font-medium tabular-nums sm:text-sm"
 					>
 						Attack {combat.attack}
 					</output>
@@ -41,14 +41,14 @@ const CharacterStats = ({
 						Base {combat.baseAttack} + weapon {combat.weaponBonus}
 					</p>
 				</div>
-				<div className="rounded-lg border bg-muted/30 p-3">
+				<div className="rounded-lg border bg-muted/30 p-2 sm:p-3">
 					<Shield
 						aria-hidden="true"
 						className="mb-2 size-4 text-muted-foreground"
 					/>
 					<output
 						aria-label="Character armor"
-						className="font-medium tabular-nums"
+						className="text-xs font-medium tabular-nums sm:text-sm"
 					>
 						Armor {combat.armor}
 					</output>

@@ -1,10 +1,8 @@
-import { useRef, useState } from "react";
+import type { RefObject } from "react";
 import { Button } from "@/components/ui/button";
-import type { PlayerAction } from "../../domain/game/PlayerActions";
 import type { Equipment, EquipmentSlot } from "../../domain/items/Equipment";
 import { ITEM_DEFINITIONS } from "../../domain/items/Item";
 import ItemIcon from "../items/ItemIcon";
-import ItemDetails from "./ItemDetails";
 
 const slots = [
 	{ key: "mainHand", label: "Main hand" },
@@ -12,26 +10,19 @@ const slots = [
 ] as const;
 const EquipmentView = ({
 	equipment,
-	alive,
-	onAction,
+	selectedId,
+	onSelect,
+	headingRef,
 }: {
 	equipment: Equipment;
-	alive: boolean;
-	onAction: (action: PlayerAction) => void;
+	selectedId: string | null;
+	onSelect: (slot: EquipmentSlot) => void;
+	headingRef: RefObject<HTMLHeadingElement | null>;
 }) => {
-	const [selection, setSelection] = useState<{
-		slot: EquipmentSlot;
-		id: string;
-	} | null>(null);
-	const headingRef = useRef<HTMLHeadingElement>(null);
-	const selected =
-		selection && equipment[selection.slot]?.id === selection.id
-			? equipment[selection.slot]
-			: null;
 	return (
 		<section
 			aria-labelledby="character-equipment-title"
-			className="grid content-start gap-3"
+			className="grid content-start gap-3 md:sticky md:top-0"
 		>
 			<h3
 				ref={headingRef}
@@ -63,13 +54,9 @@ const EquipmentView = ({
 							variant="outline"
 							aria-label={`${label}: ${equipment[key] ? ITEM_DEFINITIONS[equipment[key].kind].name : "empty"}`}
 							aria-pressed={
-								selected?.id === equipment[key]?.id && selected !== null
+								selectedId === equipment[key]?.id && selectedId !== null
 							}
-							onClick={() =>
-								setSelection(
-									equipment[key] ? { slot: key, id: equipment[key].id } : null,
-								)
-							}
+							onClick={() => onSelect(key)}
 							className="grid h-auto min-h-24 w-full justify-items-center gap-2 whitespace-normal p-2 text-center aria-pressed:border-primary aria-pressed:bg-primary/10"
 						>
 							{equipment[key] ? (
@@ -103,19 +90,6 @@ const EquipmentView = ({
 					<path d="M45 50H75L95 62L110 119L96 123L80 82V132L87 202H69L60 152L51 202H33L40 132V82L24 123L10 119L25 62Z" />
 				</svg>
 			</div>
-			{selected && selection ? (
-				<ItemDetails
-					item={selected}
-					equippedSlot={selection.slot}
-					alive={alive}
-					onAction={onAction}
-					afterAction={() => headingRef.current?.focus({ preventScroll: true })}
-				/>
-			) : (
-				<p className="text-xs text-muted-foreground">
-					Select equipped gear to inspect it.
-				</p>
-			)}
 		</section>
 	);
 };

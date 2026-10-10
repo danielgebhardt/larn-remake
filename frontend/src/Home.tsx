@@ -1,3 +1,4 @@
+import { Dialog } from "@base-ui/react/dialog";
 import { HelpCircleIcon, Settings, UserRound } from "lucide-react";
 import { type SubmitEvent, useEffect, useMemo, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -7,7 +8,7 @@ import APICheck from "./APICheck.tsx";
 import DungeonLayout from "./components/dungeon/DungeonLayout.tsx";
 import DungeonLegend from "./components/dungeon/DungeonLegend.tsx";
 import ActivityLog from "./components/game/ActivityLog.tsx";
-import CharacterSheet from "./components/game/CharacterSheet.tsx";
+import CharacterDialog from "./components/game/CharacterDialog.tsx";
 import PickupDialog from "./components/game/PickupDialog";
 import PlayerStatus from "./components/game/PlayerStatus.tsx";
 import {
@@ -77,6 +78,7 @@ const Home = ({
 	const [settingsOpen, setSettingsOpen] = useState(false);
 	const [helpOpen, setHelpOpen] = useState(false);
 	const [characterOpen, setCharacterOpen] = useState(false);
+	const [characterOpenedFromMap, setCharacterOpenedFromMap] = useState(false);
 	const [pickupOpen, setPickupOpen] = useState(false);
 	const mapRef = useRef<HTMLElement>(null);
 	const currentItems = itemsAtPlayer(game.state);
@@ -206,12 +208,16 @@ const Home = ({
 				floorCount={run.floors.length}
 				onNewDungeon={handleNewDungeon}
 				characterAction={
-					<Sheet open={characterOpen} onOpenChange={setCharacterOpen}>
-						<SheetTrigger render={<Button type="button" variant="outline" />}>
+					<Dialog.Root open={characterOpen} onOpenChange={setCharacterOpen}>
+						<Dialog.Trigger
+							onClick={() => setCharacterOpenedFromMap(false)}
+							render={<Button type="button" variant="outline" />}
+						>
 							<UserRound aria-hidden="true" focusable="false" />
 							Character
-						</SheetTrigger>
-						<CharacterSheet
+						</Dialog.Trigger>
+						<CharacterDialog
+							finalFocus={characterOpenedFromMap ? mapRef : undefined}
 							player={player}
 							equipment={game.state.equipment}
 							bag={game.state.bag}
@@ -221,7 +227,7 @@ const Home = ({
 							actionError={game.actionError}
 							onAction={handleActionRequested}
 						/>
-					</Sheet>
+					</Dialog.Root>
 				}
 				settingsAction={
 					<Sheet open={settingsOpen} onOpenChange={setSettingsOpen}>
@@ -293,6 +299,14 @@ const Home = ({
 						}
 						onWaitRequested={() => handleActionRequested({ type: "wait" })}
 						onPickupRequested={handlePickupRequested}
+						onCharacterRequested={
+							!settingsOpen && !helpOpen && !characterOpen && !pickupOpen
+								? () => {
+										setCharacterOpenedFromMap(true);
+										setCharacterOpen(true);
+									}
+								: undefined
+						}
 						movementEnabled={
 							!settingsOpen &&
 							!helpOpen &&

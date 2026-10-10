@@ -80,6 +80,10 @@ const DungeonHelp = () => (
 						<Keycap>G</Keycap>
 					</li>
 					<li className="flex items-center justify-between gap-3 py-3">
+						<span>Open Character</span>
+						<Keycap>I</Keycap>
+					</li>
+					<li className="flex items-center justify-between gap-3 py-3">
 						<span>Close this sheet</span>
 						<Keycap>Esc</Keycap>
 					</li>

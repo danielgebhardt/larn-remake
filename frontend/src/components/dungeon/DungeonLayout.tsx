@@ -22,6 +22,7 @@ type DungeonLayoutProps = {
 	onMoveRequested: (direction: MovementDirection) => void;
 	onWaitRequested?: () => void;
 	onPickupRequested?: () => void;
+	onCharacterRequested?: () => void;
 	mapRef?: RefObject<HTMLElement | null>;
 	movementEnabled?: boolean;
 	visible?: VisibilityGrid;
@@ -43,6 +44,7 @@ const DungeonLayout = ({
 	onMoveRequested,
 	onWaitRequested,
 	onPickupRequested,
+	onCharacterRequested,
 	mapRef,
 	movementEnabled = true,
 	visible,
@@ -123,7 +125,7 @@ const DungeonLayout = ({
 	}, [followPlayer, viewportRef]);
 
 	useEffect(() => {
-		if (!movementEnabled) return;
+		if (!movementEnabled && !onCharacterRequested) return;
 		const handleKeyDown = (event: KeyboardEvent) => {
 			if (
 				event.target instanceof HTMLInputElement ||
@@ -134,6 +136,22 @@ const DungeonLayout = ({
 			) {
 				return;
 			}
+
+			if (event.key === "i" || event.key === "I") {
+				if (
+					!onCharacterRequested ||
+					event.ctrlKey ||
+					event.metaKey ||
+					event.altKey ||
+					(event.target instanceof HTMLElement &&
+						event.target.closest(FOCUSED_CONTROLS))
+				)
+					return;
+				event.preventDefault();
+				if (!event.repeat) onCharacterRequested();
+				return;
+			}
+			if (!movementEnabled) return;
 
 			switch (event.key) {
 				case "g":
@@ -192,7 +210,13 @@ const DungeonLayout = ({
 		return () => {
 			window.removeEventListener("keydown", handleKeyDown);
 		};
-	}, [onMoveRequested, onWaitRequested, onPickupRequested, movementEnabled]);
+	}, [
+		onMoveRequested,
+		onWaitRequested,
+		onPickupRequested,
+		onCharacterRequested,
+		movementEnabled,
+	]);
 
 	return (
 		<section

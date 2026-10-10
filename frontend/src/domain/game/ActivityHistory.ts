@@ -13,6 +13,7 @@ export type ActivityEvent = { turn: number } & (
 	| FloorItemEvent
 	| ConsumptionEvent
 	| { type: "monster-loot"; monster: MonsterKind; item: ItemKind }
+	| { type: "items-seen"; items: readonly ItemKind[] }
 );
 
 export type ActivityEntry = { id: number; event: ActivityEvent };

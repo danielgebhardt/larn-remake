@@ -28,6 +28,9 @@ describe("Generated loot on the play screen", () => {
 		expect(screen.getByLabelText(label)).toBeVisible();
 		const user = userEvent.setup();
 		await user.keyboard("{ArrowRight}".repeat(target.coordinate.col - 1));
+		expect(screen.getByRole("log")).toHaveTextContent(
+			`You see ${ITEM_DEFINITIONS[target.item.kind].name} here.`,
+		);
 		await user.click(screen.getByRole("button", { name: "Character" }));
 		await screen.findByRole("dialog", { name: "Character" });
 		await user.click(

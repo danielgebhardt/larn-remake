@@ -30,5 +30,7 @@ export const formatActivityEvent = (event: ActivityEvent): string => {
 			return `${prefix}The ${MONSTER_VISUALS[event.monster].label} drops ${ITEM_DEFINITIONS[event.item].name}.`;
 		case "item-consumed":
 			return `${prefix}You drink ${ITEM_DEFINITIONS[event.item].name} and recover ${event.recovered} health.`;
+		case "items-seen":
+			return `${prefix}You see ${new Intl.ListFormat("en", { style: "long", type: "conjunction" }).format(event.items.map((item) => ITEM_DEFINITIONS[item].name))} here.`;
 	}
 };

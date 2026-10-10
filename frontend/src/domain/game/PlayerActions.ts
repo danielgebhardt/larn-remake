@@ -7,7 +7,11 @@ import {
 	changeEquipment,
 	type EquipmentAction,
 } from "../items/EquipmentChanges";
-import { type FloorItemAction, transferFloorItem } from "../items/FloorItems";
+import {
+	type FloorItemAction,
+	itemsAtPlayer,
+	transferFloorItem,
+} from "../items/FloorItems";
 import { createMonsterDrop } from "../items/MonsterDrops";
 import type { Monster } from "../monsters/Monster.ts";
 import { resolveMonsterPhase } from "../monsters/MonsterTurns";
@@ -107,10 +111,21 @@ export const resolvePlayerAction = (
 	);
 	const playerResult = monster
 		? resolveAttack(state, monster)
-		: { ...state, run, turn: state.turn + 1 };
+		: announceArrival({ ...state, run, turn: state.turn + 1 });
 	return {
 		state: resolveMonsterPhase(playerResult),
 		turnAdvanced: true,
+	};
+};
+
+const announceArrival = (state: GameState): GameState => {
+	const items = itemsAtPlayer(state).map((entry) => entry.item.kind);
+	if (items.length === 0) return state;
+	return {
+		...state,
+		activityHistory: appendActivityEvents(state.activityHistory, [
+			{ type: "items-seen", items, turn: state.turn },
+		]),
 	};
 };
 

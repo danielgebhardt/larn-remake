@@ -24,6 +24,7 @@ const encounter = (): GameState => ({
 		],
 	}),
 	turn: 7,
+	floorItems: [], // Loot arrival messages are covered separately.
 	monsters: [
 		{
 			id: "1:1",

@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useLayoutEffect, useRef } from "react";
 import type { MovementDirection } from "../../domain/dungeon/DungeonRun.ts";
 import type { Coordinate, Dungeon } from "../../domain/dungeon/DungeonTypes.ts";
+import type { VisibilityGrid } from "../../domain/dungeon/Visibility.ts";
 import DungeonRow from "./DungeonRow.tsx";
 import { getScrollOffset } from "./MapScroll.ts";
 
@@ -11,6 +12,8 @@ type DungeonLayoutProps = {
 	upStair?: Coordinate;
 	onMoveRequested: (direction: MovementDirection) => void;
 	movementEnabled?: boolean;
+	visible?: VisibilityGrid;
+	explored?: VisibilityGrid;
 };
 
 const DungeonLayout = ({
@@ -20,6 +23,8 @@ const DungeonLayout = ({
 	upStair,
 	onMoveRequested,
 	movementEnabled = true,
+	visible,
+	explored,
 }: DungeonLayoutProps) => {
 	const viewportRef = useRef<HTMLElement>(null);
 	const playerRef = useRef<HTMLTableCellElement>(null);
@@ -133,6 +138,8 @@ const DungeonLayout = ({
 							key={rowIndex}
 							row={row}
 							rowIndex={rowIndex}
+							visible={visible?.[rowIndex]}
+							explored={explored?.[rowIndex]}
 							playerColumn={
 								playerPosition.row === rowIndex ? playerPosition.col : undefined
 							}

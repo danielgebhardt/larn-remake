@@ -7,6 +7,8 @@
 
 @theme inline {
 	--font-heading: var(--font-sans);
+	--color-fog-unseen: var(--fog-unseen);
+	--color-fog-remembered: var(--fog-remembered);
 	--color-wall-icon: var(--wall-icon);
 	--color-wall-tile: var(--wall-tile);
 	--color-floor-dot: var(--floor-dot);
@@ -55,6 +57,9 @@
 
 :root {
 	--dungeon-tile-size: 24px;
+	--fog-unseen: #dedbd3;
+	--fog-remembered: #eeece7;
+	--remembered-icon-opacity: 0.45;
 	--background: #faf9f6;
 	--foreground: #292b30;
 	--card: #ffffff;
@@ -95,6 +100,8 @@
 }
 
 .dark {
+	--fog-unseen: #101218;
+	--fog-remembered: #191d25;
 	--background: #17191f;
 	--foreground: #eeece7;
 	--card: #20232b;
@@ -143,4 +150,8 @@
 	html {
 		@apply font-sans;
 	}
+}
+
+[data-visibility="remembered"] > svg {
+	opacity: var(--remembered-icon-opacity);
 }

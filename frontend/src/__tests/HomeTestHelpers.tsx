@@ -1,10 +1,14 @@
 import { render as renderUI, screen, waitFor } from "@testing-library/react";
 import type userEvent from "@testing-library/user-event";
-import type { ReactElement } from "react";
+import { type ComponentProps, cloneElement, type ReactElement } from "react";
 import { expect, vi } from "vitest";
 import * as DungeonRun from "../domain/dungeon/DungeonRun.ts";
 import type { Coordinate, Dungeon } from "../domain/dungeon/DungeonTypes.ts";
-import { DEFAULT_RUN_CONFIGURATION } from "../domain/dungeon/RunConfiguration.ts";
+import {
+	DEFAULT_FOG_CONFIGURATION,
+	DEFAULT_RUN_CONFIGURATION,
+} from "../domain/dungeon/RunConfiguration.ts";
+import type Home from "../Home.tsx";
 import { ThemeProvider } from "../settings/ThemeProvider.tsx";
 import { findFloorPath } from "./testhelpers.ts";
 
@@ -12,8 +16,15 @@ const { floorCount, ...DEFAULT_DUNGEON_CONFIG } = DEFAULT_RUN_CONFIGURATION;
 
 export { DEFAULT_DUNGEON_CONFIG };
 
-export const renderHome = (ui: ReactElement) =>
-	renderUI(ui, { wrapper: ThemeProvider });
+// These existing suites inspect the complete map. Fog-specific suites render
+// Home directly to exercise its enabled default and discovery behavior.
+export const renderHome = (ui: ReactElement<ComponentProps<typeof Home>>) =>
+	renderUI(
+		cloneElement(ui, {
+			initialFogConfiguration: { ...DEFAULT_FOG_CONFIGURATION, enabled: false },
+		}),
+		{ wrapper: ThemeProvider },
+	);
 
 export const resetHomeTestState = () => {
 	localStorage.clear();

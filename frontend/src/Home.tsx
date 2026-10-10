@@ -12,8 +12,11 @@ import {
 	type MovementDirection,
 	moveDungeonRun,
 } from "./domain/dungeon/DungeonRun.ts";
+import { updateExploration } from "./domain/dungeon/Exploration.ts";
 import {
+	DEFAULT_FOG_CONFIGURATION,
 	DEFAULT_RUN_CONFIGURATION,
+	type FogConfiguration,
 	type RunConfiguration,
 } from "./domain/dungeon/RunConfiguration.ts";
 import { MAX_SEED, parseSeedInput } from "./domain/dungeon/Seed.ts";
@@ -35,10 +38,20 @@ const createRun = (
 	);
 };
 
-const Home = () => {
-	const [run, setRun] = useState<DungeonRun>(() =>
-		createRun(0, DEFAULT_RUN_CONFIGURATION),
-	);
+type HomeProps = { initialFogConfiguration?: FogConfiguration };
+
+const Home = ({
+	initialFogConfiguration = DEFAULT_FOG_CONFIGURATION,
+}: HomeProps) => {
+	const [fogConfiguration] = useState(initialFogConfiguration);
+	const [game, setGame] = useState(() => {
+		const run = createRun(0, DEFAULT_RUN_CONFIGURATION);
+		return {
+			run,
+			exploration: updateExploration(run, fogConfiguration.radius),
+		};
+	});
+	const { run, exploration } = game;
 	const [configuration, setConfiguration] = useState(DEFAULT_RUN_CONFIGURATION);
 	const [configDraft, setConfigDraft] = useState(() =>
 		configurationDraft(DEFAULT_RUN_CONFIGURATION),
@@ -64,7 +77,10 @@ const Home = () => {
 			setSettingsOpen(true);
 			return false;
 		}
-		setRun(nextRun);
+		setGame({
+			run: nextRun,
+			exploration: updateExploration(nextRun, fogConfiguration.radius),
+		});
 		setConfiguration(nextConfiguration);
 		setConfigDraft(configurationDraft(nextConfiguration));
 		setConfigErrors({});
@@ -94,7 +110,18 @@ const Home = () => {
 	};
 
 	const handleMoveRequested = (direction: MovementDirection) => {
-		setRun((current) => moveDungeonRun(current, direction));
+		setGame((current) => {
+			const nextRun = moveDungeonRun(current.run, direction);
+			if (nextRun === current.run) return current;
+			return {
+				run: nextRun,
+				exploration: updateExploration(
+					nextRun,
+					fogConfiguration.radius,
+					current.exploration,
+				),
+			};
+		});
 	};
 
 	return (
@@ -114,9 +141,17 @@ const Home = () => {
 
 				<main className="flex min-h-0 min-w-0 flex-1 p-4 sm:p-6">
 					<section className="flex min-h-0 min-w-0 flex-1 flex-col rounded-lg border border-border bg-card p-3 sm:p-4">
-						<DungeonLegend />
+						<DungeonLegend fogEnabled={fogConfiguration.enabled} />
 						<DungeonLayout
 							dungeon={activeFloor.terrain}
+							visible={
+								fogConfiguration.enabled ? exploration.visible : undefined
+							}
+							explored={
+								fogConfiguration.enabled
+									? exploration.explored.get(run.activeFloor)
+									: undefined
+							}
 							playerPosition={run.playerCoordinate}
 							upStair={activeFloor.upStair?.coordinate}
 							downStair={activeFloor.downStair?.coordinate}

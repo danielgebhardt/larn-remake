@@ -7,7 +7,7 @@ const entries = [
 	{ tile: STAIRS_DOWN, label: "Stairs down" },
 ];
 
-const DungeonLegend = () => (
+const DungeonLegend = ({ fogEnabled = false }: { fogEnabled?: boolean }) => (
 	<ul
 		aria-label="Dungeon legend"
 		className="my-2 flex shrink-0 flex-wrap justify-center gap-x-5 gap-y-2 text-sm"
@@ -20,6 +20,20 @@ const DungeonLegend = () => (
 				<span>{label}</span>
 			</li>
 		))}
+		{fogEnabled &&
+			[
+				{ label: "Visible", className: "bg-card" },
+				{ label: "Remembered", className: "bg-fog-remembered" },
+				{ label: "Undiscovered", className: "bg-fog-unseen" },
+			].map(({ label, className }) => (
+				<li key={label} className="flex items-center gap-2">
+					<span
+						aria-hidden="true"
+						className={`size-3 rounded-sm border ${className}`}
+					/>
+					<span>{label}</span>
+				</li>
+			))}
 	</ul>
 );
 

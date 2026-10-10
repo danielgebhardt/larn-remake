@@ -68,7 +68,10 @@ describe("Home floor traversal", () => {
 		const activeRun = {
 			...run,
 			activeFloor: 2,
-			playerCoordinate: { row: 1, col: 1 },
+			playerCoordinate: {
+				row: floor2.rooms[0].endRow,
+				col: floor2.rooms[0].endCol,
+			},
 		};
 
 		stubDungeonRun(activeRun);
@@ -101,7 +104,10 @@ describe("Home floor traversal", () => {
 		const activeRun = {
 			...run,
 			activeFloor: 2,
-			playerCoordinate: { row: 1, col: 1 },
+			playerCoordinate: {
+				row: floor2.rooms[0].endRow,
+				col: floor2.rooms[0].endCol,
+			},
 		};
 
 		stubDungeonRun(activeRun);

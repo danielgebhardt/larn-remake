@@ -1,4 +1,4 @@
-import { PLAYER, STAIRS_DOWN, STAIRS_UP } from "./LayoutTiles.ts";
+import { PLAYER, STAIRS_DOWN, STAIRS_UP } from "../../domain/dungeon/Tiles.ts";
 import TileIcon from "./TileIcon.tsx";
 
 const entries = [

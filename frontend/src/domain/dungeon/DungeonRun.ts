@@ -1,13 +1,9 @@
-import {
-	type Coordinate,
-	type DungeonConfig,
-	FLOOR,
-	type GeneratedDungeon,
-	generateDungeon,
-	selectPlayerStart,
-	selectStairLocation,
-} from "./LayoutTiles.ts";
+import { generateDungeon } from "./DungeonGeneration.ts";
+import { selectPlayerStart, selectStairLocation } from "./DungeonLocations.ts";
+import type { Coordinate, GeneratedDungeon } from "./DungeonTypes.ts";
+import type { DungeonConfig } from "./RunConfiguration.ts";
 import { createSeededRandom } from "./Seed.ts";
+import { FLOOR } from "./Tiles.ts";
 
 export type DungeonFloor = GeneratedDungeon & {
 	floorNumber: number;

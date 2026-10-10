@@ -1,5 +1,8 @@
 import { describe, expect, it } from "vitest";
-import { configurationDraft, parseRunConfiguration } from "../RunConfiguration";
+import {
+	configurationDraft,
+	parseRunConfiguration,
+} from "../settings/RunConfigurationDraft.ts";
 
 describe("run configuration input", () => {
 	it("normalizes whole numbers and accepts a rectangular, single-floor dungeon", () => {

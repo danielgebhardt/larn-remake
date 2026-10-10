@@ -1,11 +1,12 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
-import DungeonLayout from "../DungeonLayout";
-import { FLOOR, WALL } from "../LayoutTiles";
-import TileIcon from "../TileIcon";
+import DungeonLayout from "../components/dungeon/DungeonLayout.tsx";
+import TileIcon from "../components/dungeon/TileIcon.tsx";
+import { FLOOR, WALL } from "../domain/dungeon/Tiles.ts";
 
-vi.mock("../TileIcon", async (importOriginal) => {
-	const actual = await importOriginal<typeof import("../TileIcon")>();
+vi.mock("../components/dungeon/TileIcon.tsx", async (importOriginal) => {
+	const actual =
+		await importOriginal<typeof import("../components/dungeon/TileIcon.tsx")>();
 	return { default: vi.fn(actual.default) };
 });
 

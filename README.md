@@ -31,16 +31,21 @@ larn-remake/
 ├── backend/                  # Spring Boot API
 ├── frontend/                 # React + TypeScript application
 │   └── src/
-│       ├── Corridor.ts      # Corridor creation and connections
-│       ├── DungeonLayout.tsx # Dungeon rendering and player movement
-│       ├── DungeonRun.ts    # Run state, floor seeds, stair links, and transitions
-│       ├── LayoutTiles.ts   # Dungeon generation and player start
-│       ├── Partitioning.ts  # Region splitting and recursive BSP
-│       ├── Room.ts          # Room creation and assignment
-│       └── __tests__/       # Frontend and domain tests
+│       ├── App.tsx           # Application entry and theme provider
+│       ├── Home.tsx          # Play screen and run/settings state
+│       ├── Header.tsx        # Floor display and toolbar
+│       ├── domain/dungeon/   # Pure generation, run state, seeds, and configuration
+│       ├── components/
+│       │   ├── dungeon/      # Map rendering, icons, legend, and scroll geometry
+│       │   └── ui/           # Shared shadcn controls
+│       ├── settings/         # Settings panel, draft parsing, and theme preference
+│       ├── __tests__/        # Frontend/domain tests and shared fixtures
+│       └── mocks/            # Mock API handlers for tests
 ├── docs/                     # Definition of Done and AI working agreement
 └── README.md
 ```
+
+Dungeon responsibilities are split into focused modules in `domain/dungeon`: `DungeonTypes.ts` defines shared shapes, `Tiles.ts` defines tile identifiers, `Terrain.ts` creates and carves grids, `DungeonGeneration.ts` coordinates generation, and `DungeonLocations.ts` selects player and stair positions. `Partitioning.ts`, `Room.ts`, and `Corridor.ts` implement the generation steps; `DungeonRun.ts` manages floors and stair transitions. The domain has no React or settings dependencies. The fixed dungeon and its starting coordinate live in `__tests__/testhelpers.ts`.
 
 ## Prerequisites
 
@@ -97,7 +102,7 @@ Move the player with either control scheme:
 
 The player can move through rooms and corridors but cannot move through wall tiles or beyond the dungeon boundary.
 
-Tiles use gray brick walls, faint floor dots, and a red player from Lucide, plus custom amber staircase silhouettes. Steps rising from left to right indicate up stairs; steps falling from left to right indicate down stairs. The player icon covers a stair while occupying it; the stair reappears after moving away. Icon choices, colors, and accessible labels are centralized in `frontend/src/TileVisuals.ts`; the custom SVGs live in `frontend/src/StairIcons.tsx`.
+Tiles use gray brick walls, faint floor dots, and a red player from Lucide, plus custom amber staircase silhouettes. Steps rising from left to right indicate up stairs; steps falling from left to right indicate down stairs. The player icon covers a stair while occupying it; the stair reappears after moving away. Icon choices, colors, and accessible labels are centralized in `frontend/src/components/dungeon/TileVisuals.ts`; the custom SVGs live in `frontend/src/components/dungeon/StairIcons.tsx`.
 
 A compact legend above the map identifies the player and both stair directions. Map tiles stay square at 24×24 pixels. Scroll within the map to explore portions outside the viewport; the map container is capped at 70% of the window height. Keyboard users can focus the map and use Page Up/Page Down for vertical scrolling; arrow keys and WASD continue to move the player.
 
@@ -134,15 +139,16 @@ Floor 1 has no up stair, and the deepest floor has no down stair. Floor count is
 
 ## Configuration
 
-Start with `RunConfiguration.ts` when tuning dungeon generation. Configuration is organized by responsibility:
+Start with `domain/dungeon/RunConfiguration.ts` when tuning dungeon generation. Configuration is organized by responsibility:
 
 | File | What it controls |
 | --- | --- |
-| [RunConfiguration.ts](frontend/src/RunConfiguration.ts) | Dungeon defaults, configuration types, and input limits: rows, columns, floor count, minimum partition size, room padding, minimum room size, and maximum room aspect ratio. |
+| [RunConfiguration.ts](frontend/src/domain/dungeon/RunConfiguration.ts) | Dungeon defaults, configuration types, and input limits: rows, columns, floor count, minimum partition size, room padding, minimum room size, and maximum room aspect ratio. |
+| [RunConfigurationDraft.ts](frontend/src/settings/RunConfigurationDraft.ts) | Settings draft types, conversion to input strings, and parsing/validation against the shared limits. |
 | [App.css](frontend/src/App.css) | Tile size, light/dark theme colors, and shared styling. The `--dungeon-tile-size` variable sizes dungeon cells, grid columns, and legend icons together. |
-| [TileVisuals.ts](frontend/src/TileVisuals.ts) | Tile icon choices, color classes, backgrounds, and accessible labels. |
-| [Seed.ts](frontend/src/Seed.ts) | Seed range, input validation, and seeded randomness. |
-| [ThemeProvider.tsx](frontend/src/ThemeProvider.tsx) | Default appearance and saved Light/Dark/System preference. |
+| [TileVisuals.ts](frontend/src/components/dungeon/TileVisuals.ts) | Tile icon choices, color classes, backgrounds, and accessible labels. |
+| [Seed.ts](frontend/src/domain/dungeon/Seed.ts) | Seed range, input validation, and seeded randomness. |
+| [ThemeProvider.tsx](frontend/src/settings/ThemeProvider.tsx) | Default appearance and saved Light/Dark/System preference. |
 | [vite.config.ts](frontend/vite.config.ts) | Frontend tooling, import aliases, backend development proxy, and test environment. |
 
 Settings exposes rows, columns, and floor count. Partition size, padding, room size, and aspect ratio remain internal configuration values and are preserved when applying a Settings draft. Appearance is saved locally; dungeon settings last for the current session.

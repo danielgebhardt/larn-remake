@@ -1,38 +1,12 @@
-export const MAX_SIZE = 100;
+import {
+	CONFIGURATION_LIMITS,
+	DEFAULT_RUN_CONFIGURATION,
+	type RunConfiguration,
+} from "../domain/dungeon/RunConfiguration.ts";
 
-export type RoomConfiguration = {
-	minRoomSize: number;
-	maxRoomAspectRatio: number;
-};
-
-export type DungeonConfig = {
-	rows: number;
-	cols: number;
-	minPartitionSize: number;
-	roomPadding: number;
-} & Partial<RoomConfiguration>;
-
-export type RunConfiguration = Required<DungeonConfig> & {
-	floorCount: number;
-};
 export type ConfigurationField = "rows" | "cols" | "floorCount";
 export type ConfigurationDraft = Record<ConfigurationField, string>;
 export type ConfigurationErrors = Partial<Record<ConfigurationField, string>>;
-
-export const DEFAULT_RUN_CONFIGURATION: RunConfiguration = {
-	rows: 30,
-	cols: 100,
-	floorCount: 3,
-	minPartitionSize: 8,
-	roomPadding: 1,
-	minRoomSize: 3,
-	maxRoomAspectRatio: 3,
-};
-export const CONFIGURATION_LIMITS = {
-	rows: { min: 10, max: MAX_SIZE },
-	cols: { min: 10, max: MAX_SIZE },
-	floorCount: { min: 1, max: 10 },
-};
 
 export const configurationDraft = (
 	value: RunConfiguration,

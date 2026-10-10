@@ -4,13 +4,16 @@ import {
 	connectPartitionRooms,
 	createCorridor,
 	getRoomEndpoint,
-} from "../Corridor.ts";
-import { type Region, recursivePartition } from "../Partitioning.ts";
+} from "../domain/dungeon/Corridor.ts";
+import {
+	type Region,
+	recursivePartition,
+} from "../domain/dungeon/Partitioning.ts";
 import {
 	assignRoomsToPartition,
 	getTerminalRooms,
 	type Room,
-} from "../Room.ts";
+} from "../domain/dungeon/Room.ts";
 
 describe("Corridor tests", () => {
 	it("should select an endpoint inside each room", () => {

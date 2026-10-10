@@ -1,34 +1,42 @@
 import { describe, expect, it } from "vitest";
-import { type Corridor, createCorridor } from "../Corridor.ts";
+import { type Corridor, createCorridor } from "../domain/dungeon/Corridor.ts";
+import { generateDungeon } from "../domain/dungeon/DungeonGeneration.ts";
 import {
-	type Coordinate,
-	carveCorridors,
-	carveRooms,
-	type Dungeon,
-	type DungeonConfig,
-	FLOOR,
-	fixedDungeon,
-	generateDungeon,
-	getDungeonCoordinateValue,
-	type LocationSelectionSource,
-	MAX_SIZE,
-	makeDungeon,
 	selectPlayerStart,
 	selectStairLocation,
-	WALL,
-} from "../LayoutTiles.ts";
-import { makeRegion, recursivePartition } from "../Partitioning.ts";
+} from "../domain/dungeon/DungeonLocations.ts";
+import type {
+	Coordinate,
+	Dungeon,
+	LocationSelectionSource,
+} from "../domain/dungeon/DungeonTypes.ts";
+import {
+	makeRegion,
+	recursivePartition,
+} from "../domain/dungeon/Partitioning.ts";
 import {
 	assignRoomsToPartition,
 	getTerminalRooms,
 	type Room,
-} from "../Room.ts";
+} from "../domain/dungeon/Room.ts";
+import {
+	type DungeonConfig,
+	MAX_SIZE,
+} from "../domain/dungeon/RunConfiguration.ts";
+import {
+	carveCorridors,
+	carveRooms,
+	getDungeonCoordinateValue,
+	makeDungeon,
+} from "../domain/dungeon/Terrain.ts";
+import { FLOOR, WALL } from "../domain/dungeon/Tiles.ts";
 import {
 	expectAllFloorTilesReachable,
+	fixedDungeon,
 	makeLocationSelectionSource,
 } from "./testhelpers.ts";
 
-describe("LayoutTiles Tests", () => {
+describe("Dungeon Tests", () => {
 	it("should return a # for WALL values in dungeon map", () => {
 		expect(getDungeonCoordinateValue(0, 0, fixedDungeon)).toBe(WALL);
 		expect(getDungeonCoordinateValue(1, 4, fixedDungeon)).toBe(WALL);

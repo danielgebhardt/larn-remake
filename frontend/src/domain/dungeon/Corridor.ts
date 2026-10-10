@@ -1,4 +1,4 @@
-import type { Coordinate } from "./LayoutTiles.ts";
+import type { Coordinate } from "./DungeonTypes.ts";
 import type { PartitionNode } from "./Partitioning.ts";
 import { getRepresentativeRoom, type Room } from "./Room.ts";
 

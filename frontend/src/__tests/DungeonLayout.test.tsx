@@ -2,16 +2,15 @@ import { createEvent, fireEvent, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { type ComponentProps, useState } from "react";
 import { describe, expect, it, vi } from "vitest";
-import DungeonLayout from "../DungeonLayout.tsx";
+import DungeonLayout from "../components/dungeon/DungeonLayout.tsx";
 import {
 	FLOOR,
-	fixedDungeon,
 	PLAYER,
 	STAIRS_DOWN,
 	STAIRS_UP,
-	START_COORDINATE,
 	WALL,
-} from "../LayoutTiles.ts";
+} from "../domain/dungeon/Tiles.ts";
+import { fixedDungeon, START_COORDINATE } from "./testhelpers.ts";
 
 const connectedDungeon = [
 	Array(9).fill(WALL),

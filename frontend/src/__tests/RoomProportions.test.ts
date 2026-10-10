@@ -1,8 +1,12 @@
 import { describe, expect, it } from "vitest";
-import { connectDungeonFloors, generateDungeonRun } from "../DungeonRun";
-import { FLOOR, generateDungeon } from "../LayoutTiles";
-import { createRoom } from "../Room";
-import { MAX_SEED } from "../Seed";
+import { generateDungeon } from "../domain/dungeon/DungeonGeneration.ts";
+import {
+	connectDungeonFloors,
+	generateDungeonRun,
+} from "../domain/dungeon/DungeonRun.ts";
+import { createRoom } from "../domain/dungeon/Room.ts";
+import { MAX_SEED } from "../domain/dungeon/Seed.ts";
+import { FLOOR } from "../domain/dungeon/Tiles.ts";
 
 describe("Room proportions", () => {
 	it("applies configured room sizing to every generated room", () => {

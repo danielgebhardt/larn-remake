@@ -13,12 +13,14 @@ import {
 } from "@/components/ui/sheet";
 import {
 	CONFIGURATION_LIMITS,
-	type ConfigurationDraft,
-	type ConfigurationErrors,
-	type ConfigurationField,
 	type RunConfiguration,
-} from "./RunConfiguration";
-import { useTheme } from "./ThemeProvider";
+} from "../domain/dungeon/RunConfiguration.ts";
+import type {
+	ConfigurationDraft,
+	ConfigurationErrors,
+	ConfigurationField,
+} from "./RunConfigurationDraft.ts";
+import { useTheme } from "./ThemeProvider.tsx";
 
 type DungeonSettingsProps = {
 	seed: number;

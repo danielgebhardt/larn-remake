@@ -3,15 +3,15 @@ import {
 	type PartitionNode,
 	type Region,
 	recursivePartition,
-} from "../Partitioning.ts";
+} from "../domain/dungeon/Partitioning.ts";
 import {
 	assignRoomsToPartition,
 	createRoom,
 	getRepresentativeRoom,
 	getTerminalRooms,
 	type Room,
-} from "../Room.ts";
-import { createSeededRandom } from "../Seed.ts";
+} from "../domain/dungeon/Room.ts";
+import { createSeededRandom } from "../domain/dungeon/Seed.ts";
 
 describe("Room Tests", () => {
 	describe("createRoom tests", () => {

@@ -1,4 +1,6 @@
 import { describe, expect, it } from "vitest";
+import { generateDungeon } from "../domain/dungeon/DungeonGeneration.ts";
+import { selectPlayerStart } from "../domain/dungeon/DungeonLocations.ts";
 import {
 	ascendDungeonRun,
 	connectDungeonFloors,
@@ -10,15 +12,10 @@ import {
 	generateDungeonFloor,
 	generateDungeonRun,
 	hashStringToUint32,
-} from "../DungeonRun.ts";
-import {
-	type Coordinate,
-	type DungeonConfig,
-	FLOOR,
-	generateDungeon,
-	PLAYER,
-	selectPlayerStart,
-} from "../LayoutTiles.ts";
+} from "../domain/dungeon/DungeonRun.ts";
+import type { Coordinate } from "../domain/dungeon/DungeonTypes.ts";
+import type { DungeonConfig } from "../domain/dungeon/RunConfiguration.ts";
+import { FLOOR, PLAYER } from "../domain/dungeon/Tiles.ts";
 import { expectAllFloorTilesReachable } from "./testhelpers.ts";
 
 describe("Dungeon run tests", () => {

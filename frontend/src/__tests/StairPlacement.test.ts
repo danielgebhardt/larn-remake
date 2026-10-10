@@ -1,5 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { createCorridor } from "../Corridor.ts";
+import { createCorridor } from "../domain/dungeon/Corridor.ts";
+import {
+	selectPlayerStart,
+	selectStairLocation,
+} from "../domain/dungeon/DungeonLocations.ts";
 import {
 	connectAdjacentFloors,
 	connectDungeonFloors,
@@ -7,16 +11,14 @@ import {
 	type DungeonFloor,
 	generateDungeonFloor,
 	generateDungeonRun,
-} from "../DungeonRun.ts";
+} from "../domain/dungeon/DungeonRun.ts";
+import { createSeededRandom } from "../domain/dungeon/Seed.ts";
 import {
 	carveCorridors,
 	carveRooms,
-	FLOOR,
 	makeDungeon,
-	selectPlayerStart,
-	selectStairLocation,
-} from "../LayoutTiles.ts";
-import { createSeededRandom } from "../Seed.ts";
+} from "../domain/dungeon/Terrain.ts";
+import { FLOOR } from "../domain/dungeon/Tiles.ts";
 import {
 	createTestDungeonFloor,
 	expectAllFloorTilesReachable,

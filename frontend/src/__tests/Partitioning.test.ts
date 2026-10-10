@@ -4,8 +4,8 @@ import {
 	type Region,
 	recursivePartition,
 	splitRegion,
-} from "../Partitioning.ts";
-import { createSeededRandom } from "../Seed.ts";
+} from "../domain/dungeon/Partitioning.ts";
+import { createSeededRandom } from "../domain/dungeon/Seed.ts";
 import { getRegionArea, getTerminalRegions } from "./testhelpers.ts";
 
 describe("Partitioning Tests", () => {

@@ -1,7 +1,7 @@
 import { act, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import DungeonLayout from "../DungeonLayout";
-import { FLOOR, WALL } from "../LayoutTiles";
+import DungeonLayout from "../components/dungeon/DungeonLayout.tsx";
+import { FLOOR, WALL } from "../domain/dungeon/Tiles.ts";
 
 describe("dungeon viewport following", () => {
 	let width: number;

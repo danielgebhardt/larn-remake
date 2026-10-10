@@ -3,26 +3,28 @@ import { type SubmitEvent, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetTrigger } from "@/components/ui/sheet";
 import APICheck from "./APICheck.tsx";
-import DungeonLayout from "./DungeonLayout.tsx";
-import DungeonLegend from "./DungeonLegend.tsx";
+import DungeonLayout from "./components/dungeon/DungeonLayout.tsx";
+import DungeonLegend from "./components/dungeon/DungeonLegend.tsx";
 import {
 	ascendDungeonRun,
 	connectDungeonFloors,
 	type DungeonRun,
 	descendDungeonRun,
 	generateDungeonRun,
-} from "./DungeonRun.ts";
-import DungeonSettings from "./DungeonSettings.tsx";
+} from "./domain/dungeon/DungeonRun.ts";
+import type { Coordinate } from "./domain/dungeon/DungeonTypes.ts";
+import {
+	DEFAULT_RUN_CONFIGURATION,
+	type RunConfiguration,
+} from "./domain/dungeon/RunConfiguration.ts";
+import { MAX_SEED, parseSeedInput } from "./domain/dungeon/Seed.ts";
 import Header from "./Header.tsx";
-import type { Coordinate } from "./LayoutTiles.ts";
+import DungeonSettings from "./settings/DungeonSettings.tsx";
 import {
 	type ConfigurationErrors,
 	configurationDraft,
-	DEFAULT_RUN_CONFIGURATION,
 	parseRunConfiguration,
-	type RunConfiguration,
-} from "./RunConfiguration";
-import { MAX_SEED, parseSeedInput } from "./Seed.ts";
+} from "./settings/RunConfigurationDraft.ts";
 
 const createRun = (
 	seed: number,

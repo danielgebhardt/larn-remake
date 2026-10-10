@@ -1,6 +1,6 @@
 import "./App.css";
 import Home from "./Home.tsx";
-import { ThemeProvider } from "./ThemeProvider";
+import { ThemeProvider } from "./settings/ThemeProvider.tsx";
 
 function App() {
 	return (

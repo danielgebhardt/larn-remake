@@ -1,14 +1,13 @@
 import { expect } from "vitest";
-import type { DungeonFloor, StairLink } from "../DungeonRun.ts";
-import {
-	type Coordinate,
-	type Dungeon,
-	FLOOR,
-	type LocationSelectionSource,
-	WALL,
-} from "../LayoutTiles.ts";
-import type { PartitionNode, Region } from "../Partitioning.ts";
-import type { Room } from "../Room.ts";
+import type { DungeonFloor, StairLink } from "../domain/dungeon/DungeonRun.ts";
+import type {
+	Coordinate,
+	Dungeon,
+	LocationSelectionSource,
+} from "../domain/dungeon/DungeonTypes.ts";
+import type { PartitionNode, Region } from "../domain/dungeon/Partitioning.ts";
+import type { Room } from "../domain/dungeon/Room.ts";
+import { FLOOR, WALL } from "../domain/dungeon/Tiles.ts";
 
 export const getTerminalRegions = (node: PartitionNode): Region[] => {
 	if (!node.children) {
@@ -148,3 +147,13 @@ export const createTestDungeonFloor = ({
 		downStair,
 	};
 };
+
+export const START_COORDINATE: Coordinate = { row: 1, col: 1 };
+
+export const fixedDungeon: Dungeon = [
+	[WALL, WALL, WALL, WALL, WALL],
+	[WALL, FLOOR, FLOOR, FLOOR, WALL],
+	[WALL, FLOOR, WALL, FLOOR, WALL],
+	[WALL, FLOOR, FLOOR, FLOOR, WALL],
+	[WALL, WALL, WALL, WALL, WALL],
+];

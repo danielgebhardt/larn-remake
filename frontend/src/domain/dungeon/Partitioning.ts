@@ -1,4 +1,4 @@
-import type { Dungeon } from "./LayoutTiles.ts";
+import type { Dungeon } from "./DungeonTypes.ts";
 import type { Room } from "./Room.ts";
 
 export type Region = {

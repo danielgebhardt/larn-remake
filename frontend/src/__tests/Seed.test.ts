@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { createSeededRandom, parseSeedInput } from "../Seed.ts";
+import { createSeededRandom, parseSeedInput } from "../domain/dungeon/Seed.ts";
 
 describe("Seed input", () => {
 	it.each([

@@ -2,7 +2,7 @@ import type { PartitionNode, Region } from "./Partitioning.ts";
 import {
 	DEFAULT_RUN_CONFIGURATION,
 	type RoomConfiguration,
-} from "./RunConfiguration";
+} from "./RunConfiguration.ts";
 
 export type Room = {
 	startRow: number;

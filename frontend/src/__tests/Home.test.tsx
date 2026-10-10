@@ -8,12 +8,20 @@ import userEvent from "@testing-library/user-event";
 import { HttpResponse, http } from "msw";
 import type { ReactElement } from "react";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import * as DungeonRun from "../DungeonRun.ts";
+import * as DungeonGeneration from "../domain/dungeon/DungeonGeneration.ts";
+import { selectPlayerStart } from "../domain/dungeon/DungeonLocations.ts";
+import * as DungeonRun from "../domain/dungeon/DungeonRun.ts";
+import type { Coordinate, Dungeon } from "../domain/dungeon/DungeonTypes.ts";
+import {
+	FLOOR,
+	PLAYER,
+	STAIRS_DOWN,
+	STAIRS_UP,
+	WALL,
+} from "../domain/dungeon/Tiles.ts";
 import Home from "../Home.tsx";
-import * as LayoutTiles from "../LayoutTiles.ts";
-import { STAIRS_DOWN, STAIRS_UP } from "../LayoutTiles.ts";
 import { server } from "../mocks/server.ts";
-import { ThemeProvider } from "../ThemeProvider";
+import { ThemeProvider } from "../settings/ThemeProvider.tsx";
 import { createTestDungeonFloor } from "./testhelpers.ts";
 
 const render = (ui: ReactElement) => renderUI(ui, { wrapper: ThemeProvider });
@@ -61,9 +69,9 @@ const editConfiguration = async (
 };
 
 const pathTo = (
-	terrain: LayoutTiles.Dungeon,
-	start: LayoutTiles.Coordinate,
-	target: LayoutTiles.Coordinate,
+	terrain: Dungeon,
+	start: Coordinate,
+	target: Coordinate,
 ): string => {
 	const queue = [{ ...start, keys: "" }];
 	const visited = new Set([`${start.row},${start.col}`]);
@@ -76,10 +84,7 @@ const pathTo = (
 			[current.row, current.col - 1, "ArrowLeft"],
 			[current.row, current.col + 1, "ArrowRight"],
 		] as const) {
-			if (
-				terrain[row]?.[col] !== LayoutTiles.FLOOR ||
-				visited.has(`${row},${col}`)
-			)
+			if (terrain[row]?.[col] !== FLOOR || visited.has(`${row},${col}`))
 				continue;
 			visited.add(`${row},${col}`);
 			queue.push({ row, col, keys: `${current.keys}{${key}}` });
@@ -506,10 +511,7 @@ describe("Home tests", () => {
 	});
 	it("completes exploration, seed replay, and repeated whole-run restarts without restoring old floors", async () => {
 		const user = userEvent.setup();
-		const shiftCoordinate = (
-			coordinate: LayoutTiles.Coordinate,
-			offset: number,
-		) => ({
+		const shiftCoordinate = (coordinate: Coordinate, offset: number) => ({
 			row: coordinate.row,
 			col: coordinate.col + offset,
 		});
@@ -561,7 +563,7 @@ describe("Home tests", () => {
 		const expectFloor = (
 			seed: number,
 			floorNumber: number,
-			player: LayoutTiles.Coordinate,
+			player: Coordinate,
 		) => {
 			const floor = runs.get(seed)?.floors[floorNumber - 1];
 			if (!floor) throw new Error("Expected a known fixture floor");
@@ -572,11 +574,11 @@ describe("Home tests", () => {
 			] as const) {
 				if (link) expected[link.coordinate.row][link.coordinate.col] = glyph;
 			}
-			expected[player.row][player.col] = LayoutTiles.PLAYER;
+			expected[player.row][player.col] = PLAYER;
 			const descriptions: Record<string, string> = {
-				[LayoutTiles.WALL]: "wall",
-				[LayoutTiles.FLOOR]: "floor",
-				[LayoutTiles.PLAYER]: "player",
+				[WALL]: "wall",
+				[FLOOR]: "floor",
+				[PLAYER]: "player",
 				[STAIRS_UP]: "stairs up",
 				[STAIRS_DOWN]: "stairs down",
 			};
@@ -976,7 +978,7 @@ describe("Home tests", () => {
 	});
 
 	it("renders a rectangular generated dungeon on the playable page", () => {
-		const generated = LayoutTiles.generateDungeon({
+		const generated = DungeonGeneration.generateDungeon({
 			rows: 7,
 			cols: 11,
 			minPartitionSize: 8,
@@ -984,7 +986,7 @@ describe("Home tests", () => {
 			minRoomSize: 3,
 			maxRoomAspectRatio: 3,
 		});
-		vi.spyOn(LayoutTiles, "generateDungeon").mockReturnValue(generated);
+		vi.spyOn(DungeonGeneration, "generateDungeon").mockReturnValue(generated);
 
 		render(<Home />);
 
@@ -1034,7 +1036,7 @@ describe("Home tests", () => {
 					continue;
 				}
 
-				if (tile === LayoutTiles.WALL) {
+				if (tile === WALL) {
 					expect(
 						screen.getByRole("cell", {
 							name: `row${rowIndex}col${colIndex} - wall`,
@@ -1052,7 +1054,7 @@ describe("Home tests", () => {
 	});
 
 	it("starts the player at the selected generated floor coordinate", () => {
-		const generated = LayoutTiles.generateDungeon({
+		const generated = DungeonGeneration.generateDungeon({
 			rows: 5,
 			cols: 7,
 			minPartitionSize: 8,
@@ -1060,13 +1062,13 @@ describe("Home tests", () => {
 			minRoomSize: 3,
 			maxRoomAspectRatio: 3,
 		});
-		vi.spyOn(LayoutTiles, "generateDungeon").mockReturnValue(generated);
+		vi.spyOn(DungeonGeneration, "generateDungeon").mockReturnValue(generated);
 
 		render(<Home />);
 
-		const start = LayoutTiles.selectPlayerStart(generated);
+		const start = selectPlayerStart(generated);
 		expect(start).toEqual({ row: 2, col: 3 });
-		expect(generated.terrain[start.row][start.col]).toBe(LayoutTiles.FLOOR);
+		expect(generated.terrain[start.row][start.col]).toBe(FLOOR);
 		expect(
 			screen.getByRole("cell", {
 				name: `row${start.row}col${start.col} - player`,
@@ -1075,7 +1077,7 @@ describe("Home tests", () => {
 	});
 
 	it("does not generate another dungeon on an ordinary rerender", () => {
-		const generated = LayoutTiles.generateDungeon({
+		const generated = DungeonGeneration.generateDungeon({
 			rows: 5,
 			cols: 7,
 			minPartitionSize: 8,
@@ -1084,7 +1086,7 @@ describe("Home tests", () => {
 			maxRoomAspectRatio: 3,
 		});
 		const generateSpy = vi
-			.spyOn(LayoutTiles, "generateDungeon")
+			.spyOn(DungeonGeneration, "generateDungeon")
 			.mockReturnValue(generated);
 
 		const { rerender } = render(<Home />);
@@ -1096,7 +1098,7 @@ describe("Home tests", () => {
 	});
 
 	it("keeps the player's position on an ordinary rerender", async () => {
-		const generated = LayoutTiles.generateDungeon({
+		const generated = DungeonGeneration.generateDungeon({
 			rows: 5,
 			cols: 7,
 			minPartitionSize: 8,
@@ -1104,11 +1106,11 @@ describe("Home tests", () => {
 			minRoomSize: 3,
 			maxRoomAspectRatio: 3,
 		});
-		vi.spyOn(LayoutTiles, "generateDungeon").mockReturnValue(generated);
+		vi.spyOn(DungeonGeneration, "generateDungeon").mockReturnValue(generated);
 
-		const start = LayoutTiles.selectPlayerStart(generated);
+		const start = selectPlayerStart(generated);
 		expect(start).toEqual({ row: 2, col: 3 });
-		expect(generated.terrain[2][4]).toBe(LayoutTiles.FLOOR);
+		expect(generated.terrain[2][4]).toBe(FLOOR);
 
 		const { rerender } = render(<Home />);
 
@@ -1168,7 +1170,7 @@ describe("Home tests", () => {
 		};
 
 		expect(firstFloor.terrain[movedPosition.row][movedPosition.col]).toBe(
-			LayoutTiles.FLOOR,
+			FLOOR,
 		);
 
 		await user.keyboard("{ArrowRight}");
@@ -1207,7 +1209,7 @@ describe("Home tests", () => {
 
 	it("resets the player on every new dungeon even when the seed and starting position repeat", async () => {
 		const user = userEvent.setup();
-		const generated = LayoutTiles.generateDungeon({
+		const generated = DungeonGeneration.generateDungeon({
 			rows: 5,
 			cols: 7,
 			minPartitionSize: 8,
@@ -1216,7 +1218,7 @@ describe("Home tests", () => {
 			maxRoomAspectRatio: 3,
 		});
 
-		vi.spyOn(LayoutTiles, "generateDungeon").mockReturnValue(generated);
+		vi.spyOn(DungeonGeneration, "generateDungeon").mockReturnValue(generated);
 		vi.spyOn(Math, "random").mockReturnValue(0.5);
 
 		render(<Home />);
@@ -1241,7 +1243,7 @@ describe("Home tests", () => {
 
 	it("uses the replacement terrain for movement and moves only once per keypress", async () => {
 		const user = userEvent.setup();
-		const first = LayoutTiles.generateDungeon({
+		const first = DungeonGeneration.generateDungeon({
 			rows: 5,
 			cols: 7,
 			minPartitionSize: 8,
@@ -1255,10 +1257,10 @@ describe("Home tests", () => {
 		};
 
 		// This cell was floor in the first dungeon.
-		second.terrain[1][3] = LayoutTiles.WALL;
+		second.terrain[1][3] = WALL;
 
 		const generateSpy = vi
-			.spyOn(LayoutTiles, "generateDungeon")
+			.spyOn(DungeonGeneration, "generateDungeon")
 			.mockReturnValue(first);
 
 		render(<Home />);

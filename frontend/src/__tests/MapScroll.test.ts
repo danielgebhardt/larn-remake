@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { getScrollOffset } from "../MapScroll";
+import { getScrollOffset } from "../components/dungeon/MapScroll.ts";
 
 describe("keeping a tile in view", () => {
 	it.each([

@@ -1,7 +1,7 @@
 import { memo, type RefObject } from "react";
-import { PLAYER, STAIRS_DOWN, STAIRS_UP } from "./LayoutTiles";
-import TileIcon from "./TileIcon";
-import { TILE_BACKGROUNDS, TILE_LABELS } from "./TileVisuals";
+import { PLAYER, STAIRS_DOWN, STAIRS_UP } from "../../domain/dungeon/Tiles.ts";
+import TileIcon from "./TileIcon.tsx";
+import { TILE_BACKGROUNDS, TILE_LABELS } from "./TileVisuals.ts";
 
 type PlayerRef = RefObject<HTMLTableCellElement | null>;
 

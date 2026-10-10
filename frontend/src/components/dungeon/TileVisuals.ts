@@ -1,6 +1,12 @@
 import { BrickWall, Dot, User } from "lucide-react";
 import type { ComponentType, SVGProps } from "react";
-import { FLOOR, PLAYER, STAIRS_DOWN, STAIRS_UP, WALL } from "./LayoutTiles.ts";
+import {
+	FLOOR,
+	PLAYER,
+	STAIRS_DOWN,
+	STAIRS_UP,
+	WALL,
+} from "../../domain/dungeon/Tiles.ts";
 import { StairsDownIcon, StairsUpIcon } from "./StairIcons.tsx";
 
 export const TILE_ICONS: Partial<

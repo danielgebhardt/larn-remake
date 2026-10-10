@@ -1,12 +1,9 @@
 import { useCallback, useEffect, useLayoutEffect, useRef } from "react";
-import DungeonRow from "./DungeonRow";
-import {
-	type Coordinate,
-	type Dungeon,
-	getDungeonCoordinateValue,
-	WALL,
-} from "./LayoutTiles.ts";
-import { getScrollOffset } from "./MapScroll";
+import type { Coordinate, Dungeon } from "../../domain/dungeon/DungeonTypes.ts";
+import { getDungeonCoordinateValue } from "../../domain/dungeon/Terrain.ts";
+import { WALL } from "../../domain/dungeon/Tiles.ts";
+import DungeonRow from "./DungeonRow.tsx";
+import { getScrollOffset } from "./MapScroll.ts";
 
 type DungeonLayoutProps = {
 	dungeon: Dungeon;

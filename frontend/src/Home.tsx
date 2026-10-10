@@ -157,15 +157,18 @@ const Home = ({
 		setGame((current) => {
 			const result = resolvePlayerAction(current.state, action);
 			if (result.error) return { ...current, actionError: result.error };
-			if (!result.turnAdvanced) return current;
+			if (result.state === current.state && !current.actionError)
+				return current;
 			return {
 				state: result.state,
 				actionError: "",
-				exploration: updateExploration(
-					result.state.run,
-					fogConfiguration.radius,
-					current.exploration,
-				),
+				exploration: result.turnAdvanced
+					? updateExploration(
+							result.state.run,
+							fogConfiguration.radius,
+							current.exploration,
+						)
+					: current.exploration,
 			};
 		});
 	};

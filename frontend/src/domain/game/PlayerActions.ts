@@ -13,6 +13,12 @@ import {
 	transferFloorItem,
 } from "../items/FloorItems";
 import { createMonsterDrop } from "../items/MonsterDrops";
+import {
+	changeHotbarAssignment,
+	HOTBAR_SLOTS,
+	type HotbarAction,
+	hotbarSlotContents,
+} from "../items/PotionHotbar";
 import type { Monster } from "../monsters/Monster.ts";
 import { resolveMonsterPhase } from "../monsters/MonsterTurns";
 import { type ActivityEvent, appendActivityEvents } from "./ActivityHistory.ts";
@@ -24,6 +30,7 @@ export type PlayerAction =
 	| { type: "wait" }
 	| EquipmentAction
 	| ConsumeAction
+	| HotbarAction
 	| FloorItemAction;
 
 export type ActionResolution = {
@@ -36,7 +43,45 @@ export const resolvePlayerAction = (
 	state: GameState,
 	action: PlayerAction,
 ): ActionResolution => {
+	if (action.type === "assign-hotbar" || action.type === "clear-hotbar") {
+		const change = changeHotbarAssignment(
+			state.potionHotbar,
+			state.bag,
+			action,
+		);
+		if ("error" in change)
+			return { state, turnAdvanced: false, error: change.error };
+		return {
+			state:
+				change.potionHotbar === state.potionHotbar
+					? state
+					: { ...state, potionHotbar: change.potionHotbar },
+			turnAdvanced: false,
+		};
+	}
 	if (state.player.health <= 0) return { state, turnAdvanced: false };
+	if (action.type === "use-hotbar") {
+		if (!HOTBAR_SLOTS.includes(action.slot))
+			return {
+				state,
+				turnAdvanced: false,
+				error: "Choose a potion slot from 1 to 4.",
+			};
+		const { kind, item } = hotbarSlotContents(state, action.slot);
+		if (!kind)
+			return {
+				state,
+				turnAdvanced: false,
+				error: `Potion slot ${action.slot} is empty. Assign a potion in Character.`,
+			};
+		if (!item)
+			return {
+				state,
+				turnAdvanced: false,
+				error: "You have no carried copies of that potion.",
+			};
+		return resolvePlayerAction(state, { type: "consume", itemId: item.id });
+	}
 	if (action.type === "consume") {
 		const consumed = consumeItem(state.player, state.bag, action);
 		if ("error" in consumed)

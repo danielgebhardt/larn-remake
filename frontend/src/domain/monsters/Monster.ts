@@ -16,6 +16,7 @@ export type Monster = {
 
 export type MonsterDefinition = {
 	name: string;
+	experienceReward: number;
 	maxHealth: number;
 	attackDamage: number;
 	detectionRadius: number;
@@ -29,6 +30,7 @@ export const validateMonsterDefinition = (
 	definition: MonsterDefinition,
 ): void => {
 	const {
+		experienceReward,
 		dropChance,
 		lootPreferences,
 		minFloor,
@@ -39,6 +41,8 @@ export const validateMonsterDefinition = (
 		detectionRadius,
 	} = definition;
 	if (
+		!Number.isSafeInteger(experienceReward) ||
+		experienceReward <= 0 ||
 		!Number.isFinite(dropChance) ||
 		dropChance < 0 ||
 		dropChance > 1 ||
@@ -66,6 +70,7 @@ export const validateMonsterDefinition = (
 export const MONSTER_DEFINITIONS: Record<MonsterKind, MonsterDefinition> = {
 	goblin: {
 		name: "goblin",
+		experienceReward: 5,
 		maxHealth: 4,
 		attackDamage: 1,
 		detectionRadius: 6,
@@ -77,6 +82,7 @@ export const MONSTER_DEFINITIONS: Record<MonsterKind, MonsterDefinition> = {
 	},
 	"giant-rat": {
 		name: "giant rat",
+		experienceReward: 2,
 		maxHealth: 2,
 		attackDamage: 1,
 		detectionRadius: 5,
@@ -88,6 +94,7 @@ export const MONSTER_DEFINITIONS: Record<MonsterKind, MonsterDefinition> = {
 	},
 	orc: {
 		name: "orc",
+		experienceReward: 10,
 		maxHealth: 7,
 		attackDamage: 4,
 		detectionRadius: 6,

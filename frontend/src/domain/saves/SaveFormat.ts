@@ -1,0 +1,114 @@
+import type { DungeonFloor } from "../dungeon/DungeonRun";
+import {
+	type ExplorationState,
+	updateExploration,
+} from "../dungeon/Exploration";
+import type {
+	FogConfiguration,
+	RunConfiguration,
+} from "../dungeon/RunConfiguration";
+import type { GameState } from "../game/GameState";
+import { levelForExperience } from "../game/Progression";
+import { validateSaveDocument } from "./SaveValidation";
+
+export const SAVE_FORMAT_VERSION = 1;
+// Bound imported input before parsing. A maximum-size snapshot is measured in the review.
+export const MAX_SAVE_BYTES = 4 * 1024 * 1024;
+
+type SavedFloor = Omit<DungeonFloor, "terrain"> & { terrain: string[] };
+export type SaveDocument = {
+	version: typeof SAVE_FORMAT_VERSION;
+	savedAt: string;
+	configuration: RunConfiguration;
+	fog: FogConfiguration;
+	state: Omit<GameState, "run"> & {
+		run: Omit<GameState["run"], "floors"> & { floors: SavedFloor[] };
+	};
+	explored: { floorNumber: number; rows: string[] }[];
+};
+export type RestoredAdventure = {
+	state: GameState;
+	exploration: ExplorationState;
+	configuration: RunConfiguration;
+	fog: FogConfiguration;
+};
+export type SaveResult<T> =
+	| { ok: true; value: T }
+	| { ok: false; error: string };
+
+export const createSaveDocument = (
+	state: GameState,
+	exploration: ExplorationState,
+	configuration: RunConfiguration,
+	fog: FogConfiguration,
+	now = new Date(),
+): SaveDocument => ({
+	version: SAVE_FORMAT_VERSION,
+	savedAt: now.toISOString(),
+	configuration: { ...configuration },
+	fog: { ...fog },
+	state: {
+		...state,
+		run: {
+			...state.run,
+			floors: state.run.floors.map((floor) => ({
+				...floor,
+				terrain: floor.terrain.map((row) => row.join("")),
+			})),
+		},
+	},
+	explored: [...exploration.explored].map(([floorNumber, grid]) => ({
+		floorNumber,
+		rows: grid.map((row) => row.map((seen) => (seen ? "1" : "0")).join("")),
+	})),
+});
+
+export const serializeSave = (document: SaveDocument): string =>
+	JSON.stringify(document);
+
+export const parseSave = (text: string): SaveResult<SaveDocument> => {
+	if (new TextEncoder().encode(text).length > MAX_SAVE_BYTES)
+		return { ok: false, error: "This save file is too large." };
+	let data: unknown;
+	try {
+		data = JSON.parse(text);
+	} catch {
+		return { ok: false, error: "This is not a valid adventure save file." };
+	}
+	return validateSaveDocument(data);
+};
+
+// Call only with a document accepted by parseSave; storage and import share that boundary.
+export const restoreSave = (document: SaveDocument): RestoredAdventure => {
+	const state: GameState = {
+		...document.state,
+		run: {
+			...document.state.run,
+			floors: document.state.run.floors.map((floor) => ({
+				...floor,
+				terrain: floor.terrain.map((row) => [...row]),
+			})),
+		},
+	};
+	const explored = new Map(
+		document.explored.map(({ floorNumber, rows }) => [
+			floorNumber,
+			rows.map((row) => [...row].map((cell) => cell === "1")),
+		]),
+	);
+	const initial = updateExploration(state.run, document.fog.radius);
+	return {
+		state,
+		configuration: document.configuration,
+		fog: document.fog,
+		exploration: updateExploration(state.run, document.fog.radius, {
+			...initial,
+			// Force current sight to be recomputed while retaining every floor's memory.
+			origin: { row: -1, col: -1 },
+			explored,
+		}),
+	};
+};
+
+export const saveSummary = (document: SaveDocument): string =>
+	`Seed ${document.state.run.seed} · Floor ${document.state.run.activeFloor} of ${document.state.run.floors.length} · Level ${levelForExperience(document.state.progression.experience)} · Turn ${document.state.turn}`;

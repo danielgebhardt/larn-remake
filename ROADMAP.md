@@ -29,9 +29,9 @@ Current limitations relevant to the next work:
 
 - Floor-aware rats, goblins, and orcs plus weighted found/drop loot are implemented and merged in epic #90. Populations scale with safe space and are capped.
 - Main/off hand, chest, and head equipment are implemented; other slots are deferred.
-- Seeded hit/miss and bounded damage are implemented and merged in epic #99. Armor affects landed damage separately from accuracy; criticals and attributes remain deferred.
-- Settings permits up to twenty floors. The default is five 15×15 floors.
-- The cure-and-return objective is implemented in epic #109, awaiting developer review. XP, leveling, attributes, mana, spellcasting, and save/resume remain future work.
+- Seeded hit/miss and bounded damage are implemented and merged in epic #99. Armor affects landed damage separately from accuracy; criticals remain deferred; earned Strength and Dexterity are implemented in epic #116, pending review.
+- Settings permits five through twenty floors. The default is five 15×15 floors.
+- The cure-and-return objective in epic #109 is merged. XP, capped leveling, Strength, and Dexterity in epic #116 are implemented, pending review. Mana, spellcasting, other attributes, and save/resume remain future work.
 
 ## Recommended milestone order
 
@@ -171,7 +171,7 @@ Play several recorded five-floor seeds with starter and upgraded equipment. Eval
 
 ## Milestone 3: First winnable adventure
 
-Implementation status: [epic #109](https://github.com/danielgebhardt/larn-remake/issues/109) and stories #110–115 are implemented on `codex/first-winnable-adventure`, awaiting developer review. See [adventure review notes](docs/adventure-review.md).
+Implementation status: [epic #109](https://github.com/danielgebhardt/larn-remake/issues/109) and stories #110–115 are merged into main. See [adventure review notes](docs/adventure-review.md).
 
 | Story | Outcome |
 | --- | --- |
@@ -188,23 +188,30 @@ Recorded five-floor diagnostics complete the return for seeds 0 and 987, while s
 
 ## Milestone 4: Experience, levels, and attributes
 
-Introduce numerical complexity one visible rule at a time:
+Implementation status: [epic #116](https://github.com/danielgebhardt/larn-remake/issues/116), stories #117–124, is implemented on `codex/character-progression`, pending developer review. See [progression review notes](docs/progression-review.md) for the ordered commits, formulas, diagnostic results, and manual checkpoint.
 
-1. Award XP for a confirmed kill exactly once; specify player-only credit and whether loot/other actions award any. Add a small, documented level threshold curve.
-2. Make a level-up grant one understandable benefit, such as increased maximum health. Explicitly define current-health adjustment; do not silently grant a full heal.
-3. Add Strength alongside a concrete melee contribution, preserving equipment bonuses and avoiding double application.
-4. Add Dexterity when it contributes to accuracy/evasion. Revisit the initial hit thresholds with clear caps and boundary tests rather than hiding a new contribution inside old values.
-5. Add Constitution when it affects maximum health or resistance. Avoid retroactive unclear health changes when an attribute changes.
-6. Add Intelligence with the first spell/mana feature. Wisdom/Charisma and any remaining classic attributes wait for meaningful effects.
-7. Expand Character only for values the player can actually use. Distinguish base attributes, equipment contributions, and final derived values.
+| Story | Outcome |
+| --- | --- |
+| #117 | Positive monster XP rewards; cumulative thresholds 0/10/30/60/100; level cap 5; +2 current/maximum health per level. |
+| #118 | Confirmed kills award once, before retaliation, with ordered XP/level events. |
+| #119 | Level/XP status, a progression column, victory snapshot, and I/C dialog shortcuts. |
+| #120 | XP/health-only checkpoint before adding attributes. |
+| #121 | Strength 10 → 12 → 14 at levels 1/3/5, contributing +0/+1/+2 melee damage once. |
+| #122 | Dexterity 10 → 12 → 14 at levels 1/2/4, contributing +0/+5/+10 percentage points to accuracy/evasion. |
+| #123 | Consistent explanations in Character, Help, and the activity log. |
+| #124 | Complete-adventure regressions, configurable seed batches, and final review documentation. |
 
-Document formulas, rounding, bounds, and worked examples as they arrive. Defer point allocation, respecs, skill trees, classes, and a generalized modifier framework. Depth difficulty and rewards can then be tuned against the actual progression curve. Expose difficulty settings only when their effects can be explained.
+Character cap 5 is independent of dungeon depth 5–20. XP continues accumulating at cap without more healing or growth. A future character cap of 20 can extend the curve; it is not enabled yet. Keep XP authoritative and derive level/attributes, rather than storing duplicate values. Attributes grow automatically with no allocation UI.
+
+Before expanding the rules, the developer should play several large twenty-floor runs and review progression pace, potion availability, sustained combat after the cap, and exploration behavior. The diagnostic is an omniscient coverage tool, not a human win-rate estimate. Its action-budget cutoffs and routing failures are reported separately from death.
+
+Remaining attribute work: Constitution when it has a clear health/resistance benefit; Intelligence with mana and a usable spell. Wisdom/Charisma, point allocation, respecs, classes, skill trees, criticals, and generalized modifiers wait for concrete gameplay needs. Twenty-floor balance remains open.
 
 ## Milestone 5: Mana, spells, and status effects
 
 Add current/max mana together with a first usable spell, not an unused bar:
 
-- Start with one spell that creates a meaningful alternative, such as a ranged attack or a defensive effect. Write targeting/range/line-of-sight rules explicitly.
+- Start with one ranged spell that creates a meaningful alternative to bump attacks; consider a healing spell second. Write targeting/range/line-of-sight rules explicitly.
 - Define cost, recovery, successful action timing, insufficient-mana rejection, death rules, and interactions with monster turns.
 - Introduce Intelligence only with its actual contribution to mana, learning, or damage.
 - Add mana potion/hotbar support once there is mana to restore. Existing potion-kind assignment rules should extend naturally.

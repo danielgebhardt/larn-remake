@@ -6,9 +6,15 @@ import {
 } from "../domain/dungeon/DungeonRun";
 import type { Coordinate } from "../domain/dungeon/DungeonTypes";
 import { DEFAULT_RUN_CONFIGURATION } from "../domain/dungeon/RunConfiguration";
+import { deriveAttributes } from "../domain/game/Attributes";
 import { createGameState, type GameState } from "../domain/game/GameState";
 import { resolvePlayerAction } from "../domain/game/PlayerActions";
-import { createThreeFloorTraversalRun, findFloorPath } from "./testhelpers";
+import { resolvePlayerActionWithHits } from "./ControlledCombatTestHelpers";
+import {
+	createTestDungeonFloor,
+	createThreeFloorTraversalRun,
+	findFloorPath,
+} from "./testhelpers";
 
 const walk = (before: GameState, target: Coordinate) => {
 	let state = before;
@@ -67,6 +73,67 @@ describe("Complete cure-and-return adventures", () => {
 		expect(createGameState(run)).toEqual(fresh);
 		expect(fresh.quest.cureRecovered).toBe(false);
 	});
+	it("carries earned progression through recovery and victory, then resets on replay", () => {
+		const run = createThreeFloorTraversalRun();
+		run.floors[0] = createTestDungeonFloor({
+			floorNumber: 1,
+			rows: 4,
+			cols: 4,
+			room: { startRow: 1, endRow: 2, startCol: 1, endCol: 2 },
+			downStair: run.floors[0].downStair,
+		});
+		const fresh = createGameState(run);
+		let state: GameState = {
+			...fresh,
+			monsters: [
+				{
+					id: "first-orc",
+					kind: "orc",
+					floorNumber: 1,
+					coordinate: { row: 2, col: 1 },
+					health: 1,
+				},
+			],
+		};
+		state = resolvePlayerActionWithHits(state, {
+			type: "move",
+			direction: "down",
+		}).state;
+		expect(state.progression.experience).toBe(10);
+		expect(state.player).toEqual({ health: 12, maxHealth: 12 });
+		expect(deriveAttributes(state.progression)).toMatchObject({
+			strength: 10,
+			dexterity: 12,
+		});
+		state = walk(state, { row: 1, col: 2 });
+		state = walk(state, { row: 1, col: 3 });
+		const cure = state.floorItems.find((entry) => entry.item.kind === "cure");
+		if (!cure) throw new Error("Expected the objective on floor three.");
+		state = walk(state, cure.coordinate);
+		state = resolvePlayerAction(state, {
+			type: "pickup",
+			itemId: cure.item.id,
+		}).state;
+		state = walk(state, { row: 1, col: 1 });
+		state = walk(state, { row: 1, col: 1 });
+		state = walk(state, state.quest.entrance);
+		expect(state.quest.victory).toMatchObject({
+			level: 2,
+			experience: 10,
+			health: 12,
+			monstersDefeated: 1,
+		});
+		expect(state.progression.experience).toBe(10);
+		expect(resolvePlayerAction(state, { type: "wait" }).state).toBe(state);
+		const replay = createGameState(run);
+		expect(replay).toEqual(fresh);
+		expect(replay.progression.experience).toBe(0);
+		expect(deriveAttributes(replay.progression)).toMatchObject({
+			strength: 10,
+			dexterity: 10,
+		});
+	});
+
 	it("places the objective on configured floor twenty without changing ordinary earlier loot", () => {
 		const make = (floors: number) =>
 			createGameState(

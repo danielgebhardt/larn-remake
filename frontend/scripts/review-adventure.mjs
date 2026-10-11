@@ -1,6 +1,12 @@
 // A reproducible, omniscient cure-and-return walker, not a player AI or a win-rate test.
 // Run from frontend: node scripts/review-adventure.mjs
 import { createServer } from "vite";
+import {
+	parseReviewOptions,
+	REVIEW_USAGE,
+	summarizeReviews,
+} from "./review-options.mjs";
+import { createRoutes } from "./review-routing.mjs";
 
 const server = await createServer({
 	configFile: false,
@@ -11,9 +17,8 @@ const server = await createServer({
 try {
 	const { generateDungeonRun, connectDungeonFloors } =
 		await server.ssrLoadModule("/src/domain/dungeon/DungeonRun.ts");
-	const { DEFAULT_RUN_CONFIGURATION } = await server.ssrLoadModule(
-		"/src/domain/dungeon/RunConfiguration.ts",
-	);
+	const { DEFAULT_RUN_CONFIGURATION, CONFIGURATION_LIMITS } =
+		await server.ssrLoadModule("/src/domain/dungeon/RunConfiguration.ts");
 	const { createGameState } = await server.ssrLoadModule(
 		"/src/domain/game/GameState.ts",
 	);
@@ -29,192 +34,186 @@ try {
 	const { levelForExperience } = await server.ssrLoadModule(
 		"/src/domain/game/Progression.ts",
 	);
-	const steps = [
-		["up", -1, 0],
-		["right", 0, 1],
-		["down", 1, 0],
-		["left", 0, -1],
-	];
-	const same = (a, b) => a.row === b.row && a.col === b.col;
-	const key = (p) => `${p.row}:${p.col}`;
-	// Avoid incidental stair transitions while routing to loot or a monster.
-	function route(floor, start, target) {
-		const queue = [{ point: start, path: [] }];
-		const seen = new Set([key(start)]);
-		for (let index = 0; index < queue.length; index++) {
-			const { point, path } = queue[index];
-			if (same(point, target)) return path;
-			for (const [direction, dr, dc] of steps) {
-				const next = { row: point.row + dr, col: point.col + dc };
-				if (floor.terrain[next.row]?.[next.col] !== "." || seen.has(key(next)))
-					continue;
-				if (
-					!same(next, target) &&
-					[floor.upStair?.coordinate, floor.downStair?.coordinate].some(
-						(stair) => stair && same(stair, next),
-					)
-				)
-					continue;
-				seen.add(key(next));
-				queue.push({ point: next, path: [...path, direction] });
-			}
-		}
-		return null;
-	}
-	const seeds = process.argv.slice(2).map(Number);
-	for (const seed of seeds.length ? seeds : [0, 1, 123, 987]) {
-		let state = createGameState(
-			connectDungeonFloors(
-				generateDungeonRun(seed, 5, DEFAULT_RUN_CONFIGURATION),
-			),
-		);
-		const initial = {
-			monsters: state.monsters.map((monster) => ({
-				floor: monster.floorNumber,
-				kind: monster.kind,
-			})),
-			loot: state.floorItems.map((entry) => ({
-				floor: entry.floorNumber,
-				kind: entry.item.kind,
-			})),
+	const { MAX_SEED } = await server.ssrLoadModule(
+		"/src/domain/dungeon/Seed.ts",
+	);
+	const { deriveAttributes } = await server.ssrLoadModule(
+		"/src/domain/game/Attributes.ts",
+	);
+	const options = parseReviewOptions(
+		process.argv.slice(2),
+		DEFAULT_RUN_CONFIGURATION,
+		CONFIGURATION_LIMITS,
+		MAX_SEED,
+	);
+	if (options.help) {
+		console.log(REVIEW_USAGE);
+	} else {
+		const configuration = {
+			...DEFAULT_RUN_CONFIGURATION,
+			rows: options.rows,
+			cols: options.cols,
+			floorCount: options.floorCount,
 		};
-		let kills = 0;
-		const combat = {
-			"player-hit": 0,
-			"player-missed": 0,
-			"monster-hit": 0,
-			"monster-missed": 0,
-		};
-		let potions = 0;
-		const visited = new Set([1]);
-		const checkpoints = [];
-		const actions = [];
-		let reason = "step limit";
-		for (let iteration = 0; iteration < 500; iteration++) {
-			if (state.quest.victory) {
-				reason = "won";
-				break;
-			}
-			if (state.player.health <= 0) {
-				reason = "died";
-				break;
-			}
-			const floor = state.run.floors[state.run.activeFloor - 1];
-			const position = state.run.playerCoordinate;
-			const active = state.monsters.filter(
-				(monster) =>
-					monster.floorNumber === floor.floorNumber && monster.health > 0,
+		const results = [];
+		const same = (a, b) => a.row === b.row && a.col === b.col;
+		for (const seed of options.seeds) {
+			let state = createGameState(
+				connectDungeonFloors(
+					generateDungeonRun(seed, options.floorCount, configuration),
+				),
 			);
-			const ground = state.floorItems.filter(
-				(entry) => entry.floorNumber === floor.floorNumber,
-			);
-			let action;
-			const healing = state.bag.items.find(
-				(item) => item.kind === "healing-potion",
-			);
-			const upgrade = state.bag.items.find((item) => {
-				const slot = equipmentSlotFor(item);
-				if (!slot) return false;
-				const current = state.equipment[slot];
-				const value = (definition) => definition.attackBonus + definition.armor;
-				return (
-					!current ||
-					value(ITEM_DEFINITIONS[item.kind]) >
-						value(ITEM_DEFINITIONS[current.kind])
-				);
-			});
-			if (healing && state.player.health <= 6) {
-				action = { type: "consume", itemId: healing.id };
-				potions++;
-			} else if (state.quest.cureRecovered) {
-				const destination =
-					floor.floorNumber === 1
-						? state.quest.entrance
-						: floor.upStair?.coordinate;
-				const path = destination ? route(floor, position, destination) : null;
-				if (!path?.length) {
-					reason = "no return route";
+			const initial = {
+				monsters: state.monsters.map((monster) => ({
+					floor: monster.floorNumber,
+					kind: monster.kind,
+				})),
+				loot: state.floorItems.map((entry) => ({
+					floor: entry.floorNumber,
+					kind: entry.item.kind,
+				})),
+			};
+			let kills = 0;
+			const combat = {
+				"player-hit": 0,
+				"player-missed": 0,
+				"monster-hit": 0,
+				"monster-missed": 0,
+			};
+			let potions = 0;
+			const visited = new Set([1]);
+			const checkpoints = [];
+			const actions = [];
+			let reason = "action limit";
+			for (let iteration = 0; iteration < options.maxActions; iteration++) {
+				if (state.quest.victory) {
+					reason = "won";
 					break;
 				}
-				action = { type: "move", direction: path[0] };
-			} else if (upgrade)
-				action = {
-					type: "equip",
-					itemId: upgrade.id,
-					slot: equipmentSlotFor(upgrade),
+				if (state.player.health <= 0) {
+					reason = "died";
+					break;
+				}
+				const floor = state.run.floors[state.run.activeFloor - 1];
+				const position = state.run.playerCoordinate;
+				let routes;
+				const route = (target) => {
+					if (!routes) routes = createRoutes(floor, position);
+					return routes(target);
 				};
-			else {
-				const adjacent = active.find(
+				const active = state.monsters.filter(
 					(monster) =>
-						Math.abs(monster.coordinate.row - position.row) +
-							Math.abs(monster.coordinate.col - position.col) ===
-						1,
+						monster.floorNumber === floor.floorNumber && monster.health > 0,
 				);
-				const here = ground.find((entry) => same(entry.coordinate, position));
-				if (adjacent)
-					action = {
-						type: "move",
-						direction: route(floor, position, adjacent.coordinate)?.[0],
-					};
-				else if (
-					here &&
-					(here.item.kind === "cure" || state.bag.items.length < 20)
-				)
-					action = { type: "pickup", itemId: here.item.id };
-				else {
-					const targets = [
-						...active.map((monster) => monster.coordinate),
-						...(state.bag.items.length < 20
-							? ground.map((entry) => entry.coordinate)
-							: ground
-									.filter((entry) => entry.item.kind === "cure")
-									.map((entry) => entry.coordinate)),
-					];
-					const paths = targets
-						.map((target) => route(floor, position, target))
-						.filter((path) => path?.length)
-						.sort((a, b) => a.length - b.length);
-					const path =
-						paths[0] ??
-						(floor.downStair
-							? route(floor, position, floor.downStair.coordinate)
-							: null);
+				const ground = state.floorItems.filter(
+					(entry) => entry.floorNumber === floor.floorNumber,
+				);
+				let action;
+				const healing = state.bag.items.find(
+					(item) => item.kind === "healing-potion",
+				);
+				const upgrade = state.bag.items.find((item) => {
+					const slot = equipmentSlotFor(item);
+					if (!slot) return false;
+					const current = state.equipment[slot];
+					const value = (definition) =>
+						definition.attackBonus + definition.armor;
+					return (
+						!current ||
+						value(ITEM_DEFINITIONS[item.kind]) >
+							value(ITEM_DEFINITIONS[current.kind])
+					);
+				});
+				if (healing && state.player.health <= 6) {
+					action = { type: "consume", itemId: healing.id };
+					potions++;
+				} else if (state.quest.cureRecovered) {
+					const destination =
+						floor.floorNumber === 1
+							? state.quest.entrance
+							: floor.upStair?.coordinate;
+					const path = destination ? route(destination) : null;
 					if (!path?.length) {
-						reason =
-							floor.floorNumber === 5 && active.length === 0
-								? "cleared final floor"
-								: "no route";
+						reason = "no route";
 						break;
 					}
 					action = { type: "move", direction: path[0] };
+				} else if (upgrade)
+					action = {
+						type: "equip",
+						itemId: upgrade.id,
+						slot: equipmentSlotFor(upgrade),
+					};
+				else {
+					const adjacent = active.find(
+						(monster) =>
+							Math.abs(monster.coordinate.row - position.row) +
+								Math.abs(monster.coordinate.col - position.col) ===
+							1,
+					);
+					const here = ground.find((entry) => same(entry.coordinate, position));
+					if (adjacent)
+						action = {
+							type: "move",
+							direction: route(adjacent.coordinate)?.[0],
+						};
+					else if (
+						here &&
+						(here.item.kind === "cure" || state.bag.items.length < 20)
+					)
+						action = { type: "pickup", itemId: here.item.id };
+					else {
+						const targets = [
+							...active.map((monster) => monster.coordinate),
+							...(state.bag.items.length < 20
+								? ground.map((entry) => entry.coordinate)
+								: ground
+										.filter((entry) => entry.item.kind === "cure")
+										.map((entry) => entry.coordinate)),
+						];
+						const paths = targets
+							.map((target) => route(target))
+							.filter((path) => path?.length)
+							.sort((a, b) => a.length - b.length);
+						const path =
+							paths[0] ??
+							(floor.downStair ? route(floor.downStair.coordinate) : null);
+						if (!path?.length) {
+							reason = "no route";
+							break;
+						}
+						action = { type: "move", direction: path[0] };
+					}
 				}
+				const previousFloor = state.run.activeFloor;
+				actions.push(action);
+				const before = state.monsters.length;
+				const previousEventId = state.activityHistory.nextId;
+				state = resolvePlayerAction(state, action).state;
+				kills += before - state.monsters.length;
+				for (const entry of state.activityHistory.entries.filter(
+					(entry) => entry.id >= previousEventId,
+				)) {
+					if (Object.hasOwn(combat, entry.event.type))
+						combat[entry.event.type]++;
+				}
+				visited.add(state.run.activeFloor);
+				if (state.run.activeFloor !== previousFloor)
+					checkpoints.push({
+						floor: state.run.activeFloor,
+						turn: state.turn,
+						level: levelForExperience(state.progression.experience),
+						experience: state.progression.experience,
+						health: state.player.health,
+						maxHealth: state.player.maxHealth,
+					});
 			}
-			const previousFloor = state.run.activeFloor;
-			actions.push(action);
-			const before = state.monsters.length;
-			const previousEventId = state.activityHistory.nextId;
-			state = resolvePlayerAction(state, action).state;
-			kills += before - state.monsters.length;
-			for (const entry of state.activityHistory.entries.filter(
-				(entry) => entry.id >= previousEventId,
-			)) {
-				if (Object.hasOwn(combat, entry.event.type)) combat[entry.event.type]++;
-			}
-			visited.add(state.run.activeFloor);
-			if (state.run.activeFloor !== previousFloor)
-				checkpoints.push({
-					floor: state.run.activeFloor,
-					turn: state.turn,
-					level: levelForExperience(state.progression.experience),
-					experience: state.progression.experience,
-					health: state.player.health,
-					maxHealth: state.player.maxHealth,
-				});
-		}
-		if (state.quest.victory) reason = "won";
-		else if (state.player.health <= 0) reason = "died";
-		console.log(
-			JSON.stringify({
+			if (state.quest.victory) reason = "won";
+			else if (state.player.health <= 0) reason = "died";
+			const result = {
+				configuration,
+				maxActions: options.maxActions,
+				attributes: deriveAttributes(state.progression),
 				seed,
 				level: levelForExperience(state.progression.experience),
 				experience: state.progression.experience,
@@ -237,9 +236,19 @@ try {
 					]),
 				),
 				initial,
-			}),
+			};
+			results.push(result);
+			if (!options.summaryOnly) console.log(JSON.stringify(result));
+		}
+		console.log(
+			JSON.stringify(
+				summarizeReviews(results, configuration, options.maxActions),
+			),
 		);
 	}
+} catch (error) {
+	console.error(error.message);
+	process.exitCode = 1;
 } finally {
 	await server.close();
 }

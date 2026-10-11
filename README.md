@@ -317,3 +317,7 @@ Backlog and completed stories are tracked in [GitHub Issues](https://github.com/
 ## Current development status
 
 The dungeon creation and exploration milestone now supports three generated floors, seeded stair placement, automatic descent and ascent, stable revisits, depth and seed display, complete seed replay, and whole-run restart. Rendering and movement support rectangular dungeons. Repeatability is guaranteed for the same seed, configuration, and generator version. The game now tracks turns and player health through a pure movement-action resolver, with deterministic pursuit and bump combat against seeded goblin populations and a turn-associated activity log.
+
+## Depth content catalog
+
+Monsters use inclusive floor bands and positive relative spawn weights. Goblins (health 4, damage 1, sight 6, weight 3) are eligible on floors 1–20; giant rats (health 2, damage 1, sight 5, weight 2) on 1–4; orcs (health 7, damage 4, sight 6, weight 2) on 3–20. All initially share orthogonal melee pursuit. These are initial playtest values.

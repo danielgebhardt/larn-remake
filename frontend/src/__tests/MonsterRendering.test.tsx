@@ -26,6 +26,15 @@ const props = {
 };
 
 describe("Goblin map rendering", () => {
+	it.each(["giant-rat", "orc"] as const)(
+		"labels a visible %s by its kind",
+		(kind) => {
+			render(<DungeonLayout {...props} monsters={[{ ...goblin, kind }]} />);
+			expect(
+				screen.getByLabelText(`row1col3 - ${kind.replace("-", " ")}`),
+			).toBeVisible();
+		},
+	);
 	it("shows multiple goblins in the same row and on a different row", () => {
 		const dungeon = createTestDungeonFloor({
 			floorNumber: 1,

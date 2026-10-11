@@ -12,7 +12,6 @@ import {
 	itemsAtPlayer,
 	transferFloorItem,
 } from "../items/FloorItems";
-import { createMonsterDrop } from "../items/MonsterDrops";
 import {
 	assignPickedUpPotion,
 	changeHotbarAssignment,
@@ -20,33 +19,25 @@ import {
 	type HotbarAction,
 	hotbarSlotContents,
 } from "../items/PotionHotbar";
-import { MONSTER_DEFINITIONS } from "../monsters/Monster";
 import type { Monster } from "../monsters/Monster.ts";
 import { resolveMonsterPhase } from "../monsters/MonsterTurns";
 import { type ActivityEvent, appendActivityEvents } from "./ActivityHistory.ts";
-import {
-	dexterityAtLevel,
-	intelligenceAtLevel,
-	strengthAtLevel,
-} from "./Attributes";
 import { type AttackRollSource, createAttackRolls } from "./CombatRandomness";
 import { deriveCombatStats } from "./CombatStats";
 import type { GameState } from "./GameState.ts";
-import { growManaCapacity } from "./Mana";
 import {
 	attackProfile,
 	deriveAccuracy,
 	resolveMeleeAttack,
 } from "./MeleeRules";
-import {
-	gainExperience,
-	HEALTH_PER_LEVEL,
-	levelForExperience,
-} from "./Progression";
+import { damageMonster } from "./MonsterDamage";
+import { levelForExperience } from "./Progression";
+import { type CastAction, castSpell } from "./SpellCasting";
 
 export type PlayerAction =
 	| { type: "move"; direction: MovementDirection }
 	| { type: "wait" }
+	| CastAction
 	| EquipmentAction
 	| ConsumeAction
 	| HotbarAction
@@ -63,7 +54,14 @@ export const resolvePlayerAction = (
 	action: PlayerAction,
 	rollSource: AttackRollSource = createAttackRolls,
 ): ActionResolution => {
-	if (state.quest.victory) return { state, turnAdvanced: false };
+	if (state.quest.victory)
+		return {
+			state,
+			turnAdvanced: false,
+			...(action.type === "cast"
+				? { error: "The adventure is complete." }
+				: {}),
+		};
 	if (action.type === "assign-hotbar" || action.type === "clear-hotbar") {
 		const change = changeHotbarAssignment(
 			state.potionHotbar,
@@ -82,7 +80,20 @@ export const resolvePlayerAction = (
 	}
 	const monsterPhase = (next: GameState) =>
 		resolveMonsterPhase(next, rollSource);
-	if (state.player.health <= 0) return { state, turnAdvanced: false };
+	if (state.player.health <= 0)
+		return {
+			state,
+			turnAdvanced: false,
+			...(action.type === "cast"
+				? { error: "You cannot cast after death." }
+				: {}),
+		};
+	if (action.type === "cast") {
+		const cast = castSpell(state, action, rollSource);
+		if ("error" in cast)
+			return { state, turnAdvanced: false, error: cast.error };
+		return { state: monsterPhase(cast.state), turnAdvanced: true };
+	}
 	if (action.type === "use-hotbar") {
 		if (!HOTBAR_SLOTS.includes(action.slot))
 			return {
@@ -283,86 +294,10 @@ const resolveAttack = (
 				{ type: "player-missed", turn, monster: monster.kind },
 			]),
 		};
-	const damage = outcome.damage;
-	const health = Math.max(0, monster.health - damage);
-	const events: ActivityEvent[] = [
-		{
-			type: "player-hit",
-			turn,
-			monster: monster.kind,
-			damage,
-		},
-	];
-	if (health === 0)
-		events.push({ type: "monster-died", turn, monster: monster.kind });
-	let floorItems = state.floorItems;
-	let player = state.player;
-	let progression = state.progression;
-	let mana = state.mana;
-	if (health === 0) {
-		const reward = MONSTER_DEFINITIONS[monster.kind].experienceReward;
-		const gained = gainExperience(progression, player, reward);
-		progression = gained.progression;
-		player = gained.player;
-		mana = growManaCapacity(state.mana, state.progression, progression);
-		events.push({ type: "experience-gained", amount: reward, turn });
-		for (const level of gained.levels) {
-			events.push({
-				type: "level-gained",
-				level,
-				healthGain: HEALTH_PER_LEVEL,
-				turn,
-			});
-			if (strengthAtLevel(level) > strengthAtLevel(level - 1))
-				events.push({
-					type: "attribute-gained",
-					attribute: "Strength",
-					value: strengthAtLevel(level),
-					turn,
-				});
-			if (intelligenceAtLevel(level) > intelligenceAtLevel(level - 1))
-				events.push({
-					type: "attribute-gained",
-					attribute: "Intelligence",
-					value: intelligenceAtLevel(level),
-					turn,
-				});
-			if (dexterityAtLevel(level) > dexterityAtLevel(level - 1))
-				events.push({
-					type: "attribute-gained",
-					attribute: "Dexterity",
-					value: dexterityAtLevel(level),
-					turn,
-				});
-		}
-		const drop = createMonsterDrop(state.run.seed, monster);
-		if (drop && !floorItems.some((entry) => entry.item.id === drop.item.id)) {
-			floorItems = [...floorItems, drop];
-			// A bump kill is on a visible adjacent walkable tile. No hidden-floor
-			// or remote monster deaths are resolved by this action.
-			events.push({
-				type: "monster-loot",
-				turn,
-				monster: monster.kind,
-				item: drop.item.kind,
-			});
-		}
-	}
-	const monsters =
-		health > 0
-			? state.monsters.map((actor) =>
-					actor.id === monster.id ? { ...actor, health } : actor,
-				)
-			: state.monsters.filter((actor) => actor.id !== monster.id);
-	return {
-		...state,
+	return damageMonster(state, monster, outcome.damage, {
+		type: "player-hit",
 		turn,
-		monsters,
-		monstersDefeated: state.monstersDefeated + (health === 0 ? 1 : 0),
-		player,
-		progression,
-		mana,
-		floorItems,
-		activityHistory: appendActivityEvents(state.activityHistory, events),
-	};
+		monster: monster.kind,
+		damage: outcome.damage,
+	});
 };

@@ -1,4 +1,5 @@
 import type { ActivityEvent } from "../../domain/game/ActivityHistory.ts";
+import { SPELL_DEFINITIONS } from "../../domain/game/Spells";
 import { EQUIPMENT_SLOT_LABELS } from "../../domain/items/Equipment";
 import { ITEM_DEFINITIONS } from "../../domain/items/Item";
 import { MONSTER_DEFINITIONS } from "../../domain/monsters/Monster";
@@ -22,6 +23,8 @@ export const formatActivityEvent = (event: ActivityEvent): string => {
 			return `${prefix}The ${MONSTER_DEFINITIONS[event.monster].name} misses you.`;
 		case "player-missed":
 			return `${prefix}You miss the ${MONSTER_DEFINITIONS[event.monster].name}.`;
+		case "spell-hit":
+			return `${prefix}Your ${SPELL_DEFINITIONS[event.spell].name} hits the ${MONSTER_DEFINITIONS[event.monster].name} for ${event.damage} damage.`;
 		case "player-hit":
 			return `${prefix}You hit the ${MONSTER_DEFINITIONS[event.monster].name} for ${event.damage} damage.`;
 		case "monster-hit":

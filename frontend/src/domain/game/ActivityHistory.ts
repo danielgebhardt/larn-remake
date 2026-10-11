@@ -3,8 +3,15 @@ import type { EquipmentChangeEvent } from "../items/EquipmentChanges";
 import type { FloorItemEvent } from "../items/FloorItems";
 import type { ItemKind } from "../items/Item";
 import type { MonsterKind } from "../monsters/Monster.ts";
+import type { SpellKind } from "./Spells";
 
 export type ActivityEvent = { turn: number } & (
+	| {
+			type: "spell-hit";
+			spell: SpellKind;
+			monster: MonsterKind;
+			damage: number;
+	  }
 	| { type: "player-hit"; monster: MonsterKind; damage: number }
 	| { type: "monster-hit"; monster: MonsterKind; damage: number }
 	| { type: "monster-died"; monster: MonsterKind }

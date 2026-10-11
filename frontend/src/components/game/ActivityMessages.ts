@@ -23,6 +23,8 @@ export const formatActivityEvent = (event: ActivityEvent): string => {
 			return `${prefix}The ${MONSTER_DEFINITIONS[event.monster].name} misses you.`;
 		case "player-missed":
 			return `${prefix}You miss the ${MONSTER_DEFINITIONS[event.monster].name}.`;
+		case "spell-healed":
+			return `${prefix}${SPELL_DEFINITIONS[event.spell].name} restores ${event.recovered} health.`;
 		case "spell-hit":
 			return `${prefix}Your ${SPELL_DEFINITIONS[event.spell].name} hits the ${MONSTER_DEFINITIONS[event.monster].name} for ${event.damage} damage.`;
 		case "player-hit":

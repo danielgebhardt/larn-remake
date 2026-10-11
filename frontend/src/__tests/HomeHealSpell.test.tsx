@@ -1,0 +1,63 @@
+import { fireEvent, screen, within } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
+import { afterEach, describe, expect, it, vi } from "vitest";
+import * as GameState from "../domain/game/GameState";
+import Home from "../Home";
+import {
+	renderHome,
+	resetHomeTestState,
+	stubDungeonRun,
+} from "./HomeTestHelpers";
+import { createCorridorEncounter } from "./MonsterEncounterTestHelpers";
+
+const setup = () => {
+	stubDungeonRun(createCorridorEncounter());
+	const create = GameState.createGameState;
+	vi.spyOn(GameState, "createGameState").mockImplementationOnce((run) => ({
+		...create(run),
+		player: { health: 5, maxHealth: 10 },
+	}));
+	renderHome(<Home />);
+	screen.getByLabelText("Dungeon map", { exact: true }).focus();
+	return userEvent.setup();
+};
+afterEach(resetHomeTestState);
+describe("Heal activation", () => {
+	it.each(["H", "button"])(
+		"self-casts with %s and removes low-health feedback",
+		async (method) => {
+			const user = setup();
+			expect(screen.getByLabelText("Player health")).toHaveTextContent(
+				"Low health",
+			);
+			if (method === "H") await user.keyboard("H");
+			else
+				await user.click(screen.getByRole("button", { name: "Heal, 4 mana" }));
+			expect(screen.getByLabelText("Player health")).toHaveTextContent(
+				"Health 9 / 10",
+			);
+			expect(screen.getByLabelText("Player health")).not.toHaveTextContent(
+				"Low health",
+			);
+			expect(screen.getByLabelText("Player mana")).toHaveTextContent(
+				"Mana 6 / 10",
+			);
+			expect(screen.getByLabelText("Turn count")).toHaveTextContent("Turn 1");
+			expect(screen.getByRole("log")).toHaveTextContent(
+				"Heal restores 4 health",
+			);
+		},
+	);
+	it("protects H from repeats, modifiers and menu browsing", async () => {
+		const user = setup();
+		fireEvent.keyDown(window, { key: "h", repeat: true });
+		fireEvent.keyDown(window, { key: "h", altKey: true });
+		await user.keyboard("i");
+		const dialog = await screen.findByRole("dialog", { name: "Character" });
+		await user.keyboard("h");
+		expect(within(dialog).getByLabelText("Character health")).toHaveTextContent(
+			"Health 5 / 10",
+		);
+		expect(screen.getByLabelText("Turn count")).toHaveTextContent("Turn 0");
+	});
+});

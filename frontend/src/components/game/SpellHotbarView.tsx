@@ -29,7 +29,7 @@ const SpellHotbarView = ({
 					aria-label={label}
 					title={label}
 					aria-pressed={targeting === spell}
-					disabled={!enabled || definition.mode === "self"}
+					disabled={!enabled}
 					onClick={() => onActivate(spell)}
 					className="relative size-12 p-2 text-violet-700 dark:text-violet-300"
 				>

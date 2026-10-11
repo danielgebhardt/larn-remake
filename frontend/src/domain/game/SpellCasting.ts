@@ -2,6 +2,7 @@ import { FLOOR } from "../dungeon/Tiles";
 import { hasLineOfSight } from "../dungeon/Visibility";
 import type { Monster } from "../monsters/Monster";
 import { orthogonalDistance } from "../monsters/MonsterLocations";
+import { appendActivityEvents } from "./ActivityHistory";
 import type { AttackRollSource } from "./CombatRandomness";
 import type { GameState } from "./GameState";
 import { damageMonster } from "./MonsterDamage";
@@ -36,8 +37,26 @@ export const castSpell = (
 		return {
 			error: `Not enough mana for ${definition.name}. You need ${definition.cost}.`,
 		};
-	if (action.spell !== "magic-missile")
-		return { error: "This spell cannot be cast yet." };
+	if (definition.mode === "self") {
+		if (state.player.health >= state.player.maxHealth)
+			return { error: "You are already at full health." };
+		const recovered = Math.min(
+			spellPotency(state.progression).healing,
+			state.player.maxHealth - state.player.health,
+		);
+		const turn = state.turn + 1;
+		return {
+			state: {
+				...state,
+				turn,
+				mana: state.mana - definition.cost,
+				player: { ...state.player, health: state.player.health + recovered },
+				activityHistory: appendActivityEvents(state.activityHistory, [
+					{ type: "spell-healed", spell: action.spell, recovered, turn },
+				]),
+			},
+		};
+	}
 	const target = state.monsters.find(
 		(monster) => monster.id === action.targetId,
 	);

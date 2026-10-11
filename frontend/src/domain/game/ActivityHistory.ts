@@ -12,6 +12,7 @@ export type ActivityEvent = { turn: number } & (
 			monster: MonsterKind;
 			damage: number;
 	  }
+	| { type: "spell-healed"; spell: SpellKind; recovered: number }
 	| { type: "player-hit"; monster: MonsterKind; damage: number }
 	| { type: "monster-hit"; monster: MonsterKind; damage: number }
 	| { type: "monster-died"; monster: MonsterKind }

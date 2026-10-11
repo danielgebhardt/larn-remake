@@ -85,7 +85,7 @@ describe("Home dungeon configuration", () => {
 			expect(screen.getByRole("textbox", { name: "Rows" })).toHaveValue("10");
 			expect(
 				screen.getByLabelText("Current dungeon configuration"),
-			).toHaveTextContent("15 rows × 15 columns · 3 floors");
+			).toHaveTextContent("15 rows × 15 columns · 5 floors");
 			await closeSettings(user);
 			expect(
 				screen.getByRole("heading", { name: "Floor 2 of 3" }),
@@ -93,7 +93,7 @@ describe("Home dungeon configuration", () => {
 			await user.click(screen.getByRole("button", { name: "New Dungeon" }));
 			expect(generate).toHaveBeenLastCalledWith(
 				expect.any(Number),
-				3,
+				5,
 				DEFAULT_DUNGEON_CONFIG,
 			);
 			await openSettings(user);
@@ -176,7 +176,7 @@ describe("Home dungeon configuration", () => {
 		await openSettings(user);
 		expect(screen.getByRole("textbox", { name: "Rows" })).toHaveValue("15");
 		expect(screen.getByRole("textbox", { name: "Columns" })).toHaveValue("15");
-		expect(screen.getByRole("textbox", { name: "Floors" })).toHaveValue("3");
+		expect(screen.getByRole("textbox", { name: "Floors" })).toHaveValue("5");
 		for (const [name, value] of [
 			["Rows", "10"],
 			["Columns", "15"],
@@ -188,7 +188,7 @@ describe("Home dungeon configuration", () => {
 		}
 		expect(readDungeonCells(board)).toEqual(original);
 		await closeSettings(user);
-		expect(screen.getByRole("heading", { name: "Floor 1 of 3" })).toBeVisible();
+		expect(screen.getByRole("heading", { name: "Floor 1 of 5" })).toBeVisible();
 		await openSettings(user);
 		expect(screen.getByRole("textbox", { name: "Rows" })).toHaveValue("10");
 		await user.click(screen.getByRole("button", { name: "Start from seed" }));

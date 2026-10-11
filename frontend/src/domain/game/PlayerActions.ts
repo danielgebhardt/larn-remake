@@ -271,6 +271,7 @@ const resolveAttack = (
 		...state,
 		turn,
 		monsters,
+		monstersDefeated: state.monstersDefeated + (health === 0 ? 1 : 0),
 		floorItems,
 		activityHistory: appendActivityEvents(state.activityHistory, events),
 	};

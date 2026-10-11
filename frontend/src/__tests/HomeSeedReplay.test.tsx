@@ -60,7 +60,7 @@ describe("Home seed replay", () => {
 		await waitForSettingsClosed();
 		expect(screen.getByRole("button", { name: "Settings" })).toHaveFocus();
 		expect(generate).toHaveBeenCalledTimes(2);
-		expect(generate).toHaveBeenLastCalledWith(123, 3, DEFAULT_DUNGEON_CONFIG);
+		expect(generate).toHaveBeenLastCalledWith(123, 5, DEFAULT_DUNGEON_CONFIG);
 		expect(screen.getByRole("heading", { name: "Floor 1 of 3" })).toBeVisible();
 		expect(
 			screen.getByRole("cell", { name: "row1col1 - player" }),
@@ -199,7 +199,7 @@ describe("Home seed replay", () => {
 		await waitForSettingsClosed();
 		expect(generate).toHaveBeenLastCalledWith(
 			4294967295,
-			3,
+			5,
 			expect.any(Object),
 		);
 		expect(generate).toHaveBeenCalledTimes(2);
@@ -234,7 +234,7 @@ describe("Home seed replay", () => {
 		expect(
 			readDungeonCells(screen.getByRole("table", { name: "Dungeon" })),
 		).toEqual(originalTerrain);
-		expect(screen.getByRole("heading", { name: "Floor 1 of 3" })).toBeVisible();
+		expect(screen.getByRole("heading", { name: "Floor 1 of 5" })).toBeVisible();
 	});
 
 	it("preserves depth, player, terrain, and links when a draft is dismissed", async () => {

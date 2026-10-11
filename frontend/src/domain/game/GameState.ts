@@ -10,11 +10,14 @@ import {
 	type ActivityHistory,
 	createActivityHistory,
 } from "./ActivityHistory.ts";
+import { createQuest, type QuestState } from "./Adventure";
 import { createPlayerStats, type PlayerStats } from "./PlayerStats.ts";
 
 export type GameState = {
 	run: DungeonRun;
 	turn: number;
+	quest: QuestState;
+	monstersDefeated: number;
 	player: PlayerStats;
 	equipment: Equipment;
 	bag: Bag;
@@ -29,6 +32,8 @@ export const createGameState = (run: DungeonRun): GameState => {
 	return {
 		run,
 		turn: 0,
+		quest: createQuest(run),
+		monstersDefeated: 0,
 		player: createPlayerStats(),
 		equipment: createStartingEquipment(),
 		bag: createStartingBag(),

@@ -443,7 +443,7 @@ describe("Home floor traversal", () => {
 	it("should show active floor name and total number of floors", () => {
 		render(<Home />);
 
-		expect(screen.getByRole("heading", { name: "Floor 1 of 3" })).toBeVisible();
+		expect(screen.getByRole("heading", { name: "Floor 1 of 5" })).toBeVisible();
 	});
 
 	it("should show correct floor number after descending and ascending", async () => {

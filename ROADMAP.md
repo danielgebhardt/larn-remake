@@ -29,7 +29,7 @@ Current limitations relevant to the next work:
 
 - Floor-aware rats, goblins, and orcs plus weighted found/drop loot are implemented in epic #90, awaiting developer review. Populations scale with safe space and are capped.
 - Main/off hand, chest, and head equipment are implemented; other slots are deferred.
-- Attacks always hit and deal fixed damage. Armor subtracts damage with a minimum of one per landed hit; against a one-damage attack, additional armor has no observable benefit.
+- Seeded hit/miss and bounded damage are implemented in epic #99, awaiting developer review. Armor affects landed damage separately from accuracy; criticals and attributes remain deferred.
 - Settings permits up to twenty floors. The default remains three 15×15 floors; recorded balance checks use five.
 - There is no victory objective, XP, leveling, attributes, mana, spellcasting, or save/resume.
 
@@ -47,6 +47,8 @@ Current limitations relevant to the next work:
 Local save/resume and CI can move earlier when they solve a concrete problem. Supporting twenty floors is a configuration/content capability; it is not a commitment to fill or balance twenty floors before the first short adventure works.
 
 ## Epic 1: Floor-aware content and armor
+
+Implementation status: stories #91–98 are implemented on `codex/depth-content-and-combat`, awaiting developer review. See [review notes](docs/content-combat-review.md).
 
 Epic issue: [#90](https://github.com/danielgebhardt/larn-remake/issues/90).
 
@@ -104,6 +106,8 @@ Equipping, swapping, unequipping, picking up, and dropping remain turn actions w
 Play recorded seeds on a five-floor 15×15 run. Demonstrate early encounters, armor upgrades, stronger/deeper enemies, a drop, and revisits preserving state. Check 100×100 responsiveness with the capped population. Record tuning values and observations; avoid promising that every random seed guarantees a particular gear find. Combat remains always-hit until the next epic.
 
 ## Epic 2: Reproducible randomized melee
+
+Implementation status: stories #100–106 are implemented on the same branch, awaiting developer review. The next gameplay milestone after acceptance is the first winnable adventure.
 
 Epic issue: [#99](https://github.com/danielgebhardt/larn-remake/issues/99). Begin after the content/armor milestone is reviewed.
 

@@ -5,7 +5,7 @@ import {
 	generateDungeonRun,
 } from "../domain/dungeon/DungeonRun";
 import { DEFAULT_RUN_CONFIGURATION } from "../domain/dungeon/RunConfiguration";
-import { ITEM_DEFINITIONS } from "../domain/items/Item";
+import { eligibleLootKinds, ITEM_DEFINITIONS } from "../domain/items/Item";
 import { spawnRunItems } from "../domain/items/ItemPlacement";
 import { selectLootKind } from "../domain/items/Loot";
 import { createMonsterDrop } from "../domain/items/MonsterDrops";
@@ -20,7 +20,14 @@ const goblin = {
 describe("Depth-aware found and dropped loot", () => {
 	it("selects from eligible relative weights and handles an empty pool", () => {
 		expect(selectLootKind(1, "found", () => 0)).toBe("healing-potion");
-		expect(selectLootKind(1, "found", () => 5 / 14)).toBe("short-sword");
+		// At the potion band's upper boundary, selection advances to the next eligible item.
+		const totalWeight = eligibleLootKinds(1, "found").reduce(
+			(total, kind) => total + ITEM_DEFINITIONS[kind].foundWeight,
+			0,
+		);
+		const nextBand =
+			ITEM_DEFINITIONS["healing-potion"].foundWeight / totalWeight;
+		expect(selectLootKind(1, "found", () => nextBand)).toBe("short-sword");
 		expect(selectLootKind(2, "found", () => 0.999)).toBe("leather-cap");
 		expect(selectLootKind(3, "found", () => 0.999)).toBe("iron-helmet");
 		expect(selectLootKind(21, "found", () => 0)).toBeUndefined();

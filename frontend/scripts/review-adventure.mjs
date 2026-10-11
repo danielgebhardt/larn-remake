@@ -76,6 +76,12 @@ try {
 			})),
 		};
 		let kills = 0;
+		const combat = {
+			"player-hit": 0,
+			"player-missed": 0,
+			"monster-hit": 0,
+			"monster-missed": 0,
+		};
 		let potions = 0;
 		const visited = new Set([1]);
 		let reason = "step limit";
@@ -150,15 +156,23 @@ try {
 							: null);
 					if (!path?.length) {
 						reason =
-							floor.floorNumber === 5 ? "cleared final floor" : "no route";
+							floor.floorNumber === 5 && active.length === 0
+								? "cleared final floor"
+								: "no route";
 						break;
 					}
 					action = { type: "move", direction: path[0] };
 				}
 			}
 			const before = state.monsters.length;
+			const previousEventId = state.activityHistory.nextId;
 			state = resolvePlayerAction(state, action).state;
 			kills += before - state.monsters.length;
+			for (const entry of state.activityHistory.entries.filter(
+				(entry) => entry.id >= previousEventId,
+			)) {
+				if (Object.hasOwn(combat, entry.event.type)) combat[entry.event.type]++;
+			}
 			visited.add(state.run.activeFloor);
 		}
 		console.log(
@@ -170,6 +184,7 @@ try {
 				health: state.player.health,
 				kills,
 				potions,
+				combat,
 				equipment: Object.fromEntries(
 					Object.entries(state.equipment).map(([slot, item]) => [
 						slot,

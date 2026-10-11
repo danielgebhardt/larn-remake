@@ -18,8 +18,10 @@ export const MONSTER_DENSITY = {
 	max: 12,
 	safeTilesPerMonster: 30,
 } as const;
-export const monsterCountForSpace = (space: number): number =>
-	Math.min(
+export const monsterCountForSpace = (space: number): number => {
+	if (!Number.isInteger(space) || space < 0)
+		throw new RangeError("Safe space must be a nonnegative whole number.");
+	return Math.min(
 		space,
 		MONSTER_DENSITY.max,
 		Math.max(
@@ -27,6 +29,7 @@ export const monsterCountForSpace = (space: number): number =>
 			Math.ceil(space / MONSTER_DENSITY.safeTilesPerMonster),
 		),
 	);
+};
 
 export const spawnRunMonsters = (
 	run: DungeonRun,

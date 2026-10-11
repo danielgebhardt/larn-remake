@@ -11,6 +11,11 @@ import {
 } from "../domain/monsters/MonsterPlacement";
 
 describe("Capped monster population density", () => {
+	it.each([-1, 1.5, NaN, Infinity])(
+		"rejects an invalid safe-space count %s",
+		(space) => expect(() => monsterCountForSpace(space)).toThrow(RangeError),
+	);
+
 	it.each([
 		[0, 0],
 		[1, 1],

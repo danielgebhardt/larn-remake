@@ -29,3 +29,49 @@ Browser review:
 - Full frontend checks and production build pass at each story commit. Fixed corridor encounter tests explicitly request three actors so density tuning does not rewrite their intended scenario.
 
 There is no quest/victory state yet. “Cleared final floor” is a diagnostic outcome, not a player-facing win condition. Twenty-floor configurations are supported but have not been balanced as complete adventures.
+
+## Randomized combat milestone (#106)
+
+Same five-floor configuration and diagnostic policy as above, now using real keyed combat rolls. Two independent runs produced identical output for all four seeds.
+
+| Seed | Deepest | Result | Turns | Health | Kills | Potions | Player hits / misses | Monster hits / misses |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| 0 | 5 | Cleared final floor | 129 | 9 | 12 | 5 | 20 / 8 | 21 / 4 |
+| 1 | 4 | Died | 102 | 0 | 9 | 2 | 16 / 5 | 18 / 7 |
+| 123 | 2 | Died | 28 | 0 | 7 | 0 | 11 / 1 | 10 / 3 |
+| 987 | 5 | Cleared final floor | 156 | 9 | 14 | 3 | 22 / 6 | 16 / 6 |
+
+Counts include all events encountered, including those eventually trimmed from the displayed history. Small samples can have miss rates well above or below configured probabilities; these counts are observations, not statistical assertions or a balancing target.
+
+Final rules remain the proposed player 85% / monster 80% accuracy, nominal damage ±1 (minimum raw 1), additive armor with minimum landed damage 1, and no critical hits. The examples did not justify changing thresholds simply to force the walker to win. Healing scarcity on some seeds and multiple-orc encounters remain explicit balance questions for the first winnable-adventure milestone. No twenty-floor balance claim is made.
+
+Additional verification:
+
+- Real seeded integration tests replay a corridor action sequence without global randomness, verify free/rejected actions leave the next attack unchanged, and retain populated inactive-floor actors by reference.
+- Controlled outcome tests cover threshold and damage endpoints, misses without damage rolls, armor contributions, stable multi-actor ordering, kills/drops, healing before retaliation, fatal phase termination, and readable accessible log feedback.
+- Browser seed 0, five 15×15 floors: equip the iron sword, close Character, then `a a d d`. The observed fight included a four-damage hit, a monster miss, and a two-damage hit. Both rats died, with player health 9. The script refers to this rules version, not a permanent seed-specific promise.
+- Character displays 1–3 / 85% for the starting weapon and 2–4 / 85% after equipping the iron sword. Reviewed at desktop and 390×700 widths. Armor layout was also checked in light mode; colors preserve the existing theme tokens.
+- Settings successfully created a 20-floor 15×15 run, with the header showing Floor 1 of 20.
+- Settings also created a 20-floor 100×100 run. Ten alternating movement inputs advanced ten turns in roughly half a second including automation overhead; this is a practical input check, not a frame-time measurement. Only active-floor actors receive turns.
+
+## Commit-by-commit review guide
+
+| Story | Main change and review focus |
+| --- | --- |
+| #91 | Monster definitions, validated floor bands/stats, and distinct rat/orc icons. Existing AI remains shared. |
+| #92 | Weighted eligible kind selection in a separate seed stream; Settings floor limit raised to 20; existing positions remain stable. |
+| #93 | Four armor items and item floor/source metadata. Found and drop weights are independent. |
+| #94 | Chest/head ownership, swaps and unequipping; additive armor and one normal retaliation phase. |
+| #95 | Four visible equipment slots and an armor breakdown using shared details, with UI tests and responsive review. |
+| #96 | Eligible weighted found loot and per-monster drops; shared future-stair reservation preserves earlier loot when extending runs. |
+| #97 | Safe-space density with minimum two / cap twelve, plus explicit count overrides and fixed-count corridor fixtures. |
+| #98 | Recorded fixed-damage content review, diagnostic walker, and weighted-selection boundary/validation tests. |
+| #100 | Pure D20 threshold and bounded-damage rules, independently tested before gameplay integration. |
+| #101 | Independent hit/damage contexts keyed by seed, floor, turn and actor identities; no mutable global RNG. |
+| #102 | Player hit/miss integration and controlled-roll helpers that isolate older ownership/AI/UI scenarios. Real seeded tests use the domain directly. |
+| #103 | Per-monster outcomes in stable order, cumulative armor, phase termination on death, and roll-source forwarding through every action path. |
+| #104 | Honest damage range/accuracy display and Help/README explanations. Chance text derives from the shared thresholds. |
+| #105 | Cross-action narrative tests, catalog-derived names, and accessible miss feedback without invented damage. |
+| #106 | Real seeded replay/inactive-floor regressions, diagnostic hit/miss counts, final browser checks, and these review notes. No gameplay tuning was hidden in a statistical test. |
+
+Both epics remain In Review until developer acceptance. The quest, victory screen, XP, attributes, and magic are still future work.

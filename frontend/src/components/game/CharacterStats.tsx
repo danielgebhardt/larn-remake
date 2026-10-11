@@ -8,6 +8,8 @@ import type { PlayerStats } from "../../domain/game/PlayerStats";
 import type { Progression } from "../../domain/game/Progression";
 import type { Equipment } from "../../domain/items/Equipment";
 
+import HealthDisplay from "./HealthDisplay";
+
 const CharacterStats = ({
 	player,
 	equipment,
@@ -30,12 +32,11 @@ const CharacterStats = ({
 						aria-hidden="true"
 						className="mb-1 inline-block size-4 align-middle mr-2 text-player"
 					/>
-					<output
-						aria-label="Character health"
+					<HealthDisplay
+						player={player}
+						label="Character health"
 						className="text-xs font-medium tabular-nums sm:text-sm"
-					>
-						Health {player.health} / {player.maxHealth}
-					</output>
+					/>
 					<p className="mt-1 text-xs text-muted-foreground">
 						Current / maximum
 					</p>

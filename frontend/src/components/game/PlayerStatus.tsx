@@ -5,6 +5,8 @@ import {
 	type Progression,
 } from "../../domain/game/Progression";
 
+import HealthDisplay from "./HealthDisplay";
+
 const PlayerStatus = ({
 	turn,
 	player,
@@ -23,9 +25,7 @@ const PlayerStatus = ({
 		<output aria-label="Player level">
 			Level {levelForExperience(progression.experience)}
 		</output>
-		<output aria-label="Player health">
-			Health {player.health} / {player.maxHealth}
-		</output>
+		<HealthDisplay player={player} label="Player health" />
 		{player.health === 0 && (
 			<p
 				role="alert"

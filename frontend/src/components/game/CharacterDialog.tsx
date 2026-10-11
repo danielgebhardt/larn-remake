@@ -104,7 +104,7 @@ const CharacterDialog = ({
 					event.stopPropagation();
 					if (!event.repeat) onCloseRequested();
 				}}
-				className="fixed top-1/2 left-1/2 z-50 flex max-h-[calc(100dvh-2rem)] w-[calc(100%-2rem)] max-w-6xl -translate-x-1/2 -translate-y-1/2 flex-col overflow-hidden rounded-xl border bg-popover text-sm text-popover-foreground shadow-lg"
+				className="fixed top-1/2 left-1/2 z-50 flex h-[min(52rem,calc(100dvh-2rem))] max-h-[calc(100dvh-2rem)] w-[calc(100%-2rem)] max-w-6xl -translate-x-1/2 -translate-y-1/2 flex-col overflow-hidden rounded-xl border bg-popover text-sm text-popover-foreground shadow-lg"
 			>
 				<div className="flex shrink-0 items-start justify-between gap-4 border-b p-4">
 					<div>
@@ -141,7 +141,10 @@ const CharacterDialog = ({
 							Spells
 						</Tabs.Tab>
 					</Tabs.List>
-					<Tabs.Panel value="character" className="min-h-0 overflow-y-auto">
+					<Tabs.Panel
+						value="character"
+						className="min-h-0 flex-1 overflow-y-auto"
+					>
 						<div className="shrink-0 border-b px-4 py-3">
 							<CharacterStats
 								player={player}
@@ -233,7 +236,7 @@ const CharacterDialog = ({
 							</div>
 						</div>
 					</Tabs.Panel>
-					<Tabs.Panel value="spells" className="min-h-0 overflow-y-auto">
+					<Tabs.Panel value="spells" className="min-h-0 flex-1 overflow-y-auto">
 						<SpellsView
 							knownSpells={knownSpells}
 							mana={mana}

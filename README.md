@@ -325,3 +325,5 @@ Monsters use inclusive floor bands and positive relative spawn weights. Goblins 
 Monster kinds are chosen independently using `seed:floor:monster-kinds:index`; position selection retains `seed:floor:monsters:index`. Settings supports 1–20 floors; the default remains three.
 
 Armor catalog: leather armor/cap provide +1 armor from floor 1; chain armor/iron helmet provide +2 from floor 3. All remain eligible through floor 20. Found/drop weights are separate; healing remains the most common individual reward. Every item is a separately owned copy.
+
+Character includes main/off hand, chest, and head slots. New characters leave chest/head empty. Select worn gear or a bag item to use the shared details and equip/unequip controls. Armor totals shield + chest + head once; gear changes use one turn with normal retaliation.

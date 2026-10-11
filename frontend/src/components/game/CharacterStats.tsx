@@ -1,5 +1,8 @@
 import { Heart, Shield, Sword } from "lucide-react";
-import { deriveCombatStats } from "../../domain/game/CombatStats";
+import {
+	armorContributions,
+	deriveCombatStats,
+} from "../../domain/game/CombatStats";
 import type { PlayerStats } from "../../domain/game/PlayerStats";
 import type { Equipment } from "../../domain/items/Equipment";
 
@@ -11,6 +14,7 @@ const CharacterStats = ({
 	equipment: Equipment;
 }) => {
 	const combat = deriveCombatStats(equipment);
+	const armor = armorContributions(equipment);
 	return (
 		<section aria-label="Character stats" className="grid gap-2">
 			<div className="grid grid-cols-3 gap-2">
@@ -53,7 +57,7 @@ const CharacterStats = ({
 						Armor {combat.armor}
 					</output>
 					<p className="mt-1 text-xs text-muted-foreground">
-						From equipped gear
+						Shield {armor.shield} + chest {armor.chest} + head {armor.head}
 					</p>
 				</div>
 			</div>

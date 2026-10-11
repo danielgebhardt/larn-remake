@@ -148,8 +148,9 @@ const DungeonHelp = () => (
 					<li>
 						<span className="font-medium text-foreground">Equipment.</span> Open
 						Character to inspect items, equip carried gear, or unequip an
-						occupied slot. Successful gear changes use a turn; inspecting items
-						is free.
+						occupied slot. Main/off hand, chest, and head are available; armor
+						from shield, chest, and head adds together. Successful gear changes
+						use a turn; inspecting items is free.
 					</li>
 					<li>
 						<span className="font-medium text-foreground">Items.</span> Use G to

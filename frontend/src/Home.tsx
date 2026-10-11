@@ -38,7 +38,13 @@ import {
 import { BAG_CAPACITY } from "./domain/items/Bag";
 import { itemsAtPlayer } from "./domain/items/FloorItems";
 import type { HotbarSlot } from "./domain/items/PotionHotbar";
+import {
+	createSaveDocument,
+	restoreSave,
+	type SaveDocument,
+} from "./domain/saves/SaveFormat";
 import Header from "./Header.tsx";
+import AdventureSaveControls from "./settings/AdventureSaveControls";
 import DungeonSettings from "./settings/DungeonSettings.tsx";
 import {
 	type ConfigurationErrors,
@@ -88,6 +94,7 @@ const Home = ({
 	const [seedInput, setSeedInput] = useState(() => String(run.seed));
 	const [seedError, setSeedError] = useState<string | null>(null);
 	const [settingsOpen, setSettingsOpen] = useState(false);
+	const [restoreMapFocus, setRestoreMapFocus] = useState(false);
 	const [helpOpen, setHelpOpen] = useState(false);
 	const [characterOpen, setCharacterOpen] = useState(false);
 	const [characterOpenedFromMap, setCharacterOpenedFromMap] = useState(false);
@@ -143,6 +150,28 @@ const Home = ({
 		setSeedInput(String(seed));
 		setSeedError(null);
 		return true;
+	};
+
+	const handleRestore = (document: SaveDocument) => {
+		const loaded = restoreSave(document);
+		setFogConfiguration(loaded.fog);
+		setConfiguration(loaded.configuration);
+		setConfigDraft(configurationDraft(loaded.configuration));
+		setConfigErrors({});
+		setGenerationError(null);
+		setSeedInput(String(loaded.state.run.seed));
+		setSeedError(null);
+		setDismissedVictory(null);
+		setGame({
+			state: loaded.state,
+			exploration: loaded.exploration,
+			actionError: "",
+		});
+		setPickupOpen(false);
+		setCharacterOpen(false);
+		setHelpOpen(false);
+		setRestoreMapFocus(true);
+		setSettingsOpen(false);
 	};
 
 	const handleNewDungeon = () => {
@@ -279,12 +308,32 @@ const Home = ({
 					</Dialog.Root>
 				}
 				settingsAction={
-					<Sheet open={settingsOpen} onOpenChange={setSettingsOpen}>
+					<Sheet
+						open={settingsOpen}
+						onOpenChange={(open) => {
+							setSettingsOpen(open);
+							if (open) setRestoreMapFocus(false);
+						}}
+					>
 						<SheetTrigger render={<Button type="button" variant="outline" />}>
 							<Settings aria-hidden="true" focusable="false" />
 							Settings
 						</SheetTrigger>
 						<DungeonSettings
+							finalFocus={restoreMapFocus ? mapRef : undefined}
+							adventureActions={
+								<AdventureSaveControls
+									createSnapshot={() =>
+										createSaveDocument(
+											game.state,
+											exploration,
+											configuration,
+											fogConfiguration,
+										)
+									}
+									onRestore={handleRestore}
+								/>
+							}
 							fogConfiguration={fogConfiguration}
 							onFogEnabledChange={(enabled) =>
 								setFogConfiguration((current) => ({ ...current, enabled }))

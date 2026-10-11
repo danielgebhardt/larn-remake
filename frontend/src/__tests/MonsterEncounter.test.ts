@@ -8,13 +8,20 @@ import {
 import { DEFAULT_RUN_CONFIGURATION } from "../domain/dungeon/RunConfiguration";
 import { createGameState } from "../domain/game/GameState";
 import { resolvePlayerAction } from "../domain/game/PlayerActions";
+import { spawnRunMonsters } from "../domain/monsters/MonsterPlacement";
 import { createCorridorEncounter } from "./MonsterEncounterTestHelpers";
+
+// Fix the encounter count so density tuning does not change its action script.
+const corridorState = (run = createCorridorEncounter()) => ({
+	...createGameState(run),
+	monsters: spawnRunMonsters(run, 3),
+});
 
 const play = (
 	directions: readonly MovementDirection[],
 	run = createCorridorEncounter(),
 ) => {
-	let state = createGameState(run);
+	let state = corridorState(run);
 	for (const direction of directions)
 		state = resolvePlayerAction(state, { type: "move", direction }).state;
 	return state;
@@ -23,7 +30,7 @@ const play = (
 describe("Complete moving encounters", () => {
 	it("defeats the seeded population, descends and revisits without respawning, then replays identically", () => {
 		const run = createCorridorEncounter();
-		const initial = createGameState(run);
+		const initial = corridorState(run);
 		expect(initial.monsters).toHaveLength(3);
 		// Eleven walk steps and two bump attacks for each of three goblins.
 		const directions: MovementDirection[] = [
@@ -54,7 +61,7 @@ describe("Complete moving encounters", () => {
 		).toBe(false);
 		expect(result.run.floors[0].terrain).toBe(initial.run.floors[0].terrain);
 		expect(play(directions)).toEqual(result);
-		const restarted = createGameState(run);
+		const restarted = corridorState(run);
 		expect(restarted.monsters).toEqual(initial.monsters);
 		expect(restarted.turn).toBe(0);
 		expect(restarted.player.health).toBe(10);

@@ -4,10 +4,7 @@ import * as DungeonRun from "../domain/dungeon/DungeonRun";
 import { FLOOR } from "../domain/dungeon/Tiles";
 import { createGameState } from "../domain/game/GameState";
 import { MONSTER_DEFINITIONS } from "../domain/monsters/Monster";
-import {
-	DEFAULT_MONSTERS_PER_FLOOR,
-	spawnRunMonsters,
-} from "../domain/monsters/MonsterPlacement";
+import { spawnRunMonsters } from "../domain/monsters/MonsterPlacement";
 import {
 	createTestDungeonFloor,
 	createThreeFloorTraversalRun,
@@ -47,8 +44,7 @@ const roomyRun = (floorCount = 3, seed = 123): DungeonRun.DungeonRun => ({
 
 describe("Seeded monster populations", () => {
 	it("starts each floor with three eligible full-health monsters and stable unique IDs", () => {
-		const monsters = spawnRunMonsters(roomyRun());
-		expect(DEFAULT_MONSTERS_PER_FLOOR).toBe(3);
+		const monsters = spawnRunMonsters(roomyRun(), 3);
 		expect(monsters).toHaveLength(9);
 		expect(monsters.map((m) => m.id)).toEqual([
 			"1:1",
@@ -137,7 +133,7 @@ describe("Seeded monster populations", () => {
 		run.floors[0] = createThreeFloorTraversalRun().floors[0];
 		run.playerCoordinate = { row: 1, col: 1 };
 		const monsters = spawnRunMonsters(run);
-		expect(monsters).toHaveLength(3);
+		expect(monsters).toHaveLength(2);
 		expect(monsters.every((m) => m.floorNumber === 2)).toBe(true);
 		expect(spawnRunMonsters(createThreeFloorTraversalRun())).toEqual([]);
 	});

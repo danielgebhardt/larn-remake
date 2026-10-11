@@ -13,13 +13,26 @@ import {
 	protectedSpawnLocations,
 } from "./MonsterLocations";
 
-export const DEFAULT_MONSTERS_PER_FLOOR = 3;
+export const MONSTER_DENSITY = {
+	min: 2,
+	max: 12,
+	safeTilesPerMonster: 30,
+} as const;
+export const monsterCountForSpace = (space: number): number =>
+	Math.min(
+		space,
+		MONSTER_DENSITY.max,
+		Math.max(
+			MONSTER_DENSITY.min,
+			Math.ceil(space / MONSTER_DENSITY.safeTilesPerMonster),
+		),
+	);
 
 export const spawnRunMonsters = (
 	run: DungeonRun,
-	count = DEFAULT_MONSTERS_PER_FLOOR,
+	count?: number,
 ): readonly Monster[] => {
-	if (!Number.isInteger(count) || count < 0)
+	if (count !== undefined && (!Number.isInteger(count) || count < 0))
 		throw new RangeError("Monster count must be a nonnegative whole number");
 	if (count === 0) return [];
 	const monsters: Monster[] = [];
@@ -42,7 +55,8 @@ export const spawnRunMonsters = (
 					candidates.push(coordinate);
 			}
 		}
-		for (let index = 1; index <= count && candidates.length > 0; index++) {
+		const floorCount = count ?? monsterCountForSpace(candidates.length);
+		for (let index = 1; index <= floorCount && candidates.length > 0; index++) {
 			const random = createSeededRandom(
 				hashStringToUint32(
 					`${run.seed}:${floor.floorNumber}:monsters:${index}`,

@@ -329,3 +329,5 @@ Armor catalog: leather armor/cap provide +1 armor from floor 1; chain armor/iron
 Character includes main/off hand, chest, and head slots. New characters leave chest/head empty. Select worn gear or a bag item to use the shared details and equip/unequip controls. Armor totals shield + chest + head once; gear changes use one turn with normal retaliation.
 
 Found loot and monster drops use inclusive floor eligibility and relative source weights. Goblins drop with 50% chance and favor basic swords/shields; rats with 35%; orcs with 70% and favor chain armor/iron helmets. Drop preferences never override floor restrictions. Seed namespaces and instance identities remain independent and drops occur once per kill.
+
+Default monster density is one actor per 30 safe spawn tiles, rounded up, with a minimum of 2 and a maximum of 12 per floor (always clamped to available tiles). Explicit count overrides replace the density policy, including zero, for fixtures and focused tests. Populations are created once per run; there is no respawning.

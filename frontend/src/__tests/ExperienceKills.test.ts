@@ -134,6 +134,8 @@ describe("Experience from confirmed player kills", () => {
 					turns: 1,
 					monstersDefeated: 1,
 					health: 10,
+					level: 1,
+					experience: 0,
 				},
 			},
 		};

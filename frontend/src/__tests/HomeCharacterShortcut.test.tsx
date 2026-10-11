@@ -19,7 +19,7 @@ const setup = () => {
 };
 afterEach(resetHomeTestState);
 describe("Character shortcut", () => {
-	it.each(["i", "I"])(
+	it.each(["i", "I", "c", "C"])(
 		"opens with %s for free, pauses gameplay, and restores map focus",
 		async (key) => {
 			const { map, user } = setup();
@@ -85,15 +85,18 @@ describe("Character shortcut", () => {
 		fireEvent.keyDown(window, { key: "i", ...modifiers });
 		expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
 	});
-	it.each(["Settings", "Help"])("ignores I while %s is open", async (menu) => {
-		const { user } = setup();
-		await user.click(screen.getByRole("button", { name: menu }));
-		await screen.findByRole("dialog");
-		await user.keyboard("i");
-		expect(
-			screen.queryByRole("dialog", { name: "Character" }),
-		).not.toBeInTheDocument();
-	});
+	it.each(["Settings", "Help"])(
+		"ignores I/C while %s is open",
+		async (menu) => {
+			const { user } = setup();
+			await user.click(screen.getByRole("button", { name: menu }));
+			await screen.findByRole("dialog");
+			await user.keyboard("ic");
+			expect(
+				screen.queryByRole("dialog", { name: "Character" }),
+			).not.toBeInTheDocument();
+		},
+	);
 	it.each(["Character", "Activity log"])(
 		"ignores I on the focused %s control",
 		async (name) => {

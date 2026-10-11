@@ -8,6 +8,8 @@ export type VictorySummary = Readonly<{
 	turns: number;
 	monstersDefeated: number;
 	health: number;
+	level: number;
+	experience: number;
 }>;
 export type QuestState = Readonly<{
 	goalFloor: number;

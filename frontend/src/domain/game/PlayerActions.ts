@@ -32,7 +32,11 @@ import {
 	PLAYER_HIT_THRESHOLD,
 	resolveMeleeAttack,
 } from "./MeleeRules";
-import { gainExperience, HEALTH_PER_LEVEL } from "./Progression";
+import {
+	gainExperience,
+	HEALTH_PER_LEVEL,
+	levelForExperience,
+} from "./Progression";
 
 export type PlayerAction =
 	| { type: "move"; direction: MovementDirection }
@@ -223,6 +227,8 @@ const announceArrival = (state: GameState, fromFloor: number): GameState => {
 						turns: state.turn,
 						monstersDefeated: state.monstersDefeated,
 						health: state.player.health,
+						level: levelForExperience(state.progression.experience),
+						experience: state.progression.experience,
 					},
 				},
 				activityHistory: appendActivityEvents(state.activityHistory, events),

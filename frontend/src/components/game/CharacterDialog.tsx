@@ -5,21 +5,25 @@ import type { ActivityHistory } from "../../domain/game/ActivityHistory";
 import type { QuestState } from "../../domain/game/Adventure";
 import type { PlayerAction } from "../../domain/game/PlayerActions";
 import type { PlayerStats } from "../../domain/game/PlayerStats";
+import type { Progression } from "../../domain/game/Progression";
 import type { Bag } from "../../domain/items/Bag";
 import type { Equipment, EquipmentSlot } from "../../domain/items/Equipment";
 import type { FloorItem } from "../../domain/items/FloorItems";
 import type { PotionHotbar } from "../../domain/items/PotionHotbar";
 import { formatActivityEvent } from "./ActivityMessages";
 import BagContents from "./BagContents";
+import { isCharacterShortcut } from "./CharacterShortcut";
 import CharacterStats from "./CharacterStats";
 import EquipmentView from "./EquipmentView";
 import FloorItemsView from "./FloorItemsView";
 import ItemDetails from "./ItemDetails";
 import PotionAssignments from "./PotionAssignments";
+import ProgressionView from "./ProgressionView";
 import QuestStatus from "./QuestStatus";
 
 type CharacterDialogProps = {
 	player: PlayerStats;
+	progression: Progression;
 	won?: boolean;
 	quest: QuestState;
 	equipment: Equipment;
@@ -36,6 +40,7 @@ type CharacterDialogProps = {
 
 const CharacterDialog = ({
 	player,
+	progression,
 	won = false,
 	quest,
 	equipment,
@@ -77,7 +82,7 @@ const CharacterDialog = ({
 				initialFocus={titleRef}
 				finalFocus={finalFocus}
 				onKeyDown={(event) => {
-					if (event.key !== "i" && event.key !== "I") return;
+					if (!isCharacterShortcut(event.key)) return;
 					if (
 						event.ctrlKey ||
 						event.metaKey ||
@@ -111,7 +116,8 @@ const CharacterDialog = ({
 					<CharacterStats player={player} equipment={equipment} />
 				</div>
 				<div className="min-h-0 overflow-y-auto p-4">
-					<div className="grid items-start gap-5 md:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)]">
+					<div className="grid items-start gap-5 md:grid-cols-2 lg:grid-cols-[minmax(0,0.65fr)_minmax(0,1fr)_minmax(0,1.25fr)]">
+						<ProgressionView progression={progression} />
 						<div className="grid content-start gap-4">
 							<EquipmentView
 								equipment={equipment}

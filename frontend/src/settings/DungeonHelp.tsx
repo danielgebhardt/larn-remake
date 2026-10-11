@@ -87,7 +87,10 @@ const DungeonHelp = () => (
 					</li>
 					<li className="flex items-center justify-between gap-3 py-3">
 						<span>Open / close Character</span>
-						<Keycap>I</Keycap>
+						<span className="flex gap-1">
+							<Keycap>I</Keycap>
+							<Keycap>C</Keycap>
+						</span>
 					</li>
 					<li className="flex items-center justify-between gap-3 py-3">
 						<span>Use potion shortcut</span>
@@ -191,6 +194,17 @@ const DungeonHelp = () => (
 						movement does not use a turn.
 					</li>
 				</ul>
+			</section>
+			<section
+				aria-label="Character progression"
+				className="rounded-lg border p-4 text-sm"
+			>
+				<h3 className="mb-2 font-medium">Experience and levels</h3>
+				<p>
+					Confirmed monster kills award XP. Each earned level adds 2 maximum and
+					current health without using another turn or granting a full heal.
+					Character level is capped at 5; XP keeps accumulating at the cap.
+				</p>
 			</section>
 			<p className="flex items-start gap-2 rounded-lg border bg-muted/30 p-3 text-xs leading-relaxed text-muted-foreground">
 				<Shield aria-hidden="true" className="mt-0.5 size-4 shrink-0" />

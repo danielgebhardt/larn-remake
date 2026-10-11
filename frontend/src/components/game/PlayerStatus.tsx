@@ -1,12 +1,18 @@
 import { UserRound } from "lucide-react";
 import type { PlayerStats } from "../../domain/game/PlayerStats.ts";
+import {
+	levelForExperience,
+	type Progression,
+} from "../../domain/game/Progression";
 
 const PlayerStatus = ({
 	turn,
 	player,
+	progression,
 }: {
 	turn: number;
 	player: PlayerStats;
+	progression: Progression;
 }) => (
 	<section
 		aria-label="Player status"
@@ -14,6 +20,9 @@ const PlayerStatus = ({
 	>
 		<UserRound aria-hidden="true" className="size-6 shrink-0 text-player" />
 		<output aria-label="Turn count">Turn {turn}</output>
+		<output aria-label="Player level">
+			Level {levelForExperience(progression.experience)}
+		</output>
 		<output aria-label="Player health">
 			Health {player.health} / {player.maxHealth}
 		</output>

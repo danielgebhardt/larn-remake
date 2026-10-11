@@ -12,6 +12,7 @@ import type { VisibilityGrid } from "../../domain/dungeon/Visibility.ts";
 import type { FloorItem } from "../../domain/items/FloorItems";
 import { HOTBAR_SLOTS, type HotbarSlot } from "../../domain/items/PotionHotbar";
 import type { Monster } from "../../domain/monsters/Monster.ts";
+import { isCharacterShortcut } from "../game/CharacterShortcut";
 import DungeonRow from "./DungeonRow.tsx";
 import { getScrollOffset } from "./MapScroll.ts";
 
@@ -142,7 +143,7 @@ const DungeonLayout = ({
 				return;
 			}
 
-			if (event.key === "i" || event.key === "I") {
+			if (isCharacterShortcut(event.key)) {
 				if (
 					!onCharacterRequested ||
 					event.ctrlKey ||

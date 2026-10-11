@@ -46,7 +46,7 @@ describe("Home Help menu", () => {
 			expect(help.getByText(`Move ${direction}`)).toBeVisible();
 			expect(help.getByLabelText(`Arrow ${direction}`)).toBeVisible();
 		}
-		for (const key of ["W", "A", "S", "D", "Space", "G", "Esc"]) {
+		for (const key of ["W", "A", "S", "D", "Space", "G", "I", "C", "Esc"]) {
 			expect(help.getByText(key, { selector: "kbd" })).toBeVisible();
 		}
 		expect(help.getByText("Wait one turn")).toBeVisible();

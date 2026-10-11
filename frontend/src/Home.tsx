@@ -240,6 +240,7 @@ const Home = ({
 							Character
 						</Dialog.Trigger>
 						<CharacterDialog
+							progression={game.state.progression}
 							onCloseRequested={() => setCharacterOpen(false)}
 							finalFocus={characterOpenedFromMap ? mapRef : undefined}
 							player={player}
@@ -312,7 +313,11 @@ const Home = ({
 							alive={canPlay}
 							onActivate={handlePotionRequested}
 						/>
-						<PlayerStatus turn={turn} player={player} />
+						<PlayerStatus
+							turn={turn}
+							player={player}
+							progression={game.state.progression}
+						/>
 					</div>
 					<QuestStatus quest={game.state.quest} />
 					{victory && (

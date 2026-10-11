@@ -27,6 +27,8 @@ const VictoryDialog = ({
 		["Turns", summary.turns],
 		["Monsters defeated", summary.monstersDefeated],
 		["Health remaining", summary.health],
+		["Level", summary.level],
+		["Total XP", summary.experience],
 	] as const;
 	return (
 		<Dialog.Root

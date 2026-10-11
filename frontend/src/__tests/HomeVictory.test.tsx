@@ -40,6 +40,8 @@ describe("Victory summary and ended-run controls", () => {
 		const summary = within(dialog);
 		expect(summary.getByLabelText("Victory seed")).toHaveTextContent("123");
 		expect(summary.getByLabelText("Victory turns")).toHaveTextContent("3");
+		expect(summary.getByLabelText("Victory level")).toHaveTextContent("1");
+		expect(summary.getByLabelText("Victory total xp")).toHaveTextContent("0");
 		expect(summary.getByLabelText("Victory floors")).toHaveTextContent("1");
 		expect(
 			summary.getByLabelText("Victory monsters defeated"),

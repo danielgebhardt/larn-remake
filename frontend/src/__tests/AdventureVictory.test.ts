@@ -51,6 +51,8 @@ describe("Returning through the entrance", () => {
 			turns: 1,
 			monstersDefeated: 4,
 			health: 7,
+			level: 1,
+			experience: 0,
 		});
 		expect(result.state.player).toBe(before.player);
 		expect(

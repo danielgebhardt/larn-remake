@@ -52,8 +52,10 @@ export const formatActivityEvent = (event: ActivityEvent): string => {
 			return `${prefix}You drop ${ITEM_DEFINITIONS[event.item].name}.`;
 		case "monster-loot":
 			return `${prefix}The ${MONSTER_DEFINITIONS[event.monster].name} drops ${ITEM_DEFINITIONS[event.item].name}.`;
-		case "item-consumed":
-			return `${prefix}You drink ${ITEM_DEFINITIONS[event.item].name} and recover ${event.recovered} health.`;
+		case "item-consumed": {
+			const item = ITEM_DEFINITIONS[event.item];
+			return `${prefix}You drink ${item.name} and recover ${event.recovered} ${item.type === "potion" ? item.recovery.resource : "health"}.`;
+		}
 		case "items-seen":
 			return `${prefix}You see ${new Intl.ListFormat("en", { style: "long", type: "conjunction" }).format(event.items.map((item) => ITEM_DEFINITIONS[item].name))} here.`;
 	}

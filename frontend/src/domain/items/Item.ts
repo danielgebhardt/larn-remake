@@ -32,7 +32,7 @@ export const ITEM_DEFINITIONS = {
 		type: "potion",
 		attackBonus: 0,
 		armor: 0,
-		healing: 5,
+		recovery: { resource: "health", amount: 5 },
 		description:
 			"Restores up to 5 health when consumed. Drinking uses one turn.",
 	},
@@ -116,6 +116,18 @@ export const ITEM_DEFINITIONS = {
 		maxFloor: MAX_FLOORS,
 		foundWeight: 1,
 		dropWeight: 1,
+	},
+	"mana-potion": {
+		name: "Mana potion",
+		type: "potion",
+		attackBonus: 0,
+		armor: 0,
+		recovery: { resource: "mana", amount: 5 },
+		description: "Restores up to 5 mana when consumed. Drinking uses one turn.",
+		minFloor: 1,
+		maxFloor: MAX_FLOORS,
+		foundWeight: 5,
+		dropWeight: 5,
 	},
 } as const;
 

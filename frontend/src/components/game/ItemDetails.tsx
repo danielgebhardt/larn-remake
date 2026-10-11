@@ -65,7 +65,7 @@ const ItemDetails = ({
 			</p>
 			<p className="text-xs font-medium tabular-nums">
 				{details.type === "potion"
-					? `Recovery up to ${details.healing} health`
+					? `Recovery up to ${details.recovery.amount} ${details.recovery.resource}`
 					: details.type === "weapon"
 						? `Attack bonus +${details.attackBonus}`
 						: `Armor ${details.armor}`}

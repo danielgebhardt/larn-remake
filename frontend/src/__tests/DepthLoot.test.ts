@@ -28,8 +28,8 @@ describe("Depth-aware found and dropped loot", () => {
 		const nextBand =
 			ITEM_DEFINITIONS["healing-potion"].foundWeight / totalWeight;
 		expect(selectLootKind(1, "found", () => nextBand)).toBe("short-sword");
-		expect(selectLootKind(2, "found", () => 0.999)).toBe("leather-cap");
-		expect(selectLootKind(3, "found", () => 0.999)).toBe("iron-helmet");
+		expect(selectLootKind(2, "found", () => 0.999)).toBe("mana-potion");
+		expect(selectLootKind(3, "found", () => 0.999)).toBe("mana-potion");
 		expect(selectLootKind(21, "found", () => 0)).toBeUndefined();
 	});
 	it("uses monster drop chance boundaries without changing death location", () => {

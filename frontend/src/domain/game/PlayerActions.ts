@@ -122,7 +122,7 @@ export const resolvePlayerAction = (
 		);
 	}
 	if (action.type === "consume") {
-		const consumed = consumeItem(state.player, state.bag, action);
+		const consumed = consumeItem(state, action);
 		if ("error" in consumed)
 			return { state, turnAdvanced: false, error: consumed.error };
 		const turn = state.turn + 1;
@@ -130,6 +130,7 @@ export const resolvePlayerAction = (
 			state: monsterPhase({
 				...state,
 				player: consumed.player,
+				mana: consumed.mana,
 				bag: consumed.bag,
 				turn,
 				activityHistory: appendActivityEvents(state.activityHistory, [

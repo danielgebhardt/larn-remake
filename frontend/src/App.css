@@ -20,6 +20,7 @@
 	--color-item-cure: var(--item-cure);
 	--color-item-gear: var(--item-gear);
 	--color-item-potion: var(--item-potion);
+	--color-item-mana: var(--item-mana);
 	--color-stairs: var(--stairs);
 	--font-sans: "Geist Variable", sans-serif;
 	--color-sidebar-ring: var(--sidebar-ring);
@@ -110,6 +111,7 @@
 	--item-gear: #a16207;
 	--item-cure: #1d4ed8;
 	--item-potion: #0e7490;
+	--item-mana: #2563eb;
 	--stairs: #a16207;
 }
 
@@ -158,6 +160,7 @@
 	--item-gear: #fbbf24;
 	--item-cure: #93c5fd;
 	--item-potion: #67e8f9;
+	--item-mana: #60a5fa;
 	--stairs: #fbbf24;
 }
 

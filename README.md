@@ -4,6 +4,8 @@ A small remake and reimagining of the classic roguelike **Larn**, built as a sof
 
 The repository is a monorepo with a Spring Boot backend and a React/TypeScript frontend. Development is organized into small stories so game behavior can be designed, tested, and implemented incrementally.
 
+See [ROADMAP.md](ROADMAP.md) for the remaining milestones and their GitHub stories.
+
 ## Current functionality
 
 The application currently includes:

@@ -43,11 +43,9 @@ export const transferFloorItem = (
 				error: "Your bag is full. Make room before picking up an item.",
 			};
 		if (
-			[
-				...state.bag.items,
-				state.equipment.mainHand,
-				state.equipment.offHand,
-			].some((item) => item?.id === action.itemId)
+			[...state.bag.items, ...Object.values(state.equipment)].some(
+				(item) => item?.id === action.itemId,
+			)
 		)
 			return { error: "You already own that item." };
 		return {

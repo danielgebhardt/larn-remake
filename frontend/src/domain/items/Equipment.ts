@@ -1,10 +1,13 @@
 import { ITEM_DEFINITIONS, type ItemInstance } from "./Item";
 
-export type Equipment = Readonly<{
-	mainHand: ItemInstance | null;
-	offHand: ItemInstance | null;
-}>;
-export type EquipmentSlot = keyof Equipment;
+export const EQUIPMENT_SLOT_LABELS = {
+	mainHand: "Main hand",
+	offHand: "Off hand",
+	chest: "Chest",
+	head: "Head",
+} as const;
+export type EquipmentSlot = keyof typeof EQUIPMENT_SLOT_LABELS;
+export type Equipment = Readonly<Record<EquipmentSlot, ItemInstance | null>>;
 
 export const equipmentSlotFor = (item: ItemInstance): EquipmentSlot | null => {
 	switch (ITEM_DEFINITIONS[item.kind].type) {
@@ -13,25 +16,40 @@ export const equipmentSlotFor = (item: ItemInstance): EquipmentSlot | null => {
 		case "shield":
 			return "offHand";
 		case "chest-armor":
+			return "chest";
 		case "helmet":
+			return "head";
 		case "potion":
 			return null;
 	}
 };
-
 export const createEquipment = (
 	mainHand: ItemInstance | null = null,
 	offHand: ItemInstance | null = null,
+	chest: ItemInstance | null = null,
+	head: ItemInstance | null = null,
 ): Equipment => {
-	if (mainHand && offHand && mainHand.id === offHand.id)
-		throw new Error("The same item cannot occupy both equipment slots.");
-	if (mainHand && ITEM_DEFINITIONS[mainHand.kind].type !== "weapon")
-		throw new Error("The main hand only supports melee weapons.");
-	if (offHand && ITEM_DEFINITIONS[offHand.kind].type !== "shield")
-		throw new Error("The off hand only supports shields.");
-	return { mainHand, offHand };
+	const equipment = { mainHand, offHand, chest, head };
+	const items = Object.values(equipment).filter((item) => item !== null);
+	if (new Set(items.map((item) => item.id)).size !== items.length)
+		throw new Error("The same item cannot occupy multiple equipment slots.");
+	for (const slot of Object.keys(equipment) as EquipmentSlot[]) {
+		const item = equipment[slot];
+		if (item && equipmentSlotFor(item) !== slot)
+			throw new Error(
+				`That item does not fit the ${EQUIPMENT_SLOT_LABELS[slot].toLowerCase()}.`,
+			);
+	}
+	return equipment;
 };
-
+export const replaceEquipmentSlot = (
+	equipment: Equipment,
+	slot: EquipmentSlot,
+	item: ItemInstance | null,
+): Equipment => {
+	const next = { ...equipment, [slot]: item };
+	return createEquipment(next.mainHand, next.offHand, next.chest, next.head);
+};
 export const createStartingEquipment = (): Equipment =>
 	createEquipment(
 		{ id: "starting:main-hand", kind: "short-sword" },

@@ -2,6 +2,7 @@ import { useId } from "react";
 import { Button } from "@/components/ui/button";
 import type { PlayerAction } from "../../domain/game/PlayerActions";
 import {
+	EQUIPMENT_SLOT_LABELS,
 	type EquipmentSlot,
 	equipmentSlotFor,
 } from "../../domain/items/Equipment";
@@ -69,7 +70,7 @@ const ItemDetails = ({
 						disabled={!alive}
 						onClick={() => act({ type: "unequip", slot: equippedSlot })}
 					>
-						Unequip {equippedSlot === "mainHand" ? "main hand" : "off hand"}
+						Unequip {EQUIPMENT_SLOT_LABELS[equippedSlot].toLowerCase()}
 					</Button>
 				) : (
 					<>
@@ -87,7 +88,7 @@ const ItemDetails = ({
 								disabled={!alive}
 								onClick={() => act({ type: "equip", itemId: item.id, slot })}
 							>
-								Equip in {slot === "mainHand" ? "main hand" : "off hand"}
+								Equip in {EQUIPMENT_SLOT_LABELS[slot].toLowerCase()}
 							</Button>
 						)}
 						{details.type === "potion" && (

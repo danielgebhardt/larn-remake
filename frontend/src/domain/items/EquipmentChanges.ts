@@ -1,9 +1,10 @@
 import { BAG_CAPACITY, type Bag, createBag } from "./Bag";
 import {
-	createEquipment,
+	EQUIPMENT_SLOT_LABELS,
 	type Equipment,
 	type EquipmentSlot,
 	equipmentSlotFor,
+	replaceEquipmentSlot,
 } from "./Equipment";
 import type { ItemKind } from "./Item";
 
@@ -28,7 +29,7 @@ export const changeEquipment = (
 	action: EquipmentAction,
 ): EquipmentChange => {
 	const current = equipment[action.slot];
-	const label = action.slot === "mainHand" ? "Main hand" : "Off hand";
+	const label = EQUIPMENT_SLOT_LABELS[action.slot];
 	if (action.type === "unequip") {
 		if (!current) return { error: `${label} is already empty.` };
 		if (bag.items.length >= BAG_CAPACITY)
@@ -36,10 +37,7 @@ export const changeEquipment = (
 		if (bag.items.some((item) => item.id === current.id))
 			return { error: "That item is already in your bag." };
 		return {
-			equipment: createEquipment(
-				action.slot === "mainHand" ? null : equipment.mainHand,
-				action.slot === "offHand" ? null : equipment.offHand,
-			),
+			equipment: replaceEquipmentSlot(equipment, action.slot, null),
 			bag: createBag([...bag.items, current]),
 			event: { type: "item-unequipped", item: current.kind, slot: action.slot },
 		};
@@ -49,20 +47,13 @@ export const changeEquipment = (
 	if (!selected) return { error: "That item is no longer in your bag." };
 	if (equipmentSlotFor(selected) !== action.slot)
 		return { error: `That item does not fit the ${label.toLowerCase()}.` };
-	if (
-		[equipment.mainHand, equipment.offHand].some(
-			(item) => item?.id === selected.id,
-		)
-	)
+	if (Object.values(equipment).some((item) => item?.id === selected.id))
 		return { error: "That item is already equipped." };
 	const items = [...bag.items];
 	if (current) items[index] = current;
 	else items.splice(index, 1);
 	return {
-		equipment: createEquipment(
-			action.slot === "mainHand" ? selected : equipment.mainHand,
-			action.slot === "offHand" ? selected : equipment.offHand,
-		),
+		equipment: replaceEquipmentSlot(equipment, action.slot, selected),
 		bag: createBag(items),
 		event: {
 			type: "item-equipped",

@@ -70,7 +70,12 @@ describe("Starting equipment", () => {
 		const changed = { ...original, equipment: createEquipment() };
 		const replay = createGameState(changed.run);
 		expect(replay.equipment).toEqual(original.equipment);
-		expect(changed.equipment).toEqual({ mainHand: null, offHand: null });
+		expect(changed.equipment).toEqual({
+			mainHand: null,
+			offHand: null,
+			chest: null,
+			head: null,
+		});
 	});
 	it("retains gear through walking, descent, ascent, waiting, and blocked movement", () => {
 		const original = {
@@ -105,7 +110,12 @@ describe("Starting equipment", () => {
 
 describe("Equipment ownership", () => {
 	it("allows empty slots", () => {
-		expect(createEquipment()).toEqual({ mainHand: null, offHand: null });
+		expect(createEquipment()).toEqual({
+			mainHand: null,
+			offHand: null,
+			chest: null,
+			head: null,
+		});
 	});
 	it("distinguishes two copies of the same item kind by identity", () => {
 		const first = createEquipment({ id: "sword:1", kind: "short-sword" });

@@ -9,10 +9,10 @@ import { ITEM_DEFINITIONS } from "../../domain/items/Item";
 import ItemIcon from "../items/ItemIcon";
 
 const slots = [
-	{ key: "head", position: "col-start-1 row-start-1" },
-	{ key: "chest", position: "col-start-3 row-start-1" },
+	{ key: "head", position: "col-start-2 row-start-1" },
 	{ key: "mainHand", position: "col-start-1 row-start-2" },
 	{ key: "offHand", position: "col-start-3 row-start-2" },
+	{ key: "chest", position: "col-start-2 row-start-3" },
 ] as const;
 const EquipmentView = ({
 	equipment,
@@ -28,7 +28,7 @@ const EquipmentView = ({
 	return (
 		<section
 			aria-labelledby="character-equipment-title"
-			className="grid content-start gap-3 md:sticky md:top-0"
+			className="grid content-start gap-2"
 		>
 			<h3
 				ref={headingRef}
@@ -38,7 +38,7 @@ const EquipmentView = ({
 			>
 				Equipment
 			</h3>
-			<div className="grid min-h-64 grid-cols-[minmax(0,1fr)_4rem_minmax(0,1fr)] items-center gap-2 rounded-lg border bg-muted/20 p-3">
+			<div className="grid grid-cols-3 items-center gap-2 rounded-lg border bg-muted/20 p-2">
 				{slots.map(({ key, position }) => {
 					const label = EQUIPMENT_SLOT_LABELS[key];
 					return (
@@ -49,7 +49,7 @@ const EquipmentView = ({
 						>
 							<h4
 								id={`character-${key}`}
-								className="mb-2 text-center text-xs text-muted-foreground"
+								className="mb-1 text-center text-xs text-muted-foreground"
 							>
 								{label}
 							</h4>
@@ -61,11 +61,11 @@ const EquipmentView = ({
 									selectedId === equipment[key]?.id && selectedId !== null
 								}
 								onClick={() => onSelect(key)}
-								className="grid h-auto min-h-24 w-full justify-items-center gap-2 whitespace-normal p-2 text-center aria-pressed:border-primary aria-pressed:bg-primary/10"
+								className="grid h-auto min-h-14 w-full justify-items-center gap-1 whitespace-normal p-1 text-center aria-pressed:border-primary aria-pressed:bg-primary/10"
 							>
 								{equipment[key] ? (
 									<>
-										<span className="size-7">
+										<span className="size-5">
 											<ItemIcon kind={equipment[key].kind} />
 										</span>
 										<span className="text-xs">
@@ -89,7 +89,7 @@ const EquipmentView = ({
 					stroke="currentColor"
 					strokeWidth="3"
 					strokeLinejoin="round"
-					className="col-start-2 row-start-1 row-span-2 w-full text-muted-foreground/50"
+					className="col-start-2 row-start-2 h-16 w-full text-muted-foreground/50"
 				>
 					<circle cx="60" cy="24" r="17" />
 					<path d="M45 50H75L95 62L110 119L96 123L80 82V132L87 202H69L60 152L51 202H33L40 132V82L24 123L10 119L25 62Z" />

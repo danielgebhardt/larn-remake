@@ -86,7 +86,7 @@ const CharacterDialog = ({
 					event.stopPropagation();
 					if (!event.repeat) onCloseRequested();
 				}}
-				className="fixed top-1/2 left-1/2 z-50 flex max-h-[90dvh] w-[calc(100%-2rem)] max-w-4xl -translate-x-1/2 -translate-y-1/2 flex-col overflow-hidden rounded-xl border bg-popover text-sm text-popover-foreground shadow-lg"
+				className="fixed top-1/2 left-1/2 z-50 flex max-h-[calc(100dvh-2rem)] w-[calc(100%-2rem)] max-w-6xl -translate-x-1/2 -translate-y-1/2 flex-col overflow-hidden rounded-xl border bg-popover text-sm text-popover-foreground shadow-lg"
 			>
 				<div className="flex shrink-0 items-start justify-between gap-4 border-b p-4">
 					<div>
@@ -104,74 +104,78 @@ const CharacterDialog = ({
 				<div className="shrink-0 border-b px-4 py-3">
 					<CharacterStats player={player} equipment={equipment} />
 				</div>
-				<div className="grid min-h-0 gap-5 overflow-y-auto p-4">
-					<div className="grid items-start gap-6 md:grid-cols-2">
-						<EquipmentView
-							equipment={equipment}
-							selectedId={
-								selection?.source === "equipment"
-									? (selected?.id ?? null)
-									: null
-							}
-							headingRef={equipmentHeadingRef}
-							onSelect={(slot) => {
-								const item = equipment[slot];
-								setSelection(
-									item ? { source: "equipment", slot, id: item.id } : null,
-								);
-							}}
-						/>
-						<BagContents
-							bag={bag}
-							selectedId={
-								selection?.source === "bag" ? (selected?.id ?? null) : null
-							}
-							headingRef={bagHeadingRef}
-							onSelect={(id) => setSelection({ source: "bag", id })}
-						>
-							{selected && selection ? (
-								<div ref={detailsRef}>
-									<ItemDetails
-										item={selected}
-										potionHotbar={potionHotbar}
-										equippedSlot={
-											selection.source === "equipment"
-												? selection.slot
-												: undefined
-										}
-										alive={player.health > 0}
-										onAction={onAction}
-										afterAction={() => {
-											const heading =
-												selection.source === "bag"
-													? bagHeadingRef
-													: equipmentHeadingRef;
-											heading.current?.focus({ preventScroll: true });
-										}}
-									/>
-								</div>
-							) : (
-								<p className="text-xs text-muted-foreground">
-									Select an item to see its details.
-								</p>
-							)}
-						</BagContents>
+				<div className="min-h-0 overflow-y-auto p-4">
+					<div className="grid items-start gap-5 md:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)]">
+						<div className="grid content-start gap-4">
+							<EquipmentView
+								equipment={equipment}
+								selectedId={
+									selection?.source === "equipment"
+										? (selected?.id ?? null)
+										: null
+								}
+								headingRef={equipmentHeadingRef}
+								onSelect={(slot) => {
+									const item = equipment[slot];
+									setSelection(
+										item ? { source: "equipment", slot, id: item.id } : null,
+									);
+								}}
+							/>
+							<PotionAssignments
+								bag={bag}
+								potionHotbar={potionHotbar}
+								onAction={onAction}
+							/>
+						</div>
+						<div className="grid content-start gap-4">
+							<BagContents
+								bag={bag}
+								selectedId={
+									selection?.source === "bag" ? (selected?.id ?? null) : null
+								}
+								headingRef={bagHeadingRef}
+								onSelect={(id) => setSelection({ source: "bag", id })}
+							>
+								{selected && selection ? (
+									<div ref={detailsRef}>
+										<ItemDetails
+											item={selected}
+											potionHotbar={potionHotbar}
+											equippedSlot={
+												selection.source === "equipment"
+													? selection.slot
+													: undefined
+											}
+											alive={player.health > 0}
+											onAction={onAction}
+											afterAction={() => {
+												const heading =
+													selection.source === "bag"
+														? bagHeadingRef
+														: equipmentHeadingRef;
+												heading.current?.focus({ preventScroll: true });
+											}}
+										/>
+									</div>
+								) : (
+									<p className="text-xs text-muted-foreground">
+										Select an item to see its details.
+									</p>
+								)}
+							</BagContents>
+							<FloorItemsView
+								items={floorItems}
+								alive={player.health > 0}
+								onAction={onAction}
+							/>
+							<p className="rounded-lg border bg-muted/30 p-3 text-xs leading-relaxed text-muted-foreground">
+								Opening this dialog and inspecting items is free. Each
+								successful gear change, pickup, drop, or potion use costs one
+								turn, and monsters act afterward.
+							</p>
+						</div>
 					</div>
-					<PotionAssignments
-						bag={bag}
-						potionHotbar={potionHotbar}
-						onAction={onAction}
-					/>
-					<FloorItemsView
-						items={floorItems}
-						alive={player.health > 0}
-						onAction={onAction}
-					/>
-					<p className="rounded-lg border bg-muted/30 p-3 text-xs leading-relaxed text-muted-foreground">
-						Opening this dialog and inspecting items is free. Each successful
-						gear change, pickup, drop, or potion use costs one turn, and
-						monsters act afterward.
-					</p>
 				</div>
 				<div className="grid max-h-36 shrink-0 overflow-y-auto gap-2 border-t bg-popover px-4 py-3">
 					{actionError && (

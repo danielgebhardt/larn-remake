@@ -19,12 +19,12 @@ export const MONSTER_VISUALS: Record<
 	},
 	"giant-rat": {
 		icon: Rat,
-		color: "text-amber-600 dark:text-amber-300",
+		color: "text-monster-rat",
 		label: MONSTER_DEFINITIONS["giant-rat"].name,
 	},
 	orc: {
 		icon: Skull,
-		color: "text-rose-700 dark:text-rose-300",
+		color: "text-monster-orc",
 		label: MONSTER_DEFINITIONS.orc.name,
 	},
 };

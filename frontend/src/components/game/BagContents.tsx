@@ -40,7 +40,7 @@ const BagContents = ({
 		</output>
 		<ul
 			aria-label="Carried items"
-			className="grid w-max grid-cols-[repeat(4,3.5rem)] gap-2 p-1"
+			className="grid w-max grid-cols-[repeat(4,3.5rem)] md:grid-cols-[repeat(5,3.5rem)] gap-2 p-1"
 		>
 			{Array.from({ length: BAG_CAPACITY }, (_, index) => {
 				const item = bag.items[index];

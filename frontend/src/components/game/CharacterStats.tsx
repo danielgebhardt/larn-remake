@@ -25,8 +25,11 @@ const CharacterStats = ({
 	return (
 		<section aria-label="Character stats" className="grid gap-2">
 			<div className="grid grid-cols-3 gap-2">
-				<div className="rounded-lg border bg-muted/30 p-2 sm:p-3">
-					<Heart aria-hidden="true" className="mb-2 size-4 text-player" />
+				<div className="rounded-lg border bg-muted/30 p-2">
+					<Heart
+						aria-hidden="true"
+						className="mb-1 inline-block size-4 align-middle mr-2 text-player"
+					/>
 					<output
 						aria-label="Character health"
 						className="text-xs font-medium tabular-nums sm:text-sm"
@@ -37,10 +40,10 @@ const CharacterStats = ({
 						Current / maximum
 					</p>
 				</div>
-				<div className="rounded-lg border bg-muted/30 p-2 sm:p-3">
+				<div className="rounded-lg border bg-muted/30 p-2">
 					<Sword
 						aria-hidden="true"
-						className="mb-2 size-4 text-muted-foreground"
+						className="mb-1 inline-block size-4 align-middle mr-2 text-muted-foreground"
 					/>
 					<output
 						aria-label="Character attack"
@@ -58,10 +61,10 @@ const CharacterStats = ({
 						Hit {PLAYER_HIT_CHANCE}%
 					</output>
 				</div>
-				<div className="rounded-lg border bg-muted/30 p-2 sm:p-3">
+				<div className="rounded-lg border bg-muted/30 p-2">
 					<Shield
 						aria-hidden="true"
-						className="mb-2 size-4 text-muted-foreground"
+						className="mb-1 inline-block size-4 align-middle mr-2 text-muted-foreground"
 					/>
 					<output
 						aria-label="Character armor"

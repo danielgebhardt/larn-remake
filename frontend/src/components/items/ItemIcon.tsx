@@ -24,7 +24,7 @@ const ItemIcon = ({ kind }: { kind: ItemKind }) => {
 		<Icon
 			aria-hidden="true"
 			focusable="false"
-			className="size-full text-stairs"
+			className={`size-full ${kind === "healing-potion" ? "text-item-potion" : "text-item-gear"}`}
 		/>
 	);
 };

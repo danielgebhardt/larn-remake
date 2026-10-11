@@ -68,7 +68,11 @@ describe("Combat on the play screen", () => {
 				screen.getByRole("heading", { name: "Floor 1 of 2" }),
 			).toBeVisible();
 			expect(screen.queryByLabelText(/goblin/)).not.toBeInTheDocument();
-			expect(messages()).toHaveLength(4);
+			expect(messages()).toHaveLength(6);
+			expect(messages().slice(-2)).toEqual([
+				"Turn 5 — You descend to floor 2.",
+				"Turn 7 — You ascend to floor 1.",
+			]);
 			expect(generate).toHaveBeenCalledTimes(1);
 			expect(spawn).toHaveBeenCalledTimes(1);
 		},
@@ -89,7 +93,11 @@ describe("Combat on the play screen", () => {
 		expect(screen.getByLabelText("Player health")).toHaveTextContent(
 			"Health 8 / 10",
 		);
-		expect(messages()).toHaveLength(3);
+		expect(messages()).toHaveLength(5);
+		expect(messages().slice(-2)).toEqual([
+			"Turn 4 — You descend to floor 2.",
+			"Turn 6 — You ascend to floor 1.",
+		]);
 		// Approach from the right; one remaining hit should kill it.
 		await user.keyboard("wa");
 		expect(screen.getByLabelText("row1col2 - floor")).toBeVisible();

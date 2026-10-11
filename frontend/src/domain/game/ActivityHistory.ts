@@ -15,6 +15,7 @@ export type ActivityEvent = { turn: number } & (
 	| ConsumptionEvent
 	| { type: "monster-loot"; monster: MonsterKind; item: ItemKind }
 	| { type: "items-seen"; items: readonly ItemKind[] }
+	| { type: "floor-changed"; fromFloor: number; toFloor: number }
 );
 
 export type ActivityEntry = { id: number; event: ActivityEvent };

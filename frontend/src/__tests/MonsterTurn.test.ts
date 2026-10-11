@@ -89,7 +89,10 @@ describe("Monster turns", () => {
 		expect(result.turn).toBe(1);
 		expect(result.player.health).toBe(9);
 		expect(result.monsters).toBe(game.monsters);
-		expect(result.activityHistory.entries).toHaveLength(1);
+		expect(result.activityHistory.entries.map(({ event }) => event)).toEqual([
+			{ type: "floor-changed", fromFloor: 1, toFloor: 2, turn: 1 },
+			{ type: "monster-hit", monster: "goblin", damage: 1, turn: 1 },
+		]);
 	});
 	it("stops the phase at death so subsequent actors cannot attack", () => {
 		const game = encounter();

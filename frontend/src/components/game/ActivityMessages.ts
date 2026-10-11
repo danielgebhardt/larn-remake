@@ -6,6 +6,8 @@ import { MONSTER_DEFINITIONS } from "../../domain/monsters/Monster";
 export const formatActivityEvent = (event: ActivityEvent): string => {
 	const prefix = `Turn ${event.turn} — `;
 	switch (event.type) {
+		case "floor-changed":
+			return `${prefix}You ${event.toFloor > event.fromFloor ? "descend" : "ascend"} to floor ${event.toFloor}.`;
 		case "monster-missed":
 			return `${prefix}The ${MONSTER_DEFINITIONS[event.monster].name} misses you.`;
 		case "player-missed":

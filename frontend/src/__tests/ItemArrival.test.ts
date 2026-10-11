@@ -59,11 +59,10 @@ describe("Arriving at floor items", () => {
 			right,
 		).state;
 		expect(result.run.activeFloor).toBe(2);
-		expect(result.activityHistory.entries[0].event).toMatchObject({
-			type: "items-seen",
-			items: ["healing-potion"],
-			turn: 1,
-		});
+		expect(result.activityHistory.entries.map(({ event }) => event)).toEqual([
+			{ type: "floor-changed", fromFloor: 1, toFloor: 2, turn: 1 },
+			{ type: "items-seen", items: ["healing-potion"], turn: 1 },
+		]);
 	});
 	it("does not repeat while waiting, changing gear, dropping, or bumping a monster", () => {
 		let state: GameState = resolvePlayerAction(game(), right).state;

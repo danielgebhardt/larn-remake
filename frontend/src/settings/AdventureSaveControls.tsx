@@ -1,8 +1,12 @@
 import { Dialog } from "@base-ui/react/dialog";
-import { FolderOpen, Save } from "lucide-react";
-import { useRef, useState } from "react";
+import { Download, FolderOpen, Save, Upload } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { type SaveDocument, saveSummary } from "../domain/saves/SaveFormat";
+import {
+	exportAdventureFile,
+	readAdventureFile,
+} from "../persistence/AdventureSaveFiles";
 import {
 	readLocalSave,
 	writeLocalSave,
@@ -23,6 +27,31 @@ const AdventureSaveControls = ({
 	} | null>(null);
 	const cancelRef = useRef<HTMLButtonElement>(null);
 	const initiatorRef = useRef<HTMLButtonElement | null>(null);
+	const fileInput = useRef<HTMLInputElement>(null);
+	const fileRead = useRef<AbortController | null>(null);
+	const [importing, setImporting] = useState(false);
+	useEffect(() => () => fileRead.current?.abort(), []);
+	const exportFile = () => {
+		try {
+			const result = exportAdventureFile(createSnapshot());
+			setFeedback(result.ok ? "Save file download started." : result.error);
+		} catch {
+			setFeedback("Could not prepare this adventure for export.");
+		}
+	};
+	const importFile = async (file: File) => {
+		fileRead.current?.abort();
+		const controller = new AbortController();
+		fileRead.current = controller;
+		setImporting(true);
+		setFeedback("");
+		const result = await readAdventureFile(file, controller.signal);
+		if (controller.signal.aborted) return;
+		setImporting(false);
+		if (result.ok) onRestore(result.value);
+		else setFeedback(result.error);
+	};
+
 	const saved = slot.ok ? slot.value : null;
 	const requestSave = (button: HTMLButtonElement) => {
 		initiatorRef.current = button;
@@ -87,6 +116,7 @@ const AdventureSaveControls = ({
 			<div className="grid grid-cols-2 gap-2">
 				<Button
 					variant="outline"
+					disabled={importing}
 					onClick={(event) => requestSave(event.currentTarget)}
 				>
 					<Save aria-hidden="true" />
@@ -94,13 +124,47 @@ const AdventureSaveControls = ({
 				</Button>
 				<Button
 					variant="outline"
-					disabled={!saved}
+					disabled={!saved || importing}
 					onClick={(event) => requestLoad(event.currentTarget)}
 				>
 					<FolderOpen aria-hidden="true" />
 					Load adventure
 				</Button>
 			</div>
+			<div className="grid grid-cols-2 gap-2">
+				<Button variant="outline" disabled={importing} onClick={exportFile}>
+					<Download aria-hidden="true" />
+					Export file
+				</Button>
+				<Button
+					variant="outline"
+					disabled={importing}
+					onClick={() => fileInput.current?.click()}
+				>
+					<Upload aria-hidden="true" />
+					{importing ? "Reading file…" : "Import file"}
+				</Button>
+			</div>
+			<input
+				ref={fileInput}
+				type="file"
+				accept=".json,application/json"
+				aria-label="Import adventure file"
+				className="sr-only"
+				tabIndex={-1}
+				disabled={importing}
+				onChange={(event) => {
+					const file = event.currentTarget.files?.[0];
+					event.currentTarget.value = "";
+					if (file) void importFile(file);
+				}}
+			/>
+			<p className="text-xs text-muted-foreground">
+				Export a backup or import one to resume here. Import replaces the
+				current adventure immediately after validation; it does not change the
+				browser save slot.
+			</p>
+
 			{feedback && (
 				<p
 					role="status"

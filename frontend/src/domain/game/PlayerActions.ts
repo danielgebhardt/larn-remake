@@ -67,6 +67,8 @@ export const resolvePlayerAction = (
 			turnAdvanced: false,
 		};
 	}
+	const monsterPhase = (next: GameState) =>
+		resolveMonsterPhase(next, rollSource);
 	if (state.player.health <= 0) return { state, turnAdvanced: false };
 	if (action.type === "use-hotbar") {
 		if (!HOTBAR_SLOTS.includes(action.slot))
@@ -88,7 +90,11 @@ export const resolvePlayerAction = (
 				turnAdvanced: false,
 				error: "You have no carried copies of that potion.",
 			};
-		return resolvePlayerAction(state, { type: "consume", itemId: item.id });
+		return resolvePlayerAction(
+			state,
+			{ type: "consume", itemId: item.id },
+			rollSource,
+		);
 	}
 	if (action.type === "consume") {
 		const consumed = consumeItem(state.player, state.bag, action);
@@ -96,7 +102,7 @@ export const resolvePlayerAction = (
 			return { state, turnAdvanced: false, error: consumed.error };
 		const turn = state.turn + 1;
 		return {
-			state: resolveMonsterPhase({
+			state: monsterPhase({
 				...state,
 				player: consumed.player,
 				bag: consumed.bag,
@@ -114,7 +120,7 @@ export const resolvePlayerAction = (
 			return { state, turnAdvanced: false, error: transfer.error };
 		const turn = state.turn + 1;
 		return {
-			state: resolveMonsterPhase({
+			state: monsterPhase({
 				...state,
 				bag: transfer.bag,
 				floorItems: transfer.floorItems,
@@ -140,7 +146,7 @@ export const resolvePlayerAction = (
 			return { state, turnAdvanced: false, error: change.error };
 		const turn = state.turn + 1;
 		return {
-			state: resolveMonsterPhase({
+			state: monsterPhase({
 				...state,
 				equipment: change.equipment,
 				bag: change.bag,
@@ -154,7 +160,7 @@ export const resolvePlayerAction = (
 	}
 	if (action.type === "wait")
 		return {
-			state: resolveMonsterPhase({ ...state, turn: state.turn + 1 }),
+			state: monsterPhase({ ...state, turn: state.turn + 1 }),
 			turnAdvanced: true,
 		};
 	// Movement validates collision and applies at most one stair transition.
@@ -174,7 +180,7 @@ export const resolvePlayerAction = (
 		? resolveAttack(state, monster, rollSource)
 		: announceArrival({ ...state, run, turn: state.turn + 1 });
 	return {
-		state: resolveMonsterPhase(playerResult),
+		state: monsterPhase(playerResult),
 		turnAdvanced: true,
 	};
 };

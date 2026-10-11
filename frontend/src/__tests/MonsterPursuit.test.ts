@@ -6,7 +6,7 @@ import {
 	detectsPlayer,
 	selectPursuitStep,
 } from "../domain/monsters/MonsterPursuit";
-import { resolveMonsterPhase } from "../domain/monsters/MonsterTurns";
+import { resolveMonsterPhaseWithHits as resolveMonsterPhase } from "./ControlledCombatTestHelpers";
 import { createTestDungeonFloor } from "./testhelpers";
 
 const encounter = () => {

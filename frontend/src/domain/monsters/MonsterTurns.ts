@@ -2,14 +2,26 @@ import {
 	type ActivityEvent,
 	appendActivityEvents,
 } from "../game/ActivityHistory";
-import { deriveCombatStats, resolveIncomingDamage } from "../game/CombatStats";
+import {
+	type AttackRollSource,
+	createAttackRolls,
+} from "../game/CombatRandomness";
+import { deriveCombatStats } from "../game/CombatStats";
 import type { GameState } from "../game/GameState";
+import {
+	attackProfile,
+	MONSTER_HIT_THRESHOLD,
+	resolveMeleeAttack,
+} from "../game/MeleeRules";
 import { MONSTER_DEFINITIONS } from "./Monster";
 import { orthogonalDistance } from "./MonsterLocations";
 import { detectsPlayer, selectPursuitStep } from "./MonsterPursuit";
 
 // The player phase has already chosen the active floor and turn number.
-export const resolveMonsterPhase = (state: GameState): GameState => {
+export const resolveMonsterPhase = (
+	state: GameState,
+	rollSource: AttackRollSource = createAttackRolls,
+): GameState => {
 	let player = state.player;
 	let monsters = state.monsters;
 	const events: ActivityEvent[] = [];
@@ -34,10 +46,29 @@ export const resolveMonsterPhase = (state: GameState): GameState => {
 				);
 			continue;
 		}
-		const damage = resolveIncomingDamage(
-			MONSTER_DEFINITIONS[monster.kind].attackDamage,
+		const outcome = resolveMeleeAttack(
+			attackProfile(
+				MONSTER_DEFINITIONS[monster.kind].attackDamage,
+				MONSTER_HIT_THRESHOLD,
+			),
+			rollSource({
+				seed: state.run.seed,
+				floorNumber: state.run.activeFloor,
+				turn: state.turn,
+				attackerId: monster.id,
+				targetId: "player",
+			}),
 			armor,
 		);
+		if (!outcome.hit) {
+			events.push({
+				type: "monster-missed",
+				turn: state.turn,
+				monster: monster.kind,
+			});
+			continue;
+		}
+		const damage = outcome.damage;
 		player = { ...player, health: Math.max(0, player.health - damage) };
 		events.push({
 			type: "monster-hit",

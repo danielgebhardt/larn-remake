@@ -43,9 +43,9 @@ describe("Randomized player bump attacks", () => {
 		"applies a landed roll of %i once, without moving into the monster",
 		(damage) => {
 			const before = game();
-			const result = resolvePlayerAction(before, attack, () => ({
+			const result = resolvePlayerAction(before, attack, (context) => ({
 				d20: () => 20,
-				damage: () => damage,
+				damage: (min) => (context.attackerId === "player" ? damage : min),
 			})).state;
 			expect(result.run).toBe(before.run);
 			expect(result.monsters[0].health).toBe(4 - damage);

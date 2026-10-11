@@ -6,6 +6,8 @@ import { MONSTER_VISUALS } from "../monsters/MonsterVisuals.ts";
 export const formatActivityEvent = (event: ActivityEvent): string => {
 	const prefix = `Turn ${event.turn} — `;
 	switch (event.type) {
+		case "monster-missed":
+			return `${prefix}The ${MONSTER_VISUALS[event.monster].label} misses you.`;
 		case "player-missed":
 			return `${prefix}You miss the ${MONSTER_VISUALS[event.monster].label}.`;
 		case "player-hit":

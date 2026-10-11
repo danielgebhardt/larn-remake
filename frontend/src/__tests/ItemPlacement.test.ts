@@ -93,6 +93,26 @@ describe("Seeded floor loot", () => {
 		expect(spawnRunMonsters(run)).toEqual(monsters);
 		expect(generatedRun()).toEqual(before);
 	});
+	it("keeps earlier floor loot unchanged when adding another floor", () => {
+		for (const seed of [0, 1, 123]) {
+			const initial = generatedRun(seed);
+			const extended = connectDungeonFloors(
+				generateDungeonRun(seed, 4, {
+					rows: 15,
+					cols: 15,
+					minPartitionSize: 10,
+					roomPadding: 1,
+					minRoomSize: 4,
+					maxRoomAspectRatio: 2,
+				}),
+			);
+			expect(
+				spawnRunItems(extended, spawnRunMonsters(extended)).filter(
+					(entry) => entry.floorNumber <= 3,
+				),
+			).toEqual(spawnRunItems(initial, spawnRunMonsters(initial)));
+		}
+	});
 	it("varies loot across seeds", () => {
 		const layouts = Array.from({ length: 6 }, (_, seed) =>
 			JSON.stringify(spawnRunItems(generatedRun(seed), [])),
@@ -103,13 +123,13 @@ describe("Seeded floor loot", () => {
 		const floor = createTestDungeonFloor({
 			floorNumber: 1,
 			rows: 3,
-			cols: 4,
-			room: { startRow: 1, endRow: 1, startCol: 1, endCol: 2 },
+			cols: 5,
+			room: { startRow: 1, endRow: 1, startCol: 1, endCol: 3 },
 		});
 		const run = {
 			seed: 123,
 			activeFloor: 1,
-			playerCoordinate: { row: 1, col: 1 },
+			playerCoordinate: { row: 1, col: 2 },
 			floors: [floor],
 		};
 		expect(spawnRunItems(run, [], 20)).toHaveLength(1);
@@ -119,7 +139,7 @@ describe("Seeded floor loot", () => {
 					id: "1:1",
 					kind: "goblin",
 					floorNumber: 1,
-					coordinate: { row: 1, col: 2 },
+					coordinate: { row: 1, col: 3 },
 					health: 4,
 				},
 			]),

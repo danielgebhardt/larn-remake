@@ -4,7 +4,7 @@ import type { Coordinate } from "../dungeon/DungeonTypes";
 import { createSeededRandom } from "../dungeon/Seed";
 import { FLOOR } from "../dungeon/Tiles";
 import type { Monster } from "../monsters/Monster";
-import { protectedFloorLocations } from "../monsters/MonsterLocations";
+import { protectedSpawnLocations } from "../monsters/MonsterLocations";
 import type { FloorItem } from "./FloorItems";
 import { selectLootKind } from "./Loot";
 
@@ -18,7 +18,7 @@ export const spawnRunItems = (
 		throw new RangeError("Item count must be a nonnegative whole number.");
 	const items: FloorItem[] = [];
 	for (const floor of run.floors) {
-		const protectedLocations = protectedFloorLocations(run, floor.floorNumber);
+		const protectedLocations = protectedSpawnLocations(run, floor.floorNumber);
 		if (floor.floorNumber === 1 && floor.rooms.length > 0)
 			protectedLocations.push(
 				run.activeFloor === 1 ? run.playerCoordinate : selectPlayerStart(floor),
@@ -58,10 +58,12 @@ export const spawnRunItems = (
 				Math.floor(random() * candidates.length),
 				1,
 			);
+			const kind = selectLootKind(floor.floorNumber, "found", random);
+			if (!kind) break;
 			items.push({
 				item: {
 					id: `floor:${floor.floorNumber}:item:${index}`,
-					kind: selectLootKind(random),
+					kind,
 				},
 				floorNumber: floor.floorNumber,
 				coordinate,

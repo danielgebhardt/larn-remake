@@ -1,4 +1,4 @@
-import type { DungeonRun } from "../dungeon/DungeonRun";
+import { type DungeonRun, selectFloorDownStair } from "../dungeon/DungeonRun";
 import type { Coordinate } from "../dungeon/DungeonTypes";
 
 export const coordinateKey = ({ row, col }: Coordinate): string =>
@@ -22,4 +22,21 @@ export const protectedFloorLocations = (
 	return locations.filter(
 		(location): location is Coordinate => location !== undefined,
 	);
+};
+
+// Reserve a future down stair so extending the run does not displace spawns.
+export const protectedSpawnLocations = (
+	run: DungeonRun,
+	floorNumber: number,
+): Coordinate[] => {
+	const locations = protectedFloorLocations(run, floorNumber);
+	const floor = run.floors[floorNumber - 1];
+	if (!floor.downStair) {
+		try {
+			locations.push(selectFloorDownStair(run.seed, floor));
+		} catch (error) {
+			if (!(error instanceof RangeError)) throw error;
+		}
+	}
+	return locations;
 };

@@ -1,5 +1,6 @@
 import { selectWeighted } from "../content/WeightedSelection";
 import type { Coordinate } from "../dungeon/DungeonTypes.ts";
+import type { ItemKind } from "../items/Item";
 
 export type MonsterKind = "goblin" | "giant-rat" | "orc";
 
@@ -20,11 +21,15 @@ export type MonsterDefinition = {
 	minFloor: number;
 	maxFloor: number;
 	spawnWeight: number;
+	dropChance: number;
+	lootPreferences: Partial<Record<ItemKind, number>>;
 };
 export const validateMonsterDefinition = (
 	definition: MonsterDefinition,
 ): void => {
 	const {
+		dropChance,
+		lootPreferences,
 		minFloor,
 		maxFloor,
 		spawnWeight,
@@ -33,6 +38,12 @@ export const validateMonsterDefinition = (
 		detectionRadius,
 	} = definition;
 	if (
+		!Number.isFinite(dropChance) ||
+		dropChance < 0 ||
+		dropChance > 1 ||
+		Object.values(lootPreferences).some(
+			(weight) => !Number.isFinite(weight) || weight < 0,
+		) ||
 		!Number.isInteger(minFloor) ||
 		!Number.isInteger(maxFloor) ||
 		minFloor < 1 ||
@@ -60,6 +71,8 @@ export const MONSTER_DEFINITIONS: Record<MonsterKind, MonsterDefinition> = {
 		minFloor: 1,
 		maxFloor: 20,
 		spawnWeight: 3,
+		dropChance: 0.5,
+		lootPreferences: { "short-sword": 2, "wooden-shield": 2 },
 	},
 	"giant-rat": {
 		name: "giant rat",
@@ -69,6 +82,8 @@ export const MONSTER_DEFINITIONS: Record<MonsterKind, MonsterDefinition> = {
 		minFloor: 1,
 		maxFloor: 4,
 		spawnWeight: 2,
+		dropChance: 0.35,
+		lootPreferences: {},
 	},
 	orc: {
 		name: "orc",
@@ -78,6 +93,8 @@ export const MONSTER_DEFINITIONS: Record<MonsterKind, MonsterDefinition> = {
 		minFloor: 3,
 		maxFloor: 20,
 		spawnWeight: 2,
+		dropChance: 0.7,
+		lootPreferences: { "chain-armor": 2, "iron-helmet": 2 },
 	},
 };
 for (const definition of Object.values(MONSTER_DEFINITIONS))

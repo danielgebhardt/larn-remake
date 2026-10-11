@@ -1,9 +1,5 @@
 import { selectPlayerStart } from "../dungeon/DungeonLocations";
-import {
-	type DungeonRun,
-	hashStringToUint32,
-	selectFloorDownStair,
-} from "../dungeon/DungeonRun";
+import { type DungeonRun, hashStringToUint32 } from "../dungeon/DungeonRun";
 import type { Coordinate } from "../dungeon/DungeonTypes";
 import { createSeededRandom } from "../dungeon/Seed";
 import { FLOOR } from "../dungeon/Tiles";
@@ -14,7 +10,7 @@ import {
 } from "./Monster";
 import {
 	orthogonalDistance,
-	protectedFloorLocations,
+	protectedSpawnLocations,
 } from "./MonsterLocations";
 
 export const DEFAULT_MONSTERS_PER_FLOOR = 3;
@@ -28,19 +24,11 @@ export const spawnRunMonsters = (
 	if (count === 0) return [];
 	const monsters: Monster[] = [];
 	for (const floor of run.floors) {
-		const protectedLocations = protectedFloorLocations(run, floor.floorNumber);
+		const protectedLocations = protectedSpawnLocations(run, floor.floorNumber);
 		if (floor.floorNumber === 1)
 			protectedLocations.push(
 				run.activeFloor === 1 ? run.playerCoordinate : selectPlayerStart(floor),
 			);
-		// A future stair must not displace existing spawns when floor count increases.
-		if (!floor.downStair) {
-			try {
-				protectedLocations.push(selectFloorDownStair(run.seed, floor));
-			} catch (error) {
-				if (!(error instanceof RangeError)) throw error;
-			} // A tiny fixture may have no possible second stair tile.
-		}
 		const candidates: Coordinate[] = [];
 		for (const [row, tiles] of floor.terrain.entries()) {
 			for (const [col, tile] of tiles.entries()) {

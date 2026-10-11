@@ -28,6 +28,7 @@ const ItemDetails = ({
 	onAction,
 	afterAction,
 	potionHotbar,
+	assignmentsEnabled = true,
 }: {
 	item: ItemInstance;
 	equippedSlot?: EquipmentSlot;
@@ -35,6 +36,7 @@ const ItemDetails = ({
 	onAction: (action: PlayerAction) => void;
 	afterAction: () => void;
 	potionHotbar: PotionHotbar;
+	assignmentsEnabled?: boolean;
 }) => {
 	const titleId = useId();
 	const details = ITEM_DEFINITIONS[item.kind];
@@ -117,6 +119,7 @@ const ItemDetails = ({
 								type="button"
 								variant="outline"
 								size="sm"
+								disabled={!assignmentsEnabled}
 								aria-label={`Assign to potion slot ${slot}`}
 								aria-pressed={potionHotbar[slot - 1] === item.kind}
 								onClick={() =>

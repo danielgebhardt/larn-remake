@@ -12,6 +12,7 @@ import PickupDialog from "./components/game/PickupDialog";
 import PlayerStatus from "./components/game/PlayerStatus.tsx";
 import PotionHotbarView from "./components/game/PotionHotbarView";
 import QuestStatus from "./components/game/QuestStatus";
+import VictoryDialog from "./components/game/VictoryDialog";
 import {
 	connectDungeonFloors,
 	type DungeonRun,
@@ -25,6 +26,7 @@ import {
 	type RunConfiguration,
 } from "./domain/dungeon/RunConfiguration.ts";
 import { MAX_SEED, parseSeedInput } from "./domain/dungeon/Seed.ts";
+import type { VictorySummary } from "./domain/game/Adventure";
 import { createGameState } from "./domain/game/GameState.ts";
 import {
 	type PlayerAction,
@@ -68,6 +70,11 @@ const Home = ({
 		};
 	});
 	const { run, turn, player } = game.state;
+	const [dismissedVictory, setDismissedVictory] =
+		useState<VictorySummary | null>(null);
+	const victory = game.state.quest.victory;
+	const victoryOpen = victory !== null && dismissedVictory !== victory;
+	const canPlay = player.health > 0 && victory === null;
 	const { exploration } = game;
 	const [configuration, setConfiguration] = useState(DEFAULT_RUN_CONFIGURATION);
 	const [configDraft, setConfigDraft] = useState(() =>
@@ -236,6 +243,7 @@ const Home = ({
 							onCloseRequested={() => setCharacterOpen(false)}
 							finalFocus={characterOpenedFromMap ? mapRef : undefined}
 							player={player}
+							won={victory !== null}
 							quest={game.state.quest}
 							equipment={game.state.equipment}
 							bag={game.state.bag}
@@ -301,12 +309,22 @@ const Home = ({
 						<PotionHotbarView
 							bag={game.state.bag}
 							potionHotbar={game.state.potionHotbar}
-							alive={player.health > 0}
+							alive={canPlay}
 							onActivate={handlePotionRequested}
 						/>
 						<PlayerStatus turn={turn} player={player} />
 					</div>
 					<QuestStatus quest={game.state.quest} />
+					{victory && (
+						<Button
+							variant="outline"
+							size="sm"
+							className="mb-3 self-center"
+							onClick={() => setDismissedVictory(null)}
+						>
+							Victory summary
+						</Button>
+					)}
 					<DungeonLayout
 						mapRef={mapRef}
 						monsters={activeMonsters}
@@ -331,7 +349,11 @@ const Home = ({
 						onPickupRequested={handlePickupRequested}
 						onPotionRequested={handlePotionRequested}
 						onCharacterRequested={
-							!settingsOpen && !helpOpen && !characterOpen && !pickupOpen
+							!settingsOpen &&
+							!helpOpen &&
+							!characterOpen &&
+							!pickupOpen &&
+							!victoryOpen
 								? () => {
 										setCharacterOpenedFromMap(true);
 										setCharacterOpen(true);
@@ -343,7 +365,7 @@ const Home = ({
 							!helpOpen &&
 							!characterOpen &&
 							!pickupOpen &&
-							player.health > 0
+							canPlay
 						}
 					/>
 					{game.actionError && (
@@ -358,6 +380,17 @@ const Home = ({
 					<ActivityLog history={game.state.activityHistory} />
 				</section>
 			</main>
+			<VictoryDialog
+				summary={victory}
+				open={victoryOpen}
+				onDismiss={() => setDismissedVictory(victory)}
+				onNewDungeon={handleNewDungeon}
+				onReplay={() => {
+					if (startRun(run.seed, configuration))
+						mapRef.current?.focus({ preventScroll: true });
+				}}
+				mapRef={mapRef}
+			/>
 			<PickupDialog
 				open={pickupOpen}
 				onOpenChange={setPickupOpen}

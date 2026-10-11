@@ -1,0 +1,122 @@
+import { render, screen, waitFor, within } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
+import { afterEach, describe, expect, it } from "vitest";
+import Home from "../Home";
+import { ThemeProvider } from "../settings/ThemeProvider";
+import {
+	openSettings,
+	resetHomeTestState,
+	stubDungeonRun,
+	waitForSettingsClosed,
+} from "./HomeTestHelpers";
+import { createThreeFloorTraversalRun } from "./testhelpers";
+
+afterEach(resetHomeTestState);
+const win = async () => {
+	const run = createThreeFloorTraversalRun();
+	run.floors = [{ ...run.floors[0], downStair: undefined }];
+	stubDungeonRun(
+		run,
+		[],
+		[
+			{
+				item: { id: "quest:cure", kind: "cure" },
+				floorNumber: 1,
+				coordinate: { row: 1, col: 2 },
+			},
+		],
+	);
+	render(<Home />, { wrapper: ThemeProvider });
+	const user = userEvent.setup();
+	await user.keyboard("dga");
+	const dialog = await screen.findByRole("dialog", {
+		name: "Adventure complete",
+	});
+	return { user, dialog };
+};
+describe("Victory summary and ended-run controls", () => {
+	it("opens the summary automatically with final values and focus", async () => {
+		const { dialog } = await win();
+		const summary = within(dialog);
+		expect(summary.getByLabelText("Victory seed")).toHaveTextContent("123");
+		expect(summary.getByLabelText("Victory turns")).toHaveTextContent("3");
+		expect(summary.getByLabelText("Victory floors")).toHaveTextContent("1");
+		expect(
+			summary.getByLabelText("Victory monsters defeated"),
+		).toHaveTextContent("0");
+		await waitFor(() =>
+			expect(
+				summary.getByRole("heading", { name: "Adventure complete" }),
+			).toHaveFocus(),
+		);
+	});
+	it("dismisses, freezes gameplay, disables item actions and reopens the same summary", async () => {
+		const { user } = await win();
+		await user.keyboard("{Escape}");
+		await waitFor(() =>
+			expect(screen.queryByRole("dialog")).not.toBeInTheDocument(),
+		);
+		expect(screen.getByLabelText("Dungeon map", { exact: true })).toHaveFocus();
+		await user.keyboard("d g 1");
+		expect(screen.getByLabelText("Turn count")).toHaveTextContent("Turn 3");
+		expect(
+			screen.getByRole("button", { name: "Potion slot 1: empty" }),
+		).toBeDisabled();
+		await user.click(screen.getByRole("button", { name: "Character" }));
+		await user.click(
+			screen.getByRole("button", { name: "Main hand: Short sword" }),
+		);
+		expect(
+			screen.getByRole("button", { name: "Unequip main hand" }),
+		).toBeDisabled();
+		await user.keyboard("{Escape}");
+		await user.click(screen.getByRole("button", { name: "Victory summary" }));
+		expect(
+			await screen.findByRole("dialog", { name: "Adventure complete" }),
+		).toBeVisible();
+	});
+	it.each(["New Dungeon", "Replay this seed"])(
+		"starts a fresh objective via %s",
+		async (name) => {
+			const { user, dialog } = await win();
+			await user.click(within(dialog).getByRole("button", { name }));
+			await waitFor(() =>
+				expect(
+					screen.queryByRole("dialog", { name: "Adventure complete" }),
+				).not.toBeInTheDocument(),
+			);
+			expect(screen.getByLabelText("Quest objective")).toHaveTextContent(
+				"Recover the cure",
+			);
+			expect(screen.getByLabelText("Turn count")).toHaveTextContent("Turn 0");
+			expect(
+				screen.queryByRole("button", { name: "Victory summary" }),
+			).not.toBeInTheDocument();
+		},
+	);
+	it("keeps victory through invalid settings and resets through the ordinary seed form", async () => {
+		const { user } = await win();
+		await user.keyboard("{Escape}");
+		await openSettings(user);
+		const seed = screen.getByRole("textbox", { name: "Dungeon seed" });
+		await user.clear(seed);
+		await user.type(seed, "bad");
+		await user.click(screen.getByRole("button", { name: "Start from seed" }));
+		expect(screen.getByRole("alert")).toHaveTextContent("Enter a whole number");
+		await user.keyboard("{Escape}");
+		expect(screen.getByLabelText("Quest objective")).toHaveTextContent(
+			"Adventure complete",
+		);
+		await openSettings(user);
+		await user.clear(screen.getByRole("textbox", { name: "Dungeon seed" }));
+		await user.type(
+			screen.getByRole("textbox", { name: "Dungeon seed" }),
+			"123",
+		);
+		await user.click(screen.getByRole("button", { name: "Start from seed" }));
+		await waitForSettingsClosed();
+		expect(screen.getByLabelText("Quest objective")).toHaveTextContent(
+			"Recover the cure",
+		);
+	});
+});

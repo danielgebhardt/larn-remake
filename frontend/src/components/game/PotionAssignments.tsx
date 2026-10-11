@@ -13,8 +13,10 @@ const PotionAssignments = ({
 	bag,
 	potionHotbar,
 	onAction,
+	enabled = true,
 }: {
 	bag: Bag;
+	enabled?: boolean;
 	potionHotbar: PotionHotbar;
 	onAction: (action: PlayerAction) => void;
 }) => {
@@ -59,6 +61,7 @@ const PotionAssignments = ({
 									type="button"
 									variant="outline"
 									size="sm"
+									disabled={!enabled}
 									aria-label={`Clear potion slot ${slot}`}
 									onClick={() => {
 										onAction({ type: "clear-hotbar", slot });

@@ -20,6 +20,7 @@ import QuestStatus from "./QuestStatus";
 
 type CharacterDialogProps = {
 	player: PlayerStats;
+	won?: boolean;
 	quest: QuestState;
 	equipment: Equipment;
 	bag: Bag;
@@ -35,6 +36,7 @@ type CharacterDialogProps = {
 
 const CharacterDialog = ({
 	player,
+	won = false,
 	quest,
 	equipment,
 	bag,
@@ -127,6 +129,7 @@ const CharacterDialog = ({
 								}}
 							/>
 							<PotionAssignments
+								enabled={!won}
 								bag={bag}
 								potionHotbar={potionHotbar}
 								onAction={onAction}
@@ -146,12 +149,13 @@ const CharacterDialog = ({
 										<ItemDetails
 											item={selected}
 											potionHotbar={potionHotbar}
+											assignmentsEnabled={!won}
 											equippedSlot={
 												selection.source === "equipment"
 													? selection.slot
 													: undefined
 											}
-											alive={player.health > 0}
+											alive={player.health > 0 && !won}
 											onAction={onAction}
 											afterAction={() => {
 												const heading =
@@ -171,7 +175,7 @@ const CharacterDialog = ({
 							<QuestStatus quest={quest} pouch />
 							<FloorItemsView
 								items={floorItems}
-								alive={player.health > 0}
+								alive={player.health > 0 && !won}
 								onAction={onAction}
 							/>
 							<p className="rounded-lg border bg-muted/30 p-3 text-xs leading-relaxed text-muted-foreground">

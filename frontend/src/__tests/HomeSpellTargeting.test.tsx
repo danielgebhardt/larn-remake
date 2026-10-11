@@ -119,6 +119,20 @@ describe("Spell targeting controls", () => {
 			expect(screen.getByLabelText("Turn count")).toHaveTextContent("Turn 0");
 		},
 	);
+	it("allows Tab focus onto a target, then cycles and casts with keys", async () => {
+		const { user } = setup();
+		await user.keyboard("z");
+		await user.tab();
+		expect(
+			screen.getByRole("button", { name: "Target goblin at row 1, column 3" }),
+		).toHaveFocus();
+		await user.keyboard("{ArrowRight}{Enter}");
+		expect(screen.getByRole("log")).toHaveTextContent(
+			"Magic Missile hits the giant rat",
+		);
+		expect(screen.getByLabelText("Turn count")).toHaveTextContent("Turn 1");
+	});
+
 	it("never offers unseen targets when fog is enabled", async () => {
 		const run = createCorridorEncounter();
 		stubDungeonRun(run, [

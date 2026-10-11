@@ -1,4 +1,4 @@
-import { Sparkles, Sword, Zap } from "lucide-react";
+import { Brain, Sparkles, Sword, Zap } from "lucide-react";
 import { deriveAttributes } from "../../domain/game/Attributes";
 import {
 	HEALTH_PER_LEVEL,
@@ -7,27 +7,37 @@ import {
 	progressionProgress,
 } from "../../domain/game/Progression";
 
-const ProgressionView = ({ progression }: { progression: Progression }) => {
+import ManaDisplay from "./ManaDisplay";
+
+const ProgressionView = ({
+	progression,
+	mana,
+}: {
+	progression: Progression;
+	mana: number;
+}) => {
 	const { level, earned, needed, remaining } = progressionProgress(progression);
 	const attributes = deriveAttributes(progression);
 	return (
 		<section
 			aria-label="Character progression"
-			className="grid content-start gap-3 rounded-lg border bg-muted/20 p-3 md:col-span-2 lg:col-span-1"
+			className="grid content-start gap-2 rounded-lg border bg-muted/20 p-3 md:col-span-2 lg:col-span-1"
 		>
 			<h3 className="flex items-center gap-2 font-medium">
 				<Sparkles aria-hidden="true" className="size-4 text-primary" />
 				Progression
 			</h3>
-			<output
-				aria-label="Character level"
-				className="text-xl font-semibold tabular-nums"
-			>
-				Level {level}
-			</output>
-			<output aria-label="Total experience" className="text-sm tabular-nums">
-				{progression.experience} XP total
-			</output>
+			<div className="flex flex-wrap items-baseline justify-between gap-2">
+				<output
+					aria-label="Character level"
+					className="text-lg font-semibold tabular-nums"
+				>
+					Level {level}
+				</output>
+				<output aria-label="Total experience" className="text-sm tabular-nums">
+					{progression.experience} XP total
+				</output>
+			</div>
 			{level === MAX_PLAYER_LEVEL ? (
 				<p className="text-xs text-muted-foreground">Maximum level reached</p>
 			) : (
@@ -49,7 +59,7 @@ const ProgressionView = ({ progression }: { progression: Progression }) => {
 					</output>
 				</>
 			)}
-			<div className="grid gap-1 border-t pt-3">
+			<div className="grid gap-1 border-t pt-2">
 				<output
 					aria-label="Character Strength"
 					className="flex items-center gap-2 font-medium tabular-nums"
@@ -58,11 +68,10 @@ const ProgressionView = ({ progression }: { progression: Progression }) => {
 					Strength {attributes.strength}
 				</output>
 				<p className="text-xs text-muted-foreground">
-					+{attributes.strengthModifier} melee damage · grows every other level
-					starting at 3
+					+{attributes.strengthModifier} melee damage · grows at levels 3 and 5
 				</p>
 			</div>
-			<div className="grid gap-1 border-t pt-3">
+			<div className="grid gap-1 border-t pt-2">
 				<output
 					aria-label="Character Dexterity"
 					className="flex items-center gap-2 font-medium tabular-nums"
@@ -71,13 +80,32 @@ const ProgressionView = ({ progression }: { progression: Progression }) => {
 					Dexterity {attributes.dexterity}
 				</output>
 				<p className="text-xs text-muted-foreground">
-					+{attributes.dexterityModifier * 5} percentage points to accuracy and
-					evasion · grows every other level starting at 2
+					+{attributes.dexterityModifier * 5} points to hit / evade chance ·
+					grows at levels 2 and 4
 				</p>
 			</div>
-			<p className="border-t pt-3 text-xs leading-relaxed text-muted-foreground">
-				Defeat monsters to earn XP. Each level adds {HEALTH_PER_LEVEL} maximum
-				and current health, up to level {MAX_PLAYER_LEVEL}.
+			<div className="grid gap-1 border-t pt-2">
+				<output
+					aria-label="Character Intelligence"
+					className="flex items-center gap-2 font-medium tabular-nums"
+				>
+					<Brain aria-hidden="true" className="size-4 text-primary" />
+					Intelligence {attributes.intelligence}
+				</output>
+				<ManaDisplay
+					mana={mana}
+					progression={progression}
+					label="Character mana"
+				/>
+				<p className="text-xs text-muted-foreground">
+					+{attributes.intelligenceModifier} spell damage / healing · +
+					{attributes.intelligenceModifier * 2} mana capacity · grows at levels
+					3 and 5
+				</p>
+			</div>
+			<p className="border-t pt-2 text-xs leading-relaxed text-muted-foreground">
+				+{HEALTH_PER_LEVEL} current / maximum HP per level · cap{" "}
+				{MAX_PLAYER_LEVEL}.
 			</p>
 		</section>
 	);

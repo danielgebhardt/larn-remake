@@ -1,4 +1,5 @@
 import { Dialog } from "@base-ui/react/dialog";
+import { Tabs } from "@base-ui/react/tabs";
 import { type RefObject, useLayoutEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import type { ActivityHistory } from "../../domain/game/ActivityHistory";
@@ -6,6 +7,7 @@ import type { QuestState } from "../../domain/game/Adventure";
 import type { PlayerAction } from "../../domain/game/PlayerActions";
 import type { PlayerStats } from "../../domain/game/PlayerStats";
 import type { Progression } from "../../domain/game/Progression";
+import type { SpellKind } from "../../domain/game/Spells";
 import type { Bag } from "../../domain/items/Bag";
 import type { Equipment, EquipmentSlot } from "../../domain/items/Equipment";
 import type { FloorItem } from "../../domain/items/FloorItems";
@@ -20,9 +22,12 @@ import ItemDetails from "./ItemDetails";
 import PotionAssignments from "./PotionAssignments";
 import ProgressionView from "./ProgressionView";
 import QuestStatus from "./QuestStatus";
+import SpellsView from "./SpellsView";
 
 type CharacterDialogProps = {
 	player: PlayerStats;
+	mana: number;
+	knownSpells: readonly SpellKind[];
 	progression: Progression;
 	won?: boolean;
 	quest: QuestState;
@@ -40,6 +45,8 @@ type CharacterDialogProps = {
 
 const CharacterDialog = ({
 	player,
+	mana,
+	knownSpells,
 	progression,
 	won = false,
 	quest,
@@ -105,99 +112,135 @@ const CharacterDialog = ({
 							Character
 						</Dialog.Title>
 						<Dialog.Description>
-							Your progression, health, equipment, and carried items.
+							Your progression, equipment, carried items, and known spells.
 						</Dialog.Description>
 					</div>
 					<Dialog.Close render={<Button variant="outline" size="sm" />}>
 						Close
 					</Dialog.Close>
 				</div>
-				<div className="shrink-0 border-b px-4 py-3">
-					<CharacterStats
-						player={player}
-						equipment={equipment}
-						progression={progression}
-					/>
-				</div>
-				<div className="min-h-0 overflow-y-auto p-4">
-					<div className="grid items-start gap-5 md:grid-cols-2 lg:grid-cols-[minmax(0,0.65fr)_minmax(0,1fr)_minmax(0,1.25fr)]">
-						<ProgressionView progression={progression} />
-						<div className="grid content-start gap-4">
-							<EquipmentView
+				<Tabs.Root
+					defaultValue="character"
+					className="flex min-h-0 flex-1 flex-col"
+				>
+					<Tabs.List
+						activateOnFocus
+						aria-label="Character sections"
+						className="flex shrink-0 gap-1 border-b px-4 pt-2"
+					>
+						<Tabs.Tab
+							value="character"
+							className="rounded-t-md border-b-2 border-transparent px-4 py-2 font-medium text-muted-foreground outline-offset-2 focus-visible:outline-2 focus-visible:outline-primary data-active:border-primary data-active:text-foreground"
+						>
+							Character
+						</Tabs.Tab>
+						<Tabs.Tab
+							value="spells"
+							className="rounded-t-md border-b-2 border-transparent px-4 py-2 font-medium text-muted-foreground outline-offset-2 focus-visible:outline-2 focus-visible:outline-primary data-active:border-primary data-active:text-foreground"
+						>
+							Spells
+						</Tabs.Tab>
+					</Tabs.List>
+					<Tabs.Panel value="character" className="min-h-0 overflow-y-auto">
+						<div className="shrink-0 border-b px-4 py-3">
+							<CharacterStats
+								player={player}
 								equipment={equipment}
-								selectedId={
-									selection?.source === "equipment"
-										? (selected?.id ?? null)
-										: null
-								}
-								headingRef={equipmentHeadingRef}
-								onSelect={(slot) => {
-									const item = equipment[slot];
-									setSelection(
-										item ? { source: "equipment", slot, id: item.id } : null,
-									);
-								}}
-							/>
-							<PotionAssignments
-								enabled={!won}
-								bag={bag}
-								potionHotbar={potionHotbar}
-								onAction={onAction}
+								progression={progression}
 							/>
 						</div>
-						<div className="grid content-start gap-4">
-							<BagContents
-								bag={bag}
-								equipment={equipment}
-								selectedId={
-									selection?.source === "bag" ? (selected?.id ?? null) : null
-								}
-								headingRef={bagHeadingRef}
-								onSelect={(id) => setSelection({ source: "bag", id })}
-							>
-								{selected && selection ? (
-									<div ref={detailsRef}>
-										<ItemDetails
-											item={selected}
-											equipment={equipment}
-											potionHotbar={potionHotbar}
-											assignmentsEnabled={!won}
-											equippedSlot={
-												selection.source === "equipment"
-													? selection.slot
-													: undefined
-											}
-											alive={player.health > 0 && !won}
-											onAction={onAction}
-											afterAction={() => {
-												const heading =
-													selection.source === "bag"
-														? bagHeadingRef
-														: equipmentHeadingRef;
-												heading.current?.focus({ preventScroll: true });
-											}}
-										/>
-									</div>
-								) : (
-									<p className="text-xs text-muted-foreground">
-										Select an item to see its details.
+						<div className="min-h-0 overflow-y-auto p-4">
+							<div className="grid items-start gap-5 md:grid-cols-2 lg:grid-cols-[minmax(0,0.65fr)_minmax(0,1fr)_minmax(0,1.25fr)]">
+								<ProgressionView progression={progression} mana={mana} />
+								<div className="grid content-start gap-4">
+									<EquipmentView
+										equipment={equipment}
+										selectedId={
+											selection?.source === "equipment"
+												? (selected?.id ?? null)
+												: null
+										}
+										headingRef={equipmentHeadingRef}
+										onSelect={(slot) => {
+											const item = equipment[slot];
+											setSelection(
+												item
+													? { source: "equipment", slot, id: item.id }
+													: null,
+											);
+										}}
+									/>
+									<PotionAssignments
+										enabled={!won}
+										bag={bag}
+										potionHotbar={potionHotbar}
+										onAction={onAction}
+									/>
+								</div>
+								<div className="grid content-start gap-4">
+									<BagContents
+										bag={bag}
+										equipment={equipment}
+										selectedId={
+											selection?.source === "bag"
+												? (selected?.id ?? null)
+												: null
+										}
+										headingRef={bagHeadingRef}
+										onSelect={(id) => setSelection({ source: "bag", id })}
+									>
+										{selected && selection ? (
+											<div ref={detailsRef}>
+												<ItemDetails
+													item={selected}
+													equipment={equipment}
+													potionHotbar={potionHotbar}
+													assignmentsEnabled={!won}
+													equippedSlot={
+														selection.source === "equipment"
+															? selection.slot
+															: undefined
+													}
+													alive={player.health > 0 && !won}
+													onAction={onAction}
+													afterAction={() => {
+														const heading =
+															selection.source === "bag"
+																? bagHeadingRef
+																: equipmentHeadingRef;
+														heading.current?.focus({ preventScroll: true });
+													}}
+												/>
+											</div>
+										) : (
+											<p className="text-xs text-muted-foreground">
+												Select an item to see its details.
+											</p>
+										)}
+									</BagContents>
+									<QuestStatus quest={quest} pouch />
+									<FloorItemsView
+										items={floorItems}
+										alive={player.health > 0 && !won}
+										onAction={onAction}
+									/>
+									<p className="rounded-lg border bg-muted/30 p-3 text-xs leading-relaxed text-muted-foreground">
+										Opening this dialog and inspecting items is free. Each
+										successful gear change, pickup, drop, or potion use costs
+										one turn, and monsters act afterward.
 									</p>
-								)}
-							</BagContents>
-							<QuestStatus quest={quest} pouch />
-							<FloorItemsView
-								items={floorItems}
-								alive={player.health > 0 && !won}
-								onAction={onAction}
-							/>
-							<p className="rounded-lg border bg-muted/30 p-3 text-xs leading-relaxed text-muted-foreground">
-								Opening this dialog and inspecting items is free. Each
-								successful gear change, pickup, drop, or potion use costs one
-								turn, and monsters act afterward.
-							</p>
+								</div>
+							</div>
 						</div>
-					</div>
-				</div>
+					</Tabs.Panel>
+					<Tabs.Panel value="spells" className="min-h-0 overflow-y-auto">
+						<SpellsView
+							knownSpells={knownSpells}
+							mana={mana}
+							progression={progression}
+						/>
+					</Tabs.Panel>
+				</Tabs.Root>
 				<div className="grid max-h-36 shrink-0 overflow-y-auto gap-2 border-t bg-popover px-4 py-3">
 					{actionError && (
 						<p role="alert" className="text-sm text-destructive">

@@ -22,6 +22,7 @@ import {
 	PLAYER_HIT_CHANCE,
 } from "../domain/game/MeleeRules";
 import { HEALTH_PER_LEVEL, MAX_PLAYER_LEVEL } from "../domain/game/Progression";
+import { SPELL_DEFINITIONS } from "../domain/game/Spells";
 
 const Keycap = ({
 	children,
@@ -102,6 +103,14 @@ const DungeonHelp = () => (
 							<Keycap>3</Keycap>
 							<Keycap>4</Keycap>
 						</span>
+					</li>
+					<li className="flex items-center justify-between gap-3 py-3">
+						<span>Target a ranged spell</span>
+						<Keycap>Z</Keycap>
+					</li>
+					<li className="flex items-center justify-between gap-3 py-3">
+						<span>Cast Heal on self</span>
+						<Keycap>H</Keycap>
 					</li>
 					<li className="flex items-center justify-between gap-3 py-3">
 						<span>Close this sheet</span>
@@ -203,6 +212,34 @@ const DungeonHelp = () => (
 						movement does not use a turn.
 					</li>
 				</ul>
+			</section>
+			<section
+				aria-label="Spellcasting"
+				className="grid gap-3 rounded-lg border p-4 text-sm"
+			>
+				<h3 className="font-medium">Spells and mana</h3>
+				<p>
+					Both starting spells are known. Click a spell above the map, or use
+					its shortcut after closing menus.
+				</p>
+				<p>
+					Magic Missile ({SPELL_DEFINITIONS["magic-missile"].cost} mana): Z
+					selects the nearest visible monster within{" "}
+					{SPELL_DEFINITIONS["magic-missile"].range} tiles and clear wall sight.
+					Use arrows to select, Enter or click a highlighted monster to cast.
+					Escape or Z cancels for free. Horizontal and vertical distance count
+					together. Other monsters do not block the bolt.
+				</p>
+				<p>
+					Heal ({SPELL_DEFINITIONS.heal.cost} mana): H or its hotbar button
+					casts on yourself, restoring health before monsters act. Full health
+					and insufficient mana cost no turn.
+				</p>
+				<p>
+					Intelligence improves spell damage, healing, and maximum mana. The
+					Spells tab shows current effects. Future spells come from found
+					spellbooks, never automatic level unlocks.
+				</p>
 			</section>
 			<section
 				aria-label="Character progression"

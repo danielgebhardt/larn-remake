@@ -1,4 +1,4 @@
-import { Skull, Sparkles, Sword, Trophy, Zap } from "lucide-react";
+import { Brain, Skull, Sparkles, Sword, Trophy, Zap } from "lucide-react";
 import type { ActivityEvent } from "../../domain/game/ActivityHistory";
 import { formatActivityEvent } from "./ActivityMessages";
 
@@ -17,7 +17,9 @@ const ActivityMessage = ({ event }: { event: ActivityEvent }) => {
 				: event.type === "attribute-gained"
 					? event.attribute === "Strength"
 						? Sword
-						: Zap
+						: event.attribute === "Intelligence"
+							? Brain
+							: Zap
 					: Skull;
 	const className = danger
 		? "border-destructive/50 bg-destructive/10 font-semibold text-destructive"

@@ -156,15 +156,33 @@ const DungeonLayout = ({
 
 			if (onTargetingKey && movementEnabled) {
 				if (event.ctrlKey || event.metaKey || event.altKey) return;
+				const key = event.key;
+				const handled =
+					[
+						"ArrowUp",
+						"ArrowDown",
+						"ArrowLeft",
+						"ArrowRight",
+						"Enter",
+						"Escape",
+						" ",
+						"1",
+						"2",
+						"3",
+						"4",
+					].includes(key) ||
+					["z", "h", "g", "w", "a", "s", "d"].includes(key.toLowerCase());
+				if (!handled) return;
 				if (
 					event.target instanceof HTMLElement &&
 					event.target.closest(FOCUSED_CONTROLS) &&
-					event.key !== "Escape" &&
-					event.key.toLowerCase() !== "z"
+					!event.target.closest('button[aria-label^="Target "]') &&
+					key !== "Escape" &&
+					key.toLowerCase() !== "z"
 				)
 					return;
 				event.preventDefault();
-				if (!event.repeat) onTargetingKey(event.key);
+				if (!event.repeat) onTargetingKey(key);
 				return;
 			}
 			if (movementEnabled && ["z", "h"].includes(event.key.toLowerCase())) {

@@ -259,6 +259,8 @@ const Home = ({
 							Character
 						</Dialog.Trigger>
 						<CharacterDialog
+							mana={game.state.mana}
+							knownSpells={game.state.knownSpells}
 							progression={game.state.progression}
 							onCloseRequested={() => setCharacterOpen(false)}
 							finalFocus={characterOpenedFromMap ? mapRef : undefined}

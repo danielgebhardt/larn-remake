@@ -1,11 +1,11 @@
 import { UserRound } from "lucide-react";
-import { maximumMana } from "../../domain/game/Mana";
 import type { PlayerStats } from "../../domain/game/PlayerStats.ts";
 import {
 	levelForExperience,
 	type Progression,
 } from "../../domain/game/Progression";
 import HealthDisplay from "./HealthDisplay";
+import ManaDisplay from "./ManaDisplay";
 
 const PlayerStatus = ({
 	turn,
@@ -27,12 +27,7 @@ const PlayerStatus = ({
 		<output aria-label="Player level">
 			Level {levelForExperience(progression.experience)}
 		</output>
-		<output
-			aria-label="Player mana"
-			className="text-violet-700 dark:text-violet-300"
-		>
-			Mana {mana} / {maximumMana(progression)}
-		</output>
+		<ManaDisplay mana={mana} progression={progression} label="Player mana" />
 		<HealthDisplay player={player} label="Player health" />
 		{player.health === 0 && (
 			<p

@@ -133,7 +133,7 @@ Move the player with either control scheme:
 | Wait | Spacebar | — |
 | Pick up | G | — |
 | Character | I or C | — |
-| Target Magic Missile | Z | Arrows select; Enter or a target click casts |
+| Target Magic Missile | Z | Arrows or WASD cast straight in a direction; Enter or a target click casts |
 | Cancel targeting | Escape or Z | — |
 | Self-cast Heal | H | Click Heal in the spell hotbar |
 | Use assigned potion | 1–4 | — |
@@ -388,7 +388,7 @@ Every new/replayed run knows **Magic Missile** and **Heal**, starts with full ma
 
 | Spell | Cost | Current effect | Activation |
 | --- | --- | --- | --- |
-| Magic Missile | 3 mana | Guaranteed hit; seeded uniform 3–5 damage plus Intelligence modifier | Z or its hotbar button enters targeting; arrows cycle; Enter or click a highlighted monster casts. |
+| Magic Missile | 3 mana | Guaranteed hit; seeded uniform 3–5 damage plus Intelligence modifier | Z or its hotbar button enters targeting; arrows or WASD cast straight in a direction; Enter or click casts at the highlighted monster. |
 | Heal | 4 mana | Restore up to 4 + Intelligence modifier health, capped at maximum | H or its hotbar button casts immediately on self. |
 
 Magic Missile targets one living monster on the active floor within **Manhattan range 6** (horizontal + vertical distance), with clear wall-blocked sight. The UI offers only currently visible targets when fog is enabled; range/sight still apply with fog off. Other creatures do not block the bolt. Escape or Z cancels for free. During targeting, normal movement, pickup, waiting, and potion/self-heal activation are paused; Tab still navigates controls. Opening a menu, changing floors, ending, or restarting the run clears targeting. Editors, focused unrelated controls, modal browsing, modifiers and held activation keys retain their keyboard protections.

@@ -6,6 +6,7 @@ import {
 } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, it, vi } from "vitest";
+import type { DungeonRun } from "../domain/dungeon/DungeonRun";
 import * as GameState from "../domain/game/GameState";
 import Home from "../Home";
 import { ThemeProvider } from "../settings/ThemeProvider";
@@ -15,9 +16,12 @@ import {
 	stubDungeonRun,
 } from "./HomeTestHelpers";
 import { createCorridorEncounter } from "./MonsterEncounterTestHelpers";
+import { createTestDungeonFloor } from "./testhelpers";
 
-const setup = (overrides: Partial<GameState.GameState> = {}) => {
-	const run = createCorridorEncounter();
+const setup = (
+	overrides: Partial<GameState.GameState> = {},
+	run: DungeonRun = createCorridorEncounter(),
+) => {
 	stubDungeonRun(run);
 	const create = GameState.createGameState;
 	vi.spyOn(GameState, "createGameState").mockImplementationOnce((run) => ({
@@ -45,9 +49,22 @@ const setup = (overrides: Partial<GameState.GameState> = {}) => {
 	map.focus();
 	return { map, user: userEvent.setup() };
 };
+const createOpenEncounter = (): DungeonRun => ({
+	seed: 123,
+	activeFloor: 1,
+	playerCoordinate: { row: 3, col: 3 },
+	floors: [
+		createTestDungeonFloor({
+			floorNumber: 1,
+			rows: 7,
+			cols: 7,
+			room: { startRow: 1, endRow: 5, startCol: 1, endCol: 5 },
+		}),
+	],
+});
 afterEach(resetHomeTestState);
 describe("Spell targeting controls", () => {
-	it("shows known spells and mana, previews nearest target and cycles without moving", async () => {
+	it("shows known spells and mana, previews nearest target and casts with Enter without moving", async () => {
 		const { user } = setup();
 		expect(screen.getByLabelText("Player mana")).toHaveTextContent(
 			"Mana 10 / 10",
@@ -60,12 +77,6 @@ describe("Spell targeting controls", () => {
 		await user.keyboard("z");
 		expect(
 			screen.getByRole("button", { name: "Target goblin at row 1, column 3" }),
-		).toHaveAttribute("aria-pressed", "true");
-		await user.keyboard("{ArrowRight}");
-		expect(
-			screen.getByRole("button", {
-				name: "Target giant rat at row 1, column 5",
-			}),
 		).toHaveAttribute("aria-pressed", "true");
 		expect(
 			screen.getByRole("button", { name: "Potion slot 1: empty" }),
@@ -123,17 +134,130 @@ describe("Spell targeting controls", () => {
 			expect(screen.getByLabelText("Turn count")).toHaveTextContent("Turn 0");
 		},
 	);
-	it("allows Tab focus onto a target, then cycles and casts with keys", async () => {
+	it("allows Tab focus onto a target, then casts in a direction with keys", async () => {
 		const { user } = setup();
 		await user.keyboard("z");
 		await user.tab();
 		expect(
 			screen.getByRole("button", { name: "Target goblin at row 1, column 3" }),
 		).toHaveFocus();
-		await user.keyboard("{ArrowRight}{Enter}");
+		await user.keyboard("{ArrowRight}");
 		expect(screen.getByRole("log")).toHaveTextContent(
+			"Magic Missile hits the goblin",
+		);
+		expect(screen.getByLabelText("Turn count")).toHaveTextContent("Turn 1");
+	});
+
+	it.each([
+		["{ArrowUp}", 1, 3],
+		["w", 1, 3],
+		["{ArrowDown}", 5, 3],
+		["s", 5, 3],
+		["{ArrowLeft}", 3, 1],
+		["a", 3, 1],
+		["{ArrowRight}", 3, 5],
+		["d", 3, 5],
+	])(
+		"casts straight in direction %s without moving the player",
+		async (key, row, col) => {
+			const run = createOpenEncounter();
+			const { user } = setup(
+				{
+					monsters: [
+						{
+							id: "1:1",
+							kind: "goblin",
+							floorNumber: 1,
+							coordinate: { row, col },
+							health: 9,
+						},
+					],
+				},
+				run,
+			);
+			await user.keyboard(`z${key}`);
+			expect(screen.getByRole("log")).toHaveTextContent(
+				"Magic Missile hits the goblin",
+			);
+			expect(screen.getByLabelText("Turn count")).toHaveTextContent("Turn 1");
+			expect(screen.getByLabelText("Player mana")).toHaveTextContent(
+				"Mana 7 / 10",
+			);
+			expect(
+				screen.getByRole("cell", { name: /row3col3 - player/i }),
+			).toBeInTheDocument();
+			expect(
+				screen.queryByRole("button", { name: /Target goblin/ }),
+			).not.toBeInTheDocument();
+		},
+	);
+	it("chooses the nearest aligned monster rather than the farther one", async () => {
+		const { user } = setup();
+		await user.keyboard("zd");
+		expect(screen.getByRole("log")).toHaveTextContent(
+			"Magic Missile hits the goblin",
+		);
+		expect(screen.getByRole("log")).not.toHaveTextContent(
 			"Magic Missile hits the giant rat",
 		);
+	});
+	it("ignores an unaligned monster even when it is nearer than the directional target", async () => {
+		const { user } = setup(
+			{
+				monsters: [
+					{
+						id: "1:1",
+						kind: "giant-rat",
+						floorNumber: 1,
+						coordinate: { row: 2, col: 4 },
+						health: 9,
+					},
+					{
+						id: "1:2",
+						kind: "goblin",
+						floorNumber: 1,
+						coordinate: { row: 3, col: 6 },
+						health: 9,
+					},
+				],
+			},
+			{
+				...createOpenEncounter(),
+				floors: [
+					createTestDungeonFloor({
+						floorNumber: 1,
+						rows: 7,
+						cols: 8,
+						room: { startRow: 1, endRow: 5, startCol: 1, endCol: 6 },
+					}),
+				],
+			},
+		);
+		await user.keyboard("zd");
+		expect(screen.getByRole("log")).toHaveTextContent(
+			"Magic Missile hits the goblin",
+		);
+		expect(screen.getByRole("log")).not.toHaveTextContent(
+			"Magic Missile hits the giant rat",
+		);
+	});
+
+	it("keeps targeting open without spending resources when the direction is empty", async () => {
+		const { user, map } = setup();
+		await user.keyboard("z{ArrowLeft}");
+		expect(screen.getByLabelText("Action feedback")).toHaveTextContent(
+			"No visible target in that direction",
+		);
+		expect(screen.getByLabelText("Turn count")).toHaveTextContent("Turn 0");
+		expect(screen.getByLabelText("Player mana")).toHaveTextContent(
+			"Mana 10 / 10",
+		);
+		expect(
+			screen.getByRole("button", { name: "Target goblin at row 1, column 3" }),
+		).toBeInTheDocument();
+		fireEvent.keyDown(map, { key: "ArrowRight", repeat: true });
+		expect(screen.getByLabelText("Turn count")).toHaveTextContent("Turn 0");
+		await user.keyboard("d");
 		expect(screen.getByLabelText("Turn count")).toHaveTextContent("Turn 1");
 	});
 

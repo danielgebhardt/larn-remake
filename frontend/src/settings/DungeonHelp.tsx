@@ -226,9 +226,11 @@ const DungeonHelp = () => (
 					Magic Missile ({SPELL_DEFINITIONS["magic-missile"].cost} mana): Z
 					selects the nearest visible monster within{" "}
 					{SPELL_DEFINITIONS["magic-missile"].range} tiles and clear wall sight.
-					Use arrows to select, Enter or click a highlighted monster to cast.
-					Escape or Z cancels for free. Horizontal and vertical distance count
-					together. Other monsters do not block the bolt.
+					Use arrows or WASD to cast at the nearest eligible monster straight in
+					that direction. Enter or click casts at the highlighted monster. An
+					empty direction costs no turn or mana. Escape or Z cancels for free.
+					Horizontal and vertical distance count together. Other monsters do not
+					block the bolt.
 				</p>
 				<p>
 					Heal ({SPELL_DEFINITIONS.heal.cost} mana): H or its hotbar button

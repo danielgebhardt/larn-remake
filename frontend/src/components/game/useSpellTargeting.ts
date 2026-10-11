@@ -101,19 +101,33 @@ export const useSpellTargeting = (
 			castTarget(targeting.id);
 			return;
 		}
-		const direction =
-			key === "ArrowLeft" || key === "ArrowUp"
-				? -1
-				: key === "ArrowRight" || key === "ArrowDown"
-					? 1
-					: 0;
-		if (direction) {
-			const index = targets.findIndex((target) => target.id === targeting.id);
-			setTargeting({
-				...targeting,
-				id: targets[(index + direction + targets.length) % targets.length].id,
-			});
-		}
+		const directions: Record<string, readonly [number, number]> = {
+			arrowup: [-1, 0],
+			w: [-1, 0],
+			arrowdown: [1, 0],
+			s: [1, 0],
+			arrowleft: [0, -1],
+			a: [0, -1],
+			arrowright: [0, 1],
+			d: [0, 1],
+		};
+		const direction = directions[key.toLowerCase()];
+		if (!direction) return;
+		const [rowDirection, colDirection] = direction;
+		const player = state.run.playerCoordinate;
+		// Targets are already visible, in range, in clear sight and nearest first.
+		const target = targets.find(({ coordinate }) => {
+			const rowOffset = coordinate.row - player.row;
+			const colOffset = coordinate.col - player.col;
+			return rowDirection === 0
+				? rowOffset === 0 && colOffset * colDirection > 0
+				: colOffset === 0 && rowOffset * rowDirection > 0;
+		});
+		if (target) castTarget(target.id);
+		else
+			onError(
+				"No visible target in that direction within range and clear line of sight.",
+			);
 	};
 	const selected = targets.find((target) => target.id === targeting?.id);
 	return {
@@ -123,7 +137,7 @@ export const useSpellTargeting = (
 		targeting,
 		targetIds: targeting ? targets.map((target) => target.id) : undefined,
 		description: selected
-			? `Magic Missile: ${MONSTER_DEFINITIONS[selected.kind].name} at row ${selected.coordinate.row}, column ${selected.coordinate.col}. Arrows select; Enter or click casts. Escape or Z cancels.`
+			? `Magic Missile: ${MONSTER_DEFINITIONS[selected.kind].name} at row ${selected.coordinate.row}, column ${selected.coordinate.col}. Arrows or WASD cast straight in a direction; Enter or click casts at the highlighted target. Escape or Z cancels.`
 			: null,
 	};
 };

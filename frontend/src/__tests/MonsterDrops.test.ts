@@ -1,8 +1,8 @@
 // @vitest-environment node
 import { describe, expect, it, vi } from "vitest";
 import { createGameState } from "../domain/game/GameState";
-import { resolvePlayerAction } from "../domain/game/PlayerActions";
 import { createMonsterDrop } from "../domain/items/MonsterDrops";
+import { resolvePlayerActionWithHits as resolvePlayerAction } from "./ControlledCombatTestHelpers";
 import { createCorridorEncounter } from "./MonsterEncounterTestHelpers";
 
 const goblin = {

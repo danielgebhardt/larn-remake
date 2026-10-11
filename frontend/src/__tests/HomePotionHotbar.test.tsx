@@ -2,10 +2,10 @@ import { screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import * as GameState from "../domain/game/GameState";
-import { resolvePlayerAction } from "../domain/game/PlayerActions";
 import { createBag } from "../domain/items/Bag";
 import { HOTBAR_SLOTS, type HotbarSlot } from "../domain/items/PotionHotbar";
 import Home from "../Home";
+import { resolvePlayerActionWithHits as resolvePlayerAction } from "./ControlledCombatTestHelpers";
 import {
 	renderHome as render,
 	resetHomeTestState,

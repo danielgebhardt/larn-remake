@@ -2,11 +2,11 @@
 
 import { describe, expect, it } from "vitest";
 import { createGameState, type GameState } from "../domain/game/GameState.ts";
-import { resolvePlayerAction } from "../domain/game/PlayerActions.ts";
 import {
 	MONSTER_DEFINITIONS,
 	type Monster,
 } from "../domain/monsters/Monster.ts";
+import { resolvePlayerActionWithHits as resolvePlayerAction } from "./ControlledCombatTestHelpers";
 import { createTestDungeonFloor } from "./testhelpers.ts";
 
 const encounter = (): GameState => ({

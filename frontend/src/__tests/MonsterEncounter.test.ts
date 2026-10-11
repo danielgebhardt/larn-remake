@@ -7,8 +7,8 @@ import {
 } from "../domain/dungeon/DungeonRun";
 import { DEFAULT_RUN_CONFIGURATION } from "../domain/dungeon/RunConfiguration";
 import { createGameState } from "../domain/game/GameState";
-import { resolvePlayerAction } from "../domain/game/PlayerActions";
 import { spawnRunMonsters } from "../domain/monsters/MonsterPlacement";
+import { resolvePlayerActionWithHits as resolvePlayerAction } from "./ControlledCombatTestHelpers";
 import { createCorridorEncounter } from "./MonsterEncounterTestHelpers";
 
 // Fix the encounter count so density tuning does not change its action script.
@@ -28,7 +28,7 @@ const play = (
 };
 
 describe("Complete moving encounters", () => {
-	it("defeats the seeded population, descends and revisits without respawning, then replays identically", () => {
+	it("defeats the seeded population with controlled hits, descends and revisits without respawning, then replays identically", () => {
 		const run = createCorridorEncounter();
 		const initial = corridorState(run);
 		expect(initial.monsters).toHaveLength(3);

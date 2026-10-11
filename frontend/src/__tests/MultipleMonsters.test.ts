@@ -1,9 +1,9 @@
 // @vitest-environment node
 import { describe, expect, it } from "vitest";
 import { createGameState } from "../domain/game/GameState";
-import { resolvePlayerAction } from "../domain/game/PlayerActions";
 import type { Monster } from "../domain/monsters/Monster";
 import { resolveMonsterPhase } from "../domain/monsters/MonsterTurns";
+import { resolvePlayerActionWithHits as resolvePlayerAction } from "./ControlledCombatTestHelpers";
 import { createTestDungeonFloor } from "./testhelpers";
 
 const goblin = (index: number, col: number, health = 4): Monster => ({

@@ -1,9 +1,9 @@
 // @vitest-environment node
 import { describe, expect, it } from "vitest";
 import { createGameState, type GameState } from "../domain/game/GameState";
-import { resolvePlayerAction } from "../domain/game/PlayerActions";
 import { BAG_CAPACITY, createBag } from "../domain/items/Bag";
 import { HOTBAR_SLOTS } from "../domain/items/PotionHotbar";
+import { resolvePlayerActionWithHits as resolvePlayerAction } from "./ControlledCombatTestHelpers";
 import { createCorridorEncounter } from "./MonsterEncounterTestHelpers";
 
 const potion = { id: "floor:potion", kind: "healing-potion" } as const;

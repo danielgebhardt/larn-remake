@@ -8,6 +8,7 @@ export type ActivityEvent = { turn: number } & (
 	| { type: "player-hit"; monster: MonsterKind; damage: number }
 	| { type: "monster-hit"; monster: MonsterKind; damage: number }
 	| { type: "monster-died"; monster: MonsterKind }
+	| { type: "player-missed"; monster: MonsterKind }
 	| { type: "player-died" }
 	| EquipmentChangeEvent
 	| FloorItemEvent

@@ -2,8 +2,8 @@
 import { describe, expect, it } from "vitest";
 import { formatActivityEvent } from "../components/game/ActivityMessages";
 import { createGameState, type GameState } from "../domain/game/GameState";
-import { resolvePlayerAction } from "../domain/game/PlayerActions";
 import type { FloorItem } from "../domain/items/FloorItems";
+import { resolvePlayerActionWithHits as resolvePlayerAction } from "./ControlledCombatTestHelpers";
 import { createCorridorEncounter } from "./MonsterEncounterTestHelpers";
 
 const loot = (

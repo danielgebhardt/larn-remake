@@ -6,12 +6,12 @@ import {
 	resolveIncomingDamage,
 } from "../domain/game/CombatStats";
 import { createGameState } from "../domain/game/GameState";
-import { resolvePlayerAction } from "../domain/game/PlayerActions";
 import {
 	createEquipment,
 	createStartingEquipment,
 } from "../domain/items/Equipment";
 import { MONSTER_DEFINITIONS } from "../domain/monsters/Monster";
+import { resolvePlayerActionWithHits as resolvePlayerAction } from "./ControlledCombatTestHelpers";
 import { createCorridorEncounter } from "./MonsterEncounterTestHelpers";
 
 const originalGoblinDamage = MONSTER_DEFINITIONS.goblin.attackDamage;

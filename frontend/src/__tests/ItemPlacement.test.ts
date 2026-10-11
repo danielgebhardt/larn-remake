@@ -5,9 +5,9 @@ import {
 	generateDungeonRun,
 } from "../domain/dungeon/DungeonRun";
 import { createGameState } from "../domain/game/GameState";
-import { resolvePlayerAction } from "../domain/game/PlayerActions";
 import { spawnRunItems } from "../domain/items/ItemPlacement";
 import { spawnRunMonsters } from "../domain/monsters/MonsterPlacement";
+import { resolvePlayerActionWithHits as resolvePlayerAction } from "./ControlledCombatTestHelpers";
 import { createCorridorEncounter } from "./MonsterEncounterTestHelpers";
 import { createTestDungeonFloor } from "./testhelpers";
 

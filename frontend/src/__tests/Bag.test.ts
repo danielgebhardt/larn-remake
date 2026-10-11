@@ -2,13 +2,13 @@
 
 import { describe, expect, it } from "vitest";
 import { createGameState } from "../domain/game/GameState";
-import { resolvePlayerAction } from "../domain/game/PlayerActions";
 import {
 	BAG_CAPACITY,
 	createBag,
 	createStartingBag,
 } from "../domain/items/Bag";
 import type { ItemInstance } from "../domain/items/Item";
+import { resolvePlayerActionWithHits as resolvePlayerAction } from "./ControlledCombatTestHelpers";
 import { createCorridorEncounter } from "./MonsterEncounterTestHelpers";
 import { createThreeFloorTraversalRun } from "./testhelpers";
 

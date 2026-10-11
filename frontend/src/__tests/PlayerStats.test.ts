@@ -2,7 +2,7 @@
 
 import { describe, expect, it } from "vitest";
 import { createGameState } from "../domain/game/GameState.ts";
-import { resolvePlayerAction } from "../domain/game/PlayerActions.ts";
+import { resolvePlayerActionWithHits as resolvePlayerAction } from "./ControlledCombatTestHelpers";
 import { createThreeFloorTraversalRun } from "./testhelpers.ts";
 
 describe("Player health", () => {

@@ -23,8 +23,14 @@ import {
 import type { Monster } from "../monsters/Monster.ts";
 import { resolveMonsterPhase } from "../monsters/MonsterTurns";
 import { type ActivityEvent, appendActivityEvents } from "./ActivityHistory.ts";
+import { type AttackRollSource, createAttackRolls } from "./CombatRandomness";
 import { deriveCombatStats } from "./CombatStats";
 import type { GameState } from "./GameState.ts";
+import {
+	attackProfile,
+	PLAYER_HIT_THRESHOLD,
+	resolveMeleeAttack,
+} from "./MeleeRules";
 
 export type PlayerAction =
 	| { type: "move"; direction: MovementDirection }
@@ -43,6 +49,7 @@ export type ActionResolution = {
 export const resolvePlayerAction = (
 	state: GameState,
 	action: PlayerAction,
+	rollSource: AttackRollSource = createAttackRolls,
 ): ActionResolution => {
 	if (action.type === "assign-hotbar" || action.type === "clear-hotbar") {
 		const change = changeHotbarAssignment(
@@ -164,7 +171,7 @@ export const resolvePlayerAction = (
 			monster.coordinate.col === run.playerCoordinate.col,
 	);
 	const playerResult = monster
-		? resolveAttack(state, monster)
+		? resolveAttack(state, monster, rollSource)
 		: announceArrival({ ...state, run, turn: state.turn + 1 });
 	return {
 		state: resolveMonsterPhase(playerResult),
@@ -183,9 +190,34 @@ const announceArrival = (state: GameState): GameState => {
 	};
 };
 
-const resolveAttack = (state: GameState, monster: Monster): GameState => {
+const resolveAttack = (
+	state: GameState,
+	monster: Monster,
+	rollSource: AttackRollSource,
+): GameState => {
 	const turn = state.turn + 1;
-	const damage = deriveCombatStats(state.equipment).attack;
+	const outcome = resolveMeleeAttack(
+		attackProfile(
+			deriveCombatStats(state.equipment).attack,
+			PLAYER_HIT_THRESHOLD,
+		),
+		rollSource({
+			seed: state.run.seed,
+			floorNumber: state.run.activeFloor,
+			turn,
+			attackerId: "player",
+			targetId: monster.id,
+		}),
+	);
+	if (!outcome.hit)
+		return {
+			...state,
+			turn,
+			activityHistory: appendActivityEvents(state.activityHistory, [
+				{ type: "player-missed", turn, monster: monster.kind },
+			]),
+		};
+	const damage = outcome.damage;
 	const health = Math.max(0, monster.health - damage);
 	const events: ActivityEvent[] = [
 		{

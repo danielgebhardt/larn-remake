@@ -2,9 +2,9 @@
 import { describe, expect, it } from "vitest";
 import { deriveCombatStats } from "../domain/game/CombatStats";
 import { createGameState } from "../domain/game/GameState";
-import { resolvePlayerAction } from "../domain/game/PlayerActions";
 import { BAG_CAPACITY, createBag } from "../domain/items/Bag";
 import { createEquipment } from "../domain/items/Equipment";
+import { resolvePlayerActionWithHits as resolvePlayerAction } from "./ControlledCombatTestHelpers";
 import { createCorridorEncounter } from "./MonsterEncounterTestHelpers";
 
 const chest = { id: "chest:1", kind: "leather-armor" } as const;

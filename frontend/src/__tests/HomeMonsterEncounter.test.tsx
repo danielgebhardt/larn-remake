@@ -18,7 +18,7 @@ import { createTestDungeonFloor } from "./testhelpers";
 afterEach(resetHomeTestState);
 
 describe("Complete monster encounters on screen", () => {
-	it("plays the seeded corridor encounter with real AI, fog and logs, then restores the same seed", async () => {
+	it("plays the seeded corridor encounter with real AI, fog, controlled rolls and logs, then restores the same seed", async () => {
 		const spawn = MonsterPlacement.spawnRunMonsters;
 		stubDungeonRun(createCorridorEncounter()).spawn.mockImplementation((run) =>
 			spawn(run, 3),

@@ -2,11 +2,11 @@
 
 import { describe, expect, it } from "vitest";
 import { createGameState } from "../domain/game/GameState";
-import { resolvePlayerAction } from "../domain/game/PlayerActions";
 import { createBag } from "../domain/items/Bag";
 import { spawnRunItems } from "../domain/items/ItemPlacement";
 import { createMonsterDrop } from "../domain/items/MonsterDrops";
 import { MONSTER_DEFINITIONS } from "../domain/monsters/Monster";
+import { resolvePlayerActionWithHits as resolvePlayerAction } from "./ControlledCombatTestHelpers";
 import { createCorridorEncounter } from "./MonsterEncounterTestHelpers";
 
 const potion = { id: "potion:1", kind: "healing-potion" } as const;

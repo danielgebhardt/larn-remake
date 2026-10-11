@@ -3,10 +3,10 @@
 import { describe, expect, it } from "vitest";
 import { deriveCombatStats } from "../domain/game/CombatStats";
 import { createGameState } from "../domain/game/GameState";
-import { resolvePlayerAction } from "../domain/game/PlayerActions";
 import { createBag } from "../domain/items/Bag";
 import { createEquipment } from "../domain/items/Equipment";
 import { MONSTER_DEFINITIONS } from "../domain/monsters/Monster";
+import { resolvePlayerActionWithHits as resolvePlayerAction } from "./ControlledCombatTestHelpers";
 import { createCorridorEncounter } from "./MonsterEncounterTestHelpers";
 
 const game = () => ({

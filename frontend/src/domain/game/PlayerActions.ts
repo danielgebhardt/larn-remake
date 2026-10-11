@@ -25,6 +25,7 @@ import { type ActivityEvent, appendActivityEvents } from "./ActivityHistory.ts";
 import { type AttackRollSource, createAttackRolls } from "./CombatRandomness";
 import { deriveCombatStats } from "./CombatStats";
 import type { GameState } from "./GameState.ts";
+import { recoverManaAfterTurn } from "./Mana";
 import {
 	attackProfile,
 	deriveAccuracy,
@@ -79,7 +80,7 @@ export const resolvePlayerAction = (
 		};
 	}
 	const monsterPhase = (next: GameState) =>
-		resolveMonsterPhase(next, rollSource);
+		recoverManaAfterTurn(resolveMonsterPhase(next, rollSource));
 	if (state.player.health <= 0)
 		return {
 			state,

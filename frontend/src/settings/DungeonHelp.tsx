@@ -16,6 +16,7 @@ import {
 	SheetTitle,
 } from "@/components/ui/sheet";
 import DungeonLegend from "../components/dungeon/DungeonLegend.tsx";
+import { MANA_RECOVERY_INTERVAL } from "../domain/game/Mana";
 import {
 	MONSTER_HIT_CHANCE,
 	PLAYER_HIT_CHANCE,
@@ -188,6 +189,13 @@ const DungeonHelp = () => (
 						turn. At full health, it costs nothing and stays in your bag. Empty
 						or unavailable shortcuts also cost nothing. Potions cannot be used
 						after death.
+					</li>
+					<li>
+						<span className="font-medium text-foreground">Mana.</span> Recover 1
+						mana after every {MANA_RECOVERY_INTERVAL} successful turns,
+						including waiting, after monsters act. Safe rooms allow unlimited
+						waiting and recovery. Opening menus or canceling targeting does not
+						recover mana.
 					</li>
 					<li>
 						<span className="font-medium text-foreground">Turns.</span>{" "}

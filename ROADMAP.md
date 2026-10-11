@@ -251,15 +251,11 @@ Likely later priorities:
 
 ## Local save/resume and persistence
 
-Move this earlier if runs become long enough that closing the browser is costly:
+Manual local-save epic #143 and stories #138–142 are implemented on `codex/local-adventure-saves`, awaiting developer review. Settings provides one localStorage slot with explicit confirmation for both Save and Load, and file export/import without an extra confirmation. The versioned format stores full floor snapshots, played state, configuration/fog and discovery; loading validates before replacing progress, preserves deterministic continuation within the current rules, and retains dead/won status. No startup auto-load or autosave. See `docs/local-save-review.md` for commit order and maximum-size measurements.
 
-1. Explicit local save/load for a single run with clear success/error feedback.
-2. Include the state actually present: seed/configuration, generated or reconstructable floors/stairs, current floor/player, exploration, monster positions/health/deaths, floor loot, inventory/equipment/hotbar, turns/health, activity, quest/progression/mana where introduced.
-3. Decide whether terrain is stored or reconstructed, and version the save format. A seed alone cannot restore a played run.
-4. Preserve attack reproducibility after loading; turn and stable actor identities are part of that requirement.
-5. Reject invalid/incompatible saves safely without overwriting a playable current run. Add autosave only after manual save/load is dependable.
+Future work, only when useful: multiple named slots, measured autosave, IndexedDB if synchronous writes become noticeable, and explicit version migrations. Export/import already supports backups and manual cross-device transfer. Browser storage is tied to an origin/profile; seed-only reconstruction is not a substitute for played state. Keep storage separate from snapshot rules so a later adapter can reuse the format and validation.
 
-Backend saves, accounts, authentication, sessions, and cross-device synchronization wait for a demonstrated need.
+Backend saves, accounts, authentication, sessions and automatic cross-device synchronization wait for a demonstrated need.
 
 ## Deferred engineering work: CI and browser smoke tests
 

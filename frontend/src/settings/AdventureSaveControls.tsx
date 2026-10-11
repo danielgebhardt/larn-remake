@@ -150,8 +150,7 @@ const AdventureSaveControls = ({
 				type="file"
 				accept=".json,application/json"
 				aria-label="Import adventure file"
-				className="sr-only"
-				tabIndex={-1}
+				hidden
 				disabled={importing}
 				onChange={(event) => {
 					const file = event.currentTarget.files?.[0];

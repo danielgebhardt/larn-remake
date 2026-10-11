@@ -1,7 +1,18 @@
 import { render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { parseSave, serializeSave } from "../domain/saves/SaveFormat";
+import {
+	connectDungeonFloors,
+	generateDungeonRun,
+} from "../domain/dungeon/DungeonRun";
+import { updateExploration } from "../domain/dungeon/Exploration";
+import { DEFAULT_RUN_CONFIGURATION } from "../domain/dungeon/RunConfiguration";
+import { createGameState } from "../domain/game/GameState";
+import {
+	createSaveDocument,
+	parseSave,
+	serializeSave,
+} from "../domain/saves/SaveFormat";
 import Home from "../Home";
 import { LOCAL_SAVE_KEY } from "../persistence/LocalAdventureSave";
 import { ThemeProvider } from "../settings/ThemeProvider";
@@ -151,6 +162,75 @@ describe("Confirmed local Save and Load", () => {
 			"previous save was not replaced",
 		);
 		expect(localStorage.getItem(LOCAL_SAVE_KEY)).toBe(old);
+		expect(screen.getByLabelText("Turn count")).toHaveTextContent("Turn 0");
+	});
+	it("restores configuration, fog, progression and spell knowledge together for future new runs", async () => {
+		const config = { ...DEFAULT_RUN_CONFIGURATION, rows: 10, cols: 12 };
+		const run = connectDungeonFloors(generateDungeonRun(123, 5, config));
+		const state = {
+			...createGameState(run),
+			player: { health: 8, maxHealth: 14 },
+			progression: { experience: 44 },
+			mana: 5,
+			knownSpells: ["heal"] as const,
+		};
+		const document = createSaveDocument(
+			state,
+			updateExploration(run, 2),
+			config,
+			{ enabled: false, radius: 2 },
+		);
+		localStorage.setItem(LOCAL_SAVE_KEY, serializeSave(document));
+		const user = setup();
+		await openSettings(user);
+		await user.click(screen.getByRole("button", { name: "Load adventure" }));
+		await screen.findByRole("dialog", { name: "Load saved adventure?" });
+		await user.click(screen.getByRole("button", { name: "Confirm load" }));
+		await waitFor(() =>
+			expect(
+				screen.queryByRole("dialog", { name: "Settings" }),
+			).not.toBeInTheDocument(),
+		);
+		expect(screen.getByLabelText("Player level")).toHaveTextContent("Level 3");
+		expect(screen.getByLabelText("Player mana")).toHaveTextContent(
+			"Mana 5 / 12",
+		);
+		expect(screen.getByLabelText("Player health")).toHaveTextContent(
+			"Health 8 / 14",
+		);
+		expect(
+			within(screen.getByRole("region", { name: "Spell hotbar" })).getAllByRole(
+				"button",
+			),
+		).toHaveLength(1);
+		expect(screen.getAllByRole("cell")).toHaveLength(120);
+		await openSettings(user);
+		expect(
+			screen.getByLabelText("Current dungeon configuration"),
+		).toHaveTextContent("10 rows × 12 columns");
+		expect(
+			screen.getByRole("checkbox", { name: "Enable fog of war" }),
+		).not.toBeChecked();
+		expect(
+			screen.getByRole("textbox", { name: "Visibility radius" }),
+		).toHaveValue("2");
+		await closeSettings(user);
+		await user.click(screen.getByRole("button", { name: "New Dungeon" }));
+		expect(screen.getAllByRole("cell")).toHaveLength(120);
+		expect(screen.getByLabelText("Player level")).toHaveTextContent("Level 1");
+	});
+	it("revalidates the slot at Load time if it changed while Settings was open", async () => {
+		localStorage.setItem(LOCAL_SAVE_KEY, serializeSave(savedAdventure()));
+		const user = setup();
+		await openSettings(user);
+		localStorage.setItem(LOCAL_SAVE_KEY, "corrupt after opening");
+		await user.click(screen.getByRole("button", { name: "Load adventure" }));
+		expect(screen.getByLabelText("Save feedback")).toHaveTextContent(
+			"not a valid",
+		);
+		expect(
+			screen.queryByRole("dialog", { name: "Load saved adventure?" }),
+		).not.toBeInTheDocument();
 		expect(screen.getByLabelText("Turn count")).toHaveTextContent("Turn 0");
 	});
 });

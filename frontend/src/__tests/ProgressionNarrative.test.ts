@@ -50,9 +50,11 @@ describe("Progression activity narrative", () => {
 				"attribute-gained",
 				"level-gained",
 				"attribute-gained",
+				"attribute-gained",
 				"level-gained",
 				"attribute-gained",
 				"level-gained",
+				"attribute-gained",
 				"attribute-gained",
 				"monster-hit",
 			]);

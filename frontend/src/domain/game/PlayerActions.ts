@@ -24,10 +24,15 @@ import { MONSTER_DEFINITIONS } from "../monsters/Monster";
 import type { Monster } from "../monsters/Monster.ts";
 import { resolveMonsterPhase } from "../monsters/MonsterTurns";
 import { type ActivityEvent, appendActivityEvents } from "./ActivityHistory.ts";
-import { dexterityAtLevel, strengthAtLevel } from "./Attributes";
+import {
+	dexterityAtLevel,
+	intelligenceAtLevel,
+	strengthAtLevel,
+} from "./Attributes";
 import { type AttackRollSource, createAttackRolls } from "./CombatRandomness";
 import { deriveCombatStats } from "./CombatStats";
 import type { GameState } from "./GameState.ts";
+import { growManaCapacity } from "./Mana";
 import {
 	attackProfile,
 	deriveAccuracy,
@@ -293,11 +298,13 @@ const resolveAttack = (
 	let floorItems = state.floorItems;
 	let player = state.player;
 	let progression = state.progression;
+	let mana = state.mana;
 	if (health === 0) {
 		const reward = MONSTER_DEFINITIONS[monster.kind].experienceReward;
 		const gained = gainExperience(progression, player, reward);
 		progression = gained.progression;
 		player = gained.player;
+		mana = growManaCapacity(state.mana, state.progression, progression);
 		events.push({ type: "experience-gained", amount: reward, turn });
 		for (const level of gained.levels) {
 			events.push({
@@ -311,6 +318,13 @@ const resolveAttack = (
 					type: "attribute-gained",
 					attribute: "Strength",
 					value: strengthAtLevel(level),
+					turn,
+				});
+			if (intelligenceAtLevel(level) > intelligenceAtLevel(level - 1))
+				events.push({
+					type: "attribute-gained",
+					attribute: "Intelligence",
+					value: intelligenceAtLevel(level),
 					turn,
 				});
 			if (dexterityAtLevel(level) > dexterityAtLevel(level - 1))
@@ -347,6 +361,7 @@ const resolveAttack = (
 		monstersDefeated: state.monstersDefeated + (health === 0 ? 1 : 0),
 		player,
 		progression,
+		mana,
 		floorItems,
 		activityHistory: appendActivityEvents(state.activityHistory, events),
 	};

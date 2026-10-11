@@ -207,6 +207,18 @@ Before expanding the rules, the developer should play several large twenty-floor
 
 Remaining attribute work: Constitution when it has a clear health/resistance benefit; Intelligence with mana and a usable spell. Wisdom/Charisma, point allocation, respecs, classes, skill trees, criticals, and generalized modifiers wait for concrete gameplay needs. Twenty-floor balance remains open.
 
+## Feedback polish and next epic proposals
+
+Stories #125–126 are implemented on `codex/gameplay-feedback`, based on the progression branch, pending review: shared low-health feedback at 1–5 HP and highlighted major activity entries. Large-map playtests found sparse encounters, redundant gear, and early capped progression. The 50×50×10 diagnostic also exposes its hoarding limitation: selecting only useful gear improves outcomes dramatically. Address the diagnostic policy before drawing supply-balance conclusions from its deaths.
+
+Suggested next epic order, pending developer agreement:
+
+1. **Mana and practical spellcasting:** one ranged spell, explicit range/line-of-sight/target rules, mana cost and recovery, clear feedback, then a self-healing spell. Introduce Intelligence only with a meaningful contribution. Reuse deterministic action resolution and normal monster retaliation.
+2. **Enemies with distinct tactics:** one ranged enemy using the targeting foundation and one contrasting melee behavior. Add depth-appropriate content alongside the behavior, then revisit encounter spacing, XP pace, and obsolete gear eligibility. Raising population alone would accelerate the current level cap and increase healing demand.
+3. **Dungeon interactions:** doors, a finite-use chest or fountain, and then a simple visible trap. Each should introduce a choice, seeded placement, retained state, and a defined turn cost. Introduce an interaction mechanism only when its first actual object needs it.
+
+The [Larn monster list](https://larn.fandom.com/wiki/Monsters) describes speed differences, breath attacks, and resistances; [spells](https://larn.fandom.com/wiki/Spells) describe directional targeting and range; [dungeon objects](https://larn.fandom.com/wiki/Dungeon_Objects) include doors, fountains, chests, mirrors, and traps. These are inspiration for meaningful choices, not a requirement to copy formulas, permanent stat drains, equipment destruction, or the full catalog. The wiki home could not be fetched directly; available indexed page content informed these proposals. Existing later mana/town plans remain below; no new gameplay epic is authorized by this planning note.
+
 ## Milestone 5: Mana, spells, and status effects
 
 Add current/max mana together with a first usable spell, not an unused bar:

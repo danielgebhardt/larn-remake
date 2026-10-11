@@ -1,6 +1,6 @@
 import { memo, useCallback, useLayoutEffect, useRef } from "react";
 import type { ActivityHistory } from "../../domain/game/ActivityHistory.ts";
-import { formatActivityEvent } from "./ActivityMessages.ts";
+import ActivityMessage from "./ActivityMessage";
 
 const ActivityLog = memo(function ActivityLog({
 	history,
@@ -88,7 +88,7 @@ const ActivityLog = memo(function ActivityLog({
 					<ol>
 						{history.entries.map((entry) => (
 							<li key={entry.id} data-entry-id={entry.id}>
-								{formatActivityEvent(entry.event)}
+								<ActivityMessage event={entry.event} />
 							</li>
 						))}
 					</ol>

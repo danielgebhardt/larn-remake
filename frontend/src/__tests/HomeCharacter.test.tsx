@@ -42,14 +42,17 @@ describe("Character sheet", () => {
 	it("shows derived attack and armor with an understandable weapon breakdown", async () => {
 		const user = renderCharacterRun();
 		const panel = within(await openCharacter(user));
+		expect(panel.getByLabelText("Character hit chance")).toHaveTextContent(
+			"Hit 85%",
+		);
 		expect(panel.getByLabelText("Character attack")).toHaveTextContent(
-			"Attack 2",
+			"Attack 1–3",
 		);
 		expect(panel.getByLabelText("Character armor")).toHaveTextContent(
 			"Armor 1",
 		);
 		expect(panel.getByText("Base 1 + weapon 1")).toBeVisible();
-		expect(panel.getByText(/Hits always deal at least 1 damage/)).toBeVisible();
+		expect(panel.getByText(/Misses deal none/)).toBeVisible();
 	});
 	it("shows base combat values when both equipment slots are empty", async () => {
 		const create = GameState.createGameState;
@@ -61,7 +64,7 @@ describe("Character sheet", () => {
 		const user = renderCharacterRun();
 		const panel = within(await openCharacter(user));
 		expect(panel.getByLabelText("Character attack")).toHaveTextContent(
-			"Attack 1",
+			"Attack 1–2",
 		);
 		expect(panel.getByLabelText("Character armor")).toHaveTextContent(
 			"Armor 0",

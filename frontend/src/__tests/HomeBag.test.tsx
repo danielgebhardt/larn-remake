@@ -68,7 +68,7 @@ describe("Character bag", () => {
 		expect(details.getByText(/heavier blade/)).toBeVisible();
 		expect(details.getByText("Attack bonus +2")).toBeVisible();
 		expect(panel.getByLabelText("Character attack")).toHaveTextContent(
-			"Attack 2",
+			"Attack 1–3",
 		);
 		expect(screen.getByLabelText("Turn count")).toHaveTextContent("Turn 0");
 	});

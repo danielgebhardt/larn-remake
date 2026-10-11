@@ -16,6 +16,10 @@ import {
 	SheetTitle,
 } from "@/components/ui/sheet";
 import DungeonLegend from "../components/dungeon/DungeonLegend.tsx";
+import {
+	MONSTER_HIT_CHANCE,
+	PLAYER_HIT_CHANCE,
+} from "../domain/game/MeleeRules";
 
 const Keycap = ({
 	children,
@@ -134,7 +138,12 @@ const DungeonHelp = () => (
 				<ul className="grid gap-3 text-sm leading-relaxed text-muted-foreground">
 					<li>
 						<span className="font-medium text-foreground">Attack.</span> Move
-						into a monster to attack. You stay on your current tile.
+						into a monster to attack. You stay on your current tile, and a miss
+						still uses a turn. Player attacks hit {PLAYER_HIT_CHANCE}% of the
+						time; monster attacks hit {MONSTER_HIT_CHANCE}%. Landed damage
+						varies within the range shown in Character. Armor reduces landed
+						damage to a minimum of 1; misses deal no damage. The same seed and
+						actions reproduce outcomes.
 					</li>
 					<li>
 						<span className="font-medium text-foreground">Wait.</span> Stay in

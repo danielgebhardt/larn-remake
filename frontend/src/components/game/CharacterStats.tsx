@@ -3,6 +3,11 @@ import {
 	armorContributions,
 	deriveCombatStats,
 } from "../../domain/game/CombatStats";
+import {
+	attackProfile,
+	PLAYER_HIT_CHANCE,
+	PLAYER_HIT_THRESHOLD,
+} from "../../domain/game/MeleeRules";
 import type { PlayerStats } from "../../domain/game/PlayerStats";
 import type { Equipment } from "../../domain/items/Equipment";
 
@@ -15,6 +20,8 @@ const CharacterStats = ({
 }) => {
 	const combat = deriveCombatStats(equipment);
 	const armor = armorContributions(equipment);
+	const profile = attackProfile(combat.attack, PLAYER_HIT_THRESHOLD);
+
 	return (
 		<section aria-label="Character stats" className="grid gap-2">
 			<div className="grid grid-cols-3 gap-2">
@@ -39,11 +46,17 @@ const CharacterStats = ({
 						aria-label="Character attack"
 						className="text-xs font-medium tabular-nums sm:text-sm"
 					>
-						Attack {combat.attack}
+						Attack {profile.minDamage}–{profile.maxDamage}
 					</output>
 					<p className="mt-1 text-xs text-muted-foreground">
 						Base {combat.baseAttack} + weapon {combat.weaponBonus}
 					</p>
+					<output
+						aria-label="Character hit chance"
+						className="text-xs text-muted-foreground"
+					>
+						Hit {PLAYER_HIT_CHANCE}%
+					</output>
 				</div>
 				<div className="rounded-lg border bg-muted/30 p-2 sm:p-3">
 					<Shield
@@ -62,7 +75,8 @@ const CharacterStats = ({
 				</div>
 			</div>
 			<p className="text-xs leading-relaxed text-muted-foreground">
-				Armor reduces incoming damage. Hits always deal at least 1 damage.
+				Attack shows damage before armor. Armor reduces landed damage; hits deal
+				at least 1 damage. Misses deal none.
 			</p>
 		</section>
 	);

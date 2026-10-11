@@ -2,6 +2,8 @@ import { resolveIncomingDamage } from "./CombatStats";
 
 export const PLAYER_HIT_THRESHOLD = 4;
 export const MONSTER_HIT_THRESHOLD = 5;
+export const PLAYER_HIT_CHANCE = (21 - PLAYER_HIT_THRESHOLD) * 5;
+export const MONSTER_HIT_CHANCE = (21 - MONSTER_HIT_THRESHOLD) * 5;
 export type AttackProfile = {
 	hitThreshold: number;
 	minDamage: number;

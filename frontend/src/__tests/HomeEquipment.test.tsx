@@ -40,7 +40,7 @@ describe("Changing gear in Character", () => {
 			panel.getByRole("button", { name: "Short sword, slot 1" }),
 		).toBeVisible();
 		expect(panel.getByLabelText("Character attack")).toHaveTextContent(
-			"Attack 3",
+			"Attack 2–4",
 		);
 		expect(panel.getByLabelText("Character health")).toHaveTextContent(
 			"Health 9 / 10",
@@ -67,7 +67,7 @@ describe("Changing gear in Character", () => {
 		await user.keyboard("{Enter}");
 		expect(panel.getByText("Main hand empty")).toBeVisible();
 		expect(panel.getByLabelText("Character attack")).toHaveTextContent(
-			"Attack 1",
+			"Attack 1–2",
 		);
 		expect(panel.getByLabelText("Bag capacity")).toHaveTextContent("3 / 20");
 		expect(panel.getByRole("heading", { name: "Equipment" })).toHaveFocus();
@@ -81,7 +81,7 @@ describe("Changing gear in Character", () => {
 		equip.focus();
 		await user.keyboard(" ");
 		expect(panel.getByLabelText("Character attack")).toHaveTextContent(
-			"Attack 2",
+			"Attack 1–3",
 		);
 		expect(panel.getByLabelText("Bag capacity")).toHaveTextContent("2 / 20");
 		expect(screen.getByLabelText("Turn count")).toHaveTextContent("Turn 2");
@@ -107,7 +107,7 @@ describe("Changing gear in Character", () => {
 		await user.click(panel.getByRole("button", { name: "Unequip main hand" }));
 		expect(panel.getByRole("alert")).toHaveTextContent("Your bag is full");
 		expect(panel.getByLabelText("Character attack")).toHaveTextContent(
-			"Attack 2",
+			"Attack 1–3",
 		);
 		expect(panel.getByLabelText("Bag capacity")).toHaveTextContent("20 / 20");
 		expect(screen.getByLabelText("Turn count")).toHaveTextContent("Turn 0");

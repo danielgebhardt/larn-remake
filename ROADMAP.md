@@ -27,10 +27,10 @@ The following milestones are implemented and merged; they are foundations, not o
 
 Current limitations relevant to the next work:
 
-- Only one monster kind exists; all floors use the same fixed population policy and simple loot catalog.
-- Main/off hand are the only equipment slots.
+- Floor-aware rats, goblins, and orcs plus weighted found/drop loot are implemented in epic #90, awaiting developer review. Populations scale with safe space and are capped.
+- Main/off hand, chest, and head equipment are implemented; other slots are deferred.
 - Attacks always hit and deal fixed damage. Armor subtracts damage with a minimum of one per landed hit; against a one-damage attack, additional armor has no observable benefit.
-- Settings currently permits at most ten floors. The default is three 15×15 floors.
+- Settings permits up to twenty floors. The default remains three 15×15 floors; recorded balance checks use five.
 - There is no victory objective, XP, leveling, attributes, mana, spellcasting, or save/resume.
 
 ## Recommended milestone order

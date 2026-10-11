@@ -1,17 +1,19 @@
 import { useId } from "react";
 import { Button } from "@/components/ui/button";
 import type { PlayerAction } from "../../domain/game/PlayerActions";
+import type { Equipment } from "../../domain/items/Equipment";
 import {
 	EQUIPMENT_SLOT_LABELS,
 	type EquipmentSlot,
 	equipmentSlotFor,
 } from "../../domain/items/Equipment";
+import { compareEquipment } from "../../domain/items/EquipmentComparison";
 import { ITEM_DEFINITIONS, type ItemInstance } from "../../domain/items/Item";
-
 import {
 	HOTBAR_SLOTS,
 	type PotionHotbar,
 } from "../../domain/items/PotionHotbar";
+import EquipmentComparisonView from "./EquipmentComparisonView";
 
 const labels = {
 	quest: "Quest item",
@@ -23,6 +25,7 @@ const labels = {
 };
 const ItemDetails = ({
 	item,
+	equipment,
 	equippedSlot,
 	alive,
 	onAction,
@@ -31,6 +34,7 @@ const ItemDetails = ({
 	assignmentsEnabled = true,
 }: {
 	item: ItemInstance;
+	equipment: Equipment;
 	equippedSlot?: EquipmentSlot;
 	alive: boolean;
 	onAction: (action: PlayerAction) => void;
@@ -41,6 +45,7 @@ const ItemDetails = ({
 	const titleId = useId();
 	const details = ITEM_DEFINITIONS[item.kind];
 	const slot = equipmentSlotFor(item);
+	const comparison = equippedSlot ? null : compareEquipment(item, equipment);
 	const act = (action: PlayerAction) => {
 		onAction(action);
 		afterAction();
@@ -65,6 +70,7 @@ const ItemDetails = ({
 						? `Attack bonus +${details.attackBonus}`
 						: `Armor ${details.armor}`}
 			</p>
+			{comparison && <EquipmentComparisonView comparison={comparison} />}
 			<div className="flex flex-wrap gap-2">
 				{equippedSlot ? (
 					<Button

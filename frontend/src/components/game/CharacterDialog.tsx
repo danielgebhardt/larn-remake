@@ -148,6 +148,7 @@ const CharacterDialog = ({
 						<div className="grid content-start gap-4">
 							<BagContents
 								bag={bag}
+								equipment={equipment}
 								selectedId={
 									selection?.source === "bag" ? (selected?.id ?? null) : null
 								}
@@ -158,6 +159,7 @@ const CharacterDialog = ({
 									<div ref={detailsRef}>
 										<ItemDetails
 											item={selected}
+											equipment={equipment}
 											potionHotbar={potionHotbar}
 											assignmentsEnabled={!won}
 											equippedSlot={

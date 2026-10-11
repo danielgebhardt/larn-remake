@@ -11,6 +11,7 @@ import CharacterDialog from "./components/game/CharacterDialog.tsx";
 import PickupDialog from "./components/game/PickupDialog";
 import PlayerStatus from "./components/game/PlayerStatus.tsx";
 import PotionHotbarView from "./components/game/PotionHotbarView";
+import QuestStatus from "./components/game/QuestStatus";
 import {
 	connectDungeonFloors,
 	type DungeonRun,
@@ -191,6 +192,12 @@ const Home = ({
 		}));
 	};
 	const handlePickupRequested = () => {
+		const cure = currentItems.find((entry) => entry.item.kind === "cure");
+		if (cure) {
+			handleActionRequested({ type: "pickup", itemId: cure.item.id });
+			return;
+		}
+
 		if (currentItems.length === 0) {
 			setGame((current) => ({
 				...current,
@@ -229,6 +236,7 @@ const Home = ({
 							onCloseRequested={() => setCharacterOpen(false)}
 							finalFocus={characterOpenedFromMap ? mapRef : undefined}
 							player={player}
+							quest={game.state.quest}
 							equipment={game.state.equipment}
 							bag={game.state.bag}
 							potionHotbar={game.state.potionHotbar}
@@ -298,6 +306,7 @@ const Home = ({
 						/>
 						<PlayerStatus turn={turn} player={player} />
 					</div>
+					<QuestStatus quest={game.state.quest} />
 					<DungeonLayout
 						mapRef={mapRef}
 						monsters={activeMonsters}

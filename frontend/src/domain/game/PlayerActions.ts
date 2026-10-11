@@ -123,6 +123,10 @@ export const resolvePlayerAction = (
 			state: monsterPhase({
 				...state,
 				bag: transfer.bag,
+				quest:
+					action.type === "pickup" && transfer.event.item === "cure"
+						? { ...state.quest, cureRecovered: true }
+						: state.quest,
 				floorItems: transfer.floorItems,
 				potionHotbar:
 					action.type === "pickup"

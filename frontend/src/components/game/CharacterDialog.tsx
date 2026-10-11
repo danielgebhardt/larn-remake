@@ -2,6 +2,7 @@ import { Dialog } from "@base-ui/react/dialog";
 import { type RefObject, useLayoutEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import type { ActivityHistory } from "../../domain/game/ActivityHistory";
+import type { QuestState } from "../../domain/game/Adventure";
 import type { PlayerAction } from "../../domain/game/PlayerActions";
 import type { PlayerStats } from "../../domain/game/PlayerStats";
 import type { Bag } from "../../domain/items/Bag";
@@ -15,9 +16,11 @@ import EquipmentView from "./EquipmentView";
 import FloorItemsView from "./FloorItemsView";
 import ItemDetails from "./ItemDetails";
 import PotionAssignments from "./PotionAssignments";
+import QuestStatus from "./QuestStatus";
 
 type CharacterDialogProps = {
 	player: PlayerStats;
+	quest: QuestState;
 	equipment: Equipment;
 	bag: Bag;
 	potionHotbar: PotionHotbar;
@@ -32,6 +35,7 @@ type CharacterDialogProps = {
 
 const CharacterDialog = ({
 	player,
+	quest,
 	equipment,
 	bag,
 	potionHotbar,
@@ -164,6 +168,7 @@ const CharacterDialog = ({
 									</p>
 								)}
 							</BagContents>
+							<QuestStatus quest={quest} pouch />
 							<FloorItemsView
 								items={floorItems}
 								alive={player.health > 0}

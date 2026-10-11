@@ -25,3 +25,10 @@ export const createQuest = (run: DungeonRun): QuestState => ({
 	cureRecovered: false,
 	victory: null,
 });
+
+export const questInstruction = (quest: QuestState): string =>
+	quest.victory
+		? "Cure delivered. Adventure complete."
+		: quest.cureRecovered
+			? "Return to the entrance on floor 1."
+			: `Recover the cure on floor ${quest.goalFloor}.`;

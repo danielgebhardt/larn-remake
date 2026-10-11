@@ -155,6 +155,12 @@ const DungeonHelp = () => (
 						stair tile to change floors automatically.
 					</li>
 					<li>
+						<span className="font-medium text-foreground">Quest.</span> Recover
+						the cure on the final floor with G, then return to the entrance on
+						floor 1. The protected quest pouch uses no bag slot; the cure cannot
+						be drunk or dropped. There is no time limit.
+					</li>
+					<li>
 						<span className="font-medium text-foreground">Equipment.</span> Open
 						Character to inspect items, equip carried gear, or unequip an
 						occupied slot. Main/off hand, chest, and head are available; armor

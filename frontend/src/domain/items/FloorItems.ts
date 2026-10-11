@@ -38,6 +38,15 @@ export const transferFloorItem = (
 			(entry) => entry.item.id === action.itemId,
 		);
 		if (!found) return { error: "That item is not on your current tile." };
+		if (found.item.kind === "cure") {
+			if (state.quest.cureRecovered)
+				return { error: "You already recovered the cure." };
+			return {
+				bag: state.bag,
+				floorItems: state.floorItems.filter((entry) => entry !== found),
+				event: { type: "item-picked-up", item: "cure" },
+			};
+		}
 		if (state.bag.items.length >= BAG_CAPACITY)
 			return {
 				error: "Your bag is full. Make room before picking up an item.",

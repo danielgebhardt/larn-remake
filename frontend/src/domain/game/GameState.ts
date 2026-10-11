@@ -1,5 +1,6 @@
 import type { DungeonRun } from "../dungeon/DungeonRun.ts";
 import { type Bag, createStartingBag } from "../items/Bag";
+import { spawnRunQuestItems } from "../items/CurePlacement";
 import { createStartingEquipment, type Equipment } from "../items/Equipment";
 import type { FloorItem } from "../items/FloorItems";
 import { spawnRunItems } from "../items/ItemPlacement";
@@ -29,6 +30,7 @@ export type GameState = {
 
 export const createGameState = (run: DungeonRun): GameState => {
 	const monsters = spawnRunMonsters(run);
+	const loot = spawnRunItems(run, monsters);
 	return {
 		run,
 		turn: 0,
@@ -38,7 +40,7 @@ export const createGameState = (run: DungeonRun): GameState => {
 		equipment: createStartingEquipment(),
 		bag: createStartingBag(),
 		potionHotbar: createPotionHotbar(),
-		floorItems: spawnRunItems(run, monsters),
+		floorItems: [...loot, ...spawnRunQuestItems(run, monsters, loot)],
 		monsters,
 		activityHistory: createActivityHistory(),
 	};

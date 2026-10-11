@@ -14,6 +14,7 @@ import {
 } from "../../domain/items/PotionHotbar";
 
 const labels = {
+	quest: "Quest item",
 	weapon: "Weapon",
 	shield: "Shield",
 	potion: "Potion",

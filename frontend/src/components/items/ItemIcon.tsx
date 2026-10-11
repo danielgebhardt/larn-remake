@@ -1,5 +1,6 @@
 import {
 	FlaskRound,
+	Gem,
 	HardHat,
 	type LucideIcon,
 	Shield,
@@ -9,6 +10,7 @@ import {
 import type { ItemKind } from "../../domain/items/Item";
 
 const icons: Record<ItemKind, LucideIcon> = {
+	cure: Gem,
 	"healing-potion": FlaskRound,
 	"short-sword": Sword,
 	"iron-sword": Sword,
@@ -24,7 +26,7 @@ const ItemIcon = ({ kind }: { kind: ItemKind }) => {
 		<Icon
 			aria-hidden="true"
 			focusable="false"
-			className={`size-full ${kind === "healing-potion" ? "text-item-potion" : "text-item-gear"}`}
+			className={`size-full ${kind === "cure" ? "text-item-cure" : kind === "healing-potion" ? "text-item-potion" : "text-item-gear"}`}
 		/>
 	);
 };

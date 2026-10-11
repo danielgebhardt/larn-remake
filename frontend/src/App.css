@@ -17,6 +17,7 @@
 	--color-goblin: var(--goblin);
 	--color-monster-rat: var(--monster-rat);
 	--color-monster-orc: var(--monster-orc);
+	--color-item-cure: var(--item-cure);
 	--color-item-gear: var(--item-gear);
 	--color-item-potion: var(--item-potion);
 	--color-stairs: var(--stairs);
@@ -107,6 +108,7 @@
 	--monster-rat: #7e22ce;
 	--monster-orc: #be123c;
 	--item-gear: #a16207;
+	--item-cure: #1d4ed8;
 	--item-potion: #0e7490;
 	--stairs: #a16207;
 }
@@ -154,6 +156,7 @@
 	--monster-rat: #d8b4fe;
 	--monster-orc: #fda4af;
 	--item-gear: #fbbf24;
+	--item-cure: #93c5fd;
 	--item-potion: #67e8f9;
 	--stairs: #fbbf24;
 }

@@ -9,6 +9,7 @@ import {
 	DEFAULT_RUN_CONFIGURATION,
 } from "../domain/dungeon/RunConfiguration.ts";
 import * as CombatRandomness from "../domain/game/CombatRandomness";
+import * as CurePlacement from "../domain/items/CurePlacement";
 import type { FloorItem } from "../domain/items/FloorItems";
 import * as ItemPlacement from "../domain/items/ItemPlacement";
 import * as MonsterDrops from "../domain/items/MonsterDrops";
@@ -31,6 +32,7 @@ export const renderHome = (ui: ReactElement<ComponentProps<typeof Home>>) => {
 		predictableAttackRolls,
 	);
 	// Legacy page scenarios exercise exploration without monster occupancy.
+	vi.spyOn(CurePlacement, "spawnRunQuestItems").mockReturnValue([]);
 	vi.spyOn(MonsterPlacement, "spawnRunMonsters").mockReturnValue([]);
 	vi.spyOn(ItemPlacement, "spawnRunItems").mockReturnValue([]);
 	return renderUI(
@@ -118,6 +120,7 @@ export const stubDungeonRun = (
 	monsters: readonly Monster[] = [],
 	floorItems: readonly FloorItem[] = [],
 ) => ({
+	questItems: vi.spyOn(CurePlacement, "spawnRunQuestItems").mockReturnValue([]),
 	rolls: vi
 		.spyOn(CombatRandomness, "createAttackRolls")
 		.mockImplementation(predictableAttackRolls),

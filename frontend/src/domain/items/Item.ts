@@ -1,7 +1,7 @@
 import { MAX_FLOORS } from "../dungeon/RunConfiguration";
 export type ItemDefinition = {
 	name: string;
-	type: "potion" | "weapon" | "shield" | "chest-armor" | "helmet";
+	type: "potion" | "weapon" | "shield" | "chest-armor" | "helmet" | "quest";
 	attackBonus: number;
 	armor: number;
 	description: string;
@@ -11,6 +11,18 @@ export type ItemDefinition = {
 	dropWeight: number;
 };
 export const ITEM_DEFINITIONS = {
+	cure: {
+		name: "Cure",
+		type: "quest",
+		attackBonus: 0,
+		armor: 0,
+		description:
+			"The cure you came to recover. Carry it safely back to the entrance.",
+		minFloor: 1,
+		maxFloor: MAX_FLOORS,
+		foundWeight: 0,
+		dropWeight: 0,
+	},
 	"healing-potion": {
 		minFloor: 1,
 		maxFloor: MAX_FLOORS,
@@ -125,7 +137,7 @@ export const validateItemDefinition = (definition: ItemDefinition): void => {
 		![foundWeight, dropWeight].every(
 			(weight) => Number.isFinite(weight) && weight >= 0,
 		) ||
-		foundWeight + dropWeight === 0 ||
+		(definition.type !== "quest" && foundWeight + dropWeight === 0) ||
 		!Number.isInteger(armor) ||
 		armor < 0 ||
 		!Number.isInteger(attackBonus) ||

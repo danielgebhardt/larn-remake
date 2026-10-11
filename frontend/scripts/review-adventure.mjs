@@ -26,6 +26,9 @@ try {
 	const { ITEM_DEFINITIONS } = await server.ssrLoadModule(
 		"/src/domain/items/Item.ts",
 	);
+	const { levelForExperience } = await server.ssrLoadModule(
+		"/src/domain/game/Progression.ts",
+	);
 	const steps = [
 		["up", -1, 0],
 		["right", 0, 1],
@@ -84,6 +87,8 @@ try {
 		};
 		let potions = 0;
 		const visited = new Set([1]);
+		const checkpoints = [];
+		const actions = [];
 		let reason = "step limit";
 		for (let iteration = 0; iteration < 500; iteration++) {
 			if (state.quest.victory) {
@@ -184,6 +189,8 @@ try {
 					action = { type: "move", direction: path[0] };
 				}
 			}
+			const previousFloor = state.run.activeFloor;
+			actions.push(action);
 			const before = state.monsters.length;
 			const previousEventId = state.activityHistory.nextId;
 			state = resolvePlayerAction(state, action).state;
@@ -194,10 +201,26 @@ try {
 				if (Object.hasOwn(combat, entry.event.type)) combat[entry.event.type]++;
 			}
 			visited.add(state.run.activeFloor);
+			if (state.run.activeFloor !== previousFloor)
+				checkpoints.push({
+					floor: state.run.activeFloor,
+					turn: state.turn,
+					level: levelForExperience(state.progression.experience),
+					experience: state.progression.experience,
+					health: state.player.health,
+					maxHealth: state.player.maxHealth,
+				});
 		}
+		if (state.quest.victory) reason = "won";
+		else if (state.player.health <= 0) reason = "died";
 		console.log(
 			JSON.stringify({
 				seed,
+				level: levelForExperience(state.progression.experience),
+				experience: state.progression.experience,
+				maxHealth: state.player.maxHealth,
+				checkpoints,
+				...(process.env.LARN_REVIEW_TRACE ? { actions } : {}),
 				reason,
 				cureRecovered: state.quest.cureRecovered,
 				victory: state.quest.victory,

@@ -3,13 +3,19 @@ export const REVIEW_USAGE = `Usage: node scripts/review-adventure.mjs [seeds...]
   --rows N --cols N              Dungeon dimensions, 10–100
   --floors N                    Dungeon depth, 5–20 (character cap stays 5)
   --max-actions N               Action budget per seed (default 500)
+  --policy NAME                 baseline (default) or spell-aware
   --summary-only                Print aggregate results only
   --help                        Show this usage
 Defaults: seeds 0, 1, 123, 987; 15×15; 5 floors.
 LARN_REVIEW_TRACE=1 adds actions to each per-seed result.`;
 
 export function parseReviewOptions(args, defaults, limits, maxSeed) {
-	const options = { ...defaults, maxActions: 500, summaryOnly: false };
+	const options = {
+		...defaults,
+		maxActions: 500,
+		summaryOnly: false,
+		policy: "baseline",
+	};
 	const seeds = [];
 	let seedStart, seedCount;
 	const integer = (input, min, max, name) => {
@@ -32,7 +38,12 @@ export function parseReviewOptions(args, defaults, limits, maxSeed) {
 			"--cols": "cols",
 			"--floors": "floorCount",
 		};
-		if (fields[arg]) {
+		if (arg === "--policy") {
+			const policy = args[++i];
+			if (!["baseline", "spell-aware"].includes(policy))
+				throw new Error("Choose policy baseline or spell-aware.");
+			options.policy = policy;
+		} else if (fields[arg]) {
 			const field = fields[arg];
 			options[field] = integer(
 				args[++i],

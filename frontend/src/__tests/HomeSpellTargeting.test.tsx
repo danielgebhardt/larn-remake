@@ -67,6 +67,10 @@ describe("Spell targeting controls", () => {
 				name: "Target giant rat at row 1, column 5",
 			}),
 		).toHaveAttribute("aria-pressed", "true");
+		expect(
+			screen.getByRole("button", { name: "Potion slot 1: empty" }),
+		).toBeDisabled();
+		expect(screen.getByRole("button", { name: "Heal, 4 mana" })).toBeDisabled();
 		await user.keyboard("g 1w");
 		expect(screen.getByLabelText("Turn count")).toHaveTextContent("Turn 0");
 		await user.keyboard("{Enter}");

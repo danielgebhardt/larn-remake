@@ -15,7 +15,8 @@ The application currently includes:
 - A player who starts on a valid floor tile inside a generated room.
 - Keyboard movement using the arrow keys or WASD.
 - Collision rules that prevent movement into walls or outside dungeon bounds.
-- Turn counting for successful movement and a current/max-health status display.
+- Committed world turns, health/mana status, earned levels and automatic Strength/Dexterity/Intelligence growth.
+- Known Magic Missile and Heal spells, keyboard/mouse targeting, mana potions and slow turn-based recovery.
 - Configurable dungeon creation with rectangular dimensions.
 - Binary space partitioning that divides dungeon space into terminal regions.
 - Rooms carved into terminal regions and corridors connecting those rooms.
@@ -113,11 +114,11 @@ Healing potions are identified consumables in the shared floor-loot and goblin-d
 
 ## Potion hotbar
 
-Four run-local slots hold potion-kind assignments, initially empty. Picking up the first carried copy of an unassigned potion kind automatically assigns it to the first empty slot (1–4), as part of the normal pickup turn. Existing assignments are preserved. If you clear a shortcut while still carrying that kind, additional copies do not reassign it; after carrying none, a later pickup can assign it again. A full hotbar never blocks pickup or overwrites a slot. Assigning, moving, or clearing an assignment is free and does not move bottles out of the bag. Assigning a kind to another slot moves its existing assignment, avoiding duplicate shortcuts. Availability is derived from carried copies, so dropping or drinking the last bottle leaves an unavailable assignment, and collecting another restores it. Activation consumes the first matching bag copy through the normal potion action; successful healing costs one turn and runs the monster phase afterward. Empty slots, missing bottles, and full health cost nothing. Activation is disabled after death; assignments are configuration and can still be edited. New/replayed runs reset assignments. `domain/items/PotionHotbar.ts` owns assignments and inventory-derived availability. Select a potion in Character, then choose assignment button 1–4 in its details. The Potion shortcuts section shows all assignments/counts and Clear controls. Assignment controls are also available after death, since they change configuration rather than using a potion. Above the map, four numbered slots appear to the left of the player icon/status, showing the potion icon and carried count. Click a slot or press 1–4 from gameplay to use it; clicking returns focus to the map. Empty/unavailable/full-health attempts show feedback without spending a turn. Number keys ignore repeats and modified shortcuts, and respect open menus, controls, editors, and log focus. Slots wrap above player status on narrow screens.
+Four run-local slots hold potion-kind assignments, initially empty. Picking up the first carried copy of an unassigned potion kind automatically assigns it to the first empty slot (1–4), as part of the normal pickup turn. Existing assignments are preserved. If you clear a shortcut while still carrying that kind, additional copies do not reassign it; after carrying none, a later pickup can assign it again. A full hotbar never blocks pickup or overwrites a slot. Assigning, moving, or clearing an assignment is free and does not move bottles out of the bag. Assigning a kind to another slot moves its existing assignment, avoiding duplicate shortcuts. Availability is derived from carried copies, so dropping or drinking the last bottle leaves an unavailable assignment, and collecting another restores it. Activation consumes the first matching bag copy through the normal potion action; successful potion recovery costs one turn and runs the monster phase afterward. Empty slots, missing bottles, and a full relevant resource cost nothing. Activation is disabled after death; assignments are configuration and can still be edited. New/replayed runs reset assignments. `domain/items/PotionHotbar.ts` owns assignments and inventory-derived availability. Select a potion in Character, then choose assignment button 1–4 in its details. The Potion shortcuts section shows all assignments/counts and Clear controls. Assignment controls are also available after death, since they change configuration rather than using a potion. Above the map, four numbered slots appear to the left of the player icon/status, showing the potion icon and carried count. Click a slot or press 1–4 from gameplay to use it; clicking returns focus to the map. Empty/unavailable/full-health attempts show feedback without spending a turn. Number keys ignore repeats and modified shortcuts, and respect open menus, controls, editors, and log focus. Slots wrap above player status on narrow screens.
 
 ## Controls
 
-The header shows the current floor, **New Dungeon**, **Character**, **Settings**, and **Help**. Help opens a sheet with keyboard controls, map symbols and fog colors, and notes about exploring and combat. The potion hotbar, player status, map, and activity log occupy the main play area. Settings opens a modal side panel containing the current seed and seed replay form. A small footer shows the backend connectivity diagnostic. Exploration runs in the frontend and remains available if that check fails.
+The header shows the current floor, **New Dungeon**, **Character**, **Settings**, and **Help**. Help opens a sheet with keyboard controls, map symbols and fog colors, and notes about exploring and combat. The potion and spell hotbars, player status, map, and activity log occupy the main play area. Settings opens a modal side panel containing the current seed and seed replay form. A small footer shows the backend connectivity diagnostic. Exploration runs in the frontend and remains available if that check fails.
 
 Shared shadcn styling and theme tokens live in `frontend/src/App.css`, imported by `App.tsx`. Page layout uses Tailwind utilities, and reusable controls live in `frontend/src/components/ui`.
 
@@ -131,7 +132,10 @@ Move the player with either control scheme:
 | Right | → | D |
 | Wait | Spacebar | — |
 | Pick up | G | — |
-| Character | I | — |
+| Character | I or C | — |
+| Target Magic Missile | Z | Arrows select; Enter or a target click casts |
+| Cancel targeting | Escape or Z | — |
+| Self-cast Heal | H | Click Heal in the spell hotbar |
 | Use assigned potion | 1–4 | — |
 
 **G** (or lowercase **g**) picks up the sole item on your tile immediately. With multiple items, a compact chooser lists current-tile loot; each selection uses one turn and runs the normal monster phase. Opening or dismissing it is free, and Escape/Close returns focus to the map. The chooser closes when the tile is empty or the player dies. Empty tiles and full bags show feedback without spending a turn. Held-key repeats and Ctrl/Alt/Meta shortcuts do not pick up; gameplay keys pause in all menus and the chooser, and G is ignored in focused controls, editors, and the activity log. Character pickup controls remain available.
@@ -211,11 +215,13 @@ Start with `domain/dungeon/RunConfiguration.ts` when tuning dungeon generation. 
 | [App.css](frontend/src/App.css) | Tile size, light/dark theme colors, fog backgrounds and remembered-icon opacity, and shared styling. The `--dungeon-tile-size` variable sizes dungeon cells, grid columns, and legend icons together. |
 | [TileVisuals.ts](frontend/src/components/dungeon/TileVisuals.ts) | Tile icon choices, color classes, backgrounds, and accessible labels. |
 | [ActivityHistory.ts](frontend/src/domain/game/ActivityHistory.ts) | Structured activity events, stable entry IDs, and the recent-history limit (100 entries). |
-| [MonsterPlacement.ts](frontend/src/domain/monsters/MonsterPlacement.ts) | Internal population default (up to 3 per floor), indexed placement seeds and protected entry buffers. |
+| [MonsterPlacement.ts](frontend/src/domain/monsters/MonsterPlacement.ts) | Safe-space density (one per 30 eligible tiles, minimum 2 and maximum 12, bounded by available space), indexed placement seeds and protected entry buffers. |
 | [Monster.ts](frontend/src/domain/monsters/Monster.ts) | Monster types and shared base stats; goblin maximum health 4, attack damage 1 and detection radius 6. |
 | [MonsterVisuals.ts](frontend/src/components/monsters/MonsterVisuals.ts) | Per-monster SVG, color class, and accessible label. |
 | [PlayerStats.ts](frontend/src/domain/game/PlayerStats.ts) | Internal starting maximum health (10) and base player attack damage (1), before earned Strength/weapon bonuses; fresh players start at full health. |
 | [Progression.ts](frontend/src/domain/game/Progression.ts), [Attributes.ts](frontend/src/domain/game/Attributes.ts), [MeleeRules.ts](frontend/src/domain/game/MeleeRules.ts) | Internal XP curve, character level cap 5, health/attribute growth, and derived accuracy/evasion. Dungeon depth remains independently configurable up to 20. |
+| [Mana.ts](frontend/src/domain/game/Mana.ts), [Spells.ts](frontend/src/domain/game/Spells.ts) | Internal mana capacity/recovery cadence and shared spell identities, costs, cast modes, range, base effects, and known-spell initialization. Intelligence derives from level in `Attributes.ts`. |
+| [Item.ts](frontend/src/domain/items/Item.ts) | Item effects, including health/mana potion recovery, floor eligibility, and found/drop weights. |
 | [Seed.ts](frontend/src/domain/dungeon/Seed.ts) | Seed range, input validation, and seeded randomness. |
 | [ThemeProvider.tsx](frontend/src/settings/ThemeProvider.tsx) | Default appearance and saved Light/Dark/System preference. |
 | [vite.config.ts](frontend/vite.config.ts) | Frontend tooling, import aliases, backend development proxy, and test environment. |
@@ -374,3 +380,25 @@ Living players at 1–5 HP see a red current-health number, an icon/text warning
 The activity log gives level-ups and adventure completion a highlighted row with a milestone icon. Attribute growth uses lighter emphasis; death uses the danger color. Routine XP, combat, loot, and travel keep their normal presentation. Message order, polite announcements, and scroll following are unchanged.
 
 Carried gear compares against its compatible equipped slot: green **Better**, blue **Same**, red **Lower**. Comparison uses weapon attack bonus or armor in the same slot, excluding player attributes and other armor slots. Item details show carried versus equipped contribution and its signed difference; selection keeps a separate ring. Empty equipment slots compare against zero, and potions/quest items are excluded. Comparisons update after transfers and equipment changes without spending extra turns.
+
+
+## Mana and spellcasting
+
+Every new/replayed run knows **Magic Missile** and **Heal**, starts with full mana, and retains mana/knowledge across floors. Intelligence is determined by character level: 10 at levels 1–2, 12 at 3–4, and 14 at 5. Its modifier is `floor((Intelligence − 10) / 2)`. Maximum mana is `10 + 2 × modifier`, giving 10/12/14. Earned capacity adds the same amount to current mana, preserving missing mana: 3/10 becomes 5/12. Classes with different starting stats/growth and equipment or permanent potion bonuses are future work; there is no manual attribute allocation.
+
+| Spell | Cost | Current effect | Activation |
+| --- | --- | --- | --- |
+| Magic Missile | 3 mana | Guaranteed hit; seeded uniform 3–5 damage plus Intelligence modifier | Z or its hotbar button enters targeting; arrows cycle; Enter or click a highlighted monster casts. |
+| Heal | 4 mana | Restore up to 4 + Intelligence modifier health, capped at maximum | H or its hotbar button casts immediately on self. |
+
+Magic Missile targets one living monster on the active floor within **Manhattan range 6** (horizontal + vertical distance), with clear wall-blocked sight. The UI offers only currently visible targets when fog is enabled; range/sight still apply with fog off. Other creatures do not block the bolt. Escape or Z cancels for free. During targeting, normal movement, pickup, waiting, and potion/self-heal activation are paused; Tab still navigates controls. Opening a menu, changing floors, ending, or restarting the run clears targeting. Editors, focused unrelated controls, modal browsing, modifiers and held activation keys retain their keyboard protections.
+
+A successful cast stays on the player's tile, spends its cost and **one normal turn**, applies the effect and any kill/XP/health/attribute/mana-capacity growth, then resolves surviving monsters. Melee and spells share confirmed kill rewards and loot. Invalid, unknown, unaffordable, full-health Heal, and ended-run casts spend nothing and explain the reason. Spell damage uses the existing seeded combat source with a distinct spell attacker identity; unchanged melee contexts keep their old randomness.
+
+Recover **1 mana at global turns 10, 20, 30…**, after monster retaliation, capped by derived capacity. Every committed action counts, including waiting, inventory actions and stairs. Blocked/rejected actions, inspection, hotbar assignment and targeting/cancellation are free. Recovery cannot fund an initially unaffordable cast and never happens after death or victory. **Safe rooms allow unlimited waiting/recovery in this MVP.** Large-map travel also makes mana plentiful; later pressure/tactics work must address that deliberately.
+
+**Mana potions** restore up to **5 mana** before monsters act, consume one bottle/turn, and reject full-mana attempts for free. They use the same bag, seeded found/drop system, first-free shortcut assignment, per-kind counts and 1–4 controls as healing potions. They are eligible on floors 1–20 with found/drop weights 5/5, and have a distinct bottle icon and blue item color. Adding catalog entries changes loot outcomes for an older seed, while the same seed/configuration/content version remains reproducible and extending floor count preserves earlier ordinary loot.
+
+The Character dialog defaults to **Character** each time it opens; **Spells** lists the same authoritative known spells as the hotbar with derived effects, costs and controls. Tab browsing is free and does not cast or move. Close the dialog to use the hotbar or gameplay shortcuts. Levels improve potency and capacity; they **never unlock spells**. Future new spells require found spellbooks, which are not implemented yet.
+
+The adventure diagnostic keeps its existing **baseline** policy and offers `--policy spell-aware` for useful gear, visible ranged casts, healing and mana potion use without deliberate safe resting. Both policies are omniscient route walkers; report names, rules and action budgets alongside results. See [mana epic review notes](docs/mana-review.md) for commands, reproducible outcomes, commit order and the human playtest checkpoint.

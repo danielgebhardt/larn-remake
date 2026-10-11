@@ -29,9 +29,9 @@ Current limitations relevant to the next work:
 
 - Floor-aware rats, goblins, and orcs plus weighted found/drop loot are implemented and merged in epic #90. Populations scale with safe space and are capped.
 - Main/off hand, chest, and head equipment are implemented; other slots are deferred.
-- Seeded hit/miss and bounded damage are implemented and merged in epic #99. Armor affects landed damage separately from accuracy; criticals remain deferred; earned Strength and Dexterity are implemented in epic #116, pending review.
+- Seeded hit/miss and bounded damage are implemented and merged in epic #99. Armor affects landed damage separately from accuracy; criticals remain deferred; earned Strength and Dexterity are merged in epic #116.
 - Settings permits five through twenty floors. The default is five 15×15 floors.
-- The cure-and-return objective in epic #109 is merged. XP, capped leveling, Strength, and Dexterity in epic #116 are implemented, pending review. Mana, spellcasting, other attributes, and save/resume remain future work.
+- The cure-and-return objective in epic #109 is merged. XP, capped leveling, Strength, and Dexterity in epic #116 are merged. Mana, Intelligence and two initially known spells in epic #127 are implemented on `codex/mana-spellcasting`, pending developer review. Other attributes and save/resume remain future work.
 
 ## Recommended milestone order
 
@@ -188,7 +188,7 @@ Recorded five-floor diagnostics complete the return for seeds 0 and 987, while s
 
 ## Milestone 4: Experience, levels, and attributes
 
-Implementation status: [epic #116](https://github.com/danielgebhardt/larn-remake/issues/116), stories #117–124, is implemented on `codex/character-progression`, pending developer review. See [progression review notes](docs/progression-review.md) for the ordered commits, formulas, diagnostic results, and manual checkpoint.
+Implementation status: [epic #116](https://github.com/danielgebhardt/larn-remake/issues/116), stories #117–124, is merged. See [progression review notes](docs/progression-review.md) for the ordered commits, formulas, diagnostic results, and manual checkpoint.
 
 | Story | Outcome |
 | --- | --- |
@@ -205,13 +205,13 @@ Character cap 5 is independent of dungeon depth 5–20. XP continues accumulatin
 
 Before expanding the rules, the developer should play several large twenty-floor runs and review progression pace, potion availability, sustained combat after the cap, and exploration behavior. The diagnostic is an omniscient coverage tool, not a human win-rate estimate. Its action-budget cutoffs and routing failures are reported separately from death.
 
-Remaining attribute work: Constitution when it has a clear health/resistance benefit; Intelligence with mana and a usable spell. Wisdom/Charisma, point allocation, respecs, classes, skill trees, criticals, and generalized modifiers wait for concrete gameplay needs. Twenty-floor balance remains open.
+Remaining attribute work: Constitution when it has a clear health/resistance benefit; Intelligence is implemented with mana and usable spells in epic #127, pending review. Wisdom/Charisma, point allocation, respecs, classes, skill trees, criticals, and generalized modifiers wait for concrete gameplay needs. Twenty-floor balance remains open.
 
 ## Feedback polish and next epic proposals
 
-Stories #125–126 are implemented on `codex/gameplay-feedback`, based on the progression branch, pending review: shared low-health feedback at 1–5 HP and highlighted major activity entries. Large-map playtests found sparse encounters, redundant gear, and early capped progression. The 50×50×10 diagnostic also exposes its hoarding limitation: selecting only useful gear improves outcomes dramatically. Address the diagnostic policy before drawing supply-balance conclusions from its deaths.
+Stories #125–126 are merged: shared low-health feedback at 1–5 HP and highlighted major activity entries. Large-map playtests found sparse encounters, redundant gear, and early capped progression. The 50×50×10 diagnostic also exposes its hoarding limitation: selecting only useful gear improves outcomes dramatically. Address the diagnostic policy before drawing supply-balance conclusions from its deaths.
 
-Suggested next epic order, pending developer agreement:
+The agreed mana epic is implemented for review; subsequent priorities remain proposals:
 
 1. **Mana and practical spellcasting:** one ranged spell, explicit range/line-of-sight/target rules, mana cost and recovery, clear feedback, then a self-healing spell. Introduce Intelligence only with a meaningful contribution. Reuse deterministic action resolution and normal monster retaliation.
 2. **Enemies with distinct tactics:** one ranged enemy using the targeting foundation and one contrasting melee behavior. Add depth-appropriate content alongside the behavior, then revisit encounter spacing, XP pace, and obsolete gear eligibility. Raising population alone would accelerate the current level cap and increase healing demand.
@@ -219,18 +219,22 @@ Suggested next epic order, pending developer agreement:
 
 The [Larn monster list](https://larn.fandom.com/wiki/Monsters) describes speed differences, breath attacks, and resistances; [spells](https://larn.fandom.com/wiki/Spells) describe directional targeting and range; [dungeon objects](https://larn.fandom.com/wiki/Dungeon_Objects) include doors, fountains, chests, mirrors, and traps. These are inspiration for meaningful choices, not a requirement to copy formulas, permanent stat drains, equipment destruction, or the full catalog. The wiki home could not be fetched directly; available indexed page content informed these proposals. Existing later mana/town plans remain below; no new gameplay epic is authorized by this planning note.
 
-## Milestone 5: Mana, spells, and status effects
+## Milestone 5: Mana and practical spellcasting
 
-Add current/max mana together with a first usable spell, not an unused bar:
+[Epic #127](https://github.com/danielgebhardt/larn-remake/issues/127) is implemented on `codex/mana-spellcasting`, pending developer review. Story order: #128 → #137 → #129 → #130 → #131 → #132 → #133 → #134 → #135. See [mana review notes](docs/mana-review.md) for the ordered commits, rules, recorded diagnostics, browser review and manual checkpoint.
 
-- Start with one ranged spell that creates a meaningful alternative to bump attacks; consider a healing spell second. Write targeting/range/line-of-sight rules explicitly.
-- Define cost, recovery, successful action timing, insufficient-mana rejection, death rules, and interactions with monster turns.
-- Introduce Intelligence only with its actual contribution to mana, learning, or damage.
-- Add mana potion/hotbar support once there is mana to restore. Existing potion-kind assignment rules should extend naturally.
-- Introduce one status effect at a time (for example poison or temporary protection), with duration, stacking, refresh, expiry, turn timing, and log/UI behavior.
-- Scrolls can later provide limited-use effects without requiring a large learned spellbook.
+- Intelligence grows automatically by level, consistent with Strength/Dexterity; it improves mana capacity and both spell effects. Growth preserves missing mana.
+- Both Magic Missile and Heal start known. Knowledge is independent of levels; future spells require found spellbooks, with actual books/acquisition deferred.
+- Targeted casting supports Z, arrows/Enter and map clicks; Heal supports H or a direct hotbar click. Invalid/canceled actions are free; successful casts use the ordinary turn and monster phase.
+- A distinct known-spell hotbar sits beside potions. Character and Spells tabs preserve inventory and provide shared derived information.
+- Mana recovers slowly on committed turns, plus identified mana potions using ordinary loot/shortcut rules.
+- The diagnostic retains a named baseline and adds a spell-aware useful-gear policy. Large maps generate ample mana through travel; recorded wins are not human win-rate or complete balance claims.
 
-Defer a large spell catalog, area targeting, summons, elemental resistances, cooldown systems, and equipment affixes until the first spell loop works.
+Before the next gameplay epic, review these commits and manually try several short and large runs. Decide whether ranged enemy tactics or resource pressure should come first; do not treat more mana or more monsters as an automatic fix for long walks.
+
+Later class selection should define different starting attributes and automatic level growth rather than manual point distribution. Equipment bonuses and permanent stat potions should remain separate from base earned attributes when those actual stories arrive.
+
+Status effects remain future work: introduce one at a time, specifying duration, stacking, refresh, expiry, turn timing and feedback. Scrolls can later provide limited-use effects. Defer broad spell catalogs, area targeting, summons, resistances, cooldowns and affixes until concrete gameplay needs them.
 
 ## Larn-inspired adventure features
 
@@ -277,4 +281,4 @@ Avoid an exhaustive browser/device matrix, screenshot baselines for every tile, 
 - Mid-run spawning, respawn, reinforcement schedules, sophisticated AI, and complex speed/initiative systems.
 - Multiplayer, cloud persistence, accounts, and deployment infrastructure without a concrete use case.
 
-After accepting the cure-and-return epic, prioritize **experience and a small useful level-up rule**, then add attributes and magic only alongside their concrete effects. Human playtesting may justify balance stories first.
+Cure-and-return and character progression are merged; mana/spellcasting is implemented for review. Human playtesting may justify balance or exploration polish before the proposed enemy tactics and dungeon interactions.

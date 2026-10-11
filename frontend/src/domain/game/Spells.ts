@@ -10,7 +10,7 @@ export const SPELL_DEFINITIONS = {
 		minimumDamage: 3,
 		maximumDamage: 5,
 		description:
-			"A homing bolt that always hits one monster within 6 tiles and clear line of sight.",
+			"A homing bolt that always hits one monster within range and clear line of sight.",
 	},
 	heal: {
 		name: "Heal",

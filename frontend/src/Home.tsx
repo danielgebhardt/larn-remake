@@ -334,7 +334,7 @@ const Home = ({
 						<PotionHotbarView
 							bag={game.state.bag}
 							potionHotbar={game.state.potionHotbar}
-							alive={canPlay}
+							alive={gameplayEnabled && !spells.targeting}
 							onActivate={handlePotionRequested}
 						/>
 						<SpellHotbarView

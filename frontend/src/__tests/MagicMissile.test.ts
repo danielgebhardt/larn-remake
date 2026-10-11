@@ -48,6 +48,31 @@ describe("Magic Missile turns", () => {
 			expect(after.monsters[0].health).toBe(9 - damage);
 		},
 	);
+	it("passes through another monster while both survivors still take their normal phase", () => {
+		const initial = encounter();
+		const before = {
+			...initial,
+			monsters: [
+				...initial.monsters,
+				{
+					id: "1:2",
+					kind: "giant-rat" as const,
+					floorNumber: 1,
+					coordinate: { row: 1, col: 2 },
+					health: 9,
+				},
+			],
+		};
+		const after = resolvePlayerActionWithHits(before, cast).state;
+		expect(after.monsters.find((monster) => monster.id === "1:1")?.health).toBe(
+			5,
+		);
+		expect(after.monsters.find((monster) => monster.id === "1:2")?.health).toBe(
+			9,
+		);
+		expect(after.player.health).toBe(9);
+	});
+
 	it("uses Intelligence, awards the same kill rewards and capacity before retaliation", () => {
 		const initial = encounter();
 		const before = {

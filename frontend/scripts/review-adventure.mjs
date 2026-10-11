@@ -40,6 +40,12 @@ try {
 	const { deriveAttributes } = await server.ssrLoadModule(
 		"/src/domain/game/Attributes.ts",
 	);
+	const { chooseSpellAwareAction } = await server.ssrLoadModule(
+		"/scripts/review-policy.mjs",
+	);
+	const { maximumMana } = await server.ssrLoadModule(
+		"/src/domain/game/Mana.ts",
+	);
 	const options = parseReviewOptions(
 		process.argv.slice(2),
 		DEFAULT_RUN_CONFIGURATION,
@@ -81,6 +87,8 @@ try {
 				"monster-missed": 0,
 			};
 			let potions = 0;
+			const potionUses = { "healing-potion": 0, "mana-potion": 0 };
+			const casts = { "magic-missile": 0, heal: 0 };
 			const visited = new Set([1]);
 			const checkpoints = [];
 			const actions = [];
@@ -124,9 +132,14 @@ try {
 							value(ITEM_DEFINITIONS[current.kind])
 					);
 				});
-				if (healing && state.player.health <= 6) {
+				if (options.policy === "spell-aware") {
+					action = chooseSpellAwareAction(state, route);
+					if (!action) {
+						reason = "no route";
+						break;
+					}
+				} else if (healing && state.player.health <= 6) {
 					action = { type: "consume", itemId: healing.id };
-					potions++;
 				} else if (state.quest.cureRecovered) {
 					const destination =
 						floor.floorNumber === 1
@@ -189,7 +202,22 @@ try {
 				actions.push(action);
 				const before = state.monsters.length;
 				const previousEventId = state.activityHistory.nextId;
-				state = resolvePlayerAction(state, action).state;
+				const consumed =
+					action.type === "consume"
+						? state.bag.items.find((item) => item.id === action.itemId)
+						: null;
+				const result = resolvePlayerAction(state, action);
+				if (!result.turnAdvanced)
+					throw new Error(
+						`Policy ${options.policy} rejected action at seed ${seed}, turn ${state.turn}: ${JSON.stringify(action)} (${result.error ?? "no committed turn"})`,
+					);
+				state = result.state;
+				if (consumed && Object.hasOwn(potionUses, consumed.kind)) {
+					potionUses[consumed.kind]++;
+					potions++;
+				}
+				if (action.type === "cast") casts[action.spell]++;
+
 				kills += before - state.monsters.length;
 				for (const entry of state.activityHistory.entries.filter(
 					(entry) => entry.id >= previousEventId,
@@ -206,11 +234,19 @@ try {
 						experience: state.progression.experience,
 						health: state.player.health,
 						maxHealth: state.player.maxHealth,
+						mana: state.mana,
+						maximumMana: maximumMana(state.progression),
 					});
 			}
 			if (state.quest.victory) reason = "won";
 			else if (state.player.health <= 0) reason = "died";
 			const result = {
+				policy: options.policy,
+				casts,
+				potionUses,
+				mana: state.mana,
+				maximumMana: maximumMana(state.progression),
+				knownSpells: state.knownSpells,
 				configuration,
 				maxActions: options.maxActions,
 				attributes: deriveAttributes(state.progression),
@@ -241,9 +277,25 @@ try {
 			if (!options.summaryOnly) console.log(JSON.stringify(result));
 		}
 		console.log(
-			JSON.stringify(
-				summarizeReviews(results, configuration, options.maxActions),
-			),
+			JSON.stringify({
+				...summarizeReviews(results, configuration, options.maxActions),
+				policy: options.policy,
+				casts: Object.fromEntries(
+					["magic-missile", "heal"].map((spell) => [
+						spell,
+						results.reduce((total, result) => total + result.casts[spell], 0),
+					]),
+				),
+				potionUses: Object.fromEntries(
+					["healing-potion", "mana-potion"].map((kind) => [
+						kind,
+						results.reduce(
+							(total, result) => total + result.potionUses[kind],
+							0,
+						),
+					]),
+				),
+			}),
 		);
 	}
 } catch (error) {

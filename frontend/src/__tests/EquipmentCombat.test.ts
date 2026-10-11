@@ -120,6 +120,7 @@ describe("Equipment in the action cycle", () => {
 		expect(result.activityHistory.entries.map((entry) => entry.event)).toEqual([
 			{ type: "player-hit", turn: 1, monster: "goblin", damage: 2 },
 			{ type: "monster-died", turn: 1, monster: "goblin" },
+			{ type: "experience-gained", turn: 1, amount: 5 },
 		]);
 	});
 	it("clamps fatal damage at zero, logs the armored hit before death, then rejects further actions", () => {

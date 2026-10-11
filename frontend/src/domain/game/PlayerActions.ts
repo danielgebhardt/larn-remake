@@ -20,6 +20,7 @@ import {
 	type HotbarAction,
 	hotbarSlotContents,
 } from "../items/PotionHotbar";
+import { MONSTER_DEFINITIONS } from "../monsters/Monster";
 import type { Monster } from "../monsters/Monster.ts";
 import { resolveMonsterPhase } from "../monsters/MonsterTurns";
 import { type ActivityEvent, appendActivityEvents } from "./ActivityHistory.ts";
@@ -31,6 +32,7 @@ import {
 	PLAYER_HIT_THRESHOLD,
 	resolveMeleeAttack,
 } from "./MeleeRules";
+import { gainExperience, HEALTH_PER_LEVEL } from "./Progression";
 
 export type PlayerAction =
 	| { type: "move"; direction: MovementDirection }
@@ -282,7 +284,21 @@ const resolveAttack = (
 	if (health === 0)
 		events.push({ type: "monster-died", turn, monster: monster.kind });
 	let floorItems = state.floorItems;
+	let player = state.player;
+	let progression = state.progression;
 	if (health === 0) {
+		const reward = MONSTER_DEFINITIONS[monster.kind].experienceReward;
+		const gained = gainExperience(progression, player, reward);
+		progression = gained.progression;
+		player = gained.player;
+		events.push({ type: "experience-gained", amount: reward, turn });
+		for (const level of gained.levels)
+			events.push({
+				type: "level-gained",
+				level,
+				healthGain: HEALTH_PER_LEVEL,
+				turn,
+			});
 		const drop = createMonsterDrop(state.run.seed, monster);
 		if (drop && !floorItems.some((entry) => entry.item.id === drop.item.id)) {
 			floorItems = [...floorItems, drop];
@@ -307,6 +323,8 @@ const resolveAttack = (
 		turn,
 		monsters,
 		monstersDefeated: state.monstersDefeated + (health === 0 ? 1 : 0),
+		player,
+		progression,
 		floorItems,
 		activityHistory: appendActivityEvents(state.activityHistory, events),
 	};

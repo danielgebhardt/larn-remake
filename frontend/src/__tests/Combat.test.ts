@@ -65,10 +65,11 @@ describe("Bump combat", () => {
 		expect(killed.monsters).toEqual([]);
 		expect(killed.run).toBe(injured.run);
 		expect(
-			killed.activityHistory.entries.slice(-2).map((entry) => entry.event),
+			killed.activityHistory.entries.slice(-3).map((entry) => entry.event),
 		).toEqual([
 			{ type: "player-hit", turn: 9, monster: "goblin", damage: 2 },
 			{ type: "monster-died", turn: 9, monster: "goblin" },
+			{ type: "experience-gained", turn: 9, amount: 5 },
 		]);
 		const walked = attack(killed).state;
 		expect(walked.run.playerCoordinate).toEqual({ row: 1, col: 2 });
@@ -169,6 +170,6 @@ describe("Player death", () => {
 		expect(result.monsters).toEqual([]);
 		expect(
 			result.activityHistory.entries.map((entry) => entry.event.type),
-		).toEqual(["player-hit", "monster-died"]);
+		).toEqual(["player-hit", "monster-died", "experience-gained"]);
 	});
 });

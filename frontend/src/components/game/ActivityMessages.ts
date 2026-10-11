@@ -6,6 +6,10 @@ import { MONSTER_DEFINITIONS } from "../../domain/monsters/Monster";
 export const formatActivityEvent = (event: ActivityEvent): string => {
 	const prefix = `Turn ${event.turn} — `;
 	switch (event.type) {
+		case "experience-gained":
+			return `${prefix}You gain ${event.amount} XP.`;
+		case "level-gained":
+			return `${prefix}You reach level ${event.level}. Maximum and current health increase by ${event.healthGain}.`;
 		case "quest-completed":
 			return `${prefix}You return with the cure. Adventure complete!`;
 		case "entrance-reminder":

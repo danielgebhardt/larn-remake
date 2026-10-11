@@ -54,7 +54,12 @@ describe("Deterministic monster loot", () => {
 		expect(result.floorItems[0].coordinate).toEqual(goblin.coordinate);
 		expect(
 			result.activityHistory.entries.map((entry) => entry.event.type),
-		).toEqual(["player-hit", "monster-died", "monster-loot"]);
+		).toEqual([
+			"player-hit",
+			"monster-died",
+			"experience-gained",
+			"monster-loot",
+		]);
 		expect(result.player.health).toBe(10);
 		expect(before).toEqual(snapshot);
 	});
@@ -66,7 +71,7 @@ describe("Deterministic monster loot", () => {
 		expect(result.floorItems).toEqual([]);
 		expect(
 			result.activityHistory.entries.map((entry) => entry.event.type),
-		).toEqual(["player-hit", "monster-died"]);
+		).toEqual(["player-hit", "monster-died", "experience-gained"]);
 	});
 	it("coexists with another floor item and never resolves a second drop on later actions", () => {
 		const before = {

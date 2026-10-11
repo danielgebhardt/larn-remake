@@ -13,6 +13,7 @@ import {
 } from "./ActivityHistory.ts";
 import { createQuest, type QuestState } from "./Adventure";
 import { createPlayerStats, type PlayerStats } from "./PlayerStats.ts";
+import { createProgression, type Progression } from "./Progression";
 
 export type GameState = {
 	run: DungeonRun;
@@ -20,6 +21,7 @@ export type GameState = {
 	quest: QuestState;
 	monstersDefeated: number;
 	player: PlayerStats;
+	progression: Progression;
 	equipment: Equipment;
 	bag: Bag;
 	potionHotbar: PotionHotbar;
@@ -37,6 +39,7 @@ export const createGameState = (run: DungeonRun): GameState => {
 		quest: createQuest(run),
 		monstersDefeated: 0,
 		player: createPlayerStats(),
+		progression: createProgression(),
 		equipment: createStartingEquipment(),
 		bag: createStartingBag(),
 		potionHotbar: createPotionHotbar(),

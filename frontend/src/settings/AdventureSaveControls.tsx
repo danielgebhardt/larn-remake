@@ -27,6 +27,7 @@ const AdventureSaveControls = ({
 	} | null>(null);
 	const cancelRef = useRef<HTMLButtonElement>(null);
 	const initiatorRef = useRef<HTMLButtonElement | null>(null);
+	const restoring = useRef(false);
 	const fileInput = useRef<HTMLInputElement>(null);
 	const fileRead = useRef<AbortController | null>(null);
 	const [importing, setImporting] = useState(false);
@@ -54,6 +55,7 @@ const AdventureSaveControls = ({
 
 	const saved = slot.ok ? slot.value : null;
 	const requestSave = (button: HTMLButtonElement) => {
+		restoring.current = false;
 		initiatorRef.current = button;
 		setSlot(readLocalSave());
 		try {
@@ -64,6 +66,7 @@ const AdventureSaveControls = ({
 		}
 	};
 	const requestLoad = (button: HTMLButtonElement) => {
+		restoring.current = false;
 		initiatorRef.current = button;
 		const latest = readLocalSave();
 		setSlot(latest);
@@ -81,6 +84,8 @@ const AdventureSaveControls = ({
 	const confirm = () => {
 		if (!pending) return;
 		if (pending.kind === "load") {
+			// The enclosing sheet owns focus when loading closes both dialogs.
+			restoring.current = true;
 			onRestore(pending.document);
 		} else {
 			const result = writeLocalSave(pending.document);
@@ -183,7 +188,9 @@ const AdventureSaveControls = ({
 					<Dialog.Backdrop className="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs" />
 					<Dialog.Popup
 						initialFocus={cancelRef}
-						finalFocus={initiatorRef}
+						finalFocus={() =>
+							restoring.current ? false : initiatorRef.current
+						}
 						className="fixed top-1/2 left-1/2 z-50 w-[calc(100%-2rem)] max-w-md -translate-x-1/2 -translate-y-1/2 rounded-xl border bg-popover p-5 text-popover-foreground shadow-xl"
 					>
 						<Dialog.Title className="text-lg font-semibold">

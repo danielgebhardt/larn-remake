@@ -37,3 +37,25 @@ export const savedAdventure = () => {
 		new Date("2026-10-11T12:00:00.000Z"),
 	);
 };
+
+// A quiet saved run with both shortcuts immediately usable after restoration.
+export const savedAdventureWithPickupAndHealing = () => {
+	const document = savedAdventure();
+	return {
+		...document,
+		state: {
+			...document.state,
+			monsters: [],
+			player: { health: 5, maxHealth: 10 },
+			mana: 10,
+			floorItems: [
+				...document.state.floorItems,
+				{
+					item: { id: "save-review:potion", kind: "healing-potion" as const },
+					floorNumber: document.state.run.activeFloor,
+					coordinate: document.state.run.playerCoordinate,
+				},
+			],
+		},
+	};
+};

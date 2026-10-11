@@ -50,6 +50,23 @@ export const resetHomeTestState = () => {
 	vi.restoreAllMocks();
 };
 
+export const openSaveSheet = async (
+	user: ReturnType<typeof userEvent.setup>,
+) => {
+	await user.click(screen.getByRole("button", { name: "Save/Load" }));
+	return screen.findByRole("dialog", { name: "Save/Load" });
+};
+export const closeSaveSheet = async (
+	user: ReturnType<typeof userEvent.setup>,
+) => {
+	await user.keyboard("{Escape}");
+	await waitFor(() =>
+		expect(
+			screen.queryByRole("dialog", { name: "Save/Load" }),
+		).not.toBeInTheDocument(),
+	);
+};
+
 export const openSettings = async (
 	user: ReturnType<typeof userEvent.setup>,
 ) => {

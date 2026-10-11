@@ -2,6 +2,8 @@
 
 Epic #143, stories #138–142. Branch `codex/local-adventure-saves`; one commit per story. Implemented October 11, 2026. Developer acceptance and merge remain pending.
 
+**UI refinement:** Save/Load now has its own header button and sheet, separate from Settings. Confirmations, file flows and the one-slot format are unchanged; gameplay pauses while the new sheet is open. The original commit/browser history below records the initial Settings placement.
+
 | Story | Commit | Review focus |
 | --- | --- | --- |
 | #138 | `a5984d8` | Full versioned snapshots; compact terrain/discovery; validation and deterministic next-action continuation. |

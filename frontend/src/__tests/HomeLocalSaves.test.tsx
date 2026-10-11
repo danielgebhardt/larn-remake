@@ -17,12 +17,17 @@ import Home from "../Home";
 import { LOCAL_SAVE_KEY } from "../persistence/LocalAdventureSave";
 import { ThemeProvider } from "../settings/ThemeProvider";
 import {
+	closeSaveSheet,
 	closeSettings,
+	openSaveSheet,
 	openSettings,
 	readDungeonCells,
 	resetHomeTestState,
 } from "./HomeTestHelpers";
-import { savedAdventure } from "./SaveTestHelpers";
+import {
+	savedAdventure,
+	savedAdventureWithPickupAndHealing,
+} from "./SaveTestHelpers";
 
 const setup = () => {
 	render(<Home />, { wrapper: ThemeProvider });
@@ -30,7 +35,7 @@ const setup = () => {
 	return userEvent.setup();
 };
 const openSave = async (user: ReturnType<typeof userEvent.setup>) => {
-	await openSettings(user);
+	await openSaveSheet(user);
 	await user.click(screen.getByRole("button", { name: "Save adventure" }));
 	return screen.findByRole("dialog", { name: "Save this adventure?" });
 };
@@ -41,6 +46,34 @@ const finishConfirmation = async (name: string) => {
 };
 afterEach(resetHomeTestState);
 describe("Confirmed local Save and Load", () => {
+	it("opens a dedicated sheet, pauses gameplay and returns focus when dismissed", async () => {
+		const user = setup();
+		await openSettings(user);
+		expect(
+			screen.queryByRole("region", { name: "Adventure saves" }),
+		).not.toBeInTheDocument();
+		await closeSettings(user);
+		const sheet = await openSaveSheet(user);
+		expect(
+			within(sheet).getByRole("button", { name: "Save adventure" }),
+		).toBeVisible();
+		expect(
+			within(sheet).getByRole("button", { name: "Import file" }),
+		).toBeVisible();
+		expect(
+			within(sheet).queryByRole("textbox", { name: "Dungeon seed" }),
+		).not.toBeInTheDocument();
+		await user.keyboard("wz 1hci{ArrowRight}");
+		expect(screen.getByLabelText("Turn count")).toHaveTextContent("Turn 0");
+		expect(
+			screen.queryByRole("dialog", { name: "Character" }),
+		).not.toBeInTheDocument();
+		await closeSaveSheet(user);
+		expect(screen.getByRole("button", { name: "Save/Load" })).toHaveFocus();
+		screen.getByLabelText("Dungeon map", { exact: true }).focus();
+		await user.keyboard(" ");
+		expect(screen.getByLabelText("Turn count")).toHaveTextContent("Turn 1");
+	});
 	it("asks even for the first save, focuses Cancel and pauses gameplay", async () => {
 		const user = setup();
 		const dialog = await openSave(user);
@@ -74,10 +107,10 @@ describe("Confirmed local Save and Load", () => {
 		const saved = parseSave(text);
 		if (!saved.ok) throw new Error(saved.error);
 		expect(saved.value.state.turn).toBe(3);
-		await closeSettings(user);
+		await closeSaveSheet(user);
 		screen.getByLabelText("Dungeon map", { exact: true }).focus();
 		await user.keyboard(" ");
-		await openSettings(user);
+		await openSaveSheet(user);
 		await user.click(screen.getByRole("button", { name: "Load adventure" }));
 		const dialog = await screen.findByRole("dialog", {
 			name: "Load saved adventure?",
@@ -89,7 +122,7 @@ describe("Confirmed local Save and Load", () => {
 		);
 		await waitFor(() =>
 			expect(
-				screen.queryByRole("dialog", { name: "Settings" }),
+				screen.queryByRole("dialog", { name: "Save/Load" }),
 			).not.toBeInTheDocument(),
 		);
 		expect(screen.getByLabelText("Turn count")).toHaveTextContent("Turn 3");
@@ -103,6 +136,35 @@ describe("Confirmed local Save and Load", () => {
 		await user.keyboard(" ");
 		expect(screen.getByLabelText("Turn count")).toHaveTextContent("Turn 4");
 	});
+	it("restores pickup and healing shortcuts after each confirmed load without clicking the map", async () => {
+		localStorage.setItem(
+			LOCAL_SAVE_KEY,
+			serializeSave(savedAdventureWithPickupAndHealing()),
+		);
+		const user = setup();
+		for (let load = 0; load < 2; load++) {
+			await openSaveSheet(user);
+			await user.click(screen.getByRole("button", { name: "Load adventure" }));
+			await user.click(
+				await screen.findByRole("button", { name: "Confirm load" }),
+			);
+			await waitFor(() =>
+				expect(screen.queryByRole("dialog")).not.toBeInTheDocument(),
+			);
+			await user.keyboard("gh");
+			expect(screen.getByRole("log")).toHaveTextContent(
+				"You pick up Healing potion",
+			);
+			expect(screen.getByLabelText("Player health")).toHaveTextContent(
+				"Health 9 / 10",
+			);
+			expect(screen.getByLabelText("Player mana")).toHaveTextContent(
+				"Mana 6 / 10",
+			);
+			expect(screen.getByLabelText("Turn count")).toHaveTextContent("Turn 5");
+		}
+	});
+
 	it("keeps the old save when replacement is canceled with Escape", async () => {
 		const old = serializeSave(savedAdventure());
 		localStorage.setItem(LOCAL_SAVE_KEY, old);
@@ -112,7 +174,7 @@ describe("Confirmed local Save and Load", () => {
 		expect(dialog).toHaveTextContent("Replacing: Seed 123");
 		await user.keyboard("{Escape}");
 		await finishConfirmation("Save this adventure?");
-		expect(screen.getByRole("dialog", { name: "Settings" })).toBeVisible();
+		expect(screen.getByRole("dialog", { name: "Save/Load" })).toBeVisible();
 		expect(localStorage.getItem(LOCAL_SAVE_KEY)).toBe(old);
 	});
 	it("leaves current progress untouched when Load is canceled", async () => {
@@ -120,7 +182,7 @@ describe("Confirmed local Save and Load", () => {
 		localStorage.setItem(LOCAL_SAVE_KEY, old);
 		const user = setup();
 		await user.keyboard("  ");
-		await openSettings(user);
+		await openSaveSheet(user);
 		await user.click(screen.getByRole("button", { name: "Load adventure" }));
 		await screen.findByRole("dialog", { name: "Load saved adventure?" });
 		await user.keyboard("{Escape}");
@@ -133,13 +195,13 @@ describe("Confirmed local Save and Load", () => {
 	});
 	it("cannot load a missing or invalid save", async () => {
 		const user = setup();
-		await openSettings(user);
+		await openSaveSheet(user);
 		expect(
 			screen.getByRole("button", { name: "Load adventure" }),
 		).toBeDisabled();
-		await closeSettings(user);
+		await closeSaveSheet(user);
 		localStorage.setItem(LOCAL_SAVE_KEY, "corrupt");
-		await openSettings(user);
+		await openSaveSheet(user);
 		expect(
 			screen.getByRole("region", { name: "Adventure saves" }),
 		).toHaveTextContent("not a valid adventure save");
@@ -182,13 +244,13 @@ describe("Confirmed local Save and Load", () => {
 		);
 		localStorage.setItem(LOCAL_SAVE_KEY, serializeSave(document));
 		const user = setup();
-		await openSettings(user);
+		await openSaveSheet(user);
 		await user.click(screen.getByRole("button", { name: "Load adventure" }));
 		await screen.findByRole("dialog", { name: "Load saved adventure?" });
 		await user.click(screen.getByRole("button", { name: "Confirm load" }));
 		await waitFor(() =>
 			expect(
-				screen.queryByRole("dialog", { name: "Settings" }),
+				screen.queryByRole("dialog", { name: "Save/Load" }),
 			).not.toBeInTheDocument(),
 		);
 		expect(screen.getByLabelText("Player level")).toHaveTextContent("Level 3");
@@ -219,10 +281,10 @@ describe("Confirmed local Save and Load", () => {
 		expect(screen.getAllByRole("cell")).toHaveLength(120);
 		expect(screen.getByLabelText("Player level")).toHaveTextContent("Level 1");
 	});
-	it("revalidates the slot at Load time if it changed while Settings was open", async () => {
+	it("revalidates the slot at Load time if it changed while Save/Load was open", async () => {
 		localStorage.setItem(LOCAL_SAVE_KEY, serializeSave(savedAdventure()));
 		const user = setup();
-		await openSettings(user);
+		await openSaveSheet(user);
 		localStorage.setItem(LOCAL_SAVE_KEY, "corrupt after opening");
 		await user.click(screen.getByRole("button", { name: "Load adventure" }));
 		expect(screen.getByLabelText("Save feedback")).toHaveTextContent(

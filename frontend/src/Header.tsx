@@ -8,6 +8,7 @@ type HeaderProps = {
 	onNewDungeon: () => void;
 	characterAction?: ReactNode;
 	settingsAction?: ReactNode;
+	saveAction?: ReactNode;
 	helpAction?: ReactNode;
 };
 
@@ -17,6 +18,7 @@ const Header = ({
 	onNewDungeon,
 	characterAction,
 	settingsAction,
+	saveAction,
 	helpAction,
 }: HeaderProps) => {
 	return (
@@ -32,6 +34,7 @@ const Header = ({
 				New Dungeon
 			</Button>
 			{characterAction}
+			{saveAction}
 			{settingsAction}
 			{helpAction}
 		</header>

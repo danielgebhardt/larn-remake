@@ -1,5 +1,5 @@
 import { Dialog } from "@base-ui/react/dialog";
-import { HelpCircleIcon, Settings, UserRound } from "lucide-react";
+import { HelpCircleIcon, Save, Settings, UserRound } from "lucide-react";
 import { type SubmitEvent, useEffect, useMemo, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetTrigger } from "@/components/ui/sheet";
@@ -7,6 +7,7 @@ import DungeonHelp from "@/settings/DungeonHelp.tsx";
 import APICheck from "./APICheck.tsx";
 import DungeonLayout from "./components/dungeon/DungeonLayout.tsx";
 import ActivityLog from "./components/game/ActivityLog.tsx";
+import AdventureSaveSheet from "./components/game/AdventureSaveSheet";
 import CharacterDialog from "./components/game/CharacterDialog.tsx";
 import { isLowHealth } from "./components/game/HealthDisplay";
 import PickupDialog from "./components/game/PickupDialog";
@@ -44,7 +45,6 @@ import {
 	type SaveDocument,
 } from "./domain/saves/SaveFormat";
 import Header from "./Header.tsx";
-import AdventureSaveControls from "./settings/AdventureSaveControls";
 import DungeonSettings from "./settings/DungeonSettings.tsx";
 import {
 	type ConfigurationErrors,
@@ -94,6 +94,7 @@ const Home = ({
 	const [seedInput, setSeedInput] = useState(() => String(run.seed));
 	const [seedError, setSeedError] = useState<string | null>(null);
 	const [settingsOpen, setSettingsOpen] = useState(false);
+	const [saveOpen, setSaveOpen] = useState(false);
 	const [restoreMapFocus, setRestoreMapFocus] = useState(false);
 	const [helpOpen, setHelpOpen] = useState(false);
 	const [characterOpen, setCharacterOpen] = useState(false);
@@ -171,6 +172,7 @@ const Home = ({
 		setCharacterOpen(false);
 		setHelpOpen(false);
 		setRestoreMapFocus(true);
+		setSaveOpen(false);
 		setSettingsOpen(false);
 	};
 
@@ -216,6 +218,7 @@ const Home = ({
 
 	const gameplayEnabled =
 		!settingsOpen &&
+		!saveOpen &&
 		!helpOpen &&
 		!characterOpen &&
 		!pickupOpen &&
@@ -307,33 +310,43 @@ const Home = ({
 						/>
 					</Dialog.Root>
 				}
-				settingsAction={
+				saveAction={
 					<Sheet
-						open={settingsOpen}
+						open={saveOpen}
 						onOpenChange={(open) => {
-							setSettingsOpen(open);
+							setSaveOpen(open);
 							if (open) setRestoreMapFocus(false);
 						}}
+						onOpenChangeComplete={(open) => {
+							if (!open && restoreMapFocus && !victoryOpen)
+								mapRef.current?.focus({ preventScroll: true });
+						}}
 					>
+						<SheetTrigger render={<Button type="button" variant="outline" />}>
+							<Save aria-hidden="true" focusable="false" />
+							Save/Load
+						</SheetTrigger>
+						<AdventureSaveSheet
+							finalFocus={restoreMapFocus ? mapRef : undefined}
+							createSnapshot={() =>
+								createSaveDocument(
+									game.state,
+									exploration,
+									configuration,
+									fogConfiguration,
+								)
+							}
+							onRestore={handleRestore}
+						/>
+					</Sheet>
+				}
+				settingsAction={
+					<Sheet open={settingsOpen} onOpenChange={setSettingsOpen}>
 						<SheetTrigger render={<Button type="button" variant="outline" />}>
 							<Settings aria-hidden="true" focusable="false" />
 							Settings
 						</SheetTrigger>
 						<DungeonSettings
-							finalFocus={restoreMapFocus ? mapRef : undefined}
-							adventureActions={
-								<AdventureSaveControls
-									createSnapshot={() =>
-										createSaveDocument(
-											game.state,
-											exploration,
-											configuration,
-											fogConfiguration,
-										)
-									}
-									onRestore={handleRestore}
-								/>
-							}
 							fogConfiguration={fogConfiguration}
 							onFogEnabledChange={(enabled) =>
 								setFogConfiguration((current) => ({ ...current, enabled }))
@@ -449,6 +462,7 @@ const Home = ({
 						onPotionRequested={handlePotionRequested}
 						onCharacterRequested={
 							!settingsOpen &&
+							!saveOpen &&
 							!helpOpen &&
 							!characterOpen &&
 							!pickupOpen &&
@@ -461,6 +475,7 @@ const Home = ({
 						}
 						movementEnabled={
 							!settingsOpen &&
+							!saveOpen &&
 							!helpOpen &&
 							!characterOpen &&
 							!pickupOpen &&

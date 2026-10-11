@@ -251,7 +251,7 @@ Likely later priorities:
 
 ## Local save/resume and persistence
 
-Manual local-save epic #143 and stories #138–142 are implemented on `codex/local-adventure-saves`, awaiting developer review. Settings provides one localStorage slot with explicit confirmation for both Save and Load, and file export/import without an extra confirmation. The versioned format stores full floor snapshots, played state, configuration/fog and discovery; loading validates before replacing progress, preserves deterministic continuation within the current rules, and retains dead/won status. No startup auto-load or autosave. See `docs/local-save-review.md` for commit order and maximum-size measurements.
+Manual local-save epic #143 and stories #138–142 are implemented on `codex/local-adventure-saves`, awaiting developer review. The dedicated Save/Load sheet provides one localStorage slot with explicit confirmation for both Save and Load, and file export/import without an extra confirmation. The versioned format stores full floor snapshots, played state, configuration/fog and discovery; loading validates before replacing progress, preserves deterministic continuation within the current rules, and retains dead/won status. No startup auto-load or autosave. See `docs/local-save-review.md` for commit order and maximum-size measurements.
 
 Future work, only when useful: multiple named slots, measured autosave, IndexedDB if synchronous writes become noticeable, and explicit version migrations. Export/import already supports backups and manual cross-device transfer. Browser storage is tied to an origin/profile; seed-only reconstruction is not a substitute for played state. Keep storage separate from snapshot rules so a later adapter can reuse the format and validation.
 

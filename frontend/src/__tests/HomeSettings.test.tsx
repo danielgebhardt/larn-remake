@@ -123,6 +123,8 @@ describe("Home settings and appearance", () => {
 		await user.tab();
 		expect(screen.getByRole("button", { name: "Character" })).toHaveFocus();
 		await user.tab();
+		expect(screen.getByRole("button", { name: "Save/Load" })).toHaveFocus();
+		await user.tab();
 		expect(screen.getByRole("button", { name: "Settings" })).toHaveFocus();
 		await user.keyboard("{Enter}");
 		expect(

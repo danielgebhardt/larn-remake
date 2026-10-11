@@ -106,6 +106,7 @@ describe("Home Help menu", () => {
 		const user = renderHelpRun();
 		await user.tab(); // New Dungeon
 		await user.tab(); // Character
+		await user.tab(); // Save/Load
 		await user.tab(); // Settings
 		await user.tab(); // Help
 		expect(screen.getByRole("button", { name: "Help" })).toHaveFocus();

@@ -1,12 +1,7 @@
 import { Toggle } from "@base-ui/react/toggle";
 import { ToggleGroup } from "@base-ui/react/toggle-group";
 import { Monitor, Moon, Sun } from "lucide-react";
-import {
-	type ReactNode,
-	type RefObject,
-	type SubmitEvent,
-	useRef,
-} from "react";
+import { type SubmitEvent, useRef } from "react";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -30,8 +25,6 @@ import type {
 import { useTheme } from "./ThemeProvider.tsx";
 
 type DungeonSettingsProps = {
-	adventureActions?: ReactNode;
-	finalFocus?: RefObject<HTMLElement | null>;
 	fogConfiguration: FogConfiguration;
 	onFogEnabledChange: (enabled: boolean) => void;
 	onFogRadiusApply: (radius: number) => void;
@@ -48,8 +41,6 @@ type DungeonSettingsProps = {
 };
 
 const DungeonSettings = ({
-	adventureActions,
-	finalFocus,
 	fogConfiguration,
 	onFogEnabledChange,
 	onFogRadiusApply,
@@ -69,7 +60,6 @@ const DungeonSettings = ({
 	return (
 		<SheetContent
 			initialFocus={inputRef}
-			finalFocus={finalFocus}
 			className="overflow-y-auto data-[side=right]:w-full"
 		>
 			<SheetHeader>
@@ -220,7 +210,6 @@ const DungeonSettings = ({
 						Saved on this device. System follows your device’s appearance.
 					</p>
 				</div>
-				{adventureActions}
 			</div>
 		</SheetContent>
 	);

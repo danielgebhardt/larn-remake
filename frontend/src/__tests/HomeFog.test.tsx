@@ -55,7 +55,7 @@ describe("Home fog of war", () => {
 			screen.getByRole("cell", { name: "row1col8 - player" }),
 		).toBeVisible();
 		expect(
-			screen.getByRole("cell", { name: "row1col1 - remembered floor" }),
+			screen.getByRole("cell", { name: "row1col1 - remembered entrance" }),
 		).toBeVisible();
 		expect(
 			screen.getByRole("cell", { name: "row1col14 - floor" }),

@@ -51,6 +51,7 @@ export const resolvePlayerAction = (
 	action: PlayerAction,
 	rollSource: AttackRollSource = createAttackRolls,
 ): ActionResolution => {
+	if (state.quest.victory) return { state, turnAdvanced: false };
 	if (action.type === "assign-hotbar" || action.type === "clear-hotbar") {
 		const change = changeHotbarAssignment(
 			state.potionHotbar,
@@ -187,7 +188,9 @@ export const resolvePlayerAction = (
 				state.run.activeFloor,
 			);
 	return {
-		state: monsterPhase(playerResult),
+		state: playerResult.quest.victory
+			? playerResult
+			: monsterPhase(playerResult),
 		turnAdvanced: true,
 	};
 };
@@ -201,6 +204,34 @@ const announceArrival = (state: GameState, fromFloor: number): GameState => {
 			toFloor: state.run.activeFloor,
 			turn: state.turn,
 		});
+	if (
+		state.run.activeFloor === 1 &&
+		state.run.playerCoordinate.row === state.quest.entrance.row &&
+		state.run.playerCoordinate.col === state.quest.entrance.col
+	) {
+		if (state.quest.cureRecovered) {
+			events.push({ type: "quest-completed", turn: state.turn });
+			return {
+				...state,
+				quest: {
+					...state.quest,
+					victory: {
+						seed: state.run.seed,
+						floors: state.quest.goalFloor,
+						turns: state.turn,
+						monstersDefeated: state.monstersDefeated,
+						health: state.player.health,
+					},
+				},
+				activityHistory: appendActivityEvents(state.activityHistory, events),
+			};
+		}
+		events.push({
+			type: "entrance-reminder",
+			goalFloor: state.quest.goalFloor,
+			turn: state.turn,
+		});
+	}
 	const items = itemsAtPlayer(state).map((entry) => entry.item.kind);
 	if (items.length > 0)
 		events.push({ type: "items-seen", items, turn: state.turn });

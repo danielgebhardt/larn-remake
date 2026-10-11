@@ -22,6 +22,7 @@ export const resolveMonsterPhase = (
 	state: GameState,
 	rollSource: AttackRollSource = createAttackRolls,
 ): GameState => {
+	if (state.quest.victory) return state;
 	let player = state.player;
 	let monsters = state.monsters;
 	const events: ActivityEvent[] = [];

@@ -6,6 +6,10 @@ import { MONSTER_DEFINITIONS } from "../../domain/monsters/Monster";
 export const formatActivityEvent = (event: ActivityEvent): string => {
 	const prefix = `Turn ${event.turn} — `;
 	switch (event.type) {
+		case "quest-completed":
+			return `${prefix}You return with the cure. Adventure complete!`;
+		case "entrance-reminder":
+			return `${prefix}The cure is still on floor ${event.goalFloor}. Return with it to leave.`;
 		case "floor-changed":
 			return `${prefix}You ${event.toFloor > event.fromFloor ? "descend" : "ascend"} to floor ${event.toFloor}.`;
 		case "monster-missed":

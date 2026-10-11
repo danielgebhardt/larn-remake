@@ -20,6 +20,7 @@ type DungeonLayoutProps = {
 	playerPosition: Coordinate;
 	downStair?: Coordinate;
 	upStair?: Coordinate;
+	entrance?: Coordinate;
 	onMoveRequested: (direction: MovementDirection) => void;
 	onWaitRequested?: () => void;
 	onPickupRequested?: () => void;
@@ -43,6 +44,7 @@ const DungeonLayout = ({
 	playerPosition,
 	downStair,
 	upStair,
+	entrance,
 	onMoveRequested,
 	onWaitRequested,
 	onPickupRequested,
@@ -260,6 +262,9 @@ const DungeonLayout = ({
 							explored={explored?.[rowIndex]}
 							playerColumn={
 								playerPosition.row === rowIndex ? playerPosition.col : undefined
+							}
+							entranceColumn={
+								entrance?.row === rowIndex ? entrance.col : undefined
 							}
 							upStairColumn={
 								upStair?.row === rowIndex ? upStair.col : undefined

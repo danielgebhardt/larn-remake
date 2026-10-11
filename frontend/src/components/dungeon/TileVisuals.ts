@@ -1,6 +1,7 @@
-import { BrickWall, Dot, User } from "lucide-react";
+import { BrickWall, DoorOpen, Dot, User } from "lucide-react";
 import type { ComponentType, SVGProps } from "react";
 import {
+	ENTRANCE,
 	FLOOR,
 	PLAYER,
 	STAIRS_DOWN,
@@ -13,6 +14,7 @@ export const TILE_ICONS: Partial<
 	Record<string, ComponentType<SVGProps<SVGSVGElement>>>
 > = {
 	[WALL]: BrickWall,
+	[ENTRANCE]: DoorOpen,
 	[FLOOR]: Dot,
 	[PLAYER]: User,
 	[STAIRS_UP]: StairsUpIcon,
@@ -21,6 +23,7 @@ export const TILE_ICONS: Partial<
 
 export const TILE_LABELS: Partial<Record<string, string>> = {
 	[WALL]: "wall",
+	[ENTRANCE]: "entrance",
 	[FLOOR]: "floor",
 	[PLAYER]: "player",
 	[STAIRS_UP]: "stairs up",
@@ -29,6 +32,7 @@ export const TILE_LABELS: Partial<Record<string, string>> = {
 
 export const TILE_ICON_COLORS: Partial<Record<string, string>> = {
 	[WALL]: "text-wall-icon",
+	[ENTRANCE]: "text-item-cure",
 	[FLOOR]: "text-floor-dot",
 	[PLAYER]: "text-player",
 	[STAIRS_UP]: "text-stairs",

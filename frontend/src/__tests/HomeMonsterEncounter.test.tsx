@@ -37,7 +37,9 @@ describe("Complete monster encounters on screen", () => {
 		await user.keyboard("da");
 		expect(screen.getByRole("heading", { name: "Floor 1 of 2" })).toBeVisible();
 		expect(screen.queryByLabelText(/goblin/)).not.toBeInTheDocument();
-		expect(screen.getByLabelText("row1col1 - remembered floor")).toBeVisible();
+		expect(
+			screen.getByLabelText("row1col1 - remembered entrance"),
+		).toBeVisible();
 		await openSettings(user);
 		await user.click(screen.getByRole("button", { name: "Start from seed" }));
 		expect(readDungeonCells()).toEqual(initialMap);

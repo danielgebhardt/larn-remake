@@ -10,6 +10,8 @@ export type ActivityEvent = { turn: number } & (
 	| { type: "monster-died"; monster: MonsterKind }
 	| { type: "player-missed" | "monster-missed"; monster: MonsterKind }
 	| { type: "player-died" }
+	| { type: "quest-completed" }
+	| { type: "entrance-reminder"; goalFloor: number }
 	| EquipmentChangeEvent
 	| FloorItemEvent
 	| ConsumptionEvent

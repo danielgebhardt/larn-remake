@@ -1,5 +1,10 @@
 import { memo, type RefObject } from "react";
-import { PLAYER, STAIRS_DOWN, STAIRS_UP } from "../../domain/dungeon/Tiles.ts";
+import {
+	ENTRANCE,
+	PLAYER,
+	STAIRS_DOWN,
+	STAIRS_UP,
+} from "../../domain/dungeon/Tiles.ts";
 import type { FloorItem } from "../../domain/items/FloorItems";
 import { ITEM_DEFINITIONS, type ItemKind } from "../../domain/items/Item";
 import type { Monster, MonsterKind } from "../../domain/monsters/Monster.ts";
@@ -77,6 +82,7 @@ const DungeonRow = memo(
 		explored,
 		playerColumn,
 		upStairColumn,
+		entranceColumn,
 		downStairColumn,
 		monsters,
 		floorItems,
@@ -88,6 +94,7 @@ const DungeonRow = memo(
 		rowIndex: number;
 		playerColumn?: number;
 		upStairColumn?: number;
+		entranceColumn?: number;
 		downStairColumn?: number;
 		monsters?: readonly Monster[];
 		floorItems?: readonly FloorItem[];
@@ -116,6 +123,7 @@ const DungeonRow = memo(
 					if (columnIndex === playerColumn) tile = PLAYER;
 					else if (columnIndex === upStairColumn) tile = STAIRS_UP;
 					else if (columnIndex === downStairColumn) tile = STAIRS_DOWN;
+					else if (columnIndex === entranceColumn) tile = ENTRANCE;
 					const items =
 						visibility === "visible" &&
 						tile !== PLAYER &&
@@ -156,6 +164,7 @@ const DungeonRow = memo(
 		previous.explored === next.explored &&
 		previous.playerColumn === next.playerColumn &&
 		previous.upStairColumn === next.upStairColumn &&
+		previous.entranceColumn === next.entranceColumn &&
 		previous.downStairColumn === next.downStairColumn &&
 		previous.playerRef === next.playerRef &&
 		(previous.floorItems?.length ?? 0) === (next.floorItems?.length ?? 0) &&

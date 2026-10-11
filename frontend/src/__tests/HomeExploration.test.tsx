@@ -4,6 +4,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import * as DungeonRun from "../domain/dungeon/DungeonRun.ts";
 import type { Coordinate } from "../domain/dungeon/DungeonTypes.ts";
 import {
+	ENTRANCE,
 	FLOOR,
 	PLAYER,
 	STAIRS_DOWN,
@@ -107,9 +108,15 @@ describe("Home exploration integration", () => {
 			] as const) {
 				if (link) expected[link.coordinate.row][link.coordinate.col] = glyph;
 			}
+			if (floorNumber === 1) {
+				const entrance = runs.get(seed)?.playerCoordinate;
+				if (!entrance) throw new Error("Fixture needs an entrance.");
+				expected[entrance.row][entrance.col] = ENTRANCE;
+			}
 			expected[player.row][player.col] = PLAYER;
 			const descriptions: Record<string, string> = {
 				[WALL]: "wall",
+				[ENTRANCE]: "entrance",
 				[FLOOR]: "floor",
 				[PLAYER]: "player",
 				[STAIRS_UP]: "stairs up",

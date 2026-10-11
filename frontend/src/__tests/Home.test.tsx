@@ -260,7 +260,7 @@ describe("Home rendering and movement", () => {
 		await user.keyboard("{ArrowRight}");
 
 		expect(
-			screen.getByRole("cell", { name: "row2col3 - floor" }),
+			screen.getByRole("cell", { name: "row2col3 - entrance" }),
 		).toBeVisible();
 		expect(
 			screen.getByRole("cell", { name: "row2col4 - player" }),

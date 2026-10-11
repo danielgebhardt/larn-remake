@@ -320,6 +320,9 @@ const Home = ({
 						}
 						playerPosition={run.playerCoordinate}
 						upStair={activeFloor.upStair?.coordinate}
+						entrance={
+							run.activeFloor === 1 ? game.state.quest.entrance : undefined
+						}
 						downStair={activeFloor.downStair?.coordinate}
 						onMoveRequested={(direction) =>
 							handleActionRequested({ type: "move", direction })

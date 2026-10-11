@@ -1,7 +1,17 @@
-import { PLAYER, STAIRS_DOWN, STAIRS_UP } from "../../domain/dungeon/Tiles.ts";
+import {
+	ENTRANCE,
+	PLAYER,
+	STAIRS_DOWN,
+	STAIRS_UP,
+} from "../../domain/dungeon/Tiles.ts";
 import TileIcon from "./TileIcon.tsx";
 
 const tileEntries = [
+	{
+		tile: ENTRANCE,
+		label: "Entrance",
+		description: "Return here with the cure to complete the adventure.",
+	},
 	{ tile: PLAYER, label: "Player", description: "Your current position." },
 	{
 		tile: STAIRS_UP,

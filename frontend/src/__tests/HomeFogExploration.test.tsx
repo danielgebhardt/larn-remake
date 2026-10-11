@@ -70,7 +70,7 @@ describe("Fog across complete dungeon runs", () => {
 		await user.keyboard(walkLeft(6));
 		expect(screen.getByRole("heading", { name: "Floor 1 of 2" })).toBeVisible();
 		expect(
-			screen.getByRole("cell", { name: "row1col1 - remembered floor" }),
+			screen.getByRole("cell", { name: "row1col1 - remembered entrance" }),
 		).toBeVisible();
 		await user.keyboard("{ArrowLeft}{ArrowRight}");
 		expect(screen.getByRole("heading", { name: "Floor 2 of 2" })).toBeVisible();
@@ -130,7 +130,7 @@ describe("Fog across complete dungeon runs", () => {
 			screen.getByRole("cell", { name: "row1col6 - player" }),
 		).toBeVisible();
 		expect(
-			screen.getByRole("cell", { name: "row1col1 - remembered floor" }),
+			screen.getByRole("cell", { name: "row1col1 - remembered entrance" }),
 		).toBeVisible();
 		expect(
 			screen.getByRole("cell", { name: "row1col18 - undiscovered" }),

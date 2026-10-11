@@ -8,6 +8,20 @@ import { createThreeFloorTraversalRun } from "./testhelpers";
 
 afterEach(resetHomeTestState);
 describe("Visible adventure objective", () => {
+	it("reveals the entrance after stepping away and reminds the player on return", async () => {
+		const run = createThreeFloorTraversalRun();
+		run.floors = [{ ...run.floors[0], downStair: undefined }];
+		stubDungeonRun(run);
+		render(<Home />, { wrapper: ThemeProvider });
+		const user = userEvent.setup();
+		await user.keyboard("d");
+		expect(screen.getByLabelText("row1col1 - entrance")).toBeVisible();
+		await user.keyboard("a");
+		expect(screen.getByRole("log")).toHaveTextContent(
+			"Return with it to leave",
+		);
+		expect(screen.getByLabelText("Turn count")).toHaveTextContent("Turn 2");
+	});
 	it.each(["keyboard", "Character"])(
 		"recovers through %s and shows the protected pouch",
 		async (method) => {

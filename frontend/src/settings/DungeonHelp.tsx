@@ -185,9 +185,11 @@ const DungeonHelp = () => (
 					<li>
 						<span className="font-medium text-foreground">Items.</span> Use G to
 						pick up an item on your current tile; multiple items open a chooser.
-						You can also use Character to pick up or drop items. Successful
-						transfers use a turn; opening or dismissing the chooser is free.
-						Unequip worn gear before dropping it.
+						In the chooser, press 1–9 to pick an item instead of using a potion.
+						Use Page Up / Page Down for larger piles. You can also use Character
+						to pick up or drop items. Successful transfers use a turn; opening
+						or dismissing the chooser is free. Unequip worn gear before dropping
+						it.
 					</li>
 					<li>
 						<span className="font-medium text-foreground">Potions.</span> Select

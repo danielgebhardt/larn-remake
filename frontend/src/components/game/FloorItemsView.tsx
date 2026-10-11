@@ -8,9 +8,11 @@ const FloorItemsView = ({
 	items,
 	alive,
 	onAction,
+	numbered = false,
 }: {
 	items: readonly FloorItem[];
 	alive: boolean;
+	numbered?: boolean;
 	onAction: (action: FloorItemAction) => void;
 }) => {
 	const heading = useRef<HTMLHeadingElement>(null);
@@ -41,6 +43,11 @@ const FloorItemsView = ({
 									heading.current?.focus({ preventScroll: true });
 								}}
 							>
+								{numbered && (
+									<kbd className="rounded border bg-muted px-1.5 text-xs tabular-nums">
+										{index + 1}
+									</kbd>
+								)}
 								<span className="size-4 shrink-0">
 									<ItemIcon kind={item.kind} />
 								</span>

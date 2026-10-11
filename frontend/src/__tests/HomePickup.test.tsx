@@ -178,6 +178,100 @@ describe("G pickup from gameplay", () => {
 		expect(screen.getByLabelText("Turn count")).toHaveTextContent("Turn 2");
 		expect(screen.getByLabelText("Dungeon map", { exact: true })).toHaveFocus();
 	});
+	it("uses numbers for pickup instead of potions, renumbers remaining items and resumes hotbar keys afterward", async () => {
+		const user = renderPickupRun([potion, shield], {
+			monsters: [],
+			player: { health: 5, maxHealth: 10 },
+		});
+		await user.keyboard("g");
+		const dialog = await screen.findByRole("dialog", { name: "Pick up items" });
+		await waitFor(() =>
+			expect(
+				within(dialog).getByRole("heading", { name: "Pick up items" }),
+			).toHaveFocus(),
+		);
+		expect(within(dialog).getByText("1", { selector: "kbd" })).toBeVisible();
+		expect(within(dialog).getByText("2", { selector: "kbd" })).toBeVisible();
+		await user.keyboard("1");
+		expect(screen.getByLabelText("Turn count")).toHaveTextContent("Turn 1");
+		expect(screen.getByLabelText("Player health")).toHaveTextContent(
+			"Health 5 / 10",
+		);
+		expect(
+			within(dialog).getByRole("button", {
+				name: "Pick up Wooden shield, item 1",
+			}),
+		).toBeVisible();
+		await user.keyboard("1");
+		await waitFor(() =>
+			expect(screen.queryByRole("dialog")).not.toBeInTheDocument(),
+		);
+		expect(screen.getByLabelText("Dungeon map", { exact: true })).toHaveFocus();
+		expect(screen.getByLabelText("Turn count")).toHaveTextContent("Turn 2");
+		await user.keyboard("1");
+		expect(screen.getByLabelText("Player health")).toHaveTextContent(
+			"Health 10 / 10",
+		);
+		expect(screen.getByLabelText("Turn count")).toHaveTextContent("Turn 3");
+	});
+	it("ignores missing numbers, repeats and modified keys in the chooser", async () => {
+		const user = renderPickupRun([potion, shield], { monsters: [] });
+		await user.keyboard("g");
+		const dialog = await screen.findByRole("dialog", { name: "Pick up items" });
+		await waitFor(() =>
+			expect(
+				within(dialog).getByRole("heading", { name: "Pick up items" }),
+			).toHaveFocus(),
+		);
+		await user.keyboard("90");
+		for (const modifiers of [
+			{ repeat: true },
+			{ ctrlKey: true },
+			{ altKey: true },
+			{ metaKey: true },
+		])
+			fireEvent.keyDown(dialog, { key: "1", ...modifiers });
+		expect(screen.getByLabelText("Turn count")).toHaveTextContent("Turn 0");
+		expect(
+			within(dialog).getAllByRole("button", { name: /^Pick up / }),
+		).toHaveLength(2);
+	});
+	it("reaches large piles with Page Down and Page Up, and picks the item on the displayed page", async () => {
+		const pile: FloorItem[] = Array.from({ length: 10 }, (_, index) => ({
+			...shield,
+			item: { id: `pile:${index}`, kind: "wooden-shield" as const },
+		}));
+		pile[9] = { ...potion, item: { id: "pile:9", kind: "healing-potion" } };
+		const user = renderPickupRun(pile, { monsters: [] });
+		await user.keyboard("g");
+		const dialog = await screen.findByRole("dialog", { name: "Pick up items" });
+		await waitFor(() =>
+			expect(
+				within(dialog).getByRole("heading", { name: "Pick up items" }),
+			).toHaveFocus(),
+		);
+		expect(
+			within(dialog).getAllByRole("button", { name: /^Pick up / }),
+		).toHaveLength(9);
+		await user.keyboard("{PageDown}");
+		expect(
+			within(dialog).getByRole("button", { name: /Pick up Healing potion/ }),
+		).toBeVisible();
+		await user.keyboard("{PageUp}");
+		expect(
+			within(dialog).queryByRole("button", { name: /Healing potion/ }),
+		).not.toBeInTheDocument();
+		await user.keyboard("{PageDown}1");
+		expect(screen.getByLabelText("Turn count")).toHaveTextContent("Turn 1");
+		expect(screen.getByRole("log")).toHaveTextContent(
+			"You pick up Healing potion",
+		);
+		expect(
+			within(dialog).getAllByRole("button", { name: /^Pick up / }),
+		).toHaveLength(9);
+		await user.keyboard("{Escape}");
+	});
+
 	it.each(["empty tile", "full bag"])(
 		"reports %s without spending a turn",
 		async (scenario) => {

@@ -27,6 +27,10 @@ const DungeonCell = memo(function DungeonCell({
 	monsterKind,
 	itemKind,
 	itemCount = 0,
+	monsterId,
+	targetable,
+	selectedTarget,
+	onTargetRequested,
 }: {
 	rowIndex: number;
 	columnIndex: number;
@@ -36,6 +40,10 @@ const DungeonCell = memo(function DungeonCell({
 	monsterKind?: MonsterKind;
 	itemKind?: ItemKind;
 	itemCount?: number;
+	monsterId?: string;
+	targetable?: boolean;
+	selectedTarget?: boolean;
+	onTargetRequested?: (id: string) => void;
 }) {
 	const description = monsterKind
 		? MONSTER_VISUALS[monsterKind].label
@@ -62,7 +70,19 @@ const DungeonCell = memo(function DungeonCell({
 			className={`size-[var(--dungeon-tile-size)] ${background}`}
 		>
 			{monsterKind ? (
-				<MonsterIcon kind={monsterKind} />
+				targetable && monsterId ? (
+					<button
+						type="button"
+						aria-label={`Target ${MONSTER_VISUALS[monsterKind].label} at row ${rowIndex}, column ${columnIndex}`}
+						aria-pressed={selectedTarget}
+						onClick={() => onTargetRequested?.(monsterId)}
+						className={`flex size-full items-center justify-center rounded-sm ring-inset focus-visible:outline-2 focus-visible:outline-amber-500 ${selectedTarget ? "ring-2 ring-violet-600 dark:ring-violet-300 bg-violet-500/25" : "ring-1 ring-violet-500/60"}`}
+					>
+						<MonsterIcon kind={monsterKind} />
+					</button>
+				) : (
+					<MonsterIcon kind={monsterKind} />
+				)
 			) : itemKind ? (
 				<ItemIcon kind={itemKind} />
 			) : (
@@ -87,6 +107,9 @@ const DungeonRow = memo(
 		monsters,
 		floorItems,
 		playerRef,
+		targetIds,
+		selectedTargetId,
+		onTargetRequested,
 	}: {
 		row: readonly string[];
 		visible?: readonly boolean[];
@@ -99,6 +122,9 @@ const DungeonRow = memo(
 		monsters?: readonly Monster[];
 		floorItems?: readonly FloorItem[];
 		playerRef: PlayerRef;
+		targetIds?: readonly string[];
+		selectedTargetId?: string;
+		onTargetRequested?: (id: string) => void;
 	}) {
 		return (
 			<tr
@@ -140,6 +166,14 @@ const DungeonRow = memo(
 							columnIndex={columnIndex}
 							tile={visibility === "unknown" ? undefined : tile}
 							visibility={visibility}
+							monsterId={monster?.id}
+							targetable={
+								monster &&
+								visibility === "visible" &&
+								targetIds?.includes(monster.id)
+							}
+							selectedTarget={monster?.id === selectedTargetId}
+							onTargetRequested={onTargetRequested}
 							itemKind={items?.[0]?.item.kind}
 							itemCount={items?.length}
 							monsterKind={
@@ -158,6 +192,9 @@ const DungeonRow = memo(
 		);
 	},
 	(previous, next) =>
+		previous.targetIds === next.targetIds &&
+		previous.selectedTargetId === next.selectedTargetId &&
+		previous.onTargetRequested === next.onTargetRequested &&
 		previous.row === next.row &&
 		previous.rowIndex === next.rowIndex &&
 		previous.visible === next.visible &&

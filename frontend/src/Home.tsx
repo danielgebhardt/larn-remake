@@ -13,6 +13,8 @@ import PickupDialog from "./components/game/PickupDialog";
 import PlayerStatus from "./components/game/PlayerStatus.tsx";
 import PotionHotbarView from "./components/game/PotionHotbarView";
 import QuestStatus from "./components/game/QuestStatus";
+import SpellHotbarView from "./components/game/SpellHotbarView";
+import { useSpellTargeting } from "./components/game/useSpellTargeting";
 import VictoryDialog from "./components/game/VictoryDialog";
 import {
 	connectDungeonFloors,
@@ -183,6 +185,22 @@ const Home = ({
 		});
 	};
 
+	const gameplayEnabled =
+		!settingsOpen &&
+		!helpOpen &&
+		!characterOpen &&
+		!pickupOpen &&
+		!victoryOpen &&
+		canPlay;
+	const spells = useSpellTargeting(
+		game.state,
+		fogConfiguration.enabled ? exploration.visible : undefined,
+		gameplayEnabled,
+		handleActionRequested,
+		(message) => setGame((current) => ({ ...current, actionError: message })),
+		() => mapRef.current?.focus({ preventScroll: true }),
+	);
+
 	const handlePotionRequested = (slot: HotbarSlot) => {
 		handleActionRequested({ type: "use-hotbar", slot });
 		mapRef.current?.focus({ preventScroll: true });
@@ -317,7 +335,14 @@ const Home = ({
 							alive={canPlay}
 							onActivate={handlePotionRequested}
 						/>
+						<SpellHotbarView
+							knownSpells={game.state.knownSpells}
+							enabled={gameplayEnabled}
+							targeting={spells.targeting?.spell}
+							onActivate={spells.activate}
+						/>
 						<PlayerStatus
+							mana={game.state.mana}
 							turn={turn}
 							player={player}
 							progression={game.state.progression}
@@ -334,8 +359,22 @@ const Home = ({
 							Victory summary
 						</Button>
 					)}
+					{spells.description && (
+						<p
+							role="status"
+							aria-label="Spell targeting"
+							className="mb-2 rounded-md border border-violet-500/50 bg-violet-500/10 px-3 py-2 text-center text-sm"
+						>
+							{spells.description}
+						</p>
+					)}
 					<DungeonLayout
 						mapRef={mapRef}
+						onSpellRequested={spells.activate}
+						onTargetingKey={spells.targeting ? spells.handleKey : undefined}
+						targetIds={spells.targetIds}
+						selectedTargetId={spells.targeting?.id}
+						onTargetRequested={spells.targeting ? spells.castTarget : undefined}
 						monsters={activeMonsters}
 						floorItems={activeItems}
 						dungeon={activeFloor.terrain}

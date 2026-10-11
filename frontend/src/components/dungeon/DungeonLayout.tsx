@@ -9,6 +9,7 @@ import {
 import type { MovementDirection } from "../../domain/dungeon/DungeonRun.ts";
 import type { Coordinate, Dungeon } from "../../domain/dungeon/DungeonTypes.ts";
 import type { VisibilityGrid } from "../../domain/dungeon/Visibility.ts";
+import type { SpellKind } from "../../domain/game/Spells";
 import type { FloorItem } from "../../domain/items/FloorItems";
 import { HOTBAR_SLOTS, type HotbarSlot } from "../../domain/items/PotionHotbar";
 import type { Monster } from "../../domain/monsters/Monster.ts";
@@ -22,6 +23,11 @@ type DungeonLayoutProps = {
 	downStair?: Coordinate;
 	upStair?: Coordinate;
 	entrance?: Coordinate;
+	onSpellRequested?: (spell: SpellKind) => void;
+	onTargetingKey?: (key: string) => void;
+	targetIds?: readonly string[];
+	selectedTargetId?: string;
+	onTargetRequested?: (id: string) => void;
 	onMoveRequested: (direction: MovementDirection) => void;
 	onWaitRequested?: () => void;
 	onPickupRequested?: () => void;
@@ -51,6 +57,11 @@ const DungeonLayout = ({
 	onPickupRequested,
 	onCharacterRequested,
 	onPotionRequested,
+	onSpellRequested,
+	onTargetingKey,
+	targetIds,
+	selectedTargetId,
+	onTargetRequested,
 	mapRef,
 	movementEnabled = true,
 	visible,
@@ -143,6 +154,36 @@ const DungeonLayout = ({
 				return;
 			}
 
+			if (onTargetingKey && movementEnabled) {
+				if (event.ctrlKey || event.metaKey || event.altKey) return;
+				if (
+					event.target instanceof HTMLElement &&
+					event.target.closest(FOCUSED_CONTROLS) &&
+					event.key !== "Escape" &&
+					event.key.toLowerCase() !== "z"
+				)
+					return;
+				event.preventDefault();
+				if (!event.repeat) onTargetingKey(event.key);
+				return;
+			}
+			if (movementEnabled && ["z", "h"].includes(event.key.toLowerCase())) {
+				if (
+					!onSpellRequested ||
+					event.repeat ||
+					event.ctrlKey ||
+					event.metaKey ||
+					event.altKey ||
+					(event.target instanceof HTMLElement &&
+						event.target.closest(FOCUSED_CONTROLS))
+				)
+					return;
+				event.preventDefault();
+				onSpellRequested(
+					event.key.toLowerCase() === "h" ? "heal" : "magic-missile",
+				);
+				return;
+			}
 			if (isCharacterShortcut(event.key)) {
 				if (
 					!onCharacterRequested ||
@@ -239,6 +280,8 @@ const DungeonLayout = ({
 		onPickupRequested,
 		onCharacterRequested,
 		onPotionRequested,
+		onSpellRequested,
+		onTargetingKey,
 		movementEnabled,
 	]);
 
@@ -256,6 +299,9 @@ const DungeonLayout = ({
 						<DungeonRow
 							key={rowIndex}
 							row={row}
+							targetIds={targetIds}
+							selectedTargetId={selectedTargetId}
+							onTargetRequested={onTargetRequested}
 							rowIndex={rowIndex}
 							monsters={monsterRows.get(rowIndex)}
 							floorItems={itemRows.get(rowIndex)}

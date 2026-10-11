@@ -3,11 +3,7 @@ import {
 	armorContributions,
 	deriveCombatStats,
 } from "../../domain/game/CombatStats";
-import {
-	attackProfile,
-	PLAYER_HIT_CHANCE,
-	PLAYER_HIT_THRESHOLD,
-} from "../../domain/game/MeleeRules";
+import { attackProfile, deriveAccuracy } from "../../domain/game/MeleeRules";
 import type { PlayerStats } from "../../domain/game/PlayerStats";
 import type { Progression } from "../../domain/game/Progression";
 import type { Equipment } from "../../domain/items/Equipment";
@@ -23,7 +19,8 @@ const CharacterStats = ({
 }) => {
 	const combat = deriveCombatStats(equipment, progression);
 	const armor = armorContributions(equipment);
-	const profile = attackProfile(combat.attack, PLAYER_HIT_THRESHOLD);
+	const accuracy = deriveAccuracy(progression);
+	const profile = attackProfile(combat.attack, accuracy.playerHitThreshold);
 
 	return (
 		<section aria-label="Character stats" className="grid gap-2">
@@ -62,7 +59,7 @@ const CharacterStats = ({
 						aria-label="Character hit chance"
 						className="text-xs text-muted-foreground"
 					>
-						Hit {PLAYER_HIT_CHANCE}%
+						Hit {accuracy.playerHitChance}%
 					</output>
 				</div>
 				<div className="rounded-lg border bg-muted/30 p-2">
@@ -79,6 +76,12 @@ const CharacterStats = ({
 					<p className="mt-1 text-xs text-muted-foreground">
 						Shield {armor.shield} + chest {armor.chest} + head {armor.head}
 					</p>
+					<output
+						aria-label="Character evasion"
+						className="text-xs text-muted-foreground"
+					>
+						Evade {accuracy.evadeChance}%
+					</output>
 				</div>
 			</div>
 			<p className="text-xs leading-relaxed text-muted-foreground">

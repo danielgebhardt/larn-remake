@@ -59,6 +59,18 @@ const ProgressionView = ({ progression }: { progression: Progression }) => {
 					+{attributes.strengthModifier} melee damage · grows at levels 3 and 5
 				</p>
 			</div>
+			<div className="grid gap-1 border-t pt-3">
+				<output
+					aria-label="Character Dexterity"
+					className="font-medium tabular-nums"
+				>
+					Dexterity {attributes.dexterity}
+				</output>
+				<p className="text-xs text-muted-foreground">
+					+{attributes.dexterityModifier * 5} percentage points to accuracy and
+					evasion · grows at levels 2 and 4
+				</p>
+			</div>
 			<p className="border-t pt-3 text-xs leading-relaxed text-muted-foreground">
 				Defeat monsters to earn XP. Each level adds 2 maximum and current
 				health, up to level {MAX_PLAYER_LEVEL}.

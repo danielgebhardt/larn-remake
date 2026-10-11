@@ -22,7 +22,7 @@ describe("Earned Strength", () => {
 	])(
 		"derives earned Strength from %i XP",
 		(experience, strength, strengthModifier) => {
-			expect(deriveAttributes({ experience })).toEqual({
+			expect(deriveAttributes({ experience })).toMatchObject({
 				strength,
 				strengthModifier,
 			});

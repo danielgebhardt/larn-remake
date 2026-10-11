@@ -1,9 +1,30 @@
+import { deriveAttributes } from "./Attributes";
 import { resolveIncomingDamage } from "./CombatStats";
+import type { Progression } from "./Progression";
 
 export const PLAYER_HIT_THRESHOLD = 4;
 export const MONSTER_HIT_THRESHOLD = 5;
 export const PLAYER_HIT_CHANCE = (21 - PLAYER_HIT_THRESHOLD) * 5;
 export const MONSTER_HIT_CHANCE = (21 - MONSTER_HIT_THRESHOLD) * 5;
+export const accuracyThresholds = (modifier: number) => {
+	if (!Number.isSafeInteger(modifier))
+		throw new RangeError("Accuracy modifiers must be safe whole numbers.");
+	const clamp = (threshold: number) => Math.max(2, Math.min(20, threshold));
+	return {
+		playerHitThreshold: clamp(PLAYER_HIT_THRESHOLD - modifier),
+		monsterHitThreshold: clamp(MONSTER_HIT_THRESHOLD + modifier),
+	};
+};
+export const deriveAccuracy = (progression: Progression) => {
+	const thresholds = accuracyThresholds(
+		deriveAttributes(progression).dexterityModifier,
+	);
+	return {
+		...thresholds,
+		playerHitChance: (21 - thresholds.playerHitThreshold) * 5,
+		evadeChance: (thresholds.monsterHitThreshold - 1) * 5,
+	};
+};
 export type AttackProfile = {
 	hitThreshold: number;
 	minDamage: number;

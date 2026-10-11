@@ -10,7 +10,7 @@ import { deriveCombatStats } from "../game/CombatStats";
 import type { GameState } from "../game/GameState";
 import {
 	attackProfile,
-	MONSTER_HIT_THRESHOLD,
+	deriveAccuracy,
 	resolveMeleeAttack,
 } from "../game/MeleeRules";
 import { MONSTER_DEFINITIONS } from "./Monster";
@@ -27,6 +27,7 @@ export const resolveMonsterPhase = (
 	let monsters = state.monsters;
 	const events: ActivityEvent[] = [];
 	const { armor } = deriveCombatStats(state.equipment, state.progression);
+	const { monsterHitThreshold } = deriveAccuracy(state.progression);
 	// IDs encode floor:spawnIndex; sort numeric indices, not incidental storage order.
 	const active = state.monsters
 		.filter(
@@ -50,7 +51,7 @@ export const resolveMonsterPhase = (
 		const outcome = resolveMeleeAttack(
 			attackProfile(
 				MONSTER_DEFINITIONS[monster.kind].attackDamage,
-				MONSTER_HIT_THRESHOLD,
+				monsterHitThreshold,
 			),
 			rollSource({
 				seed: state.run.seed,

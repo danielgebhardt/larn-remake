@@ -24,13 +24,13 @@ import { MONSTER_DEFINITIONS } from "../monsters/Monster";
 import type { Monster } from "../monsters/Monster.ts";
 import { resolveMonsterPhase } from "../monsters/MonsterTurns";
 import { type ActivityEvent, appendActivityEvents } from "./ActivityHistory.ts";
-import { strengthAtLevel } from "./Attributes";
+import { dexterityAtLevel, strengthAtLevel } from "./Attributes";
 import { type AttackRollSource, createAttackRolls } from "./CombatRandomness";
 import { deriveCombatStats } from "./CombatStats";
 import type { GameState } from "./GameState.ts";
 import {
 	attackProfile,
-	PLAYER_HIT_THRESHOLD,
+	deriveAccuracy,
 	resolveMeleeAttack,
 } from "./MeleeRules";
 import {
@@ -260,7 +260,7 @@ const resolveAttack = (
 	const outcome = resolveMeleeAttack(
 		attackProfile(
 			deriveCombatStats(state.equipment, state.progression).attack,
-			PLAYER_HIT_THRESHOLD,
+			deriveAccuracy(state.progression).playerHitThreshold,
 		),
 		rollSource({
 			seed: state.run.seed,
@@ -311,6 +311,13 @@ const resolveAttack = (
 					type: "attribute-gained",
 					attribute: "Strength",
 					value: strengthAtLevel(level),
+					turn,
+				});
+			if (dexterityAtLevel(level) > dexterityAtLevel(level - 1))
+				events.push({
+					type: "attribute-gained",
+					attribute: "Dexterity",
+					value: dexterityAtLevel(level),
 					turn,
 				});
 		}

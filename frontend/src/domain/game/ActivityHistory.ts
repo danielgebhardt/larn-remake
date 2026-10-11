@@ -10,7 +10,11 @@ export type ActivityEvent = { turn: number } & (
 	| { type: "monster-died"; monster: MonsterKind }
 	| { type: "experience-gained"; amount: number }
 	| { type: "level-gained"; level: number; healthGain: number }
-	| { type: "attribute-gained"; attribute: "Strength"; value: number }
+	| {
+			type: "attribute-gained";
+			attribute: "Strength" | "Dexterity";
+			value: number;
+	  }
 	| { type: "player-missed" | "monster-missed"; monster: MonsterKind }
 	| { type: "player-died" }
 	| { type: "quest-completed" }

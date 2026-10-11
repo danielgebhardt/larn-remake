@@ -76,6 +76,19 @@ describe("Progression on the play screen", () => {
 		);
 		expect(screen.getByText("Base 1 + Strength 1 + weapon 1")).toBeVisible();
 	});
+	it("shows Dexterity and the actual accuracy and evasion at level four", async () => {
+		const user = setup(60);
+		await user.keyboard("i");
+		expect(screen.getByLabelText("Character Dexterity")).toHaveTextContent(
+			"Dexterity 14",
+		);
+		expect(screen.getByLabelText("Character hit chance")).toHaveTextContent(
+			"Hit 95%",
+		);
+		expect(screen.getByLabelText("Character evasion")).toHaveTextContent(
+			"Evade 30%",
+		);
+	});
 	it("shows maximum level and retained total XP instead of promising level six", async () => {
 		const user = setup(130);
 		await user.keyboard("i");

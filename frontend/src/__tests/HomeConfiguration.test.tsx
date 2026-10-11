@@ -31,7 +31,7 @@ describe("Home dungeon configuration", () => {
 		const board = screen.getByRole("table");
 		const original = readDungeonCells(board);
 		await openSettings(user);
-		await editConfiguration(user, { rows: "4", columns: "101", floors: "0" });
+		await editConfiguration(user, { rows: "4", columns: "101", floors: "4" });
 		await user.click(screen.getByRole("button", { name: "Start from seed" }));
 		expect(screen.getAllByRole("alert")).toHaveLength(3);
 		for (const name of ["Rows", "Columns", "Floors"])
@@ -42,6 +42,9 @@ describe("Home dungeon configuration", () => {
 		expect(
 			screen.getByRole("textbox", { name: "Rows" }),
 		).toHaveAccessibleDescription(/Enter a whole number from 10 to 100/);
+		expect(
+			screen.getByRole("textbox", { name: "Floors" }),
+		).toHaveAccessibleDescription(/Enter a whole number from 5 to 20/);
 		expect(readDungeonCells(board)).toEqual(original);
 		expect(generate).toHaveBeenCalledTimes(1);
 		await closeSettings(user);
@@ -73,7 +76,7 @@ describe("Home dungeon configuration", () => {
 			const board = screen.getByRole("table");
 			const original = readDungeonCells(board);
 			await openSettings(user);
-			await editConfiguration(user, { rows: "10", columns: "10", floors: "2" });
+			await editConfiguration(user, { rows: "10", columns: "10", floors: "6" });
 			(stage === "terrain" ? generate : connect).mockImplementationOnce(() => {
 				throw new Error("generation failed");
 			});
@@ -109,7 +112,7 @@ describe("Home dungeon configuration", () => {
 			.mockImplementation(originalGenerate)
 			.mockReturnValueOnce(createThreeFloorTraversalRun());
 		const expected = DungeonRun.connectDungeonFloors(
-			originalGenerate(123, 2, {
+			originalGenerate(123, 6, {
 				rows: 10,
 				cols: 15,
 				minPartitionSize: 8,
@@ -124,10 +127,10 @@ describe("Home dungeon configuration", () => {
 		const seed = await openSettings(user);
 		await user.clear(seed);
 		await user.type(seed, "123");
-		await editConfiguration(user, { rows: "10", columns: "15", floors: "2" });
+		await editConfiguration(user, { rows: "10", columns: "15", floors: "6" });
 		await user.click(screen.getByRole("button", { name: "Start from seed" }));
 		await waitForSettingsClosed();
-		expect(screen.getByRole("heading", { name: "Floor 1 of 2" })).toBeVisible();
+		expect(screen.getByRole("heading", { name: "Floor 1 of 6" })).toBeVisible();
 		const firstBoard = readDungeonCells(screen.getByRole("table"));
 		const first = expected.floors[0];
 		if (!first.downStair) throw new Error("Fixture must have a down stair");
@@ -137,38 +140,38 @@ describe("Home dungeon configuration", () => {
 			first.downStair.coordinate,
 		);
 		await user.keyboard(keys);
-		expect(screen.getByRole("heading", { name: "Floor 2 of 2" })).toBeVisible();
+		expect(screen.getByRole("heading", { name: "Floor 2 of 6" })).toBeVisible();
 		const secondBoard = readDungeonCells(screen.getByRole("table"));
 		await openSettings(user);
 		await user.click(screen.getByRole("button", { name: "Start from seed" }));
 		await waitForSettingsClosed();
-		expect(screen.getByRole("heading", { name: "Floor 1 of 2" })).toBeVisible();
+		expect(screen.getByRole("heading", { name: "Floor 1 of 6" })).toBeVisible();
 		expect(readDungeonCells(screen.getByRole("table"))).toEqual(firstBoard);
 		await user.keyboard(keys);
 		expect(readDungeonCells(screen.getByRole("table"))).toEqual(secondBoard);
 		await openSettings(user);
-		await editConfiguration(user, { rows: "20", columns: "25", floors: "4" });
+		await editConfiguration(user, { rows: "20", columns: "25", floors: "7" });
 		await closeSettings(user);
 		vi.spyOn(Math, "random").mockReturnValue(0);
 		await user.click(screen.getByRole("button", { name: "New Dungeon" }));
-		expect(generate).toHaveBeenLastCalledWith(0, 2, {
+		expect(generate).toHaveBeenLastCalledWith(0, 6, {
 			...DEFAULT_DUNGEON_CONFIG,
 			rows: 10,
 			cols: 15,
 		});
-		expect(screen.getByRole("heading", { name: "Floor 1 of 2" })).toBeVisible();
+		expect(screen.getByRole("heading", { name: "Floor 1 of 6" })).toBeVisible();
 		expect(within(screen.getByRole("table")).getAllByRole("cell")).toHaveLength(
 			150,
 		);
 		await openSettings(user);
 		expect(screen.getByRole("textbox", { name: "Rows" })).toHaveValue("10");
-		expect(screen.getByRole("textbox", { name: "Floors" })).toHaveValue("2");
+		expect(screen.getByRole("textbox", { name: "Floors" })).toHaveValue("6");
 		expect(screen.getByRole("textbox", { name: "Dungeon seed" })).toHaveValue(
 			"0",
 		);
 	});
 
-	it("keeps configuration edits as drafts and applies a rectangular single-floor run explicitly", async () => {
+	it("keeps configuration edits as drafts and applies a rectangular five-floor run explicitly", async () => {
 		const user = userEvent.setup();
 		render(<Home />);
 		const board = screen.getByRole("table");
@@ -180,7 +183,7 @@ describe("Home dungeon configuration", () => {
 		for (const [name, value] of [
 			["Rows", "10"],
 			["Columns", "15"],
-			["Floors", "1"],
+			["Floors", "5"],
 		]) {
 			const field = screen.getByRole("textbox", { name });
 			await user.clear(field);
@@ -193,19 +196,16 @@ describe("Home dungeon configuration", () => {
 		expect(screen.getByRole("textbox", { name: "Rows" })).toHaveValue("10");
 		await user.click(screen.getByRole("button", { name: "Start from seed" }));
 		await waitForSettingsClosed();
-		expect(screen.getByRole("heading", { name: "Floor 1 of 1" })).toBeVisible();
+		expect(screen.getByRole("heading", { name: "Floor 1 of 5" })).toBeVisible();
 		expect(within(screen.getByRole("table")).getAllByRole("row")).toHaveLength(
 			10,
 		);
 		expect(within(screen.getByRole("table")).getAllByRole("cell")).toHaveLength(
 			150,
 		);
-		expect(
-			screen.queryByRole("cell", { name: /stairs/ }),
-		).not.toBeInTheDocument();
 		await openSettings(user);
 		expect(
 			screen.getByLabelText("Current dungeon configuration"),
-		).toHaveTextContent("10 rows × 15 columns · 1 floor");
+		).toHaveTextContent("10 rows × 15 columns · 5 floors");
 	});
 });

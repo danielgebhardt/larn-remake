@@ -182,7 +182,7 @@ Implementation status: [epic #109](https://github.com/danielgebhardt/larn-remake
 | [#114](https://github.com/danielgebhardt/larn-remake/issues/114) | Victory summary, inspection, replay, and new adventure controls. |
 | [#115](https://github.com/danielgebhardt/larn-remake/issues/115) | Complete-loop tests, seeded diagnostics, browser review, and documentation. |
 
-The cure occupies no bag slot and cannot be drunk, equipped, or dropped. Recovery takes a normal action turn; stepping onto the entrance carrying it wins on that movement turn before monster retaliation. Custom depths 1–20 put the cure on their final floor. Inspection remains available after victory, while gameplay stops.
+The cure occupies no bag slot and cannot be drunk, equipped, or dropped. Recovery takes a normal action turn; stepping onto the entrance carrying it wins on that movement turn before monster retaliation. Custom depths 5–20 put the cure on their final floor. Inspection remains available after victory, while gameplay stops.
 
 Recorded five-floor diagnostics complete the return for seeds 0 and 987, while seeds 1 and 123 die before recovery. No combat/loot tuning was made merely to force diagnostic wins. Further human playtesting and twenty-floor balance remain open. No quest timer, boss, or special objective room initially. Introduce a deadline only with clear remaining-time feedback and reviewed resource pressure.
 

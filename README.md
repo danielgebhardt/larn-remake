@@ -170,7 +170,7 @@ To replay a dungeon, open **Settings**, enter a seed in **Dungeon seed**, and se
 
 The map automatically scrolls just enough to keep the player visible, with roughly one tile of surrounding space where possible. Following works horizontally and vertically, after stairs or a fresh run, and when the map viewport resizes. You can still scroll manually to inspect the map; ordinary rerenders, Settings, and appearance changes leave that view alone. The next successful move or floor/run change resumes following. Blocked movement does not scroll, and following does not move focus or scroll the outer page.
 
-**Dungeon configuration** in Settings lets you choose 10–100 rows, 10–100 columns, and 1–20 floors. Defaults are 15 × 15 with 5 floors, with minimum partition size 8 and room padding 1. **Start from seed** applies the seed and configuration together, starting a new run on floor 1. Editing or dismissing settings retains drafts without changing the run. **New Dungeon** uses the last successfully applied configuration and resets drafts to it. These settings last for this session; only appearance is saved across reloads.
+**Dungeon configuration** in Settings lets you choose 10–100 rows, 10–100 columns, and 5–20 floors. Defaults are 15 × 15 with 5 floors, with minimum partition size 8 and room padding 1. **Start from seed** applies the seed and configuration together, starting a new run on floor 1. Editing or dismissing settings retains drafts without changing the run. **New Dungeon** uses the last successfully applied configuration and resets drafts to it. These settings last for this session; only appearance is saved across reloads.
 
 Inputs require decimal whole numbers. Invalid fields show feedback without replacing the run. Generation failures show a retry message and preserve the current run, active configuration, and draft.
 
@@ -197,7 +197,7 @@ To demonstrate the exploration milestone:
 3. Open **Settings**, enter the noted seed, and start from it to recreate the complete run at its original start.
 4. Select **New Dungeon**, then explore again. Subsequent transitions use the new run's floors.
 
-Floor 1 has no up stair, and the deepest floor has no down stair. Floor count is configurable in Settings, including a one-floor run with no transitions; the default is five floors. Town, broader progression, and persistence belong to later work.
+Floor 1 has no up stair, and the deepest floor has no down stair. Floor count is configurable in Settings, from five to twenty floors; the default is five floors. Town, broader progression, and persistence belong to later work.
 
 ## Configuration
 
@@ -336,7 +336,7 @@ For reproducible five-floor checks, run `pnpm --filter frontend exec node script
 
 Monsters use inclusive floor bands and positive relative spawn weights. Goblins (health 4, damage 1, sight 6, weight 3) are eligible on floors 1–20; giant rats (health 2, damage 1, sight 5, weight 2) on 1–4; orcs (health 7, damage 4, sight 6, weight 2) on 3–20. All initially share orthogonal melee pursuit. These are initial playtest values.
 
-Monster kinds are chosen independently using `seed:floor:monster-kinds:index`; position selection retains `seed:floor:monsters:index`. Settings supports 1–20 floors; the default is five.
+Monster kinds are chosen independently using `seed:floor:monster-kinds:index`; position selection retains `seed:floor:monsters:index`. Settings supports 5–20 floors; the default is five.
 
 Armor catalog: leather armor/cap provide +1 armor from floor 1; chain armor/iron helmet provide +2 from floor 3. All remain eligible through floor 20. Found/drop weights are separate; healing remains the most common individual reward. Every item is a separately owned copy.
 

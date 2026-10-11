@@ -7,15 +7,15 @@ import {
 } from "../settings/RunConfigurationDraft.ts";
 
 describe("run configuration input", () => {
-	it("normalizes whole numbers and accepts a rectangular, single-floor dungeon", () => {
+	it("normalizes whole numbers and accepts a rectangular, five-floor dungeon", () => {
 		expect(
-			parseRunConfiguration({ rows: " 010 ", cols: "100", floorCount: "1" }),
+			parseRunConfiguration({ rows: " 010 ", cols: "100", floorCount: "5" }),
 		).toEqual({
 			valid: true,
 			value: {
 				rows: 10,
 				cols: 100,
-				floorCount: 1,
+				floorCount: 5,
 				minPartitionSize: 8,
 				roomPadding: 1,
 				minRoomSize: 3,
@@ -29,7 +29,7 @@ describe("run configuration input", () => {
 			const result = parseRunConfiguration({
 				rows,
 				cols: "30",
-				floorCount: "3",
+				floorCount: "5",
 			});
 			expect(result).toEqual({
 				valid: false,
@@ -41,21 +41,21 @@ describe("run configuration input", () => {
 		"rejects invalid columns: %s",
 		(cols) => {
 			expect(
-				parseRunConfiguration({ rows: "30", cols, floorCount: "3" }),
+				parseRunConfiguration({ rows: "30", cols, floorCount: "5" }),
 			).toEqual({
 				valid: false,
 				errors: { cols: "Enter a whole number from 10 to 100." },
 			});
 		},
 	);
-	it.each(["", "0", "21", "1.5"])(
+	it.each(["", "0", "1", "2", "3", "4", "21", "5.5"])(
 		"rejects invalid floor counts: %s",
 		(floorCount) => {
 			expect(
 				parseRunConfiguration({ rows: "30", cols: "100", floorCount }),
 			).toEqual({
 				valid: false,
-				errors: { floorCount: "Enter a whole number from 1 to 20." },
+				errors: { floorCount: "Enter a whole number from 5 to 20." },
 			});
 		},
 	);
@@ -79,7 +79,7 @@ describe("run configuration input", () => {
 		const configuration = {
 			rows: 30,
 			cols: 100,
-			floorCount: 3,
+			floorCount: 5,
 			minPartitionSize: 10,
 			roomPadding: 2,
 			minRoomSize: 4,
@@ -87,7 +87,7 @@ describe("run configuration input", () => {
 		};
 		expect(
 			parseRunConfiguration(
-				{ rows: "20", cols: "40", floorCount: "2" },
+				{ rows: "20", cols: "40", floorCount: "6" },
 				configuration,
 			),
 		).toEqual({
@@ -95,7 +95,7 @@ describe("run configuration input", () => {
 			value: {
 				rows: 20,
 				cols: 40,
-				floorCount: 2,
+				floorCount: 6,
 				minPartitionSize: 10,
 				roomPadding: 2,
 				minRoomSize: 4,
@@ -108,13 +108,13 @@ describe("run configuration input", () => {
 			configurationDraft({
 				rows: 30,
 				cols: 100,
-				floorCount: 3,
+				floorCount: 5,
 				minPartitionSize: 10,
 				roomPadding: 2,
 				minRoomSize: 4,
 				maxRoomAspectRatio: 2,
 			}),
-		).toEqual({ rows: "30", cols: "100", floorCount: "3" });
+		).toEqual({ rows: "30", cols: "100", floorCount: "5" });
 	});
 	it("reports all invalid fields together", () => {
 		const result = parseRunConfiguration({

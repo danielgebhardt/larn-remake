@@ -4,7 +4,7 @@ Epic [#109](https://github.com/danielgebhardt/larn-remake/issues/109), stories #
 
 ## Rules and design
 
-The default adventure is five 15×15 floors. Custom depths 1–20 remain supported: one reachable, independently seeded cure appears on the final configured floor. The floor-1 entrance is the original player start and is a map overlay, preserving generated terrain and stair rules. Cure and entrance use blue gem/door icons; ordinary gear and monster colors retain their separate palettes.
+The default adventure is five 15×15 floors. Settings supports custom depths 5–20: one reachable, independently seeded cure appears on the final configured floor. The floor-1 entrance is the original player start and is a map overlay, preserving generated terrain and stair rules. Cure and entrance use blue gem/door icons; ordinary gear and monster colors retain their separate palettes.
 
 The cure enters a protected quest pouch, consumes no bag slot, and cannot be equipped, drunk, or dropped. Picking it up is a normal turn with retaliation. Delivery requires stepping onto the entrance carrying it; that movement consumes the final turn and captures victory before retaliation. Waiting on the entrance does not win. Returning without the cure logs a reminder. Death prevents delivery.
 
@@ -22,6 +22,8 @@ Run `pnpm --filter frontend exec node scripts/review-adventure.mjs`; optionally 
 | 987 | Won | 5 | 205 | 9 | 14 | 3 | Yes |
 
 Victory snapshots match the diagnostic's final counters. No combat, healing, spawn density, or loot weights were changed simply to force successes. These examples demonstrate achievable five-floor adventures; they do not establish that every seed is fair or that twenty-floor adventures are balanced. Human playtesting remains the next balance input.
+
+Settings now requires at least five floors to preserve the descent-and-return adventure. Smaller runs remain available to domain fixtures; the one-floor browser checks below record the original epic review before this minimum changed.
 
 ## Verification
 

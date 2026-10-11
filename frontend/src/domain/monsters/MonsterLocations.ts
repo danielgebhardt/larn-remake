@@ -1,3 +1,4 @@
+import { NoDistinctStairLocationError } from "../dungeon/DungeonLocations";
 import { type DungeonRun, selectFloorDownStair } from "../dungeon/DungeonRun";
 import type { Coordinate } from "../dungeon/DungeonTypes";
 
@@ -35,7 +36,7 @@ export const protectedSpawnLocations = (
 		try {
 			locations.push(selectFloorDownStair(run.seed, floor));
 		} catch (error) {
-			if (!(error instanceof RangeError)) throw error;
+			if (!(error instanceof NoDistinctStairLocationError)) throw error;
 		}
 	}
 	return locations;

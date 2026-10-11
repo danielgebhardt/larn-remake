@@ -205,7 +205,7 @@ Start with `domain/dungeon/RunConfiguration.ts` when tuning dungeon generation. 
 
 | File | What it controls |
 | --- | --- |
-| [RunConfiguration.ts](frontend/src/domain/dungeon/RunConfiguration.ts) | Dungeon defaults, configuration types, and input limits: rows, columns, floor count, minimum partition size, room padding, minimum room size, maximum room aspect ratio, and fog defaults/radius limits. |
+| [RunConfiguration.ts](frontend/src/domain/dungeon/RunConfiguration.ts) | Dungeon defaults, configuration types, and input limits: rows, columns, floor count, minimum partition size, room padding, minimum room size, maximum room aspect ratio, and fog defaults/radius limits. `MAX_FLOORS` is shared by input limits and monster/item catalog bounds. |
 | [RunConfigurationDraft.ts](frontend/src/settings/RunConfigurationDraft.ts) | Settings draft types, conversion to input strings, and parsing/validation against the shared limits. |
 | [FogConfigurationDraft.ts](frontend/src/settings/FogConfigurationDraft.ts) | Parsing and validation of the visibility-radius setting against the shared limits. |
 | [App.css](frontend/src/App.css) | Tile size, light/dark theme colors, fog backgrounds and remembered-icon opacity, and shared styling. The `--dungeon-tile-size` variable sizes dungeon cells, grid columns, and legend icons together. |

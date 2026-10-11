@@ -1,3 +1,4 @@
+import { MAX_FLOORS } from "../dungeon/RunConfiguration";
 export type ItemDefinition = {
 	name: string;
 	type: "potion" | "weapon" | "shield" | "chest-armor" | "helmet";
@@ -12,7 +13,7 @@ export type ItemDefinition = {
 export const ITEM_DEFINITIONS = {
 	"healing-potion": {
 		minFloor: 1,
-		maxFloor: 20,
+		maxFloor: MAX_FLOORS,
 		foundWeight: 5,
 		dropWeight: 5,
 		name: "Healing potion",
@@ -25,7 +26,7 @@ export const ITEM_DEFINITIONS = {
 	},
 	"iron-sword": {
 		minFloor: 2,
-		maxFloor: 20,
+		maxFloor: MAX_FLOORS,
 		foundWeight: 2,
 		dropWeight: 2,
 		name: "Iron sword",
@@ -37,7 +38,7 @@ export const ITEM_DEFINITIONS = {
 	},
 	"short-sword": {
 		minFloor: 1,
-		maxFloor: 20,
+		maxFloor: MAX_FLOORS,
 		foundWeight: 2,
 		dropWeight: 3,
 		name: "Short sword",
@@ -48,7 +49,7 @@ export const ITEM_DEFINITIONS = {
 	},
 	"wooden-shield": {
 		minFloor: 1,
-		maxFloor: 20,
+		maxFloor: MAX_FLOORS,
 		foundWeight: 2,
 		dropWeight: 3,
 		name: "Wooden shield",
@@ -65,7 +66,7 @@ export const ITEM_DEFINITIONS = {
 		armor: 1,
 		description: "Light chest protection. Reduces landed incoming damage by 1.",
 		minFloor: 1,
-		maxFloor: 20,
+		maxFloor: MAX_FLOORS,
 		foundWeight: 3,
 		dropWeight: 2,
 	},
@@ -77,7 +78,7 @@ export const ITEM_DEFINITIONS = {
 		description:
 			"Linked metal rings protect your chest. Reduces landed incoming damage by 2.",
 		minFloor: 3,
-		maxFloor: 20,
+		maxFloor: MAX_FLOORS,
 		foundWeight: 2,
 		dropWeight: 1,
 	},
@@ -89,7 +90,7 @@ export const ITEM_DEFINITIONS = {
 		description:
 			"A padded cap for your head. Reduces landed incoming damage by 1.",
 		minFloor: 1,
-		maxFloor: 20,
+		maxFloor: MAX_FLOORS,
 		foundWeight: 2,
 		dropWeight: 2,
 	},
@@ -100,7 +101,7 @@ export const ITEM_DEFINITIONS = {
 		armor: 2,
 		description: "A sturdy helmet. Reduces landed incoming damage by 2.",
 		minFloor: 3,
-		maxFloor: 20,
+		maxFloor: MAX_FLOORS,
 		foundWeight: 1,
 		dropWeight: 1,
 	},
@@ -119,7 +120,7 @@ export const validateItemDefinition = (definition: ItemDefinition): void => {
 		!Number.isInteger(minFloor) ||
 		!Number.isInteger(maxFloor) ||
 		minFloor < 1 ||
-		maxFloor > 20 ||
+		maxFloor > MAX_FLOORS ||
 		minFloor > maxFloor ||
 		![foundWeight, dropWeight].every(
 			(weight) => Number.isFinite(weight) && weight >= 0,

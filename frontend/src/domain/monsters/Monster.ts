@@ -1,5 +1,6 @@
 import { selectWeighted } from "../content/WeightedSelection";
 import type { Coordinate } from "../dungeon/DungeonTypes.ts";
+import { MAX_FLOORS } from "../dungeon/RunConfiguration";
 import type { ItemKind } from "../items/Item";
 
 export type MonsterKind = "goblin" | "giant-rat" | "orc";
@@ -47,7 +48,7 @@ export const validateMonsterDefinition = (
 		!Number.isInteger(minFloor) ||
 		!Number.isInteger(maxFloor) ||
 		minFloor < 1 ||
-		maxFloor > 20 ||
+		maxFloor > MAX_FLOORS ||
 		minFloor > maxFloor ||
 		!Number.isFinite(spawnWeight) ||
 		spawnWeight <= 0 ||
@@ -69,7 +70,7 @@ export const MONSTER_DEFINITIONS: Record<MonsterKind, MonsterDefinition> = {
 		attackDamage: 1,
 		detectionRadius: 6,
 		minFloor: 1,
-		maxFloor: 20,
+		maxFloor: MAX_FLOORS,
 		spawnWeight: 3,
 		dropChance: 0.5,
 		lootPreferences: { "short-sword": 2, "wooden-shield": 2 },
@@ -91,7 +92,7 @@ export const MONSTER_DEFINITIONS: Record<MonsterKind, MonsterDefinition> = {
 		attackDamage: 4,
 		detectionRadius: 6,
 		minFloor: 3,
-		maxFloor: 20,
+		maxFloor: MAX_FLOORS,
 		spawnWeight: 2,
 		dropChance: 0.7,
 		lootPreferences: { "chain-armor": 2, "iron-helmet": 2 },

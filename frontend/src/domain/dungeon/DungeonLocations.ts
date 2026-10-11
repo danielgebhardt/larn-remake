@@ -2,6 +2,9 @@ import type { Coordinate, LocationSelectionSource } from "./DungeonTypes.ts";
 import type { Room } from "./Room.ts";
 import { FLOOR } from "./Tiles.ts";
 
+// A valid single-room floor may have no tile distinct from its entry.
+export class NoDistinctStairLocationError extends RangeError {}
+
 const getRoomCenter = (room: Room) => {
 	return {
 		row: Math.floor((room.startRow + room.endRow) / 2),
@@ -100,5 +103,7 @@ export const selectStairLocation = (
 		}
 	}
 
-	throw new RangeError("No valid coordinate available for staircase");
+	throw new NoDistinctStairLocationError(
+		"No valid coordinate available for staircase",
+	);
 };

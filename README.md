@@ -323,3 +323,5 @@ The dungeon creation and exploration milestone now supports three generated floo
 Monsters use inclusive floor bands and positive relative spawn weights. Goblins (health 4, damage 1, sight 6, weight 3) are eligible on floors 1–20; giant rats (health 2, damage 1, sight 5, weight 2) on 1–4; orcs (health 7, damage 4, sight 6, weight 2) on 3–20. All initially share orthogonal melee pursuit. These are initial playtest values.
 
 Monster kinds are chosen independently using `seed:floor:monster-kinds:index`; position selection retains `seed:floor:monsters:index`. Settings supports 1–20 floors; the default remains three.
+
+Armor catalog: leather armor/cap provide +1 armor from floor 1; chain armor/iron helmet provide +2 from floor 3. All remain eligible through floor 20. Found/drop weights are separate; healing remains the most common individual reward. Every item is a separately owned copy.

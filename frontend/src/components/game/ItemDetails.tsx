@@ -12,7 +12,13 @@ import {
 	type PotionHotbar,
 } from "../../domain/items/PotionHotbar";
 
-const labels = { weapon: "Weapon", shield: "Shield", potion: "Potion" };
+const labels = {
+	weapon: "Weapon",
+	shield: "Shield",
+	potion: "Potion",
+	"chest-armor": "Chest armor",
+	helmet: "Helmet",
+};
 const ItemDetails = ({
 	item,
 	equippedSlot,

@@ -12,6 +12,8 @@ export const equipmentSlotFor = (item: ItemInstance): EquipmentSlot | null => {
 			return "mainHand";
 		case "shield":
 			return "offHand";
+		case "chest-armor":
+		case "helmet":
 		case "potion":
 			return null;
 	}

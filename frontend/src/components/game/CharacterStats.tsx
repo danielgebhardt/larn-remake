@@ -86,7 +86,8 @@ const CharacterStats = ({
 			</div>
 			<p className="text-xs leading-relaxed text-muted-foreground">
 				Attack shows damage before armor. Armor reduces landed damage; hits deal
-				at least 1 damage. Misses deal none.
+				at least 1 damage. Misses deal none. Evasion avoids hits; armor reduces
+				damage.
 			</p>
 		</section>
 	);

@@ -2,6 +2,7 @@ import { screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import * as GameState from "../domain/game/GameState";
+import { levelForExperience } from "../domain/game/Progression";
 import Home from "../Home";
 import {
 	renderHome as render,
@@ -16,6 +17,10 @@ const setup = (experience = 9) => {
 	vi.spyOn(GameState, "createGameState").mockImplementationOnce((run) => ({
 		...create(run),
 		progression: { experience },
+		player: {
+			health: 10 + (levelForExperience(experience) - 1) * 2,
+			maxHealth: 10 + (levelForExperience(experience) - 1) * 2,
+		},
 		monsters: [
 			{
 				id: "1:1",

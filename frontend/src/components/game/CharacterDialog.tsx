@@ -105,7 +105,7 @@ const CharacterDialog = ({
 							Character
 						</Dialog.Title>
 						<Dialog.Description>
-							Your health, equipment, and carried items.
+							Your progression, health, equipment, and carried items.
 						</Dialog.Description>
 					</div>
 					<Dialog.Close render={<Button variant="outline" size="sm" />}>

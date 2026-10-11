@@ -20,6 +20,7 @@ import {
 	MONSTER_HIT_CHANCE,
 	PLAYER_HIT_CHANCE,
 } from "../domain/game/MeleeRules";
+import { HEALTH_PER_LEVEL, MAX_PLAYER_LEVEL } from "../domain/game/Progression";
 
 const Keycap = ({
 	children,
@@ -142,11 +143,11 @@ const DungeonHelp = () => (
 					<li>
 						<span className="font-medium text-foreground">Attack.</span> Move
 						into a monster to attack. You stay on your current tile, and a miss
-						still uses a turn. Player attacks hit {PLAYER_HIT_CHANCE}% of the
-						time; monster attacks hit {MONSTER_HIT_CHANCE}%. Landed damage
-						varies within the range shown in Character. Armor reduces landed
-						damage to a minimum of 1; misses deal no damage. The same seed and
-						actions reproduce outcomes.
+						still uses a turn. Starting player hit chance is {PLAYER_HIT_CHANCE}
+						%; starting monster hit chance is {MONSTER_HIT_CHANCE}%. Dexterity
+						changes these chances. Landed damage varies within the range shown
+						in Character. Armor reduces landed damage to a minimum of 1; misses
+						deal no damage. The same seed and actions reproduce outcomes.
 					</li>
 					<li>
 						<span className="font-medium text-foreground">Wait.</span> Stay in
@@ -201,9 +202,17 @@ const DungeonHelp = () => (
 			>
 				<h3 className="mb-2 font-medium">Experience and levels</h3>
 				<p>
-					Confirmed monster kills award XP. Each earned level adds 2 maximum and
-					current health without using another turn or granting a full heal.
-					Character level is capped at 5; XP keeps accumulating at the cap.
+					Confirmed monster kills award XP. Each earned level adds{" "}
+					{HEALTH_PER_LEVEL} maximum and current health without using another
+					turn or granting a full heal. Character level is capped at{" "}
+					{MAX_PLAYER_LEVEL}; XP keeps accumulating at the cap.
+				</p>
+				<p className="mt-2 text-muted-foreground">
+					Strength adds to melee damage alongside your weapon. Dexterity
+					improves accuracy and evasion; armor reduces damage after a hit lands.
+					Attributes grow automatically at alternating levels, with no point
+					allocation. Character shows the actual contributions and final
+					chances.
 				</p>
 			</section>
 			<p className="flex items-start gap-2 rounded-lg border bg-muted/30 p-3 text-xs leading-relaxed text-muted-foreground">

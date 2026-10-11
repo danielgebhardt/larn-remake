@@ -69,6 +69,21 @@ describe("Home Help menu", () => {
 		).toBeVisible();
 		expect(help.getByText("Close this sheet")).toBeVisible();
 	});
+	it("explains earned attributes, the health benefit, and the level cap", async () => {
+		const user = renderHelpRun();
+		const help = within(await openHelp(user));
+		const progression = within(
+			help.getByRole("region", { name: "Character progression" }),
+		);
+		expect(
+			progression.getByText(/Strength adds to melee damage/),
+		).toBeVisible();
+		expect(
+			progression.getByText(/Dexterity improves accuracy and evasion/),
+		).toBeVisible();
+		expect(progression.getByText(/without.*full heal/)).toBeVisible();
+		expect(progression.getByText(/capped at 5/)).toBeVisible();
+	});
 	it.each(["Escape", "Close button"])(
 		"dismisses with %s and restores focus without consuming a turn",
 		async (method) => {

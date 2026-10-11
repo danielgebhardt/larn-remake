@@ -19,12 +19,12 @@ The application currently includes:
 - Configurable dungeon creation with rectangular dimensions.
 - Binary space partitioning that divides dungeon space into terminal regions.
 - Rooms carved into terminal regions and corridors connecting those rooms.
-- Up to 20 floors with automatic stair transitions and a depth display; three floors by default.
+- Up to 20 floors with automatic stair transitions and a depth display; five floors by default.
 - Configurable fog of war with wall-blocked sight and exploration memory per floor.
 - Current run seed display and replay of the complete dungeon from an entered seed.
 - A compact play screen using Tailwind CSS and shadcn/ui (Base UI, Nova), with styled controls, a map legend in Help, and scrollable dungeon tiles.
 
-The playable run is generated in the frontend when the page loads. By default it contains three rectangular floors. Terrain and stair links are retained throughout exploration and ordinary React rerenders. The earlier fixed dungeon remains available as a test fixture.
+The playable run is generated in the frontend when the page loads. By default it contains five rectangular floors. Terrain and stair links are retained throughout exploration and ordinary React rerenders. The earlier fixed dungeon remains available as a test fixture.
 
 Stair placement uses an independent seeded random source for each floor, derived from the run seed, floor number, and a `stairs` namespace. Down stairs choose equally among rooms outside the entry room, then choose a floor tile within that room. Up stairs stay at the floor entry, with reciprocal arrival coordinates. A single-room floor uses its center when distinct from the entry, otherwise its first distinct floor tile in row-major order; a floor with no distinct location fails clearly. The same seed and configuration reproduce the links regardless of floor generation or connection order, without changing terrain generation. Calls to the stair selector without a random source retain the deterministic last-room-center rule.
 
@@ -170,7 +170,7 @@ To replay a dungeon, open **Settings**, enter a seed in **Dungeon seed**, and se
 
 The map automatically scrolls just enough to keep the player visible, with roughly one tile of surrounding space where possible. Following works horizontally and vertically, after stairs or a fresh run, and when the map viewport resizes. You can still scroll manually to inspect the map; ordinary rerenders, Settings, and appearance changes leave that view alone. The next successful move or floor/run change resumes following. Blocked movement does not scroll, and following does not move focus or scroll the outer page.
 
-**Dungeon configuration** in Settings lets you choose 10–100 rows, 10–100 columns, and 1–20 floors. Defaults are 15 × 15 with 3 floors, with minimum partition size 8 and room padding 1. **Start from seed** applies the seed and configuration together, starting a new run on floor 1. Editing or dismissing settings retains drafts without changing the run. **New Dungeon** uses the last successfully applied configuration and resets drafts to it. These settings last for this session; only appearance is saved across reloads.
+**Dungeon configuration** in Settings lets you choose 10–100 rows, 10–100 columns, and 1–20 floors. Defaults are 15 × 15 with 5 floors, with minimum partition size 8 and room padding 1. **Start from seed** applies the seed and configuration together, starting a new run on floor 1. Editing or dismissing settings retains drafts without changing the run. **New Dungeon** uses the last successfully applied configuration and resets drafts to it. These settings last for this session; only appearance is saved across reloads.
 
 Inputs require decimal whole numbers. Invalid fields show feedback without replacing the run. Generation failures show a retry message and preserve the current run, active configuration, and draft.
 
@@ -197,7 +197,7 @@ To demonstrate the exploration milestone:
 3. Open **Settings**, enter the noted seed, and start from it to recreate the complete run at its original start.
 4. Select **New Dungeon**, then explore again. Subsequent transitions use the new run's floors.
 
-Floor 1 has no up stair, and the deepest floor has no down stair. Floor count is configurable in Settings, including a one-floor run with no transitions; the default is three floors. Town, floor item pickup/drop, broader progression, and persistence belong to later work.
+Floor 1 has no up stair, and the deepest floor has no down stair. Floor count is configurable in Settings, including a one-floor run with no transitions; the default is five floors. Town, broader progression, and persistence belong to later work.
 
 ## Configuration
 
@@ -318,13 +318,25 @@ Backlog and completed stories are tracked in [GitHub Issues](https://github.com/
 
 ## Current development status
 
-The dungeon creation and exploration milestone now supports three generated floors, seeded stair placement, automatic descent and ascent, stable revisits, depth and seed display, complete seed replay, and whole-run restart. Rendering and movement support rectangular dungeons. Repeatability is guaranteed for the same seed, configuration, and generator version. The game now tracks turns and player health through a pure movement-action resolver, with deterministic pursuit and reproducible randomized bump combat against floor-aware seeded populations and a turn-associated activity log.
+The dungeon creation and exploration milestone now supports five generated floors by default, seeded stair placement, automatic descent and ascent, stable revisits, depth and seed display, complete seed replay, and whole-run restart. Rendering and movement support rectangular dungeons. Repeatability is guaranteed for the same seed, configuration, and generator version. The game now tracks turns and player health through a pure movement-action resolver, with deterministic pursuit and reproducible randomized bump combat against floor-aware seeded populations and a turn-associated activity log.
+
+## Cure-and-return adventure
+
+Descend to the deepest configured floor, recover the blue gem **Cure** with **G** or Character's pickup controls, then return to the blue doorway **entrance** on floor 1. The entrance is the original starting tile; floor 1 still has no up stair. Step onto the entrance carrying the cure to win. Returning without it logs a reminder, and waiting at the entrance does not deliver it.
+
+The cure is separate from a healing potion. It occupies a protected quest pouch rather than a bag slot, so a full bag cannot prevent recovery. It cannot be drunk, equipped, or dropped. Recovery takes one turn with normal monster retaliation. The final delivery movement takes one turn and ends the adventure before retaliation. There is no quest timer or required boss.
+
+Quest progress appears above the map and in Character. Victory opens a summary of seed, floor count, turns, confirmed monster kills, and remaining health. **Review run** (or Escape) dismisses it for inspection; **Victory summary** reopens it. Gameplay and item actions stay disabled after victory. **Replay this seed** resets the same configured adventure, and **New Dungeon** creates another seed with the applied configuration. Settings can also start another adventure. Death continues to prevent delivery.
+
+`Adventure.ts` owns quest metadata and instructions; `CurePlacement.ts` places one reachable cure using `seed:floor:quest:cure`, independently of ordinary loot and monsters. Placement favors an unoccupied room tile away from stairs and arrival, with a reachable fallback for constrained test floors. Victory is captured by the pure player action resolver. Confirmed kill totals are retained separately from the bounded activity log.
+
+For reproducible five-floor checks, run `pnpm --filter frontend exec node scripts/review-adventure.mjs`. See [adventure review notes](docs/adventure-review.md) for recorded outcomes, browser checks, and the story review guide. These diagnostic runs demonstrate achievable adventures; they are not a human playtest or a guarantee that every seed or twenty-floor run is balanced.
 
 ## Depth content catalog
 
 Monsters use inclusive floor bands and positive relative spawn weights. Goblins (health 4, damage 1, sight 6, weight 3) are eligible on floors 1–20; giant rats (health 2, damage 1, sight 5, weight 2) on 1–4; orcs (health 7, damage 4, sight 6, weight 2) on 3–20. All initially share orthogonal melee pursuit. These are initial playtest values.
 
-Monster kinds are chosen independently using `seed:floor:monster-kinds:index`; position selection retains `seed:floor:monsters:index`. Settings supports 1–20 floors; the default remains three.
+Monster kinds are chosen independently using `seed:floor:monster-kinds:index`; position selection retains `seed:floor:monsters:index`. Settings supports 1–20 floors; the default is five.
 
 Armor catalog: leather armor/cap provide +1 armor from floor 1; chain armor/iron helmet provide +2 from floor 3. All remain eligible through floor 20. Found/drop weights are separate; healing remains the most common individual reward. Every item is a separately owned copy.
 

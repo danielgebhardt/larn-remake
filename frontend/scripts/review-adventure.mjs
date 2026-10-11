@@ -1,4 +1,4 @@
-// A reproducible, omniscient diagnostic walker, not a player AI or a win-rate test.
+// A reproducible, omniscient cure-and-return walker, not a player AI or a win-rate test.
 // Run from frontend: node scripts/review-adventure.mjs
 import { createServer } from "vite";
 
@@ -86,6 +86,10 @@ try {
 		const visited = new Set([1]);
 		let reason = "step limit";
 		for (let iteration = 0; iteration < 500; iteration++) {
+			if (state.quest.victory) {
+				reason = "won";
+				break;
+			}
 			if (state.player.health <= 0) {
 				reason = "died";
 				break;
@@ -117,6 +121,17 @@ try {
 			if (healing && state.player.health <= 6) {
 				action = { type: "consume", itemId: healing.id };
 				potions++;
+			} else if (state.quest.cureRecovered) {
+				const destination =
+					floor.floorNumber === 1
+						? state.quest.entrance
+						: floor.upStair?.coordinate;
+				const path = destination ? route(floor, position, destination) : null;
+				if (!path?.length) {
+					reason = "no return route";
+					break;
+				}
+				action = { type: "move", direction: path[0] };
 			} else if (upgrade)
 				action = {
 					type: "equip",
@@ -136,14 +151,19 @@ try {
 						type: "move",
 						direction: route(floor, position, adjacent.coordinate)?.[0],
 					};
-				else if (here && state.bag.items.length < 20)
+				else if (
+					here &&
+					(here.item.kind === "cure" || state.bag.items.length < 20)
+				)
 					action = { type: "pickup", itemId: here.item.id };
 				else {
 					const targets = [
 						...active.map((monster) => monster.coordinate),
 						...(state.bag.items.length < 20
 							? ground.map((entry) => entry.coordinate)
-							: []),
+							: ground
+									.filter((entry) => entry.item.kind === "cure")
+									.map((entry) => entry.coordinate)),
 					];
 					const paths = targets
 						.map((target) => route(floor, position, target))
@@ -179,6 +199,8 @@ try {
 			JSON.stringify({
 				seed,
 				reason,
+				cureRecovered: state.quest.cureRecovered,
+				victory: state.quest.victory,
 				deepest: Math.max(...visited),
 				turns: state.turn,
 				health: state.player.health,

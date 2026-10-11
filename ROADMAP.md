@@ -27,18 +27,18 @@ The following milestones are implemented and merged; they are foundations, not o
 
 Current limitations relevant to the next work:
 
-- Floor-aware rats, goblins, and orcs plus weighted found/drop loot are implemented in epic #90, awaiting developer review. Populations scale with safe space and are capped.
+- Floor-aware rats, goblins, and orcs plus weighted found/drop loot are implemented and merged in epic #90. Populations scale with safe space and are capped.
 - Main/off hand, chest, and head equipment are implemented; other slots are deferred.
-- Seeded hit/miss and bounded damage are implemented in epic #99, awaiting developer review. Armor affects landed damage separately from accuracy; criticals and attributes remain deferred.
-- Settings permits up to twenty floors. The default remains three 15×15 floors; recorded balance checks use five.
-- There is no victory objective, XP, leveling, attributes, mana, spellcasting, or save/resume.
+- Seeded hit/miss and bounded damage are implemented and merged in epic #99. Armor affects landed damage separately from accuracy; criticals and attributes remain deferred.
+- Settings permits up to twenty floors. The default is five 15×15 floors.
+- The cure-and-return objective is implemented in epic #109, awaiting developer review. XP, leveling, attributes, mana, spellcasting, and save/resume remain future work.
 
 ## Recommended milestone order
 
 | Order | Milestone | Outcome |
 | --- | --- | --- |
-| 1 | Floor-aware monsters, loot, chest/helmet equipment | Depth changes encounters and rewards; gear choices matter. |
-| 2 | Reproducible randomized melee | Hit/miss and bounded damage create uncertainty with understandable feedback. |
+| 1 | Floor-aware monsters, loot, chest/helmet equipment | Merged: depth changes encounters and rewards; gear choices matter. |
+| 2 | Reproducible randomized melee | Merged: hit/miss and bounded damage create uncertainty with understandable feedback. |
 | 3 | First winnable adventure | A short descent, quest item, return trip, and victory give the game a purpose. |
 | 4 | Experience, levels, and useful attributes | Characters grow through observable, documented rules. |
 | 5 | Mana, first spells, and status effects | Players gain alternatives to bump attacks and drinking healing potions. |
@@ -48,7 +48,7 @@ Local save/resume and CI can move earlier when they solve a concrete problem. Su
 
 ## Epic 1: Floor-aware content and armor
 
-Implementation status: stories #91–98 are implemented on `codex/depth-content-and-combat`, awaiting developer review. See [review notes](docs/content-combat-review.md).
+Implementation status: stories #91–98 are merged into main. See [review notes](docs/content-combat-review.md).
 
 Epic issue: [#90](https://github.com/danielgebhardt/larn-remake/issues/90).
 
@@ -107,7 +107,7 @@ Play recorded seeds on a five-floor 15×15 run. Demonstrate early encounters, ar
 
 ## Epic 2: Reproducible randomized melee
 
-Implementation status: stories #100–106 are implemented on the same branch, awaiting developer review. The next gameplay milestone after acceptance is the first winnable adventure.
+Implementation status: stories #100–106 are merged into main.
 
 Epic issue: [#99](https://github.com/danielgebhardt/larn-remake/issues/99). Begin after the content/armor milestone is reviewed.
 
@@ -171,16 +171,20 @@ Play several recorded five-floor seeds with starter and upgraded equipment. Eval
 
 ## Milestone 3: First winnable adventure
 
-Write detailed stories when the previous two epics stabilize. Build an achievable five-floor loop before adding many progression systems:
+Implementation status: [epic #109](https://github.com/danielgebhardt/larn-remake/issues/109) and stories #110–115 are implemented on `codex/first-winnable-adventure`, awaiting developer review. See [adventure review notes](docs/adventure-review.md).
 
-1. Establish the objective: descend to recover a cure and return safely.
-2. Place a unique quest item on the final floor with reproducible reachable placement; keep it distinct from a consumable healing potion.
-3. Define how carrying the cure and reaching the surface/entrance produces victory. The current first floor needs an explicit return/exit interaction; do not assume an existing top-floor stair already supports this.
-4. Make quest status understandable and protect it from accidental drinking or losing it through ordinary inventory interactions. Decide whether it consumes a bag slot when writing the story.
-5. Add a victory state and run summary: seed, depth, turns, and a few useful accomplishments. Preserve defeat/restart and stop gameplay appropriately after either ending.
-6. Play the complete descent and return loop, then tune encounters/rewards using an actual objective rather than isolated fights.
+| Story | Outcome |
+| --- | --- |
+| [#110](https://github.com/danielgebhardt/larn-remake/issues/110) | Quest state, confirmed kill count, five-floor default. |
+| [#111](https://github.com/danielgebhardt/larn-remake/issues/111) | One independently seeded, reachable cure on the deepest configured floor. |
+| [#112](https://github.com/danielgebhardt/larn-remake/issues/112) | Protected pouch, full-bag recovery, quest progress, and pickup feedback. |
+| [#113](https://github.com/danielgebhardt/larn-remake/issues/113) | Floor-1 entrance, return reminders, delivery victory, and ended-run action rules. |
+| [#114](https://github.com/danielgebhardt/larn-remake/issues/114) | Victory summary, inspection, replay, and new adventure controls. |
+| [#115](https://github.com/danielgebhardt/larn-remake/issues/115) | Complete-loop tests, seeded diagnostics, browser review, and documentation. |
 
-No quest timer initially. Introduce a turn-based deadline only when a normal run is reliably achievable, clearly explain its remaining time, and ensure it does not advance while menus are open. A boss, fixed final encounter, or special objective room is optional later, not a prerequisite for the first victory.
+The cure occupies no bag slot and cannot be drunk, equipped, or dropped. Recovery takes a normal action turn; stepping onto the entrance carrying it wins on that movement turn before monster retaliation. Custom depths 1–20 put the cure on their final floor. Inspection remains available after victory, while gameplay stops.
+
+Recorded five-floor diagnostics complete the return for seeds 0 and 987, while seeds 1 and 123 die before recovery. No combat/loot tuning was made merely to force diagnostic wins. Further human playtesting and twenty-floor balance remain open. No quest timer, boss, or special objective room initially. Introduce a deadline only with clear remaining-time feedback and reviewed resource pressure.
 
 ## Milestone 4: Experience, levels, and attributes
 
@@ -254,4 +258,4 @@ Avoid an exhaustive browser/device matrix, screenshot baselines for every tile, 
 - Mid-run spawning, respawn, reinforcement schedules, sophisticated AI, and complex speed/initiative systems.
 - Multiplayer, cloud persistence, accounts, and deployment infrastructure without a concrete use case.
 
-The next playable objective is **varied encounters and meaningful equipment**, then **understandable uncertain combat**, then **a short adventure that can be won**.
+After accepting the cure-and-return epic, prioritize **experience and a small useful level-up rule**, then add attributes and magic only alongside their concrete effects. Human playtesting may justify balance stories first.

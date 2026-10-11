@@ -75,3 +75,5 @@ Additional verification:
 | #106 | Real seeded replay/inactive-floor regressions, diagnostic hit/miss counts, final browser checks, and these review notes. No gameplay tuning was hidden in a statistical test. |
 
 Both epics remain In Review until developer acceptance. The quest, victory screen, XP, attributes, and magic are still future work.
+
+The diagnostic walker was subsequently extended in epic #109 to recover the cure and return to the entrance. The historical results above describe the original content/combat review; see [adventure review notes](adventure-review.md) for current objective outcomes.

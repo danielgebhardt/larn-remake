@@ -1,3 +1,4 @@
+import { createProgression } from "../domain/game/Progression";
 // @vitest-environment node
 
 import { afterEach, describe, expect, it } from "vitest";
@@ -35,31 +36,47 @@ const attack = (game: ReturnType<typeof encounter>) =>
 
 describe("Equipment combat values", () => {
 	it("falls back to base attack and zero armor with empty hands", () => {
-		expect(deriveCombatStats(createEquipment())).toEqual({
+		expect(deriveCombatStats(createEquipment(), createProgression())).toEqual({
 			baseAttack: 1,
 			weaponBonus: 0,
+			strengthBonus: 0,
 			attack: 1,
 			armor: 0,
 		});
 	});
 	it("adds the starting weapon and shield contributions once", () => {
-		expect(deriveCombatStats(createStartingEquipment())).toEqual({
+		expect(
+			deriveCombatStats(createStartingEquipment(), createProgression()),
+		).toEqual({
 			baseAttack: 1,
 			weaponBonus: 1,
+			strengthBonus: 0,
 			attack: 2,
 			armor: 1,
 		});
 	});
 	it("calculates each equipped slot independently", () => {
 		const gear = createStartingEquipment();
-		expect(deriveCombatStats(createEquipment(gear.mainHand)).attack).toBe(2);
-		expect(deriveCombatStats(createEquipment(gear.mainHand)).armor).toBe(0);
-		expect(deriveCombatStats(createEquipment(null, gear.offHand)).attack).toBe(
-			1,
-		);
-		expect(deriveCombatStats(createEquipment(null, gear.offHand)).armor).toBe(
-			1,
-		);
+		expect(
+			deriveCombatStats(createEquipment(gear.mainHand), createProgression())
+				.attack,
+		).toBe(2);
+		expect(
+			deriveCombatStats(createEquipment(gear.mainHand), createProgression())
+				.armor,
+		).toBe(0);
+		expect(
+			deriveCombatStats(
+				createEquipment(null, gear.offHand),
+				createProgression(),
+			).attack,
+		).toBe(1);
+		expect(
+			deriveCombatStats(
+				createEquipment(null, gear.offHand),
+				createProgression(),
+			).armor,
+		).toBe(1);
 	});
 	it.each([
 		{ incoming: 4, armor: 1, expected: 3 },

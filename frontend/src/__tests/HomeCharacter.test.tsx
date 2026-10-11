@@ -51,7 +51,7 @@ describe("Character sheet", () => {
 		expect(panel.getByLabelText("Character armor")).toHaveTextContent(
 			"Armor 1",
 		);
-		expect(panel.getByText("Base 1 + weapon 1")).toBeVisible();
+		expect(panel.getByText("Base 1 + Strength 0 + weapon 1")).toBeVisible();
 		expect(panel.getByText(/Misses deal none/)).toBeVisible();
 	});
 	it("shows base combat values when both equipment slots are empty", async () => {

@@ -1,4 +1,5 @@
 import { Sparkles } from "lucide-react";
+import { deriveAttributes } from "../../domain/game/Attributes";
 import {
 	MAX_PLAYER_LEVEL,
 	type Progression,
@@ -7,6 +8,7 @@ import {
 
 const ProgressionView = ({ progression }: { progression: Progression }) => {
 	const { level, earned, needed, remaining } = progressionProgress(progression);
+	const attributes = deriveAttributes(progression);
 	return (
 		<section
 			aria-label="Character progression"
@@ -46,6 +48,17 @@ const ProgressionView = ({ progression }: { progression: Progression }) => {
 					</output>
 				</>
 			)}
+			<div className="grid gap-1 border-t pt-3">
+				<output
+					aria-label="Character Strength"
+					className="font-medium tabular-nums"
+				>
+					Strength {attributes.strength}
+				</output>
+				<p className="text-xs text-muted-foreground">
+					+{attributes.strengthModifier} melee damage · grows at levels 3 and 5
+				</p>
+			</div>
 			<p className="border-t pt-3 text-xs leading-relaxed text-muted-foreground">
 				Defeat monsters to earn XP. Each level adds 2 maximum and current
 				health, up to level {MAX_PLAYER_LEVEL}.

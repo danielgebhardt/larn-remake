@@ -113,7 +113,11 @@ const CharacterDialog = ({
 					</Dialog.Close>
 				</div>
 				<div className="shrink-0 border-b px-4 py-3">
-					<CharacterStats player={player} equipment={equipment} />
+					<CharacterStats
+						player={player}
+						equipment={equipment}
+						progression={progression}
+					/>
 				</div>
 				<div className="min-h-0 overflow-y-auto p-4">
 					<div className="grid items-start gap-5 md:grid-cols-2 lg:grid-cols-[minmax(0,0.65fr)_minmax(0,1fr)_minmax(0,1.25fr)]">

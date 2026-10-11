@@ -35,7 +35,10 @@ describe("Gear transfers", () => {
 			before.bag.items[1],
 		]);
 		expect(ownership(result.state)).toEqual(ownership(before));
-		expect(deriveCombatStats(result.state.equipment).attack).toBe(3);
+		expect(
+			deriveCombatStats(result.state.equipment, result.state.progression)
+				.attack,
+		).toBe(3);
 		expect(before).toEqual(snapshot);
 	});
 	it("swaps a shield without confusing distinct copies of the same kind", () => {

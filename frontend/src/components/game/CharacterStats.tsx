@@ -9,16 +9,19 @@ import {
 	PLAYER_HIT_THRESHOLD,
 } from "../../domain/game/MeleeRules";
 import type { PlayerStats } from "../../domain/game/PlayerStats";
+import type { Progression } from "../../domain/game/Progression";
 import type { Equipment } from "../../domain/items/Equipment";
 
 const CharacterStats = ({
 	player,
 	equipment,
+	progression,
 }: {
 	player: PlayerStats;
 	equipment: Equipment;
+	progression: Progression;
 }) => {
-	const combat = deriveCombatStats(equipment);
+	const combat = deriveCombatStats(equipment, progression);
 	const armor = armorContributions(equipment);
 	const profile = attackProfile(combat.attack, PLAYER_HIT_THRESHOLD);
 
@@ -52,7 +55,8 @@ const CharacterStats = ({
 						Attack {profile.minDamage}–{profile.maxDamage}
 					</output>
 					<p className="mt-1 text-xs text-muted-foreground">
-						Base {combat.baseAttack} + weapon {combat.weaponBonus}
+						Base {combat.baseAttack} + Strength {combat.strengthBonus} + weapon{" "}
+						{combat.weaponBonus}
 					</p>
 					<output
 						aria-label="Character hit chance"

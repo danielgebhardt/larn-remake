@@ -65,7 +65,9 @@ describe("Chest and head equipment", () => {
 			slot: "chest",
 			itemId: chest.id,
 		}).state;
-		expect(deriveCombatStats(equipped.equipment).armor).toBe(3);
+		expect(
+			deriveCombatStats(equipped.equipment, equipped.progression).armor,
+		).toBe(3);
 		expect(equipped.player.health).toBe(9);
 		expect(
 			equipped.activityHistory.entries.map((entry) => entry.event.type),

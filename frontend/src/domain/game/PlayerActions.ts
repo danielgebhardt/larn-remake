@@ -24,6 +24,7 @@ import { MONSTER_DEFINITIONS } from "../monsters/Monster";
 import type { Monster } from "../monsters/Monster.ts";
 import { resolveMonsterPhase } from "../monsters/MonsterTurns";
 import { type ActivityEvent, appendActivityEvents } from "./ActivityHistory.ts";
+import { strengthAtLevel } from "./Attributes";
 import { type AttackRollSource, createAttackRolls } from "./CombatRandomness";
 import { deriveCombatStats } from "./CombatStats";
 import type { GameState } from "./GameState.ts";
@@ -258,7 +259,7 @@ const resolveAttack = (
 	const turn = state.turn + 1;
 	const outcome = resolveMeleeAttack(
 		attackProfile(
-			deriveCombatStats(state.equipment).attack,
+			deriveCombatStats(state.equipment, state.progression).attack,
 			PLAYER_HIT_THRESHOLD,
 		),
 		rollSource({
@@ -298,13 +299,21 @@ const resolveAttack = (
 		progression = gained.progression;
 		player = gained.player;
 		events.push({ type: "experience-gained", amount: reward, turn });
-		for (const level of gained.levels)
+		for (const level of gained.levels) {
 			events.push({
 				type: "level-gained",
 				level,
 				healthGain: HEALTH_PER_LEVEL,
 				turn,
 			});
+			if (strengthAtLevel(level) > strengthAtLevel(level - 1))
+				events.push({
+					type: "attribute-gained",
+					attribute: "Strength",
+					value: strengthAtLevel(level),
+					turn,
+				});
+		}
 		const drop = createMonsterDrop(state.run.seed, monster);
 		if (drop && !floorItems.some((entry) => entry.item.id === drop.item.id)) {
 			floorItems = [...floorItems, drop];

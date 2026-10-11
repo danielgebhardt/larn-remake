@@ -65,6 +65,17 @@ describe("Progression on the play screen", () => {
 		await user.keyboard("i");
 		expect(screen.getByLabelText("Total experience")).toHaveTextContent("0 XP");
 	});
+	it("shows earned Strength and its separate damage contribution", async () => {
+		const user = setup(30);
+		await user.keyboard("c");
+		expect(screen.getByLabelText("Character Strength")).toHaveTextContent(
+			"Strength 12",
+		);
+		expect(screen.getByLabelText("Character attack")).toHaveTextContent(
+			"Attack 2–4",
+		);
+		expect(screen.getByText("Base 1 + Strength 1 + weapon 1")).toBeVisible();
+	});
 	it("shows maximum level and retained total XP instead of promising level six", async () => {
 		const user = setup(130);
 		await user.keyboard("i");

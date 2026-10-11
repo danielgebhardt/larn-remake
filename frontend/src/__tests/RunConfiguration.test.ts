@@ -48,26 +48,26 @@ describe("run configuration input", () => {
 			});
 		},
 	);
-	it.each(["", "0", "11", "1.5"])(
+	it.each(["", "0", "21", "1.5"])(
 		"rejects invalid floor counts: %s",
 		(floorCount) => {
 			expect(
 				parseRunConfiguration({ rows: "30", cols: "100", floorCount }),
 			).toEqual({
 				valid: false,
-				errors: { floorCount: "Enter a whole number from 1 to 10." },
+				errors: { floorCount: "Enter a whole number from 1 to 20." },
 			});
 		},
 	);
 	it("accepts maximum dimensions and floor count", () => {
 		expect(
-			parseRunConfiguration({ rows: "100", cols: "100", floorCount: "10" }),
+			parseRunConfiguration({ rows: "100", cols: "100", floorCount: "20" }),
 		).toEqual({
 			valid: true,
 			value: {
 				rows: 100,
 				cols: 100,
-				floorCount: 10,
+				floorCount: 20,
 				minPartitionSize: 8,
 				roomPadding: 1,
 				minRoomSize: 3,

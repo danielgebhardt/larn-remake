@@ -28,7 +28,7 @@ export const DEFAULT_RUN_CONFIGURATION: RunConfiguration = {
 export const CONFIGURATION_LIMITS = {
 	rows: { min: 10, max: MAX_SIZE },
 	cols: { min: 10, max: MAX_SIZE },
-	floorCount: { min: 1, max: 10 },
+	floorCount: { min: 1, max: 20 },
 };
 
 export type FogConfiguration = { enabled: boolean; radius: number };

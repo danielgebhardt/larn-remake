@@ -1,3 +1,4 @@
+import { selectWeighted } from "../content/WeightedSelection";
 import type { Coordinate } from "../dungeon/DungeonTypes.ts";
 
 export type MonsterKind = "goblin" | "giant-rat" | "orc";
@@ -86,3 +87,15 @@ export const eligibleMonsterKinds = (floor: number): MonsterKind[] =>
 		const definition = MONSTER_DEFINITIONS[kind];
 		return floor >= definition.minFloor && floor <= definition.maxFloor;
 	});
+
+export const selectMonsterKind = (
+	floor: number,
+	random: () => number,
+): MonsterKind | undefined =>
+	selectWeighted(
+		eligibleMonsterKinds(floor).map((kind) => ({
+			value: kind,
+			weight: MONSTER_DEFINITIONS[kind].spawnWeight,
+		})),
+		random,
+	);

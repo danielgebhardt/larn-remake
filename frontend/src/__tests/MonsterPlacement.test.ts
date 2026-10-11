@@ -3,6 +3,7 @@ import { describe, expect, it, vi } from "vitest";
 import * as DungeonRun from "../domain/dungeon/DungeonRun";
 import { FLOOR } from "../domain/dungeon/Tiles";
 import { createGameState } from "../domain/game/GameState";
+import { MONSTER_DEFINITIONS } from "../domain/monsters/Monster";
 import {
 	DEFAULT_MONSTERS_PER_FLOOR,
 	spawnRunMonsters,
@@ -45,7 +46,7 @@ const roomyRun = (floorCount = 3, seed = 123): DungeonRun.DungeonRun => ({
 });
 
 describe("Seeded monster populations", () => {
-	it("starts each floor with three full-health goblins and stable unique IDs", () => {
+	it("starts each floor with three eligible full-health monsters and stable unique IDs", () => {
 		const monsters = spawnRunMonsters(roomyRun());
 		expect(DEFAULT_MONSTERS_PER_FLOOR).toBe(3);
 		expect(monsters).toHaveLength(9);
@@ -60,7 +61,17 @@ describe("Seeded monster populations", () => {
 			"3:2",
 			"3:3",
 		]);
-		for (const monster of monsters) expect(monster.health).toBe(4);
+		for (const monster of monsters)
+			expect(monster.health).toBe(MONSTER_DEFINITIONS[monster.kind].maxHealth);
+	});
+	it("supports floor 20 without allowing early-only rats there", () => {
+		const monsters = spawnRunMonsters(roomyRun(20), 20);
+		for (const monster of monsters) {
+			const definition = MONSTER_DEFINITIONS[monster.kind];
+			expect(monster.floorNumber).toBeGreaterThanOrEqual(definition.minFloor);
+			expect(monster.floorNumber).toBeLessThanOrEqual(definition.maxFloor);
+		}
+		expect(monsters.some((monster) => monster.floorNumber === 20)).toBe(true);
 	});
 	it("uses an independent seed namespace for each floor and actor", () => {
 		const hash = vi.spyOn(DungeonRun, "hashStringToUint32");

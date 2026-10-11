@@ -3,10 +3,19 @@ import { describe, expect, it } from "vitest";
 import {
 	eligibleMonsterKinds,
 	MONSTER_DEFINITIONS,
+	selectMonsterKind,
 	validateMonsterDefinition,
 } from "../domain/monsters/Monster";
 
 describe("Floor-aware monster catalog", () => {
+	it("selects eligible kinds by relative weight, with inclusive floor boundaries", () => {
+		expect(selectMonsterKind(1, () => 0)).toBe("goblin");
+		expect(selectMonsterKind(1, () => 0.6)).toBe("giant-rat");
+		expect(selectMonsterKind(3, () => 0.99)).toBe("orc");
+		expect(selectMonsterKind(20, () => 0.99)).toBe("orc");
+		expect(selectMonsterKind(21, () => 0)).toBeUndefined();
+	});
+
 	it.each([
 		[1, ["goblin", "giant-rat"]],
 		[3, ["goblin", "giant-rat", "orc"]],

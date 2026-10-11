@@ -7,7 +7,11 @@ import {
 import type { Coordinate } from "../dungeon/DungeonTypes";
 import { createSeededRandom } from "../dungeon/Seed";
 import { FLOOR } from "../dungeon/Tiles";
-import { MONSTER_DEFINITIONS, type Monster } from "./Monster";
+import {
+	MONSTER_DEFINITIONS,
+	type Monster,
+	selectMonsterKind,
+} from "./Monster";
 import {
 	orthogonalDistance,
 	protectedFloorLocations,
@@ -60,12 +64,21 @@ export const spawnRunMonsters = (
 				Math.floor(random() * candidates.length),
 				1,
 			);
+			const kind = selectMonsterKind(
+				floor.floorNumber,
+				createSeededRandom(
+					hashStringToUint32(
+						`${run.seed}:${floor.floorNumber}:monster-kinds:${index}`,
+					),
+				),
+			);
+			if (!kind) break;
 			monsters.push({
 				id: `${floor.floorNumber}:${index}`,
-				kind: "goblin",
+				kind,
 				floorNumber: floor.floorNumber,
 				coordinate,
-				health: MONSTER_DEFINITIONS.goblin.maxHealth,
+				health: MONSTER_DEFINITIONS[kind].maxHealth,
 			});
 		}
 	}

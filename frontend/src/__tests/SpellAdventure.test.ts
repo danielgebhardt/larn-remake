@@ -133,7 +133,7 @@ describe("Spellcasting through a complete adventure", () => {
 			slot: 1,
 		}).state;
 		expect(state.player.health).toBe(14);
-		while (state.turn < 10)
+		while (state.turn < 30)
 			state = resolvePlayerActionWithHits(state, { type: "wait" }).state;
 		expect(state.mana).toBe(11);
 		state = walk(state, { row: 1, col: 4 });

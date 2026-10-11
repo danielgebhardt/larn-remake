@@ -2,6 +2,8 @@
 
 Implementation date: October 11, 2026. Branch: `codex/mana-spellcasting`, based on merged #136. All stories await developer acceptance; nothing is pushed or merged automatically.
 
+**Subsequent tuning:** mana recovery is now every **30 committed turns**, rather than the original 10 described in this epic checkpoint. A matched experiment ran seeds 0–19 at 50×50×10 with recovery intervals 20/30/50: all 60 spell-aware adventures won. Mean Missile casts were 87.65/69.05/53.85; mean healing-potion uses were 4.75/6.60/7.60. Slower recovery increased resource pressure without changing the sampled win rate. Thirty turns is the provisional setting; original results below retain their original ten-turn tuning.
+
 ## Commit-by-commit review
 
 | Story | Commit | What to inspect |

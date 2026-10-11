@@ -15,7 +15,7 @@ export const growManaCapacity = (
 	after: Progression,
 ): number => mana + maximumMana(after) - maximumMana(before);
 
-export const MANA_RECOVERY_INTERVAL = 10;
+export const MANA_RECOVERY_INTERVAL = 30;
 export const recoverManaAfterTurn = (state: GameState): GameState => {
 	if (
 		state.player.health <= 0 ||

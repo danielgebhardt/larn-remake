@@ -12,20 +12,27 @@ const quiet = (): GameState => ({
 	mana: 4,
 });
 describe("Mana recovery on committed turns", () => {
-	it("recovers at 10 and 20, with no recovery at 9 or 11", () => {
-		let state = { ...quiet(), turn: 8 };
+	it("recovers at 30 and 60, with no recovery at 29 or 31", () => {
+		let state = { ...quiet(), turn: 28 };
 		state = resolvePlayerActionWithHits(state, { type: "wait" }).state;
 		expect(state.mana).toBe(4);
 		state = resolvePlayerActionWithHits(state, { type: "wait" }).state;
 		expect(state.mana).toBe(5);
 		state = resolvePlayerActionWithHits(state, { type: "wait" }).state;
 		expect(state.mana).toBe(5);
-		for (let i = 0; i < 9; i++)
+		for (let i = 0; i < 29; i++)
 			state = resolvePlayerActionWithHits(state, { type: "wait" }).state;
-		expect(state.turn).toBe(20);
+		expect(state.turn).toBe(60);
 		expect(state.mana).toBe(6);
 		expect(state.activityHistory.entries).toHaveLength(0);
 	});
+	it.each([10, 20])("does not recover early at turn %i", (turn) => {
+		const before = { ...quiet(), turn: turn - 1 };
+		const after = resolvePlayerActionWithHits(before, { type: "wait" }).state;
+		expect(after.turn).toBe(turn);
+		expect(after.mana).toBe(before.mana);
+	});
+
 	const actions: PlayerAction[] = [
 		{ type: "move", direction: "right" },
 		{ type: "wait" },
@@ -41,7 +48,7 @@ describe("Mana recovery on committed turns", () => {
 		const initial = quiet();
 		const before = {
 			...initial,
-			turn: 9,
+			turn: 29,
 			player: { health: 3, maxHealth: 10 },
 			bag: createBag([
 				...initial.bag.items,
@@ -58,13 +65,13 @@ describe("Mana recovery on committed turns", () => {
 		};
 		const result = resolvePlayerActionWithHits(before, action);
 		expect(result.turnAdvanced).toBe(true);
-		expect(result.state.turn).toBe(10);
+		expect(result.state.turn).toBe(30);
 		expect(result.state.mana).toBe(action.type === "cast" ? 1 : 5);
 	});
 	it("applies capacity growth from a kill before capped recovery", () => {
 		const before = {
 			...quiet(),
-			turn: 9,
+			turn: 29,
 			mana: 10,
 			progression: { experience: 29 },
 			monsters: [
@@ -87,7 +94,7 @@ describe("Mana recovery on committed turns", () => {
 	it("retains cadence through stairs and resets on replay", () => {
 		const before = {
 			...quiet(),
-			turn: 9,
+			turn: 29,
 			run: { ...quiet().run, playerCoordinate: { row: 1, col: 11 } },
 		};
 		const after = resolvePlayerActionWithHits(before, {
@@ -96,7 +103,7 @@ describe("Mana recovery on committed turns", () => {
 		}).state;
 		expect(after.run.activeFloor).toBe(2);
 		expect(after.mana).toBe(5);
-		expect(after.turn).toBe(10);
+		expect(after.turn).toBe(30);
 		expect(createGameState(after.run)).toMatchObject({ turn: 0, mana: 10 });
 	});
 	it.each([
@@ -108,26 +115,26 @@ describe("Mana recovery on committed turns", () => {
 		(action) => {
 			const before = {
 				...quiet(),
-				turn: 9,
+				turn: 29,
 				mana: 0,
 				bag: createBag([{ id: "potion", kind: "healing-potion" }]),
 			};
 			const result = resolvePlayerActionWithHits(before, action);
 			expect(result.turnAdvanced).toBe(false);
-			expect(result.state.turn).toBe(9);
+			expect(result.state.turn).toBe(29);
 			expect(result.state.mana).toBe(0);
 		},
 	);
 	it("caps recovery and does not regenerate after fatal retaliation or victory", () => {
 		const capped = resolvePlayerActionWithHits(
-			{ ...quiet(), turn: 9, mana: 14, progression: { experience: 100 } },
+			{ ...quiet(), turn: 29, mana: 14, progression: { experience: 100 } },
 			{ type: "wait" },
 		).state;
 		expect(capped.mana).toBe(14);
 		const dead = resolvePlayerActionWithHits(
 			{
 				...quiet(),
-				turn: 9,
+				turn: 29,
 				player: { health: 1, maxHealth: 10 },
 				monsters: [
 					{
@@ -146,7 +153,7 @@ describe("Mana recovery on committed turns", () => {
 		const initial = quiet();
 		const before = {
 			...initial,
-			turn: 9,
+			turn: 29,
 			run: { ...initial.run, playerCoordinate: { row: 1, col: 2 } },
 			quest: { ...initial.quest, cureRecovered: true },
 		};

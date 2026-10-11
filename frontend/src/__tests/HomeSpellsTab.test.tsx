@@ -53,7 +53,7 @@ describe("Character and Spells tabs", () => {
 		expect(
 			within(spells).getByText("Heal up to 5 health · 4 mana"),
 		).toBeVisible();
-		expect(spells).toHaveTextContent("1 mana every 10 successful turns");
+		expect(spells).toHaveTextContent("1 mana every 30 successful turns");
 		await user.keyboard("zh{ArrowRight}{Enter}");
 		expect(screen.getByLabelText("Turn count")).toHaveTextContent("Turn 0");
 		await user.keyboard("i");

@@ -1,4 +1,13 @@
-import { Flame, HeartPlus, Snowflake, Sparkles } from "lucide-react";
+import {
+	Flame,
+	HeartHandshake,
+	HeartPlus,
+	Mountain,
+	Snowflake,
+	Sparkles,
+	Waves,
+	Zap,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import type { SpellHotbar } from "../../domain/game/SpellHotbar";
 import { SPELL_DEFINITIONS, type SpellKind } from "../../domain/game/Spells";
@@ -8,6 +17,10 @@ export const SPELL_ICONS = {
 	heal: HeartPlus,
 	"ember-bolt": Flame,
 	"frost-bolt": Snowflake,
+	shock: Zap,
+	"stone-lance": Mountain,
+	"sonic-spear": Waves,
+	"drain-life": HeartHandshake,
 };
 const SpellHotbarView = ({
 	knownSpells,

@@ -12,6 +12,7 @@ export type SpellDefinition = SpellDetails &
 				minimumDamage: number;
 				maximumDamage: number;
 				condition?: EffectKind;
+				lifeDrain?: boolean;
 		  }
 		| { mode: "self"; effect: "heal"; healing: number }
 	);
@@ -51,6 +52,51 @@ export const SPELL_DEFINITIONS = {
 		description:
 			"Chill one monster for three active phases. It skips alternating actions, starting with this cast; recasting refreshes the slow.",
 	},
+	shock: {
+		name: "Shock",
+		mode: "targeted",
+		effect: "damage",
+		cost: 5,
+		range: 5,
+		minimumDamage: 5,
+		maximumDamage: 8,
+		description:
+			"A focused jolt with stronger damage than Magic Missile at a higher mana cost.",
+	},
+	"stone-lance": {
+		name: "Stone Lance",
+		mode: "targeted",
+		effect: "damage",
+		cost: 6,
+		range: 7,
+		minimumDamage: 6,
+		maximumDamage: 10,
+		description:
+			"A heavy stone projectile with a longer reach and substantial mana cost.",
+	},
+	"sonic-spear": {
+		name: "Sonic Spear",
+		mode: "targeted",
+		effect: "damage",
+		cost: 8,
+		range: 8,
+		minimumDamage: 8,
+		maximumDamage: 13,
+		description: "A powerful long-range strike for the deeper dungeon.",
+	},
+	"drain-life": {
+		name: "Drain Life",
+		mode: "targeted",
+		effect: "damage",
+		cost: 6,
+		range: 2,
+		minimumDamage: 4,
+		maximumDamage: 8,
+		lifeDrain: true,
+		description:
+			"A close-range attack that restores health equal to actual damage dealt, up to your missing health.",
+	},
+
 	heal: {
 		name: "Heal",
 		mode: "self",

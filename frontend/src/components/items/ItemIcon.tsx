@@ -9,12 +9,13 @@ import {
 	Shirt,
 	Sword,
 } from "lucide-react";
-import type { ItemKind } from "../../domain/items/Item";
+import { ITEM_DEFINITIONS, type ItemKind } from "../../domain/items/Item";
 
-const icons: Record<ItemKind, LucideIcon> = {
+type BookKind = Extract<ItemKind, `book-${string}`>;
+const isBookKind = (kind: ItemKind): kind is BookKind =>
+	ITEM_DEFINITIONS[kind].type === "spellbook";
+const icons: Record<Exclude<ItemKind, BookKind>, LucideIcon> = {
 	cure: Gem,
-	"book-ember-bolt": BookOpen,
-	"book-frost-bolt": BookOpen,
 	"healing-potion": FlaskRound,
 	"mana-potion": FlaskConical,
 	"short-sword": Sword,
@@ -26,7 +27,7 @@ const icons: Record<ItemKind, LucideIcon> = {
 	"iron-helmet": HardHat,
 };
 const ItemIcon = ({ kind }: { kind: ItemKind }) => {
-	const Icon = icons[kind];
+	const Icon = isBookKind(kind) ? BookOpen : icons[kind];
 	return (
 		<Icon
 			aria-hidden="true"

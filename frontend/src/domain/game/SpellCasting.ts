@@ -80,12 +80,35 @@ export const castSpell = (
 		attackerId: `player:spell:${action.spell}`,
 		targetId: target.id,
 	}).damage(potency.minimumDamage, potency.maximumDamage);
-	const damaged = damageMonster(
+	let damaged = damageMonster(
 		{ ...state, mana: state.mana - definition.cost },
 		target,
 		damage,
 		{ type: "spell-hit", spell: action.spell },
 	);
+	if ("lifeDrain" in definition && definition.lifeDrain) {
+		const recovered = Math.min(
+			damage,
+			target.health,
+			damaged.player.maxHealth - damaged.player.health,
+		);
+		if (recovered > 0)
+			damaged = {
+				...damaged,
+				player: {
+					...damaged.player,
+					health: damaged.player.health + recovered,
+				},
+				activityHistory: appendActivityEvents(damaged.activityHistory, [
+					{
+						type: "spell-healed",
+						spell: action.spell,
+						recovered,
+						turn: state.turn,
+					},
+				]),
+			};
+	}
 	const survivor = damaged.monsters.find((monster) => monster.id === target.id);
 	return {
 		state:

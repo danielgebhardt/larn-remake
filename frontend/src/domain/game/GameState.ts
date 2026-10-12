@@ -5,6 +5,7 @@ import { createStartingEquipment, type Equipment } from "../items/Equipment";
 import type { FloorItem } from "../items/FloorItems";
 import { spawnRunItems } from "../items/ItemPlacement";
 import { createPotionHotbar, type PotionHotbar } from "../items/PotionHotbar";
+import { spawnRunSpellbooks } from "../items/SpellbookPlacement";
 import type { Monster } from "../monsters/Monster.ts";
 import { spawnRunMonsters } from "../monsters/MonsterPlacement.ts";
 import {
@@ -37,7 +38,11 @@ export type GameState = {
 
 export const createGameState = (run: DungeonRun): GameState => {
 	const monsters = spawnRunMonsters(run);
-	const loot = spawnRunItems(run, monsters);
+	const ordinaryLoot = spawnRunItems(run, monsters);
+	const loot = [
+		...ordinaryLoot,
+		...spawnRunQuestItems(run, monsters, ordinaryLoot),
+	];
 	return {
 		run,
 		turn: 0,
@@ -50,7 +55,7 @@ export const createGameState = (run: DungeonRun): GameState => {
 		equipment: createStartingEquipment(),
 		bag: createStartingBag(),
 		potionHotbar: createPotionHotbar(),
-		floorItems: [...loot, ...spawnRunQuestItems(run, monsters, loot)],
+		floorItems: [...loot, ...spawnRunSpellbooks(run, monsters, loot)],
 		monsters,
 		activityHistory: createActivityHistory(),
 	};

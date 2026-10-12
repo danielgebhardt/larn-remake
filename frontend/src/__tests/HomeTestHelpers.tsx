@@ -10,6 +10,7 @@ import * as CurePlacement from "../domain/items/CurePlacement";
 import type { FloorItem } from "../domain/items/FloorItems";
 import * as ItemPlacement from "../domain/items/ItemPlacement";
 import * as MonsterDrops from "../domain/items/MonsterDrops";
+import * as SpellbookPlacement from "../domain/items/SpellbookPlacement";
 import type { Monster } from "../domain/monsters/Monster.ts";
 import * as MonsterPlacement from "../domain/monsters/MonsterPlacement.ts";
 import type Home from "../Home.tsx";
@@ -33,6 +34,7 @@ export const renderHome = (ui: ReactElement<ComponentProps<typeof Home>>) => {
 	vi.spyOn(CurePlacement, "spawnRunQuestItems").mockReturnValue([]);
 	vi.spyOn(MonsterPlacement, "spawnRunMonsters").mockReturnValue([]);
 	vi.spyOn(ItemPlacement, "spawnRunItems").mockReturnValue([]);
+	vi.spyOn(SpellbookPlacement, "spawnRunSpellbooks").mockReturnValue([]);
 	return renderUI(
 		cloneElement(ui, {
 			initialFogConfiguration: { ...DEFAULT_FOG_CONFIGURATION, enabled: false },
@@ -135,6 +137,7 @@ export const stubDungeonRun = (
 	monsters: readonly Monster[] = [],
 	floorItems: readonly FloorItem[] = [],
 ) => ({
+	books: vi.spyOn(SpellbookPlacement, "spawnRunSpellbooks").mockReturnValue([]),
 	questItems: vi.spyOn(CurePlacement, "spawnRunQuestItems").mockReturnValue([]),
 	rolls: vi
 		.spyOn(CombatRandomness, "createAttackRolls")

@@ -18,38 +18,7 @@ export const spawnRunItems = (
 		throw new RangeError("Item count must be a nonnegative whole number.");
 	const items: FloorItem[] = [];
 	for (const floor of run.floors) {
-		const protectedLocations = protectedSpawnLocations(run, floor.floorNumber);
-		if (floor.floorNumber === 1 && floor.rooms.length > 0)
-			protectedLocations.push(
-				run.activeFloor === 1 ? run.playerCoordinate : selectPlayerStart(floor),
-			);
-		const candidates: Coordinate[] = [];
-		const seen = new Set<string>();
-		for (const room of floor.rooms) {
-			for (let row = room.startRow; row <= room.endRow; row++) {
-				for (let col = room.startCol; col <= room.endCol; col++) {
-					const key = `${row}:${col}`;
-					if (seen.has(key) || floor.terrain[row]?.[col] !== FLOOR) continue;
-					seen.add(key);
-					if (
-						protectedLocations.some(
-							(point) => point.row === row && point.col === col,
-						)
-					)
-						continue;
-					if (
-						monsters.some(
-							(monster) =>
-								monster.floorNumber === floor.floorNumber &&
-								monster.coordinate.row === row &&
-								monster.coordinate.col === col,
-						)
-					)
-						continue;
-					candidates.push({ row, col });
-				}
-			}
-		}
+		const candidates = availableItemLocations(run, floor, monsters);
 		for (let index = 1; index <= count && candidates.length > 0; index++) {
 			const random = createSeededRandom(
 				hashStringToUint32(`${run.seed}:${floor.floorNumber}:items:${index}`),
@@ -71,4 +40,55 @@ export const spawnRunItems = (
 		}
 	}
 	return items;
+};
+
+// Books and ordinary loot share safe room placement; selection and seed streams remain separate.
+export const availableItemLocations = (
+	run: DungeonRun,
+	floor: DungeonRun["floors"][number],
+	monsters: readonly Monster[],
+	occupied: readonly FloorItem[] = [],
+): Coordinate[] => {
+	const protectedLocations = protectedSpawnLocations(run, floor.floorNumber);
+	if (floor.floorNumber === 1 && floor.rooms.length > 0)
+		protectedLocations.push(
+			run.activeFloor === 1 ? run.playerCoordinate : selectPlayerStart(floor),
+		);
+	const candidates: Coordinate[] = [];
+	const seen = new Set<string>();
+	for (const room of floor.rooms) {
+		for (let row = room.startRow; row <= room.endRow; row++) {
+			for (let col = room.startCol; col <= room.endCol; col++) {
+				const key = `${row}:${col}`;
+				if (seen.has(key) || floor.terrain[row]?.[col] !== FLOOR) continue;
+				seen.add(key);
+				if (
+					protectedLocations.some(
+						(point) => point.row === row && point.col === col,
+					)
+				)
+					continue;
+				if (
+					monsters.some(
+						(monster) =>
+							monster.floorNumber === floor.floorNumber &&
+							monster.coordinate.row === row &&
+							monster.coordinate.col === col,
+					)
+				)
+					continue;
+				candidates.push({ row, col });
+			}
+		}
+	}
+
+	return candidates.filter(
+		(point) =>
+			!occupied.some(
+				(entry) =>
+					entry.floorNumber === floor.floorNumber &&
+					entry.coordinate.row === point.row &&
+					entry.coordinate.col === point.col,
+			),
+	);
 };

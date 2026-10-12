@@ -134,7 +134,7 @@ export const ITEM_DEFINITIONS = {
 			"Pick up to learn Ember Bolt: 4 mana, range 4, 3–7 damage plus Intelligence. Reading uses one turn and no bag slot.",
 		minFloor: 1,
 		maxFloor: 5,
-		foundWeight: 1,
+		foundWeight: 0,
 		dropWeight: 0,
 	},
 	"mana-potion": {
@@ -169,7 +169,8 @@ export const validateItemDefinition = (definition: ItemDefinition): void => {
 		![foundWeight, dropWeight].every(
 			(weight) => Number.isFinite(weight) && weight >= 0,
 		) ||
-		(definition.type !== "quest" && foundWeight + dropWeight === 0) ||
+		(!["quest", "spellbook"].includes(definition.type) &&
+			foundWeight + dropWeight === 0) ||
 		!Number.isInteger(armor) ||
 		armor < 0 ||
 		!Number.isInteger(attackBonus) ||

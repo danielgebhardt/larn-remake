@@ -1,6 +1,6 @@
 # Distinct enemy tactics: review guide
 
-Epic #146, branch `codex/enemy-tactics`. Implement stories one commit at a time and pause for developer review. Stories #147–150 are implemented for review. Mixed spawning and the final replay/playtest checkpoints remain outstanding.
+Epic #146, branch `codex/enemy-tactics`. Implement stories one commit at a time and pause for developer review. Stories #147–151 are implemented for review. The final replay/playtest checkpoints remain outstanding.
 
 ## #147: Instance intent and compatible save evolution
 
@@ -65,3 +65,16 @@ Tests cover fixed targets, source/target fog combinations, removal/death, overla
 Browser review used validated controlled 15×15×5 and 100×100×5 snapshots at the isolated `127.0.0.1:5174` origin, in both themes and at 1280×720 laptop dimensions. It exercised imported focus, Z selection/cancellation beside the warning, keyboard dodge, repeated preparation, Heal before retaliation, Help and player-following scrolling. The large fixture also contained a hidden prepared brute: source/target stayed remembered floor with no leaked monster/warning label. No browser warnings/errors were observed; the existing unavailable backend diagnostic remained visible. Temporary tab/server and viewport override were cleaned up. Dark/light screenshots accompany the implementation response.
 
 Final frontend verification runs in the story commit hook. Pause before #151, which enables floor-appropriate mixed populations and initial idle intent.
+
+
+## #151: Seeded mixed tactical encounters
+
+Both new catalog entries now participate in ordinary seeded selection: goblin archers from floor 2 through 20, dungeon brutes from floor 4 through 20, each at relative weight 1. Existing goblin/rat/orc weights remain 3/2/2; rats still stop after floor 4. Eligibility means a kind can appear, not that every eligible floor must contain one. Small floors may contain only two monsters, so an individual run can omit a tactical kind.
+
+The production change removes the two temporary disabled-spawn flags. It reuses existing weighted selection and per-floor/per-actor seed namespaces. No placement, pursuit, attack, loot, population-density, or save-loading algorithm changes. The existing density cap remains 12, starting/stair/arrival buffers remain protected, and actors initialize at full health with idle intent. Position sampling remains separate from kind sampling; extending run depth preserves earlier populations. New adventures with an old seed can have different kinds than the pre-rollout catalog, while saved adventures retain their actual actors without resampling.
+
+Tests first produced 12 expected failures before enabling the catalog entries. Updated catalog checks cover floor boundaries 1/2/3/4/5/20/21 and weighted selection. Seven new tests exercise the exact floor-4 weight intervals, real 50×50 generated populations for seeds 0/123/987, same-seed reproduction, extending five floors to twenty, initial health/intent, twenty-floor caps and protected buffers, unique identities/positions, complete named visuals and catalog eligibility. A played-population round trip removes an actor, wounds an archer and brute, stores a fixed target, waits on an inactive floor, saves/loads, and revisits floor 4 through a real reciprocal stair. The brute resolves its retained intent without returning to full health; killed actors remain absent. A sampler spy verifies neither restore nor transitions regenerate a population. Existing controlled brute stair tests continue to cover the original target and paused intent.
+
+Browser review imports a validated seed-123 50×50×5 generated population on isolated port 5174. Only the player's review position and fog setting were adjusted to inspect floor 4; monster types and initial positions came from ordinary generation. Floor 4 contained all five kinds with twelve actors. One real wait prepared the nearby brute's attack; Z selected it, Escape canceled for free, and Left dodged on turn 2, cleared the warning and logged avoidance. The import restored map focus, and the goblin-and-bow icon is shared by Help/map. The existing unavailable backend diagnostic is unchanged.
+
+Verification: 160 Vitest files / 1,531 tests, Biome and standalone typecheck pass. The commit hook repeats the full frontend suite and TypeScript/Vite build. Pause before #152 (save/replay and complete-adventure integration).

@@ -8,7 +8,7 @@ import {
 } from "../domain/monsters/Monster";
 
 describe("Floor-aware monster catalog", () => {
-	it("defines the brute's windup profile but leaves seeded rollout disabled", () => {
+	it("defines the brute's floor-eligible windup profile", () => {
 		expect(MONSTER_DEFINITIONS["dungeon-brute"]).toMatchObject({
 			maxHealth: 10,
 			attackDamage: 5,
@@ -18,12 +18,9 @@ describe("Floor-aware monster catalog", () => {
 			minFloor: 4,
 			maxFloor: 20,
 			spawnWeight: 1,
-			spawnEnabled: false,
 		});
-		for (let floor = 1; floor <= 20; floor++)
-			expect(eligibleMonsterKinds(floor)).not.toContain("dungeon-brute");
 	});
-	it("defines the provisional archer profile without enabling seeded encounters yet", () => {
+	it("defines the floor-eligible archer profile", () => {
 		expect(MONSTER_DEFINITIONS["goblin-archer"]).toMatchObject({
 			maxHealth: 5,
 			attackDamage: 2,
@@ -33,25 +30,25 @@ describe("Floor-aware monster catalog", () => {
 			minFloor: 2,
 			maxFloor: 20,
 			spawnWeight: 1,
-			spawnEnabled: false,
 		});
-		for (let floor = 1; floor <= 20; floor++)
-			expect(eligibleMonsterKinds(floor)).not.toContain("goblin-archer");
 	});
 	it("selects eligible kinds by relative weight, with inclusive floor boundaries", () => {
 		expect(selectMonsterKind(1, () => 0)).toBe("goblin");
 		expect(selectMonsterKind(1, () => 0.6)).toBe("giant-rat");
-		expect(selectMonsterKind(3, () => 0.99)).toBe("orc");
-		expect(selectMonsterKind(20, () => 0.99)).toBe("orc");
+		expect(selectMonsterKind(3, () => 0.8)).toBe("orc");
+		expect(selectMonsterKind(2, () => 0.99)).toBe("goblin-archer");
+		expect(selectMonsterKind(20, () => 0.99)).toBe("dungeon-brute");
 		expect(selectMonsterKind(21, () => 0)).toBeUndefined();
 	});
 
 	it.each([
 		[1, ["goblin", "giant-rat"]],
-		[3, ["goblin", "giant-rat", "orc"]],
-		[4, ["goblin", "giant-rat", "orc"]],
-		[5, ["goblin", "orc"]],
-		[20, ["goblin", "orc"]],
+		[2, ["goblin", "giant-rat", "goblin-archer"]],
+		[3, ["goblin", "giant-rat", "orc", "goblin-archer"]],
+		[4, ["goblin", "giant-rat", "orc", "goblin-archer", "dungeon-brute"]],
+		[5, ["goblin", "orc", "goblin-archer", "dungeon-brute"]],
+		[20, ["goblin", "orc", "goblin-archer", "dungeon-brute"]],
+		[21, []],
 	] as const)("offers the eligible monsters on floor %i", (floor, kinds) => {
 		expect(eligibleMonsterKinds(floor)).toEqual(kinds);
 	});

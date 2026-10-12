@@ -428,10 +428,12 @@ Tactical continuation coverage compares full action results and actual seeded hi
 
 Saves belong to the same browser profile and origin (protocol, hostname and port). Localhost and a deployed site have separate slots; clearing site data/private-session closure can remove local saves. Export files provide backups and manual transfer. Input is capped at 4 MiB; storage failures are reported without erasing the previous slot. Measured fully explored 100×100×20 samples fit a conservative 5 MiB storage budget; see [local-save review notes](docs/local-save-review.md) for size measurements, tests and commit guidance. IndexedDB, multiple slots, autosave, further migrations and server synchronization remain future choices.
 
-Two ring slots are available in Character. Rings fit either slot; choosing a slot, swapping or unequipping uses the ordinary equipment turn rules. Save format v6 migrates older adventures with empty left/right ring slots.
+Two ring slots are available in Character. Rings fit either slot; choosing a slot, swapping or unequipping uses the ordinary equipment turn rules. Save format v7 migrates older adventures with empty left/right ring slots.
 
 Ring bonuses are derived from equipped item definitions: Strength/Dexterity/Intelligence +2, Vitality/Mana capacity +4, copper armor +1. Capacity increases do not heal/refill; removing capacity clamps current resources. Effective combat, spells and status displays use the same loadout calculations.
 
 Equipment comparisons list all relevant contributions. Green/red indicate clear upgrades/downgrades, blue indicates equal gear or an explicitly explained tradeoff. Rings compare each compatible slot. Basic equipment has upper floor limits so the deepest loot pool contains stronger gear and supplies rather than repeated starter equipment.
 
 Giant spider bites poison on a landed hit: 1 damage after retaliation for three committed phases, refreshed rather than stacked. A red condition badge shows the remaining timer. Player poison travels with you across floors/saves and a fatal tick cannot be reversed by ongoing Renewal.
+
+Trolls recover 2 HP per active phase, up to their maximum. Damage suppresses recovery on that phase and the next. Version 7 saves retain actor-owned injury timing; older actors migrate with an unknown last-injury time while preserving health and intent.

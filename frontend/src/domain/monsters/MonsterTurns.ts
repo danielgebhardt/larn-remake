@@ -51,8 +51,32 @@ export const resolveMonsterPhase = (
 				monster.health > 0 && monster.floorNumber === state.run.activeFloor,
 		)
 		.sort((a, b) => Number(a.id.split(":")[1]) - Number(b.id.split(":")[1]));
-	for (const monster of active) {
+	for (const snapshot of active) {
+		let monster = snapshot;
 		if (player.health <= 0) break;
+		const profile = MONSTER_DEFINITIONS[monster.kind];
+		if (
+			profile.regeneration &&
+			(monster.lastDamagedTurn == null ||
+				monster.lastDamagedTurn < state.turn - 1)
+		) {
+			const recovered = Math.min(
+				profile.regeneration,
+				profile.maxHealth - monster.health,
+			);
+			if (recovered > 0) {
+				monster = { ...monster, health: monster.health + recovered };
+				monsters = monsters.map((actor) =>
+					actor.id === monster.id ? monster : actor,
+				);
+				events.push({
+					type: "monster-regenerated",
+					monster: monster.kind,
+					recovered,
+					turn: state.turn,
+				});
+			}
+		}
 		if (monsterSkipsAction(state, monster)) continue;
 		const interval = MONSTER_DEFINITIONS[monster.kind].actionInterval ?? 1;
 		if (state.turn % interval !== 0) continue;

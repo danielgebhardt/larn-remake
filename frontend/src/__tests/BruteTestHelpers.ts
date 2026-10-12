@@ -44,6 +44,7 @@ export const bruteEncounter = (): GameState => ({
 			coordinate: { row: 4, col: 5 },
 			health: 10,
 			intent: { type: "idle" },
+			lastDamagedTurn: null,
 		},
 	],
 	floorItems: [

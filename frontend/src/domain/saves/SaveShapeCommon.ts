@@ -114,6 +114,7 @@ const eventFields = {
 		condition: oneOf(Object.keys(EFFECT_DEFINITIONS)),
 		damage: natural,
 	},
+	"monster-regenerated": { monster: monsterKind, recovered: natural },
 	"spell-healed": { spell: spellKind, recovered: natural },
 	"player-hit": { monster: monsterKind, damage: natural },
 	"monster-hit": { monster: monsterKind, damage: natural },

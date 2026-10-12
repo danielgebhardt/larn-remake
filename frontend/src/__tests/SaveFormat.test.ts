@@ -85,6 +85,7 @@ describe("Complete adventure save format", () => {
 		document.state.monsters = [
 			{
 				intent: { type: "idle" as const },
+				lastDamagedTurn: null,
 				id: "1:1",
 				kind: "goblin",
 				floorNumber: 1,
@@ -124,7 +125,7 @@ describe("Complete adventure save format", () => {
 		[
 			"unsupported version",
 			(d: ReturnType<typeof savedAdventure>) => {
-				d.version = 999 as 6;
+				d.version = 999 as 7;
 			},
 		],
 		[

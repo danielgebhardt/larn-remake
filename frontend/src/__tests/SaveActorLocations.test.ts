@@ -16,6 +16,7 @@ describe("Saved actors preserve safe stair arrivals", () => {
 		document.state.monsters = [
 			{
 				intent: { type: "idle" as const },
+				lastDamagedTurn: null,
 				id: `${floor}:1`,
 				kind: "goblin",
 				floorNumber: floor,
@@ -35,6 +36,7 @@ describe("Saved actors preserve safe stair arrivals", () => {
 		document.state.monsters = [
 			{
 				intent: { type: "idle" as const },
+				lastDamagedTurn: null,
 				id: "2:1",
 				kind: "goblin",
 				floorNumber: down.destinationFloor,
@@ -69,6 +71,7 @@ describe("Saved actors preserve safe stair arrivals", () => {
 		document.state.monsters = [
 			{
 				intent: { type: "idle" as const },
+				lastDamagedTurn: null,
 				id: "2:1",
 				kind: "goblin",
 				floorNumber: 2,

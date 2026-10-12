@@ -91,7 +91,15 @@ export const damageMonster = (
 	const monsters =
 		health > 0
 			? state.monsters.map((actor) =>
-					actor.id === monster.id ? { ...actor, health } : actor,
+					actor.id === monster.id
+						? {
+								...actor,
+								health,
+								...(MONSTER_DEFINITIONS[actor.kind].regeneration
+									? { lastDamagedTurn: state.turn }
+									: {}),
+							}
+						: actor,
 				)
 			: state.monsters.filter((actor) => actor.id !== monster.id);
 	return {

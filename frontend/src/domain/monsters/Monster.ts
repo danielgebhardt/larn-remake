@@ -17,6 +17,7 @@ export type Monster = {
 	coordinate: Coordinate;
 	health: number;
 	intent: MonsterIntent;
+	lastDamagedTurn?: number | null;
 };
 
 export type MonsterDefinition = {
@@ -36,6 +37,7 @@ export type MonsterDefinition = {
 	spawnEnabled?: boolean;
 	actionInterval?: number;
 	onHitCondition?: "poisoned";
+	regeneration?: number;
 };
 export const validateMonsterDefinition = (
 	definition: MonsterDefinition,
@@ -55,11 +57,14 @@ export const validateMonsterDefinition = (
 		preparesAttack,
 		actionInterval,
 		onHitCondition,
+		regeneration,
 	} = definition;
 	if (
 		(actionInterval !== undefined &&
 			(!Number.isSafeInteger(actionInterval) || actionInterval < 1)) ||
 		(onHitCondition !== undefined && onHitCondition !== "poisoned") ||
+		(regeneration !== undefined &&
+			(!Number.isSafeInteger(regeneration) || regeneration < 1)) ||
 		!Number.isSafeInteger(experienceReward) ||
 		experienceReward <= 0 ||
 		!Number.isFinite(dropChance) ||
@@ -240,6 +245,7 @@ const monsterCatalog = {
 		detectionRadius: 7,
 		spawnWeight: 2,
 		dropChance: 0.55,
+		regeneration: 2,
 		lootPreferences: {},
 	},
 	cultist: {

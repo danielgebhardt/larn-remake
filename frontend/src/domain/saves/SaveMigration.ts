@@ -7,6 +7,7 @@ import type { SaveDocumentV3 } from "./SaveDocumentV3";
 import type { SaveDocumentV4 } from "./SaveDocumentV4";
 import type { SaveDocumentV5 } from "./SaveDocumentV5";
 import type { SaveDocumentV6 } from "./SaveDocumentV6";
+import type { SaveDocumentV7 } from "./SaveDocumentV7";
 
 // Only migrate a structurally and semantically valid v1 snapshot. Preserve
 // played data; legacy monsters have no prepared attack to carry forward.
@@ -85,5 +86,17 @@ export const migrateSaveV5 = (legacy: SaveDocumentV5): SaveDocumentV6 => ({
 	state: {
 		...legacy.state,
 		equipment: { ...legacy.state.equipment, leftRing: null, rightRing: null },
+	},
+});
+
+export const migrateSaveV6 = (legacy: SaveDocumentV6): SaveDocumentV7 => ({
+	...legacy,
+	version: 7,
+	state: {
+		...legacy.state,
+		monsters: legacy.state.monsters.map((monster) => ({
+			...monster,
+			lastDamagedTurn: null,
+		})),
 	},
 });

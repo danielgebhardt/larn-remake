@@ -29,6 +29,7 @@ export const mixedEncounter = (): GameState => {
 				coordinate: { row: 4, col: 8 },
 				health: 5,
 				intent: { type: "idle" },
+				lastDamagedTurn: null,
 			},
 			{
 				id: "4:3",
@@ -37,6 +38,7 @@ export const mixedEncounter = (): GameState => {
 				coordinate: { row: 5, col: 4 },
 				health: 1,
 				intent: { type: "idle" },
+				lastDamagedTurn: null,
 			},
 		],
 	};

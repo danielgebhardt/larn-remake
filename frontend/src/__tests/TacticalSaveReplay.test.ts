@@ -180,6 +180,7 @@ describe("Tactical save and deterministic continuation", () => {
 			legacy.state.monsters.map((actor: object) => ({
 				...actor,
 				intent: { type: "idle" },
+				lastDamagedTurn: null,
 			})),
 		);
 		expect(localStorage.getItem(LOCAL_SAVE_KEY)).toBe(legacyFile);

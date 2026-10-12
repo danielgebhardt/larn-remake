@@ -85,6 +85,7 @@ export const spawnRunMonsters = (
 				coordinate,
 				health: MONSTER_DEFINITIONS[kind].maxHealth,
 				intent: { type: "idle" },
+				lastDamagedTurn: null,
 			});
 		}
 	}

@@ -8,14 +8,14 @@ import type {
 } from "../dungeon/RunConfiguration";
 import type { GameState } from "../game/GameState";
 import { levelForExperience } from "../game/Progression";
-import type { SaveDocumentV6 } from "./SaveDocumentV6";
+import type { SaveDocumentV7 } from "./SaveDocumentV7";
 import { validateSaveDocument } from "./SaveValidation";
 
-export const SAVE_FORMAT_VERSION = 6;
+export const SAVE_FORMAT_VERSION = 7;
 // Bound imported input before parsing. A maximum-size snapshot is measured in the review.
 export const MAX_SAVE_BYTES = 4 * 1024 * 1024;
 
-export type SaveDocument = SaveDocumentV6;
+export type SaveDocument = SaveDocumentV7;
 export type RestoredAdventure = {
 	state: GameState;
 	exploration: ExplorationState;
@@ -52,12 +52,21 @@ export const createSaveDocument = (
 		potionHotbar: state.potionHotbar,
 		floorItems: state.floorItems,
 		monsters: state.monsters.map(
-			({ id, kind, floorNumber, coordinate, health, intent }) => ({
+			({
 				id,
 				kind,
 				floorNumber,
 				coordinate,
 				health,
+				intent,
+				lastDamagedTurn,
+			}) => ({
+				id,
+				kind,
+				floorNumber,
+				coordinate,
+				health,
+				lastDamagedTurn: lastDamagedTurn ?? null,
 				intent:
 					intent.type === "idle"
 						? { type: "idle" }

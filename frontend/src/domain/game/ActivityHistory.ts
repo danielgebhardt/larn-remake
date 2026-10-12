@@ -33,6 +33,7 @@ export type ActivityEvent = { turn: number } & (
 	  }
 	| { type: "spell-repositioned"; spell: SpellKind; monster?: MonsterKind }
 	| { type: "player-condition-hit"; condition: EffectKind; damage: number }
+	| { type: "monster-regenerated"; monster: MonsterKind; recovered: number }
 	| { type: "spell-healed"; spell: SpellKind; recovered: number }
 	| {
 			type:

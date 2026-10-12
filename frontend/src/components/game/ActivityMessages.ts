@@ -48,6 +48,8 @@ export const formatActivityEvent = (event: ActivityEvent): string => {
 			return `${prefix}The ${MONSTER_DEFINITIONS[event.monster].name} is ${EFFECT_DEFINITIONS[event.condition].name.toLowerCase()} for ${event.duration} active phases.`;
 		case "spell-repositioned":
 			return `${prefix}${SPELL_DEFINITIONS[event.spell].name} ${event.monster ? `sends the ${MONSTER_DEFINITIONS[event.monster].name} farther away.` : "moves you to a nearby tile."}`;
+		case "monster-regenerated":
+			return `${prefix}The ${MONSTER_DEFINITIONS[event.monster].name} regenerates ${event.recovered} health. Damage interrupts its recovery.`;
 		case "spell-healed":
 			return `${prefix}${SPELL_DEFINITIONS[event.spell].name} restores ${event.recovered} health.`;
 		case "spell-hit":

@@ -1,7 +1,7 @@
 export const REVIEW_USAGE = `Usage: node scripts/review-adventure.mjs [seeds...] [options]
   --seed-start N --seed-count N  Consecutive seed batch (cannot mix with seeds)
   --rows N --cols N              Dungeon dimensions, 10–100
-  --floors N                    Dungeon depth, 5–20 (character cap stays 5)
+  --floors N                    Dungeon depth, 5–20 (character cap 20)
   --max-actions N               Action budget per seed (default 500)
   --policy NAME                 baseline (default), spell-aware or tactical-aware
   --summary-only                Print aggregate results only

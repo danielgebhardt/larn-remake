@@ -10,12 +10,28 @@ import {
 } from "../monsters/MonsterLocations";
 import type { SaveDocumentV1 } from "./SaveDocumentV1";
 import type { SaveDocumentV2 } from "./SaveDocumentV2";
+import type { SaveDocumentV3 } from "./SaveDocumentV3";
 
 export const isConsistentSave = (
-	document: SaveDocumentV1 | SaveDocumentV2,
+	document: SaveDocumentV1 | SaveDocumentV2 | SaveDocumentV3,
 ): boolean => {
 	const { state, configuration: config } = document;
 	const { run, quest } = state;
+	const level =
+		document.version < 3
+			? Math.min(5, levelForExperience(state.progression.experience))
+			: levelForExperience(state.progression.experience);
+	const manaLimit =
+		document.version < 3
+			? 10 + 2 * Math.floor((level - 1) / 2)
+			: maximumMana(state.progression);
+	if (
+		document.version < 3 &&
+		state.activityHistory.entries.some(
+			(entry) => entry.event.type === "level-gained" && entry.event.level > 5,
+		)
+	)
+		return false;
 	const floorAt = (number: number) => run.floors[number - 1];
 	const walkable = (number: number, point: Coordinate) =>
 		floorAt(number)?.terrain[point.row]?.[point.col] === ".";
@@ -29,11 +45,9 @@ export const isConsistentSave = (
 		quest.goalFloor !== config.floorCount ||
 		!walkable(1, quest.entrance) ||
 		state.player.maxHealth !==
-			DEFAULT_PLAYER_MAX_HEALTH +
-				HEALTH_PER_LEVEL *
-					(levelForExperience(state.progression.experience) - 1) ||
+			DEFAULT_PLAYER_MAX_HEALTH + HEALTH_PER_LEVEL * (level - 1) ||
 		state.player.health > state.player.maxHealth ||
-		state.mana > maximumMana(state.progression) ||
+		state.mana > manaLimit ||
 		!unique(state.knownSpells) ||
 		!unique(state.potionHotbar.filter((kind) => kind !== null))
 	)
@@ -138,7 +152,7 @@ export const isConsistentSave = (
 	)
 		return false;
 	if (
-		document.version === 2 &&
+		document.version !== 1 &&
 		!document.state.monsters.every(
 			(monster) =>
 				monster.intent.type === "idle" ||
@@ -178,8 +192,7 @@ export const isConsistentSave = (
 			quest.victory.turns !== state.turn ||
 			quest.victory.health !== state.player.health ||
 			quest.victory.experience !== state.progression.experience ||
-			quest.victory.level !==
-				levelForExperience(state.progression.experience) ||
+			quest.victory.level !== level ||
 			quest.victory.monstersDefeated !== state.monstersDefeated)
 	)
 		return false;

@@ -98,11 +98,11 @@ describe("Experience from confirmed player kills", () => {
 	it("retains XP after the cap without granting another heal", () => {
 		const before = {
 			...encounter("orc"),
-			progression: { experience: 100 },
-			player: { health: 3, maxHealth: 18 },
+			progression: { experience: 3700 },
+			player: { health: 3, maxHealth: 48 },
 		};
 		const after = resolvePlayerActionWithHits(before, attack).state;
-		expect(after.progression.experience).toBe(110);
+		expect(after.progression.experience).toBe(3710);
 		expect(after.player).toEqual(before.player);
 		expect(
 			after.activityHistory.entries.some(

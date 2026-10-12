@@ -95,17 +95,17 @@ describe("Progression on the play screen", () => {
 			"Evade 30%",
 		);
 	});
-	it("shows maximum level and retained total XP instead of promising level six", async () => {
-		const user = setup(130);
+	it("shows maximum level and retained total XP instead of promising level twenty-one", async () => {
+		const user = setup(3800);
 		await user.keyboard("i");
 		const dialog = within(
 			await screen.findByRole("dialog", { name: "Character" }),
 		);
 		expect(dialog.getByLabelText("Character level")).toHaveTextContent(
-			"Level 5",
+			"Level 20",
 		);
 		expect(dialog.getByLabelText("Total experience")).toHaveTextContent(
-			"130 XP",
+			"3800 XP",
 		);
 		expect(dialog.getByText("Maximum level reached")).toBeVisible();
 		expect(dialog.queryByRole("progressbar")).not.toBeInTheDocument();

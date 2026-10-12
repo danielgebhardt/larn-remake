@@ -18,7 +18,7 @@ describe("Earned Strength", () => {
 		[30, 12, 1],
 		[60, 12, 1],
 		[100, 14, 2],
-		[1000, 14, 2],
+		[1000, 20, 5],
 	])(
 		"derives earned Strength from %i XP",
 		(experience, strength, strengthModifier) => {

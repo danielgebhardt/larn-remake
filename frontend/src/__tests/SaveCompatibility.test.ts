@@ -20,7 +20,7 @@ describe("Version-1 save compatibility", () => {
 	it("loads a captured old file and writes the same migrated played data", () => {
 		const { document, adventure } = loadVersionOne();
 		expect(document).toMatchObject({
-			version: 2,
+			version: 3,
 			state: { turn: 3, run: { seed: 123, activeFloor: 1 } },
 		});
 		const written = createSaveDocument(
@@ -67,7 +67,7 @@ describe("Version-1 save compatibility", () => {
 	});
 	it("distinguishes unsupported versions, missing fields and inconsistent resources", () => {
 		const { document } = loadVersionOne();
-		expect(parseSave(JSON.stringify({ ...document, version: 3 }))).toEqual({
+		expect(parseSave(JSON.stringify({ ...document, version: 999 }))).toEqual({
 			ok: false,
 			error: "This save uses an unsupported format version.",
 		});

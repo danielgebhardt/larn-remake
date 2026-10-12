@@ -1,6 +1,6 @@
 import type { PlayerStats } from "./PlayerStats";
 
-export const MAX_PLAYER_LEVEL = 5;
+export const MAX_PLAYER_LEVEL = 20;
 export const HEALTH_PER_LEVEL = 2;
 const EXPERIENCE_STEP = 10;
 
@@ -8,8 +8,14 @@ const EXPERIENCE_STEP = 10;
 // cannot drift apart when a reward crosses several thresholds or reaches the cap.
 export type Progression = Readonly<{ experience: number }>;
 export const createProgression = (): Progression => ({ experience: 0 });
-const experienceThreshold = (level: number) =>
-	(EXPERIENCE_STEP * level * (level - 1)) / 2;
+export const experienceThreshold = (level: number): number => {
+	if (!Number.isInteger(level) || level < 1 || level > MAX_PLAYER_LEVEL)
+		throw new RangeError("Unsupported character level.");
+	// Retain early milestones; deeper growth needs twice the incremental XP.
+	return level <= 5
+		? (EXPERIENCE_STEP * level * (level - 1)) / 2
+		: 100 + EXPERIENCE_STEP * (level * (level - 1) - 20);
+};
 
 export const levelForExperience = (experience: number): number => {
 	if (!Number.isSafeInteger(experience) || experience < 0)

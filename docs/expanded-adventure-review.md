@@ -25,3 +25,11 @@ Three regression tests first failed without startup Save/Load, then passed. Brow
 Begin/new adventures now default to 60×60×20; the opening states that recommendation and Settings retains the full supported ranges. Loaded configuration remains authoritative for subsequent restarts. Focused page/domain fixtures explicitly choose 15×15×5 through TestHome/TestRunConfiguration rather than inheriting product defaults; this preserves short interaction tests and historical seeded scenarios without weakening dedicated recommended-run coverage.
 
 Two recommended-configuration tests first failed, then passed. Browser created 3,600 displayed cells on Floor 1 of 20, focused Dungeon map and showed 60 rows × 60 columns · 20 floors in Settings. The existing startup, replay and resume tests cover no background turns and configuration ownership. Creature density, generation geometry and mana recovery are unchanged here.
+
+## #195 — Extended progression, established before deep content
+
+Character cap is 20. Cumulative milestones through five remain 0/10/30/60/100 XP. Above five, threshold(n) = 100 + 10 × (n × (n − 1) − 20): level 6 at 200, 10 at 800, 15 at 2,000 and 20 at 3,700. Existing automatic Strength/Dexterity/Intelligence and +2-health growth extend through the cap. No stat allocation or free refill was introduced.
+
+Save format v3 explicitly marks the changed progression rules. Structurally valid v1/v2 snapshots are checked under their original cap-five capacity rules before migration; XP is retained, newly earned capacity preserves missing health/mana, and dead players remain dead. Prepared targets and floor snapshots are retained. A subsequent v3 round trip does not apply growth twice. Historical activity remains historical; completed summary health/level follow the migrated character.
+
+Five matched tactical-aware seeds (0–4, 60×60×20, budget 50,000) all won both before and after. Old runs capped at five on floor three. Extended-curve runs finished at levels 13/13/13/13/14, with XP 1,598/1,622/1,645/1,625/1,745; turns were 11,162/11,268/11,256/11,117/12,024. This is a provisional curve, not final balance or human win rates. Deeper enemy rewards will increase total available XP; final pacing review must measure cap floor after expanded content exists.

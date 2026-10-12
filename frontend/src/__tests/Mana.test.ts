@@ -13,7 +13,7 @@ describe("Earned Intelligence and mana", () => {
 		[30, 12, 12],
 		[99, 12, 12],
 		[100, 14, 14],
-		[1000, 14, 14],
+		[1000, 20, 20],
 	])(
 		"derives Intelligence and capacity at %i XP",
 		(experience, intelligence, capacity) => {

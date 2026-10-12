@@ -30,7 +30,7 @@ describe("Experience and health growth", () => {
 		[60, 4],
 		[99, 4],
 		[100, 5],
-		[1000, 5],
+		[1000, 11],
 	])("assigns the correct level for %i total XP", (experience, level) => {
 		expect(levelForExperience(experience)).toBe(level);
 	});
@@ -44,8 +44,8 @@ describe("Experience and health growth", () => {
 		expect(progressionProgress({ experience: 100 })).toEqual({
 			level: 5,
 			earned: 0,
-			needed: 0,
-			remaining: 0,
+			needed: 100,
+			remaining: 100,
 		});
 	});
 	it("gains a level without a full heal or mutating the original character", () => {
@@ -56,7 +56,7 @@ describe("Experience and health growth", () => {
 		expect(result.levels).toEqual([2]);
 		expect(player).toEqual({ health: 6, maxHealth: 10 });
 	});
-	it("crosses multiple levels but grants only benefits through level five", () => {
+	it("crosses the early levels and retains wounds without reaching the next milestone", () => {
 		const result = gainExperience(
 			createProgression(),
 			{ health: 3, maxHealth: 10 },

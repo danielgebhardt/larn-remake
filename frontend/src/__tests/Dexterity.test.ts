@@ -18,7 +18,7 @@ describe("Earned Dexterity and melee accuracy", () => {
 		[30, 12, 1],
 		[60, 14, 2],
 		[100, 14, 2],
-		[1000, 14, 2],
+		[1000, 20, 5],
 	])(
 		"derives earned Dexterity from %i XP",
 		(experience, dexterity, dexterityModifier) => {
@@ -32,7 +32,7 @@ describe("Earned Dexterity and melee accuracy", () => {
 		[0, 85, 20],
 		[10, 90, 25],
 		[60, 95, 30],
-		[1000, 95, 30],
+		[1000, 95, 45],
 	])(
 		"shows real accuracy and evasion for %i XP",
 		(experience, playerHitChance, evadeChance) => {

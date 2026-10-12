@@ -46,13 +46,13 @@ describe("Monster intent and versioned saves", () => {
 			expect(monster.intent).toEqual({ type: "idle" });
 	});
 
-	it("migrates a literal v1 save to v2 without changing its played data", () => {
+	it("migrates a literal v1 save to the current format without changing its played data", () => {
 		const legacy = JSON.parse(versionOneFile);
 		const parsed = parseSave(versionOneFile);
 		if (!parsed.ok) throw new Error(parsed.error);
 		expect(parsed.value).toEqual({
 			...legacy,
-			version: 2,
+			version: 3,
 			state: {
 				...legacy.state,
 				monsters: legacy.state.monsters.map((monster: object) => ({
@@ -64,12 +64,12 @@ describe("Monster intent and versioned saves", () => {
 		expect(JSON.stringify(legacy)).not.toContain('"intent"');
 	});
 
-	it("round-trips a fixed prepared target on an inactive floor in format v2", () => {
+	it("round-trips a fixed prepared target on an inactive floor in the current format", () => {
 		const { document, preparing } = preparedAdventure();
 		const parsed = parseSave(serializeSave(document));
 		if (!parsed.ok) throw new Error(parsed.error);
 		const restored = restoreSave(parsed.value);
-		expect(parsed.value.version).toBe(2);
+		expect(parsed.value.version).toBe(3);
 		expect(restored.state.monsters).toEqual([preparing]);
 		const written = createSaveDocument(
 			restored.state,

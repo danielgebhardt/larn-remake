@@ -82,7 +82,7 @@ describe("Home Help menu", () => {
 			progression.getByText(/Dexterity improves accuracy and evasion/),
 		).toBeVisible();
 		expect(progression.getByText(/without.*full heal/)).toBeVisible();
-		expect(progression.getByText(/capped at 5/)).toBeVisible();
+		expect(progression.getByText(/capped at 20/)).toBeVisible();
 	});
 	it.each(["Escape", "Close button"])(
 		"dismisses with %s and restores focus without consuming a turn",

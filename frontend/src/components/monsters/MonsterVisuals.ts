@@ -1,10 +1,12 @@
-import { Bone, Dog, Rat, Skull } from "lucide-react";
+import { Bone, Dog, Ghost, Rat, Skull } from "lucide-react";
 import type { ComponentType, SVGProps } from "react";
 import { MONSTER_DEFINITIONS } from "../../domain/monsters/Monster";
 import type { MonsterKind } from "../../domain/monsters/Monster.ts";
 import BruteIcon from "./BruteIcon";
+import CultistIcon from "./CultistIcon";
 import GoblinArcherIcon from "./GoblinArcherIcon";
 import GoblinIcon from "./GoblinIcon.tsx";
+import GolemIcon from "./GolemIcon";
 import KoboldSlingerIcon from "./KoboldSlingerIcon";
 import SpiderIcon from "./SpiderIcon";
 
@@ -65,5 +67,30 @@ export const MONSTER_VISUALS: Record<
 		icon: SpiderIcon,
 		color: "text-goblin",
 		label: MONSTER_DEFINITIONS.spider.name,
+	},
+	ogre: {
+		icon: BruteIcon,
+		color: "text-monster-orc",
+		label: MONSTER_DEFINITIONS.ogre.name,
+	},
+	troll: {
+		icon: BruteIcon,
+		color: "text-goblin",
+		label: MONSTER_DEFINITIONS.troll.name,
+	},
+	cultist: {
+		icon: CultistIcon,
+		color: "text-monster-brute",
+		label: MONSTER_DEFINITIONS.cultist.name,
+	},
+	"stone-golem": {
+		icon: GolemIcon,
+		color: "text-monster-undead",
+		label: MONSTER_DEFINITIONS["stone-golem"].name,
+	},
+	wraith: {
+		icon: Ghost,
+		color: "text-monster-rat",
+		label: MONSTER_DEFINITIONS.wraith.name,
 	},
 };

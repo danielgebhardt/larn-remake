@@ -1,6 +1,20 @@
 import { Dialog } from "@base-ui/react/dialog";
-import { HelpCircleIcon, Save, Settings, UserRound } from "lucide-react";
-import { type SubmitEvent, useEffect, useMemo, useRef, useState } from "react";
+import {
+	HelpCircleIcon,
+	LibraryBig,
+	Save,
+	Settings,
+	UserRound,
+} from "lucide-react";
+import {
+	lazy,
+	type SubmitEvent,
+	Suspense,
+	useEffect,
+	useMemo,
+	useRef,
+	useState,
+} from "react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetTrigger } from "@/components/ui/sheet";
 import DungeonHelp from "@/settings/DungeonHelp.tsx";
@@ -55,11 +69,16 @@ import {
 } from "./domain/saves/SaveFormat";
 import Header from "./Header.tsx";
 import DungeonSettings from "./settings/DungeonSettings.tsx";
+import { APP_FEATURES } from "./settings/FeatureFlags";
 import {
 	type ConfigurationErrors,
 	configurationDraft,
 	parseRunConfiguration,
 } from "./settings/RunConfigurationDraft.ts";
+
+const DeveloperCatalog = lazy(
+	() => import("./components/game/DeveloperCatalog"),
+);
 
 const createRun = (
 	seed: number,
@@ -127,6 +146,7 @@ const Home = ({
 	const [settingsOpen, setSettingsOpen] = useState(false);
 	const [saveOpen, setSaveOpen] = useState(false);
 	const [restoreMapFocus, setRestoreMapFocus] = useState(false);
+	const [catalogOpen, setCatalogOpen] = useState(false);
 	const [helpOpen, setHelpOpen] = useState(false);
 	const [characterOpen, setCharacterOpen] = useState(false);
 	const [characterOpenedFromMap, setCharacterOpenedFromMap] = useState(false);
@@ -150,6 +170,7 @@ const Home = ({
 		setSettingsOpen(false);
 		setSaveOpen(false);
 		setHelpOpen(false);
+		setCatalogOpen(false);
 	}, [deathOpen]);
 	const currentItems = itemsAtPlayer(game.state);
 	// Empty loot or death ends selection; later movement must not reopen it.
@@ -240,6 +261,7 @@ const Home = ({
 		setInteractionTargets([]);
 		setCharacterOpen(false);
 		setHelpOpen(false);
+		setCatalogOpen(false);
 		setRestoreMapFocus(true);
 		setSaveOpen(false);
 		setSettingsOpen(false);
@@ -312,6 +334,7 @@ const Home = ({
 		!settingsOpen &&
 		!saveOpen &&
 		!helpOpen &&
+		!catalogOpen &&
 		!characterOpen &&
 		!pickupOpen &&
 		!victoryOpen;
@@ -499,6 +522,21 @@ const Home = ({
 							}
 						/>
 					</Sheet>
+				}
+				catalogAction={
+					APP_FEATURES.developerCatalog && (
+						<Sheet open={catalogOpen} onOpenChange={setCatalogOpen}>
+							<SheetTrigger render={<Button type="button" variant="outline" />}>
+								<LibraryBig aria-hidden="true" />
+								Catalog
+							</SheetTrigger>
+							<Suspense fallback={null}>
+								<DeveloperCatalog
+									finalFocus={mapInputAvailable ? mapRef : false}
+								/>
+							</Suspense>
+						</Sheet>
+					)
 				}
 			/>
 

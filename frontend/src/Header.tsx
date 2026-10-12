@@ -10,6 +10,7 @@ type HeaderProps = {
 	settingsAction?: ReactNode;
 	saveAction?: ReactNode;
 	helpAction?: ReactNode;
+	catalogAction?: ReactNode;
 };
 
 const Header = ({
@@ -20,6 +21,7 @@ const Header = ({
 	settingsAction,
 	saveAction,
 	helpAction,
+	catalogAction,
 }: HeaderProps) => {
 	return (
 		<header className="flex shrink-0 flex-wrap items-center gap-4 border-b border-border bg-card px-4 py-3 sm:px-6">
@@ -37,6 +39,7 @@ const Header = ({
 			{saveAction}
 			{settingsAction}
 			{helpAction}
+			{catalogAction}
 		</header>
 	);
 };

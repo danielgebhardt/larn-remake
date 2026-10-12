@@ -37,15 +37,55 @@ export const resolveMonsterPhase = (
 		.sort((a, b) => Number(a.id.split(":")[1]) - Number(b.id.split(":")[1]));
 	for (const monster of active) {
 		if (player.health <= 0) break;
-		if (!detectsPlayer(state.run, monster)) continue;
-		// Detection already requires clear terrain sight. Creatures do not
-		// intercept shots; range uses Manhattan distance like melee adjacency.
+		// Both attack range and prepared-target adjacency use Manhattan distance.
 		const distance = orthogonalDistance(
 			monster.coordinate,
 			state.run.playerCoordinate,
 		);
 		const definition = MONSTER_DEFINITIONS[monster.kind];
+		const preparing = monster.intent.type === "preparing-attack";
+		if (monster.intent.type === "preparing-attack") {
+			// Resolve the old target even after the player leaves detection.
+			// Clearing intent consumes this phase; no pursuit or retarget follows.
+			monsters = monsters.map((actor) =>
+				actor.id === monster.id
+					? { ...actor, intent: { type: "idle" } }
+					: actor,
+			);
+			if (
+				distance !== 1 ||
+				orthogonalDistance(
+					monster.intent.target,
+					state.run.playerCoordinate,
+				) !== 0
+			) {
+				events.push({
+					type: "monster-heavy-avoided",
+					turn: state.turn,
+					monster: monster.kind,
+				});
+				continue;
+			}
+		} else {
+			if (!detectsPlayer(state.run, monster)) continue;
+			if (definition.preparesAttack && distance === 1) {
+				const target = { ...state.run.playerCoordinate };
+				monsters = monsters.map((actor) =>
+					actor.id === monster.id
+						? { ...actor, intent: { type: "preparing-attack", target } }
+						: actor,
+				);
+				events.push({
+					type: "monster-prepared",
+					turn: state.turn,
+					monster: monster.kind,
+					target,
+				});
+				continue;
+			}
+		}
 		const shooting =
+			!preparing &&
 			definition.rangedAttackRange !== undefined &&
 			distance >= 2 &&
 			distance <= definition.rangedAttackRange;
@@ -63,14 +103,22 @@ export const resolveMonsterPhase = (
 				seed: state.run.seed,
 				floorNumber: state.run.activeFloor,
 				turn: state.turn,
-				attackerId: shooting ? `${monster.id}:shot` : monster.id,
+				attackerId: preparing
+					? `${monster.id}:heavy`
+					: shooting
+						? `${monster.id}:shot`
+						: monster.id,
 				targetId: "player",
 			}),
 			armor,
 		);
 		if (!outcome.hit) {
 			events.push({
-				type: shooting ? "monster-shot-missed" : "monster-missed",
+				type: preparing
+					? "monster-heavy-missed"
+					: shooting
+						? "monster-shot-missed"
+						: "monster-missed",
 				turn: state.turn,
 				monster: monster.kind,
 			});
@@ -79,7 +127,11 @@ export const resolveMonsterPhase = (
 		const damage = outcome.damage;
 		player = { ...player, health: Math.max(0, player.health - damage) };
 		events.push({
-			type: shooting ? "monster-shot-hit" : "monster-hit",
+			type: preparing
+				? "monster-heavy-hit"
+				: shooting
+					? "monster-shot-hit"
+					: "monster-hit",
 			turn: state.turn,
 			monster: monster.kind,
 			damage,

@@ -87,7 +87,13 @@ describe("Experience and health growth", () => {
 					value.experienceReward,
 				]),
 			),
-		).toEqual({ "giant-rat": 2, goblin: 5, orc: 10, "goblin-archer": 6 });
+		).toEqual({
+			"giant-rat": 2,
+			goblin: 5,
+			orc: 10,
+			"goblin-archer": 6,
+			"dungeon-brute": 12,
+		});
 		expect(() =>
 			validateMonsterDefinition({
 				...MONSTER_DEFINITIONS.goblin,

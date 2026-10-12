@@ -8,6 +8,21 @@ import {
 } from "../domain/monsters/Monster";
 
 describe("Floor-aware monster catalog", () => {
+	it("defines the brute's windup profile but leaves seeded rollout disabled", () => {
+		expect(MONSTER_DEFINITIONS["dungeon-brute"]).toMatchObject({
+			maxHealth: 10,
+			attackDamage: 5,
+			experienceReward: 12,
+			detectionRadius: 6,
+			preparesAttack: true,
+			minFloor: 4,
+			maxFloor: 20,
+			spawnWeight: 1,
+			spawnEnabled: false,
+		});
+		for (let floor = 1; floor <= 20; floor++)
+			expect(eligibleMonsterKinds(floor)).not.toContain("dungeon-brute");
+	});
 	it("defines the provisional archer profile without enabling seeded encounters yet", () => {
 		expect(MONSTER_DEFINITIONS["goblin-archer"]).toMatchObject({
 			maxHealth: 5,
@@ -58,6 +73,7 @@ describe("Floor-aware monster catalog", () => {
 		{ detectionRadius: -1 },
 		{ rangedAttackRange: 1 },
 		{ rangedAttackRange: 2.5 },
+		{ rangedAttackRange: 4, preparesAttack: true },
 	])("rejects unusable definitions: %j", (overrides) => {
 		expect(() =>
 			validateMonsterDefinition({

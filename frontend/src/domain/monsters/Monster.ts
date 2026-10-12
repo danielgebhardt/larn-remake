@@ -3,7 +3,12 @@ import type { Coordinate } from "../dungeon/DungeonTypes.ts";
 import { MAX_FLOORS } from "../dungeon/RunConfiguration";
 import type { ItemKind } from "../items/Item";
 
-export type MonsterKind = "goblin" | "giant-rat" | "orc" | "goblin-archer";
+export type MonsterKind =
+	| "goblin"
+	| "giant-rat"
+	| "orc"
+	| "goblin-archer"
+	| "dungeon-brute";
 
 export type MonsterIntent =
 	| { type: "idle" }
@@ -31,6 +36,7 @@ export type MonsterDefinition = {
 	dropChance: number;
 	lootPreferences: Partial<Record<ItemKind, number>>;
 	rangedAttackRange?: number;
+	preparesAttack?: boolean;
 	// Disabled content can be exercised in encounters before seeded rollout.
 	spawnEnabled?: boolean;
 };
@@ -49,6 +55,7 @@ export const validateMonsterDefinition = (
 		detectionRadius,
 		rangedAttackRange,
 		spawnEnabled,
+		preparesAttack,
 	} = definition;
 	if (
 		!Number.isSafeInteger(experienceReward) ||
@@ -74,7 +81,9 @@ export const validateMonsterDefinition = (
 		detectionRadius < 0 ||
 		(rangedAttackRange !== undefined &&
 			(!Number.isSafeInteger(rangedAttackRange) || rangedAttackRange < 2)) ||
-		(spawnEnabled !== undefined && typeof spawnEnabled !== "boolean")
+		(spawnEnabled !== undefined && typeof spawnEnabled !== "boolean") ||
+		(preparesAttack !== undefined && typeof preparesAttack !== "boolean") ||
+		(preparesAttack === true && rangedAttackRange !== undefined)
 	)
 		throw new RangeError(
 			"Invalid monster stats, floor range, or spawn weight.",
@@ -130,6 +139,20 @@ export const MONSTER_DEFINITIONS: Record<MonsterKind, MonsterDefinition> = {
 		spawnEnabled: false,
 		dropChance: 0.5,
 		lootPreferences: { "short-sword": 2, "wooden-shield": 2 },
+	},
+	"dungeon-brute": {
+		name: "dungeon brute",
+		experienceReward: 12,
+		maxHealth: 10,
+		attackDamage: 5,
+		detectionRadius: 6,
+		preparesAttack: true,
+		minFloor: 4,
+		maxFloor: MAX_FLOORS,
+		spawnWeight: 1,
+		spawnEnabled: false,
+		dropChance: 0.7,
+		lootPreferences: { "chain-armor": 2, "iron-helmet": 2 },
 	},
 };
 for (const definition of Object.values(MONSTER_DEFINITIONS))

@@ -1,3 +1,4 @@
+import type { Coordinate } from "../dungeon/DungeonTypes";
 import type { ConsumptionEvent } from "../items/Consumables";
 import type { EquipmentChangeEvent } from "../items/EquipmentChanges";
 import type { FloorItemEvent } from "../items/FloorItems";
@@ -17,6 +18,12 @@ export type ActivityEvent = { turn: number } & (
 	| { type: "monster-hit"; monster: MonsterKind; damage: number }
 	| { type: "monster-shot-hit"; monster: MonsterKind; damage: number }
 	| { type: "monster-shot-missed"; monster: MonsterKind }
+	| { type: "monster-prepared"; monster: MonsterKind; target: Coordinate }
+	| { type: "monster-heavy-hit"; monster: MonsterKind; damage: number }
+	| {
+			type: "monster-heavy-missed" | "monster-heavy-avoided";
+			monster: MonsterKind;
+	  }
 	| { type: "monster-died"; monster: MonsterKind }
 	| { type: "experience-gained"; amount: number }
 	| { type: "level-gained"; level: number; healthGain: number }

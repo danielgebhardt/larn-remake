@@ -23,6 +23,12 @@ export const MONSTER_VISUALS: Record<
 		color: "text-goblin",
 		label: MONSTER_DEFINITIONS["goblin-archer"].name,
 	},
+	// Provisional art until #150; seeded rollout remains disabled.
+	"dungeon-brute": {
+		icon: Skull,
+		color: "text-monster-orc",
+		label: MONSTER_DEFINITIONS["dungeon-brute"].name,
+	},
 	"giant-rat": {
 		icon: Rat,
 		color: "text-monster-rat",

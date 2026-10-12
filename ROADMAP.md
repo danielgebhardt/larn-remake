@@ -268,7 +268,7 @@ All 1,425 frontend tests, Biome, TypeScript checks and the production build pass
 
 ## Next epic: Distinct enemy tactics
 
-[Epic #146](https://github.com/danielgebhardt/larn-remake/issues/146) is underway on `codex/enemy-tactics`. Stories #147–148 implement instance-owned intent, save format v2 with validated v1 migration, and controlled goblin archer encounters. The archer story is pending developer review; seeded archer rollout stays disabled until #151. Stories #149–153 remain planned and require authorization before implementation. See [the story review guide](docs/enemy-tactics-review.md). The readiness cleanup above is merged; its turn and protected-arrival contracts are reused.
+[Epic #146](https://github.com/danielgebhardt/larn-remake/issues/146) is underway on `codex/enemy-tactics`. Stories #147–149 implement instance-owned intent, save format v2 with validated v1 migration, controlled archer shots, and the brute’s fixed-tile response opportunity. The brute story is pending developer review; both new kinds stay disabled for seeded rollout until #151. Stories #150–153 remain planned and require authorization before implementation. See [the story review guide](docs/enemy-tactics-review.md). The readiness cleanup above is merged; its turn and protected-arrival contracts are reused.
 
 | Order | Story | Outcome |
 | --- | --- | --- |

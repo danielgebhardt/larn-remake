@@ -1,6 +1,6 @@
 # Distinct enemy tactics: review guide
 
-Epic #146, branch `codex/enemy-tactics`. Implement stories one commit at a time and pause for developer review. Stories #147 and #148 are implemented for review. Brute behavior, tactical presentation and mixed spawning remain outstanding.
+Epic #146, branch `codex/enemy-tactics`. Implement stories one commit at a time and pause for developer review. Stories #147–149 are implemented for review. Tactical presentation and mixed spawning remain outstanding.
 
 ## #147: Instance intent and compatible save evolution
 
@@ -33,3 +33,17 @@ Shooting reuses the existing D20 threshold, Dexterity evasion, bounded damage an
 New `monster-shot-hit` and `monster-shot-missed` events produce distinct activity descriptions and are accepted by save validation. A basic goblin visual with the archer label keeps the visual catalog complete for controlled encounters; distinct artwork/threat presentation belongs to #150. No generated run contains archers yet, so ordinary play has no new encounter distribution or UI layout.
 
 Controlled tests cover horizontal/diagonal range boundaries, next-turn shooting after pursuit, walls/closed corners, no detection/inactive floors, actor/stair collision, creature non-interception, order, evasion without damage rolls, armor and bounded damage, seeded repetition/actor independence, fatal shots and a seeded loot-producing kill. Catalog tests assert the profile and disabled rollout; narration and v2 actor/event round trips are covered. Fifteen initial encounter tests failed before the definition/behavior existed. Full verification runs in the story commit hook. Pause before #149 for review.
+
+## #149: Brute preparation and a fixed response opportunity
+
+The dungeon brute definition has 10 HP, nominal damage 5 (raw 4–6), 12 XP, detection radius 6, floors 4–20 and provisional relative weight 1. Its drop policy follows the orc. It remains disabled for seeded spawning until #151, with provisional skull artwork until #150. A definition flag enables melee preparation; validation rejects combining that preparation with ranged attacks in this first tactics slice.
+
+An idle, detected brute pursues one tile when distant. When adjacent it copies the player's current coordinate into instance intent, emits a preparation event and ends its phase without rolling or dealing damage. A move into adjacency never also prepares. There is no timer, additional turn increment or UI state governing its attack.
+
+On its next active-floor phase, a pending intent is handled before ordinary detection. It clears intent and checks both the fixed target and adjacency. If the player has moved, it emits an avoided attack without rolls; even moving beyond detection clears the old threat. If still on the target and adjacent, it resolves existing D20/evasion/armor/damage rules using the stable actor-ID `:heavy` namespace. A failed hit roll produces a distinct missed outcome. Both hit and miss consume the phase; it cannot pursue, retarget or immediately prepare again. A following committed turn may start a new preparation.
+
+PlayerActions still owns response timing. Rejected movement, missing items, invalid casts and free hotbar changes preserve preparation. A successful wait, heal, cast, pickup/drop, equipment change or surviving bump attack spends the response turn, applying the player effect first. Killing the brute removes the actor before retaliation and uses existing one-time rewards. Death stops later actors; quest completion skips the entire pending phase.
+
+Stairs change the active floor before the monster phase. The departing brute stays paused with its original target across additional turns and save/load. On return it resolves that target once, rather than aiming at the stair arrival. V2 already supports the intent shape; this story adds the new activity variants to source validation and narration without another format bump. Presentation/highlighting belongs to #150.
+
+The focused suite covers preparation without rolls, sequential phases, fixed-target dodging, out-of-detection cleanup, evasion, raw 4–6 damage with armor/minimum damage, pursuit, rejected/free actions, nine committed response types, kills, fatal stopping, victory, real linked stair revisits and exact saved/uninterrupted next-turn equality. Narration distinguishes preparation, landed blow, failed roll and avoided blow. Sixteen behavior tests failed after the catalog existed but before phase implementation. Existing archer tests pass. Full frontend verification runs in the story commit hook; backend and generated populations are unchanged. Pause before #150 for review.

@@ -25,7 +25,7 @@ import type {
 import { useTheme } from "./ThemeProvider.tsx";
 
 type DungeonSettingsProps = {
-	finalFocus?: RefObject<HTMLElement | null>;
+	finalFocus?: RefObject<HTMLElement | null> | false;
 	fogConfiguration: FogConfiguration;
 	onFogEnabledChange: (enabled: boolean) => void;
 	onFogRadiusApply: (radius: number) => void;

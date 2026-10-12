@@ -15,7 +15,7 @@ const AdventureSaveSheet = ({
 }: {
 	createSnapshot?: () => SaveDocument;
 	onRestore: (document: SaveDocument) => void;
-	finalFocus?: RefObject<HTMLElement | null>;
+	finalFocus?: RefObject<HTMLElement | null> | false;
 }) => {
 	const title = useRef<HTMLHeadingElement>(null);
 	return (

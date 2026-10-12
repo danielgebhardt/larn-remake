@@ -46,7 +46,7 @@ import type { HotbarSlot } from "./domain/items/PotionHotbar";
 import type { DungeonObject } from "./domain/objects/DungeonObject";
 import { navigationRun } from "./domain/objects/NavigationTerrain";
 import { objectChoices } from "./domain/objects/ObjectChoices";
-import { nearbyInteractionObject } from "./domain/objects/ObjectInteraction";
+import { nearbyInteractionObjects } from "./domain/objects/ObjectInteraction";
 import {
 	createSaveDocument,
 	type RestoredAdventure,
@@ -132,6 +132,9 @@ const Home = ({
 	const [characterOpenedFromMap, setCharacterOpenedFromMap] = useState(false);
 	const [interactionObject, setInteractionObject] =
 		useState<DungeonObject | null>(null);
+	const [interactionTargets, setInteractionTargets] = useState<
+		readonly DungeonObject[]
+	>([]);
 	const [pickupOpen, setPickupOpen] = useState(false);
 	const mapRef = useRef<HTMLElement>(null);
 	useEffect(() => {
@@ -143,6 +146,7 @@ const Home = ({
 		setCharacterOpen(false);
 		setPickupOpen(false);
 		setInteractionObject(null);
+		setInteractionTargets([]);
 		setSettingsOpen(false);
 		setSaveOpen(false);
 		setHelpOpen(false);
@@ -205,6 +209,7 @@ const Home = ({
 		setPickupOpen(false);
 		setDismissedDeath(false);
 		setInteractionObject(null);
+		setInteractionTargets([]);
 		setConfiguration(nextConfiguration);
 		setConfigDraft(configurationDraft(nextConfiguration));
 		setConfigErrors({});
@@ -232,6 +237,7 @@ const Home = ({
 		setPickupOpen(false);
 		setDismissedDeath(false);
 		setInteractionObject(null);
+		setInteractionTargets([]);
 		setCharacterOpen(false);
 		setHelpOpen(false);
 		setRestoreMapFocus(true);
@@ -279,15 +285,30 @@ const Home = ({
 		});
 	};
 
-	const handleInteractRequested = () => {
-		const object = nearbyInteractionObject(game.state);
-		if (object && !object.activated && objectChoices(object).length)
+	const selectInteractionObject = (object: DungeonObject) => {
+		if (!object.activated && objectChoices(object).length)
 			setInteractionObject(object);
+		else handleActionRequested({ type: "interact", objectId: object.id });
+		setInteractionTargets([]);
+	};
+	const handleInteractRequested = () => {
+		const nearby = nearbyInteractionObjects(game.state).filter(
+			(object) =>
+				!fogConfiguration.enabled ||
+				exploration.visible[object.coordinate.row]?.[object.coordinate.col],
+		);
+		const usable = nearby.filter(
+			(object) => object.kind === "door" || !object.activated,
+		);
+		const selected = usable[0] ?? nearby[0];
+		if (usable.length > 1) setInteractionTargets(usable);
+		else if (selected) selectInteractionObject(selected);
 		else handleActionRequested({ type: "interact" });
 	};
 	const mapInputAvailable =
 		!deathOpen &&
 		interactionObject === null &&
+		interactionTargets.length === 0 &&
 		!settingsOpen &&
 		!saveOpen &&
 		!helpOpen &&
@@ -392,7 +413,7 @@ const Home = ({
 							if (open) setRestoreMapFocus(false);
 						}}
 						onOpenChangeComplete={(open) => {
-							if (!open && restoreMapFocus && !victoryOpen && !deathOpen)
+							if (!open && restoreMapFocus && mapInputAvailable)
 								mapRef.current?.focus({ preventScroll: true });
 						}}
 					>
@@ -401,7 +422,13 @@ const Home = ({
 							Save/Load
 						</SheetTrigger>
 						<AdventureSaveSheet
-							finalFocus={restoreMapFocus ? mapRef : undefined}
+							finalFocus={
+								mapInputAvailable
+									? restoreMapFocus
+										? mapRef
+										: undefined
+									: false
+							}
 							createSnapshot={() =>
 								createSaveDocument(
 									game.state,
@@ -419,7 +446,8 @@ const Home = ({
 						open={settingsOpen}
 						onOpenChange={setSettingsOpen}
 						onOpenChangeComplete={(open) => {
-							if (!open) mapRef.current?.focus({ preventScroll: true });
+							if (!open && mapInputAvailable)
+								mapRef.current?.focus({ preventScroll: true });
 						}}
 					>
 						<SheetTrigger render={<Button type="button" variant="outline" />}>
@@ -427,7 +455,7 @@ const Home = ({
 							Settings
 						</SheetTrigger>
 						<DungeonSettings
-							finalFocus={mapRef}
+							finalFocus={mapInputAvailable ? mapRef : false}
 							fogConfiguration={fogConfiguration}
 							onFogEnabledChange={(enabled) =>
 								setFogConfiguration((current) => ({ ...current, enabled }))
@@ -464,7 +492,7 @@ const Home = ({
 							Help
 						</SheetTrigger>
 						<DungeonHelp
-							finalFocus={mapRef}
+							finalFocus={mapInputAvailable ? mapRef : false}
 							monsters={activeMonsters}
 							visible={
 								fogConfiguration.enabled ? exploration.visible : undefined
@@ -609,7 +637,12 @@ const Home = ({
 			/>
 			<ObjectChoiceDialog
 				object={interactionObject}
-				onClose={() => setInteractionObject(null)}
+				targets={interactionTargets}
+				onSelect={selectInteractionObject}
+				onClose={() => {
+					setInteractionObject(null);
+					setInteractionTargets([]);
+				}}
 				onChoose={handleActionRequested}
 				mapRef={mapRef}
 			/>

@@ -56,7 +56,7 @@ const DungeonHelp = ({
 }: {
 	monsters?: readonly Monster[];
 	visible?: VisibilityGrid;
-	finalFocus?: RefObject<HTMLElement | null>;
+	finalFocus?: RefObject<HTMLElement | null> | false;
 }) => (
 	<SheetContent
 		finalFocus={finalFocus}
@@ -191,16 +191,18 @@ const DungeonHelp = ({
 					<li>
 						<span className="font-medium text-foreground">Objects.</span> Bump a
 						closed door to open it, or use E to toggle a door within one step.
-						Opening takes a turn without entering. Occupied doors cannot close.
-						Closed doors block sight, spells and pursuit; monsters do not open
-						them yet. E also opens nearby chests, leaving loot on the floor for
-						G pickup. Walking onto coins collects gold. Traps are visible: avoid
-						them, cross for 2–6 damage, or use E to attempt disarm for one turn.
-						Base disarm chance is 55%, +5% per Dexterity modifier (maximum 95%);
-						failure springs the trap. Spent traps cannot hurt again. Fountains
-						offer a safe sip or a stronger risky draw. E opens their choices;
-						number keys choose and Escape cancels for free. Each chosen draw
-						empties the fountain.
+						Press E beside an open door to close it. Opening or closing takes
+						one turn; a player or monster in the doorway prevents closure for
+						free. When several objects are reachable, choose one with its number
+						key. Closed doors block sight, spells and pursuit; monsters do not
+						open them yet. E also opens nearby chests, leaving loot on the floor
+						for G pickup. Walking onto coins collects gold. Traps are visible:
+						avoid them, cross for 2–6 damage, or use E to attempt disarm for one
+						turn. Base disarm chance is 55%, +5% per Dexterity modifier (maximum
+						95%); failure springs the trap. Spent traps cannot hurt again.
+						Fountains offer a safe sip or a stronger risky draw. E opens their
+						choices; number keys choose and Escape cancels for free. Each chosen
+						draw empties the fountain.
 					</li>
 					<li>
 						<span className="font-medium text-foreground">Quest.</span> Recover

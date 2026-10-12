@@ -1,28 +1,42 @@
 import { Dialog } from "@base-ui/react/dialog";
-import { type RefObject, useRef } from "react";
+import { type RefObject, useLayoutEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import {
 	type DungeonObject,
 	OBJECT_DEFINITIONS,
 } from "../../domain/objects/DungeonObject";
 import { objectChoices } from "../../domain/objects/ObjectChoices";
+import { describeObject } from "../../domain/objects/ObjectDescriptions";
 import type { InteractAction } from "../../domain/objects/ObjectInteraction";
+import DungeonObjectIcon from "./DungeonObjectIcon";
 
 const ObjectChoiceDialog = ({
 	object,
+	targets = [],
+	onSelect,
 	onClose,
 	onChoose,
 	mapRef,
 }: {
 	object: DungeonObject | null;
+	targets?: readonly DungeonObject[];
+	onSelect?: (object: DungeonObject) => void;
 	onClose: () => void;
 	onChoose: (action: InteractAction) => void;
 	mapRef: RefObject<HTMLElement | null>;
 }) => {
 	const titleRef = useRef<HTMLHeadingElement>(null);
 	const choices = object ? objectChoices(object) : [];
+	const count = object ? choices.length : targets.length;
+	useLayoutEffect(() => {
+		if (object) titleRef.current?.focus({ preventScroll: true });
+	}, [object]);
 	const choose = (index: number) => {
-		if (!object || !choices[index]) return;
+		if (!object) {
+			if (targets[index]) onSelect?.(targets[index]);
+			return;
+		}
+		if (!choices[index]) return;
 		onChoose({
 			type: "interact",
 			objectId: object.id,
@@ -32,7 +46,7 @@ const ObjectChoiceDialog = ({
 	};
 	return (
 		<Dialog.Root
-			open={object !== null}
+			open={object !== null || targets.length > 1}
 			onOpenChange={(open) => {
 				if (!open) onClose();
 			}}
@@ -53,11 +67,7 @@ const ObjectChoiceDialog = ({
 						)
 							return;
 						const index = Number(event.key) - 1;
-						if (
-							Number.isInteger(index) &&
-							index >= 0 &&
-							index < choices.length
-						) {
+						if (Number.isInteger(index) && index >= 0 && index < count) {
 							event.preventDefault();
 							event.stopPropagation();
 							choose(index);
@@ -69,11 +79,39 @@ const ObjectChoiceDialog = ({
 						tabIndex={-1}
 						className="text-lg font-semibold"
 					>
-						{object ? OBJECT_DEFINITIONS[object.kind].name : "Object"}
+						{object
+							? OBJECT_DEFINITIONS[object.kind].name
+							: "Interact with surroundings"}
 					</Dialog.Title>
 					<Dialog.Description className="text-sm text-muted-foreground">
 						Choose an interaction. Inspection and canceling use no turn.
 					</Dialog.Description>
+					{!object &&
+						targets.map((target, index) => (
+							<Button
+								key={target.id}
+								variant="outline"
+								className="h-auto justify-start gap-3 whitespace-normal p-3 text-left"
+								onClick={() => choose(index)}
+							>
+								<kbd className="rounded border px-2 py-1">{index + 1}</kbd>
+								<span className="size-6 shrink-0">
+									<DungeonObjectIcon object={target} />
+								</span>
+								<span>
+									<span className="block font-medium">
+										{target.kind === "door"
+											? target.activated
+												? "Close open door"
+												: "Open closed door"
+											: OBJECT_DEFINITIONS[target.kind].name}
+									</span>
+									<span className="block text-xs font-normal text-muted-foreground">
+										{describeObject(target)}
+									</span>
+								</span>
+							</Button>
+						))}
 					{choices.map((choice, index) => (
 						<Button
 							key={choice.value}

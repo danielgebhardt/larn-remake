@@ -22,10 +22,7 @@ export type InteractAction = {
 	objectId?: string;
 	choice?: ObjectChoice;
 };
-export const nearbyInteractionObject = (
-	state: GameState,
-	objectId?: string,
-) => {
+export const nearbyInteractionObjects = (state: GameState) => {
 	const nearby = state.objects.filter(
 		(object) =>
 			object.floorNumber === state.run.activeFloor &&
@@ -43,15 +40,19 @@ export const nearbyInteractionObject = (
 					: coordinate.row > player.row
 						? 3
 						: 4;
-	const object = objectId
-		? nearby.find((object) => object.id === objectId)
-		: [...nearby].sort(
-				(a, b) =>
-					Number(a.kind !== "door" && a.activated) -
-						Number(b.kind !== "door" && b.activated) ||
-					order(a.coordinate) - order(b.coordinate),
-			)[0];
-	return object;
+	return [...nearby].sort(
+		(a, b) =>
+			Number(a.kind !== "door" && a.activated) -
+				Number(b.kind !== "door" && b.activated) ||
+			order(a.coordinate) - order(b.coordinate),
+	);
+};
+export const nearbyInteractionObject = (
+	state: GameState,
+	objectId?: string,
+) => {
+	const nearby = nearbyInteractionObjects(state);
+	return objectId ? nearby.find((object) => object.id === objectId) : nearby[0];
 };
 export const interactObject = (
 	state: GameState,

@@ -334,6 +334,32 @@ export const ITEM_DEFINITIONS = {
 		foundWeight: 0,
 		dropWeight: 0,
 	},
+	"book-fireball": {
+		name: "Spellbook: Fireball",
+		type: "spellbook",
+		teaches: "fireball",
+		attackBonus: 0,
+		armor: 0,
+		description:
+			"Learn Fireball: 8 mana. Range 6, radius 1, damage 6–10 plus Intelligence. Enemies only; walls block the blast. Reading uses one turn and no bag slot.",
+		minFloor: 9,
+		maxFloor: 20,
+		foundWeight: 0,
+		dropWeight: 0,
+	},
+	"book-frost-nova": {
+		name: "Spellbook: Frost Nova",
+		type: "spellbook",
+		teaches: "frost-nova",
+		attackBonus: 0,
+		armor: 0,
+		description:
+			"Learn Frost Nova: 8 mana. Self-centered radius 2, damage 3–5 plus Intelligence and three-phase slow. Walls block the blast. Reading uses one turn and no bag slot.",
+		minFloor: 8,
+		maxFloor: 20,
+		foundWeight: 0,
+		dropWeight: 0,
+	},
 	"mana-potion": {
 		name: "Mana potion",
 		type: "potion",

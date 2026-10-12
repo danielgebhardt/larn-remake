@@ -25,6 +25,7 @@ type DungeonLayoutProps = DungeonKeyboardOptions & {
 	upStair?: Coordinate;
 	entrance?: Coordinate;
 	targetIds?: readonly string[];
+	spellArea?: readonly Coordinate[];
 	selectedTargetId?: string;
 	onTargetRequested?: (id: string) => void;
 	mapRef?: RefObject<HTMLElement | null>;
@@ -52,6 +53,7 @@ const DungeonLayout = ({
 	onSpellSlotRequested,
 	onTargetingKey,
 	targetIds,
+	spellArea,
 	selectedTargetId,
 	onTargetRequested,
 	mapRef,
@@ -61,6 +63,15 @@ const DungeonLayout = ({
 	monsters = NO_MONSTERS,
 	floorItems = NO_ITEMS,
 }: DungeonLayoutProps) => {
+	const spellRows = useMemo(() => {
+		const rows = new Map<number, number[]>();
+		for (const tile of spellArea ?? []) {
+			const columns = rows.get(tile.row) ?? [];
+			columns.push(tile.col);
+			rows.set(tile.row, columns);
+		}
+		return rows;
+	}, [spellArea]);
 	const threatRows = useMemo(() => {
 		const rows = new Map<number, Set<number>>();
 		for (const monster of monsters) {
@@ -197,6 +208,7 @@ const DungeonLayout = ({
 							monsters={monsterRows.get(rowIndex)}
 							floorItems={itemRows.get(rowIndex)}
 							threatColumns={threatRows.get(rowIndex)}
+							spellColumns={spellRows.get(rowIndex)}
 							visible={visible?.[rowIndex]}
 							explored={explored?.[rowIndex]}
 							playerColumn={

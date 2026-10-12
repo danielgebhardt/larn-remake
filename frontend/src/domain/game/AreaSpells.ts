@@ -1,0 +1,87 @@
+import type { Coordinate, Dungeon } from "../dungeon/DungeonTypes";
+import { FLOOR } from "../dungeon/Tiles";
+import { hasLineOfSight } from "../dungeon/Visibility";
+import {
+	coordinateKey,
+	orthogonalDistance,
+} from "../monsters/MonsterLocations";
+import type { AttackRollSource } from "./CombatRandomness";
+import type { GameState } from "./GameState";
+import { damageMonster } from "./MonsterDamage";
+import { SPELL_DEFINITIONS, type SpellKind, spellPotency } from "./Spells";
+import { applyTimedEffect } from "./TimedEffects";
+
+// The resolver and preview use the same wall-aware footprint.
+export const spellArea = (
+	terrain: Dungeon,
+	center: Coordinate,
+	radius: number,
+): Coordinate[] => {
+	const tiles: Coordinate[] = [];
+	for (
+		let row = Math.max(0, center.row - radius);
+		row <= Math.min(terrain.length - 1, center.row + radius);
+		row++
+	)
+		for (
+			let col = Math.max(0, center.col - radius);
+			col <= Math.min(terrain[row].length - 1, center.col + radius);
+			col++
+		) {
+			const tile = { row, col };
+			if (
+				terrain[row][col] === FLOOR &&
+				orthogonalDistance(center, tile) <= radius &&
+				hasLineOfSight(terrain, center, tile)
+			)
+				tiles.push(tile);
+		}
+	return tiles;
+};
+export const castAreaSpell = (
+	state: GameState,
+	spell: SpellKind,
+	center: Coordinate,
+	rolls: AttackRollSource,
+): { state: GameState } | { error: string } => {
+	const definition = SPELL_DEFINITIONS[spell];
+	const potency = spellPotency(state.progression, definition);
+	if (
+		potency.effect !== "damage" ||
+		!("radius" in definition) ||
+		definition.radius === undefined
+	)
+		return { error: "Invalid area spell." };
+	const area = new Set(
+		spellArea(
+			state.run.floors[state.run.activeFloor - 1].terrain,
+			center,
+			definition.radius,
+		).map(coordinateKey),
+	);
+	const targets = state.monsters
+		.filter(
+			(monster) =>
+				monster.health > 0 &&
+				monster.floorNumber === state.run.activeFloor &&
+				area.has(coordinateKey(monster.coordinate)),
+		)
+		.sort((a, b) => a.id.localeCompare(b.id, undefined, { numeric: true }));
+	if (!targets.length) return { error: "No monsters within the spell area." };
+	let next = { ...state, mana: state.mana - definition.cost };
+	// Potency is fixed before any kills can increase the caster's level.
+	for (const target of targets) {
+		const damage = rolls({
+			seed: state.run.seed,
+			floorNumber: state.run.activeFloor,
+			turn: state.turn,
+			attackerId: `player:spell:${spell}`,
+			targetId: target.id,
+		}).damage(potency.minimumDamage, potency.maximumDamage);
+		next = damageMonster(next, target, damage, { type: "spell-hit", spell });
+		const survivor = next.monsters.find((monster) => monster.id === target.id);
+		if (survivor && "condition" in definition)
+			next = applyTimedEffect(next, survivor, definition.condition);
+	}
+	return { state: next };
+};

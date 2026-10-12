@@ -1,4 +1,6 @@
 import {
+	Bomb,
+	CircleDashed,
 	Droplets,
 	Flame,
 	Footprints,
@@ -36,6 +38,8 @@ export const SPELL_ICONS = {
 	fear: Ghost,
 	"poison-dart": Droplets,
 	renewal: HeartPulse,
+	fireball: Bomb,
+	"frost-nova": CircleDashed,
 	blink: Move,
 	"teleport-away": Orbit,
 	protection: Shield,

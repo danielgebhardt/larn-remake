@@ -3,6 +3,7 @@ import { hasLineOfSight } from "../dungeon/Visibility";
 import type { Monster } from "../monsters/Monster";
 import { orthogonalDistance } from "../monsters/MonsterLocations";
 import { appendActivityEvents } from "./ActivityHistory";
+import { castAreaSpell } from "./AreaSpells";
 import type { AttackRollSource } from "./CombatRandomness";
 import type { GameState } from "./GameState";
 import { damageMonster } from "./MonsterDamage";
@@ -83,6 +84,13 @@ export const castSpell = (
 			definition.cost,
 			definition.range,
 		);
+	if (definition.mode === "self" && definition.effect === "damage")
+		return castAreaSpell(
+			state,
+			action.spell,
+			state.run.playerCoordinate,
+			rolls,
+		);
 	const target = state.monsters.find(
 		(monster) => monster.id === action.targetId,
 	);
@@ -91,6 +99,8 @@ export const castSpell = (
 			error:
 				"Choose a living monster within range and clear line of sight on this floor.",
 		};
+	if ("radius" in definition && definition.radius !== undefined)
+		return castAreaSpell(state, action.spell, target.coordinate, rolls);
 	if (definition.effect === "reposition")
 		return repositionSpell(
 			state,

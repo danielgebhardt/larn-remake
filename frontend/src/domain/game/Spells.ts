@@ -13,6 +13,7 @@ export type SpellDefinition = SpellDetails &
 				maximumDamage: number;
 				condition?: EffectKind;
 				lifeDrain?: boolean;
+				radius?: number;
 		  }
 		| {
 				mode: "targeted";
@@ -22,6 +23,14 @@ export type SpellDefinition = SpellDetails &
 		  }
 		| { mode: "self"; effect: "condition"; condition: PlayerEffectKind }
 		| { mode: "self"; effect: "heal"; healing: number }
+		| {
+				mode: "self";
+				effect: "damage";
+				radius: number;
+				minimumDamage: number;
+				maximumDamage: number;
+				condition?: EffectKind;
+		  }
 		| { mode: "self"; effect: "reposition"; range: number }
 		| { mode: "targeted"; effect: "reposition"; range: number }
 	);
@@ -202,6 +211,30 @@ export const SPELL_DEFINITIONS = {
 		cost: 6,
 		description:
 			"Send one monster to a seeded safe tile farther from you on this floor. Keeps its health and conditions, cancels its prepared attack.",
+	},
+	fireball: {
+		name: "Fireball",
+		mode: "targeted",
+		effect: "damage",
+		cost: 8,
+		range: 6,
+		radius: 1,
+		minimumDamage: 6,
+		maximumDamage: 10,
+		description:
+			"Explode around one monster, hitting enemies within one step of it. Walls block the blast; no friendly fire. One turn and one mana cost.",
+	},
+	"frost-nova": {
+		name: "Frost Nova",
+		mode: "self",
+		effect: "damage",
+		cost: 8,
+		radius: 2,
+		minimumDamage: 3,
+		maximumDamage: 5,
+		condition: "slowed",
+		description:
+			"Chill visible-in-wall-sight enemies within two steps of you. Deals damage and slows survivors for three phases. No enemies costs nothing.",
 	},
 	heal: {
 		name: "Heal",

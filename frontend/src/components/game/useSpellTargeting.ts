@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import type { VisibilityGrid } from "../../domain/dungeon/Visibility";
+import { spellArea } from "../../domain/game/AreaSpells";
 import type { GameState } from "../../domain/game/GameState";
 import type { PlayerAction } from "../../domain/game/PlayerActions";
 import { isSpellTarget } from "../../domain/game/SpellCasting";
@@ -137,7 +138,15 @@ export const useSpellTargeting = (
 			);
 	};
 	const selected = targets.find((target) => target.id === targeting?.id);
+	const preview = useMemo(() => {
+		if (!selected || !selectedSpell) return undefined;
+		const definition = SPELL_DEFINITIONS[selectedSpell];
+		return "radius" in definition && definition.radius !== undefined
+			? spellArea(terrain, selected.coordinate, definition.radius)
+			: undefined;
+	}, [selected, selectedSpell, terrain]);
 	return {
+		spellArea: preview,
 		activate,
 		castTarget,
 		handleKey,

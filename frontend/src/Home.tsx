@@ -483,6 +483,7 @@ const Home = ({
 						}}
 						onTargetingKey={spells.targeting ? spells.handleKey : undefined}
 						targetIds={spells.targetIds}
+						spellArea={spells.spellArea}
 						selectedTargetId={spells.targeting?.id}
 						onTargetRequested={spells.targeting ? spells.castTarget : undefined}
 						monsters={activeMonsters}

@@ -8,6 +8,7 @@ import {
 	type SpellKind,
 	spellPotency,
 } from "../../domain/game/Spells";
+import { EFFECT_DEFINITIONS } from "../../domain/game/TimedEffects";
 import ManaDisplay from "./ManaDisplay";
 import { SPELL_ICONS } from "./SpellHotbarView";
 
@@ -82,7 +83,9 @@ const SpellsView = ({
 							<p className="font-medium tabular-nums">
 								{potency.effect === "heal"
 									? `Heal up to ${potency.healing} health · ${definition.cost} mana`
-									: `Damage ${potency.minimumDamage}–${potency.maximumDamage} · ${definition.cost} mana`}
+									: potency.effect === "condition"
+										? `${EFFECT_DEFINITIONS[potency.condition].name} · ${EFFECT_DEFINITIONS[potency.condition].duration} active phases · ${definition.cost} mana`
+										: `Damage ${potency.minimumDamage}–${potency.maximumDamage} · ${definition.cost} mana`}
 							</p>
 							<fieldset
 								aria-label={`Assign ${definition.name} shortcut`}

@@ -13,10 +13,11 @@ import {
 	deriveAccuracy,
 	resolveMeleeAttack,
 } from "../game/MeleeRules";
-import { monsterSkipsAction } from "../game/TimedEffects";
+import { hasMonsterEffect, monsterSkipsAction } from "../game/TimedEffects";
 import { MONSTER_DEFINITIONS } from "./Monster";
 import { orthogonalDistance } from "./MonsterLocations";
 import { detectsPlayer, selectPursuitStep } from "./MonsterPursuit";
+import { selectRetreatStep } from "./MonsterRetreat";
 
 // The player phase has already chosen the active floor and turn number.
 export const resolveMonsterPhase = (
@@ -39,6 +40,16 @@ export const resolveMonsterPhase = (
 	for (const monster of active) {
 		if (player.health <= 0) break;
 		if (monsterSkipsAction(state, monster)) continue;
+		if (hasMonsterEffect(state, monster, "afraid")) {
+			const coordinate = hasMonsterEffect(state, monster, "rooted")
+				? undefined
+				: selectRetreatStep(state.run, monster, monsters);
+			if (coordinate)
+				monsters = monsters.map((actor) =>
+					actor.id === monster.id ? { ...actor, coordinate } : actor,
+				);
+			continue;
+		}
 		// Both attack range and prepared-target adjacency use Manhattan distance.
 		const distance = orthogonalDistance(
 			monster.coordinate,
@@ -92,7 +103,9 @@ export const resolveMonsterPhase = (
 			distance >= 2 &&
 			distance <= definition.rangedAttackRange;
 		if (distance !== 1 && !shooting) {
-			const coordinate = selectPursuitStep(state.run, monster, monsters);
+			const coordinate = hasMonsterEffect(state, monster, "rooted")
+				? undefined
+				: selectPursuitStep(state.run, monster, monsters);
 			if (coordinate)
 				monsters = monsters.map((actor) =>
 					actor.id === monster.id ? { ...actor, coordinate } : actor,

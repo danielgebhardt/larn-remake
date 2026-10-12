@@ -73,6 +73,14 @@ export const castSpell = (
 			error:
 				"Choose a living monster within range and clear line of sight on this floor.",
 		};
+	if (potency.effect === "condition")
+		return {
+			state: applyTimedEffect(
+				{ ...state, mana: state.mana - definition.cost },
+				target,
+				potency.condition,
+			),
+		};
 	const damage = rolls({
 		seed: state.run.seed,
 		floorNumber: state.run.activeFloor,

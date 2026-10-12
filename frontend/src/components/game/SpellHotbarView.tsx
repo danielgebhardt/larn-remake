@@ -1,8 +1,11 @@
 import {
 	Flame,
+	Ghost,
 	HeartHandshake,
 	HeartPlus,
+	Moon,
 	Mountain,
+	Network,
 	Snowflake,
 	Sparkles,
 	Waves,
@@ -21,6 +24,9 @@ export const SPELL_ICONS = {
 	"stone-lance": Mountain,
 	"sonic-spear": Waves,
 	"drain-life": HeartHandshake,
+	web: Network,
+	sleep: Moon,
+	fear: Ghost,
 };
 const SpellHotbarView = ({
 	knownSpells,

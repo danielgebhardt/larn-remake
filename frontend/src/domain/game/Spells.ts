@@ -14,6 +14,12 @@ export type SpellDefinition = SpellDetails &
 				condition?: EffectKind;
 				lifeDrain?: boolean;
 		  }
+		| {
+				mode: "targeted";
+				effect: "condition";
+				condition: EffectKind;
+				range: number;
+		  }
 		| { mode: "self"; effect: "heal"; healing: number }
 	);
 
@@ -97,6 +103,37 @@ export const SPELL_DEFINITIONS = {
 			"A close-range attack that restores health equal to actual damage dealt, up to your missing health.",
 	},
 
+	web: {
+		name: "Web",
+		mode: "targeted",
+		effect: "condition",
+		condition: "rooted",
+		cost: 3,
+		range: 4,
+		description:
+			"Web one monster for three active phases. It cannot move, but can still attack if in range.",
+	},
+	sleep: {
+		name: "Sleep",
+		mode: "targeted",
+		effect: "condition",
+		condition: "asleep",
+		cost: 5,
+		range: 4,
+		description:
+			"Put one monster to sleep for three active phases. Any damage wakes it before its response. Cancels prepared attacks.",
+	},
+	fear: {
+		name: "Fear",
+		mode: "targeted",
+		effect: "condition",
+		condition: "afraid",
+		cost: 4,
+		range: 5,
+		description:
+			"Force one monster to retreat for three active phases instead of attacking. Cancels prepared attacks; blocked escape still consumes its action.",
+	},
+
 	heal: {
 		name: "Heal",
 		mode: "self",
@@ -131,6 +168,8 @@ export const spellPotency = (
 				minimumDamage: definition.minimumDamage + modifier,
 				maximumDamage: definition.maximumDamage + modifier,
 			} as const;
+		case "condition":
+			return { effect: "condition", condition: definition.condition } as const;
 		case "heal":
 			return {
 				effect: "heal",

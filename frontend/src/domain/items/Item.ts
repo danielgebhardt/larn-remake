@@ -203,6 +203,46 @@ export const ITEM_DEFINITIONS = {
 		dropWeight: 0,
 	},
 
+	"book-web": {
+		name: "Spellbook: Web",
+		type: "spellbook",
+		teaches: "web",
+		attackBonus: 0,
+		armor: 0,
+		description:
+			"Pick up to learn Web: 3 mana, range 4. Web one monster for three active phases. It cannot move, but can still attack if in range. Reading uses one turn and no bag slot.",
+		minFloor: 2,
+		maxFloor: 9,
+		foundWeight: 0,
+		dropWeight: 0,
+	},
+	"book-sleep": {
+		name: "Spellbook: Sleep",
+		type: "spellbook",
+		teaches: "sleep",
+		attackBonus: 0,
+		armor: 0,
+		description:
+			"Pick up to learn Sleep: 5 mana, range 4. Put one monster to sleep for three active phases. Any damage wakes it before its response. Cancels prepared attacks. Reading uses one turn and no bag slot.",
+		minFloor: 3,
+		maxFloor: 11,
+		foundWeight: 0,
+		dropWeight: 0,
+	},
+	"book-fear": {
+		name: "Spellbook: Fear",
+		type: "spellbook",
+		teaches: "fear",
+		attackBonus: 0,
+		armor: 0,
+		description:
+			"Pick up to learn Fear: 4 mana, range 5. Force one monster to retreat for three active phases instead of attacking. Cancels prepared attacks; blocked escape still consumes its action. Reading uses one turn and no bag slot.",
+		minFloor: 4,
+		maxFloor: 14,
+		foundWeight: 0,
+		dropWeight: 0,
+	},
+
 	"mana-potion": {
 		name: "Mana potion",
 		type: "potion",

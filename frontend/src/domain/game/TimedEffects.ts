@@ -4,6 +4,9 @@ import type { GameState } from "./GameState";
 
 export const EFFECT_DEFINITIONS = {
 	slowed: { name: "Slowed", duration: 3 },
+	rooted: { name: "Webbed", duration: 3 },
+	asleep: { name: "Asleep", duration: 3 },
+	afraid: { name: "Afraid", duration: 3 },
 } as const;
 export type EffectKind = keyof typeof EFFECT_DEFINITIONS;
 export type TimedEffect = Readonly<{
@@ -18,6 +21,14 @@ export const applyTimedEffect = (
 	kind: EffectKind,
 ): GameState => ({
 	...state,
+	monsters:
+		kind === "asleep" || kind === "afraid"
+			? state.monsters.map((actor) =>
+					actor.id === monster.id
+						? { ...actor, intent: { type: "idle" } }
+						: actor,
+				)
+			: state.monsters,
 	effects: [
 		...state.effects.filter(
 			(effect) => effect.actorId !== monster.id || effect.kind !== kind,
@@ -46,8 +57,8 @@ export const monsterSkipsAction = (
 	state.effects.some(
 		(effect) =>
 			effect.actorId === monster.id &&
-			effect.kind === "slowed" &&
-			effect.remaining % 2 === 1,
+			(effect.kind === "asleep" ||
+				(effect.kind === "slowed" && effect.remaining % 2 === 1)),
 	);
 
 // Only the action boundary calls this after a committed active-floor phase.
@@ -74,3 +85,12 @@ export const advanceTimedEffects = (state: GameState): GameState => {
 	}
 	return changed ? { ...state, effects } : state;
 };
+
+export const hasMonsterEffect = (
+	state: GameState,
+	monster: Monster,
+	kind: EffectKind,
+): boolean =>
+	state.effects.some(
+		(effect) => effect.actorId === monster.id && effect.kind === kind,
+	);

@@ -90,6 +90,17 @@ export const damageMonster = (
 	return {
 		...state,
 		monsters,
+		effects: state.effects.some(
+			(effect) =>
+				effect.actorId === monster.id &&
+				(health === 0 || (damage > 0 && effect.kind === "asleep")),
+		)
+			? state.effects.filter(
+					(effect) =>
+						effect.actorId !== monster.id ||
+						(health > 0 && effect.kind !== "asleep"),
+				)
+			: state.effects,
 		monstersDefeated: state.monstersDefeated + (health === 0 ? 1 : 0),
 		player,
 		progression,

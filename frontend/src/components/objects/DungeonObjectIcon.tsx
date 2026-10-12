@@ -1,5 +1,6 @@
 import {
 	Archive,
+	ArchiveX,
 	Armchair,
 	Coins,
 	DoorClosed,
@@ -25,12 +26,16 @@ const icons: Record<DungeonObjectKind, LucideIcon> = {
 };
 const DungeonObjectIcon = ({ object }: { object: DungeonObject }) => {
 	const Icon =
-		object.kind === "door" && object.activated ? DoorOpen : icons[object.kind];
+		object.kind === "door" && object.activated
+			? DoorOpen
+			: object.kind === "chest" && object.activated
+				? ArchiveX
+				: icons[object.kind];
 	return (
 		<Icon
 			aria-hidden="true"
 			focusable="false"
-			className={`size-full ${object.kind === "trap" ? "text-destructive" : object.kind === "gold" ? "text-item-equipment" : "text-object-stone"}`}
+			className={`size-full ${object.activated && object.kind !== "door" ? "opacity-50" : ""} ${object.kind === "trap" ? "text-destructive" : object.kind === "gold" ? "text-item-equipment" : "text-object-stone"}`}
 		/>
 	);
 };

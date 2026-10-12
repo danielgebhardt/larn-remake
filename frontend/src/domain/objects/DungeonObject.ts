@@ -79,7 +79,9 @@ export type DungeonObject = Readonly<{
 	coordinate: Coordinate;
 	activated: boolean;
 }>;
-export const objectLabel = (object: DungeonObject): string =>
+export const objectLabel = (
+	object: Pick<DungeonObject, "kind" | "activated">,
+): string =>
 	object.activated
 		? OBJECT_DEFINITIONS[object.kind].usedLabel
 		: OBJECT_DEFINITIONS[object.kind].freshLabel;

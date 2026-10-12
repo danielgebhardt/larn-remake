@@ -222,4 +222,10 @@ Shrines of insight have a seeded chance to appear from floor 3. E opens a free i
 
 The domain verifies reach, live shrine, explicit choice and sufficient funds before changing anything. Insufficient gold is a free, atomic rejection; payment, spent state and XP commit together. Existing format v10 persists all three, and saved continuation cannot pay again. Three domain tests failed before implementation and now cover inspection/insufficient funds, exact payment/growth and validated continuation. The Home test verifies terms before acceptance, one keyboard-selected turn, map focus and no second offering. Browser accepted a controlled floor-one 15-gold/24-XP offering: wallet 20→5, level 1→2, with ordered offering/XP/growth messages. Natural shrine spawns still begin at floor 3.
 
-Paused at the developer’s request after this story’s commit. Next unstarted story is #193; then #196–#200 remain.
+The developer resumed the branch with prioritized playtest follow-ups before the remaining discovery/balance stories.
+
+## #205 — Object descriptions and spent discoveries
+
+Visible objects within one tile now have a compact contextual description, including controls and whether their reward/power is spent. It also appears immediately on loading a run. Entering an object tile logs one description at the action boundary, covering walking and player relocation without logging unrelated waits, renders or load events. This shares one description vocabulary with free E feedback. Active objects take precedence over spent ones when selecting an interaction, while a lone opened chest now explains itself instead of reporting no object.
+
+Opened chests use a crossed archive icon; spent non-door objects fade while retaining accessible state labels and ordinary fog rules. Remaining chest loot still takes icon/pickup priority. No reward, turn or saved-state structure changed; the new historical event is validated by the existing event schema. Failing arrival/feedback tests now pass, context tests hide unknown/inactive-floor objects, and validated saved history continues without duplicate arrival entries. Browser displayed the spent-chest hint on import and a single entry message after Right.

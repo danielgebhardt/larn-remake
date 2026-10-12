@@ -5,6 +5,7 @@ import { drawFountain } from "./DungeonFountains";
 import { offerAtShrine } from "./DungeonShrines";
 import { resolveThroneChoice } from "./DungeonThrones";
 import { disarmTrap } from "./DungeonTraps";
+import { describeObject } from "./ObjectDescriptions";
 import { openChest } from "./TreasureChests";
 export type ObjectChoice = "sip" | "draw" | "leave" | "sit" | "pry" | "offer";
 export type InteractAction = {
@@ -20,8 +21,7 @@ export const nearbyInteractionObject = (
 		(object) =>
 			object.floorNumber === state.run.activeFloor &&
 			orthogonalDistance(object.coordinate, state.run.playerCoordinate) <= 1 &&
-			object.kind !== "gold" &&
-			(object.kind === "door" || !object.activated),
+			object.kind !== "gold",
 	);
 	const player = state.run.playerCoordinate;
 	const order = (coordinate: { row: number; col: number }) =>
@@ -36,7 +36,12 @@ export const nearbyInteractionObject = (
 						: 4;
 	const object = objectId
 		? nearby.find((object) => object.id === objectId)
-		: [...nearby].sort((a, b) => order(a.coordinate) - order(b.coordinate))[0];
+		: [...nearby].sort(
+				(a, b) =>
+					Number(a.kind !== "door" && a.activated) -
+						Number(b.kind !== "door" && b.activated) ||
+					order(a.coordinate) - order(b.coordinate),
+			)[0];
 	return object;
 };
 export const interactObject = (
@@ -46,6 +51,8 @@ export const interactObject = (
 	const object = nearbyInteractionObject(state, action.objectId);
 	const player = state.run.playerCoordinate;
 	if (!object) return { error: "No object within reach." };
+	if (object.kind !== "door" && object.activated)
+		return { error: describeObject(object) };
 	if (action.choice === "leave") return { error: "You leave it untouched." };
 	if (object.kind === "shrine")
 		return offerAtShrine(state, object, action.choice);

@@ -4,10 +4,13 @@ import { EFFECT_DEFINITIONS } from "../../domain/game/TimedEffects";
 import { EQUIPMENT_SLOT_LABELS } from "../../domain/items/Equipment";
 import { ITEM_DEFINITIONS } from "../../domain/items/Item";
 import { MONSTER_DEFINITIONS } from "../../domain/monsters/Monster";
+import { describeObject } from "../../domain/objects/ObjectDescriptions";
 
 export const formatActivityEvent = (event: ActivityEvent): string => {
 	const prefix = `Turn ${event.turn} — `;
 	switch (event.type) {
+		case "object-seen":
+			return `${prefix}${describeObject(event)}`;
 		case "shrine-offered":
 			return `${prefix}You offer ${event.gold} gold at the shrine of insight. Its blessing is spent.`;
 		case "throne-wound":

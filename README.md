@@ -457,3 +457,5 @@ Ancient fountains (floor 2+) offer a safe sip or risky draw. **E** opens a choic
 Forgotten thrones (floor 4+) offer **sit**, **pry treasure**, or free cancellation. The dialog describes the fixed risk distribution before choosing. Blessings grant ordinary XP; other outcomes restore resources, poison/wound the player, relocate safely within the same floor, or grant gold. A committed choice spends the throne for the rest of the adventure.
 
 Shrines of insight (floor 3+) exchange **10 + 5 × floor gold** for **20 + 4 × floor XP** with ordinary automatic growth. **E** displays the exact price and benefit before accepting with **1**; **Escape** cancels freely. An offering takes one turn and spends the shrine. Insufficient gold changes nothing. Paid gold, XP and spent state persist in saves.
+
+Visible nearby dungeon objects show their controls and live/spent state below the map. Entering an object tile adds a description to the activity log. Opened chests remain as faded crossed-chest markers; their remaining loot is on the floor for G pickup. Inspecting a spent object explains its state without taking a turn.

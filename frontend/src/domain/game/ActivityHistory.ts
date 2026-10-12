@@ -9,6 +9,11 @@ import type { SpellKind } from "./Spells";
 import type { EffectKind } from "./TimedEffects";
 
 export type ActivityEvent = { turn: number } & (
+	| {
+			type: "object-seen";
+			kind: import("../objects/DungeonObject").DungeonObjectKind;
+			activated: boolean;
+	  }
 	| { type: "shrine-offered"; gold: number }
 	| {
 			type: "throne-used";

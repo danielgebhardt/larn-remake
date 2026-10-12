@@ -15,6 +15,7 @@ import { BAG_CAPACITY } from "../items/Bag";
 import { EQUIPMENT_SLOT_LABELS } from "../items/Equipment";
 import { ITEM_DEFINITIONS } from "../items/Item";
 import { MONSTER_DEFINITIONS } from "../monsters/Monster";
+import { OBJECT_DEFINITIONS } from "../objects/DungeonObject";
 import type { SaveDocumentV1 } from "./SaveDocumentV1";
 
 // Small runtime schemas keep untrusted JSON out of the typed game model.
@@ -95,6 +96,10 @@ const victory = object({
 });
 
 const eventFields = {
+	"object-seen": {
+		kind: oneOf(Object.keys(OBJECT_DEFINITIONS)),
+		activated: boolean,
+	},
 	"shrine-offered": { gold: integer(1, 110) },
 	"throne-used": {
 		outcome: oneOf([

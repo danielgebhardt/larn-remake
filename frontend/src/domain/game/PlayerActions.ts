@@ -26,6 +26,7 @@ import { resolveMonsterPhase } from "../monsters/MonsterTurns";
 import { triggerArrivalTrap } from "../objects/DungeonTraps";
 import { collectGoldAtPlayer } from "../objects/Gold";
 import { navigationRun } from "../objects/NavigationTerrain";
+import { announceObjectArrival } from "../objects/ObjectDescriptions";
 import {
 	type InteractAction,
 	interactObject,
@@ -144,7 +145,10 @@ export const resolvePlayerAction = (
 	const effect = resolvePlayerEffect(committed, action, rollSource);
 	const result =
 		effect && !("error" in effect)
-			? triggerArrivalTrap(collectGoldAtPlayer(effect))
+			? announceObjectArrival(
+					state,
+					triggerArrivalTrap(collectGoldAtPlayer(effect)),
+				)
 			: effect;
 	if (!result) return { state, turnAdvanced: false };
 	if ("error" in result)

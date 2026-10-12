@@ -19,6 +19,7 @@ import { useSpellTargeting } from "./components/game/useSpellTargeting";
 import VictoryDialog from "./components/game/VictoryDialog";
 import VisibleEffects from "./components/game/VisibleEffects";
 import ObjectChoiceDialog from "./components/objects/ObjectChoiceDialog";
+import ObjectContext from "./components/objects/ObjectContext";
 import {
 	connectDungeonFloors,
 	type DungeonRun,
@@ -266,7 +267,8 @@ const Home = ({
 
 	const handleInteractRequested = () => {
 		const object = nearbyInteractionObject(game.state);
-		if (object && objectChoices(object).length) setInteractionObject(object);
+		if (object && !object.activated && objectChoices(object).length)
+			setInteractionObject(object);
 		else handleActionRequested({ type: "interact" });
 	};
 	const mapInputAvailable =
@@ -571,6 +573,10 @@ const Home = ({
 							{game.actionError}
 						</p>
 					)}
+					<ObjectContext
+						state={game.state}
+						visible={fogConfiguration.enabled ? exploration.visible : undefined}
+					/>
 					<ActivityLog history={game.state.activityHistory} />
 				</section>
 			</main>

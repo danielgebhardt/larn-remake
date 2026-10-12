@@ -1,0 +1,82 @@
+import { appendActivityEvents } from "../game/ActivityHistory";
+import type { GameState } from "../game/GameState";
+import {
+	type DungeonObject,
+	type DungeonObjectKind,
+	objectLabel,
+} from "./DungeonObject";
+
+const hints: Record<DungeonObjectKind, { fresh: string; spent: string }> = {
+	door: {
+		fresh: "Bump to open, or press E within reach. Enemies cannot open doors.",
+		spent:
+			"Press E within reach to close after stepping out of the doorway. Occupied doors cannot close.",
+	},
+	chest: {
+		fresh:
+			"Press E within reach to open. Its reward stays on the floor for G pickup.",
+		spent:
+			"Already opened; any remaining reward is on the floor. Press G to collect items here.",
+	},
+	trap: {
+		fresh:
+			"Cross for 2–6 damage, or press E within reach to attempt disarm. Failure springs it.",
+		spent: "Already spent; it cannot hurt you again.",
+	},
+	fountain: {
+		fresh:
+			"Press E within reach to choose a safe sip or risky draw. Escape cancels freely.",
+		spent: "Dry; no more water remains.",
+	},
+	throne: {
+		fresh:
+			"Press E within reach to review the risks of sitting or prying treasure. Escape leaves it untouched.",
+		spent: "Its power is spent; it cannot grant another reward.",
+	},
+	shrine: {
+		fresh:
+			"Press E within reach to review the gold-for-XP offering. Escape cancels freely.",
+		spent: "Already blessed; it accepts no further offering.",
+	},
+	gold: {
+		fresh: "Walk onto the coins to collect them without bag space.",
+		spent: "Already collected.",
+	},
+};
+export const describeObject = (
+	object: Pick<DungeonObject, "kind" | "activated">,
+): string => {
+	const label = objectLabel(object);
+	return `${label[0].toUpperCase()}${label.slice(1)}. ${object.activated ? hints[object.kind].spent : hints[object.kind].fresh}`;
+};
+export const announceObjectArrival = (
+	before: GameState,
+	after: GameState,
+): GameState => {
+	if (
+		before.run.activeFloor === after.run.activeFloor &&
+		before.run.playerCoordinate.row === after.run.playerCoordinate.row &&
+		before.run.playerCoordinate.col === after.run.playerCoordinate.col
+	)
+		return after;
+	const object = after.objects.find(
+		(entry) =>
+			entry.floorNumber === after.run.activeFloor &&
+			entry.kind !== "gold" &&
+			entry.coordinate.row === after.run.playerCoordinate.row &&
+			entry.coordinate.col === after.run.playerCoordinate.col,
+	);
+	return object
+		? {
+				...after,
+				activityHistory: appendActivityEvents(after.activityHistory, [
+					{
+						type: "object-seen",
+						kind: object.kind,
+						activated: object.activated,
+						turn: after.turn,
+					},
+				]),
+			}
+		: after;
+};

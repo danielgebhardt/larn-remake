@@ -197,3 +197,9 @@ Gold appears in the HUD, Character footer and victory summary, consumes no inven
 A seeded chance places at most one chest per floor in a safe room tile. E opens a reachable chest for one normal turn. Its identity selects depth-appropriate ordinary loot from an independent reward stream; the item is retained on the floor and collected with G after walking onto it. A full bag never blocks opening or destroys the reward. Reopening is a free rejection, including after save/load.
 
 Room objects now share safe placement while retaining separate presence/location namespaces. The object’s existing activated field represents an opened chest, so format v10 can persist it without another structural migration. Three tests failed first, then passed for one-time rewards, full-bag retention, deep eligibility and played continuation. Browser E displayed the chest reward and keyboard pickup instructions.
+
+## #189 — Visible, finite traps
+
+Traps appear from floor 2 in safe room tiles, never protected entrances/arrivals. Red warning icons remain subject to ordinary fog. Walking or blinking onto a live trap springs it in that action’s existing turn for identity-seeded 2–6 damage, ignoring armor. E attempts a disarm for one turn: 55% at starting Dexterity, +5% per modifier, capped at 95%. Failure springs it; success/failure both retain spent state, preventing repeat rolls. Help states the risk and controls.
+
+Four tests failed first and now cover movement/revisits, deterministic disarm, fatal damage before retaliation/recovery and validated save continuation. The action boundary now ends immediately after any fatal player-phase effect, avoiding a Renewal resurrection. No new structural save field is required. Browser showed the warning tile, then one Right move spent it and logged two damage.

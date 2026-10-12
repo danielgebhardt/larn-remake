@@ -4,6 +4,7 @@ import {
 	DoorClosed,
 	DoorOpen,
 	type LucideIcon,
+	TriangleAlert,
 } from "lucide-react";
 import type {
 	DungeonObject,
@@ -14,6 +15,7 @@ const icons: Record<DungeonObjectKind, LucideIcon> = {
 	door: DoorClosed,
 	gold: Coins,
 	chest: Archive,
+	trap: TriangleAlert,
 };
 const DungeonObjectIcon = ({ object }: { object: DungeonObject }) => {
 	const Icon =
@@ -22,7 +24,7 @@ const DungeonObjectIcon = ({ object }: { object: DungeonObject }) => {
 		<Icon
 			aria-hidden="true"
 			focusable="false"
-			className={`size-full ${object.kind === "gold" ? "text-item-equipment" : "text-object-stone"}`}
+			className={`size-full ${object.kind === "trap" ? "text-destructive" : object.kind === "gold" ? "text-item-equipment" : "text-object-stone"}`}
 		/>
 	);
 };

@@ -189,11 +189,15 @@ const DungeonHelp = ({
 						stair tile to change floors automatically.
 					</li>
 					<li>
-						<span className="font-medium text-foreground">Doors.</span> Bump a
+						<span className="font-medium text-foreground">Objects.</span> Bump a
 						closed door to open it, or use E to toggle a door within one step.
 						Opening takes a turn without entering. Occupied doors cannot close.
 						Closed doors block sight, spells and pursuit; monsters do not open
-						them yet.
+						them yet. E also opens nearby chests, leaving loot on the floor for
+						G pickup. Walking onto coins collects gold. Traps are visible: avoid
+						them, cross for 2–6 damage, or use E to attempt disarm for one turn.
+						Base disarm chance is 55%, +5% per Dexterity modifier (maximum 95%);
+						failure springs the trap. Spent traps cannot hurt again.
 					</li>
 					<li>
 						<span className="font-medium text-foreground">Quest.</span> Recover

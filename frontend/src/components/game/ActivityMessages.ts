@@ -8,6 +8,10 @@ import { MONSTER_DEFINITIONS } from "../../domain/monsters/Monster";
 export const formatActivityEvent = (event: ActivityEvent): string => {
 	const prefix = `Turn ${event.turn} — `;
 	switch (event.type) {
+		case "trap-disarmed":
+			return `${prefix}You disarm the trap.`;
+		case "trap-sprung":
+			return `${prefix}The trap springs for ${event.damage} damage.`;
 		case "chest-opened":
 			return `${prefix}You open the chest. ${ITEM_DEFINITIONS[event.item].name} is on the floor; walk onto it and press G to pick it up.`;
 		case "gold-collected":

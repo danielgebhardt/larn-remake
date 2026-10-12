@@ -23,6 +23,7 @@ import {
 } from "../items/PotionHotbar";
 import type { Monster } from "../monsters/Monster.ts";
 import { resolveMonsterPhase } from "../monsters/MonsterTurns";
+import { triggerArrivalTrap } from "../objects/DungeonTraps";
 import { collectGoldAtPlayer } from "../objects/Gold";
 import { navigationRun } from "../objects/NavigationTerrain";
 import {
@@ -142,16 +143,19 @@ export const resolvePlayerAction = (
 	const committed = { ...state, turn: state.turn + 1 };
 	const effect = resolvePlayerEffect(committed, action, rollSource);
 	const result =
-		effect && !("error" in effect) ? collectGoldAtPlayer(effect) : effect;
+		effect && !("error" in effect)
+			? triggerArrivalTrap(collectGoldAtPlayer(effect))
+			: effect;
 	if (!result) return { state, turnAdvanced: false };
 	if ("error" in result)
 		return { state, turnAdvanced: false, error: result.error };
 	return {
-		state: result.quest.victory
-			? result
-			: recoverManaAfterTurn(
-					advanceTimedEffects(resolveMonsterPhase(result, rollSource)),
-				),
+		state:
+			result.quest.victory || result.player.health <= 0
+				? result
+				: recoverManaAfterTurn(
+						advanceTimedEffects(resolveMonsterPhase(result, rollSource)),
+					),
 		turnAdvanced: true,
 	};
 };

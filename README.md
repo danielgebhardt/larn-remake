@@ -449,3 +449,5 @@ New adventures can contain closed doors in passages. Bump a door to open it, or 
 Gold is tracked separately from bag capacity. Walk onto coin caches to collect them automatically; defeated monsters also grant seeded, depth-scaled gold. The total appears above the dungeon, in Character and in the victory summary. Shops are deferred.
 
 Treasure chests can appear in safe room tiles. Press **E** within reach to open one for a turn. Its seeded, depth-appropriate reward remains on the floor even with a full bag. Walk onto the reward and press **G** to collect it. An opened chest cannot pay again, including after loading.
+
+Visible traps (floor 2+) show red warning icons. Crossing springs one for 2–6 damage within the movement turn. **E** attempts disarm: starting chance 55%, increasing 5% per Dexterity modifier up to 95%. Failure springs it. Both outcomes spend the trap permanently; protected stairs and starts never contain one.

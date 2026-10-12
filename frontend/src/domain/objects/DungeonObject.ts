@@ -10,6 +10,16 @@ export const OBJECT_DEFINITIONS = {
 		chance: 1,
 		placement: "passage",
 	},
+	trap: {
+		name: "Visible trap",
+		freshLabel: "visible trap",
+		usedLabel: "spent trap",
+		minFloor: 2,
+		maxFloor: 20,
+		maxPerFloor: 2,
+		chance: 0.6,
+		placement: "room",
+	},
 	chest: {
 		name: "Treasure chest",
 		freshLabel: "treasure chest",

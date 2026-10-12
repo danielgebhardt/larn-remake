@@ -49,6 +49,7 @@ const adventure = (): GameState => {
 	};
 	return {
 		...createGameState(run),
+		objects: [],
 		bag: createBag([{ id: "health", kind: "healing-potion" }]),
 		monsters: [
 			{

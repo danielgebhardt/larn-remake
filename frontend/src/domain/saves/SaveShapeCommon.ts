@@ -95,6 +95,8 @@ const victory = object({
 });
 
 const eventFields = {
+	"trap-disarmed": {},
+	"trap-sprung": { damage: integer(1, 6) },
 	"chest-opened": { item: itemKind },
 	"gold-collected": { amount: integer(1) },
 	"player-condition-applied": {

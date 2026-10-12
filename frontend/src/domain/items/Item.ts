@@ -176,7 +176,7 @@ export const ITEM_DEFINITIONS = {
 	},
 	"iron-sword": {
 		minFloor: 2,
-		maxFloor: MAX_FLOORS,
+		maxFloor: 8,
 		foundWeight: 2,
 		dropWeight: 2,
 		name: "Iron sword",
@@ -188,7 +188,7 @@ export const ITEM_DEFINITIONS = {
 	},
 	"short-sword": {
 		minFloor: 1,
-		maxFloor: MAX_FLOORS,
+		maxFloor: 4,
 		foundWeight: 2,
 		dropWeight: 3,
 		name: "Short sword",
@@ -199,7 +199,7 @@ export const ITEM_DEFINITIONS = {
 	},
 	"wooden-shield": {
 		minFloor: 1,
-		maxFloor: MAX_FLOORS,
+		maxFloor: 5,
 		foundWeight: 2,
 		dropWeight: 3,
 		name: "Wooden shield",
@@ -301,7 +301,7 @@ export const ITEM_DEFINITIONS = {
 		armor: 1,
 		description: "Light chest protection. Reduces landed incoming damage by 1.",
 		minFloor: 1,
-		maxFloor: MAX_FLOORS,
+		maxFloor: 6,
 		foundWeight: 3,
 		dropWeight: 2,
 	},
@@ -313,7 +313,7 @@ export const ITEM_DEFINITIONS = {
 		description:
 			"Linked metal rings protect your chest. Reduces landed incoming damage by 2.",
 		minFloor: 3,
-		maxFloor: MAX_FLOORS,
+		maxFloor: 12,
 		foundWeight: 2,
 		dropWeight: 1,
 	},
@@ -325,7 +325,7 @@ export const ITEM_DEFINITIONS = {
 		description:
 			"A padded cap for your head. Reduces landed incoming damage by 1.",
 		minFloor: 1,
-		maxFloor: MAX_FLOORS,
+		maxFloor: 6,
 		foundWeight: 2,
 		dropWeight: 2,
 	},
@@ -336,7 +336,7 @@ export const ITEM_DEFINITIONS = {
 		armor: 2,
 		description: "A sturdy helmet. Reduces landed incoming damage by 2.",
 		minFloor: 3,
-		maxFloor: MAX_FLOORS,
+		maxFloor: 12,
 		foundWeight: 1,
 		dropWeight: 1,
 	},

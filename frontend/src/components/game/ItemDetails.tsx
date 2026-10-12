@@ -47,7 +47,11 @@ const ItemDetails = ({
 	const titleId = useId();
 	const details = ITEM_DEFINITIONS[item.kind];
 	const slots = equipmentSlotsFor(item);
-	const comparison = equippedSlot ? null : compareEquipment(item, equipment);
+	const comparisons = equippedSlot
+		? []
+		: slots
+				.map((slot) => compareEquipment(item, equipment, slot))
+				.filter((comparison) => comparison !== null);
 	const act = (action: PlayerAction) => {
 		onAction(action);
 		afterAction();
@@ -83,7 +87,12 @@ const ItemDetails = ({
 						.join(" · ")}
 				</p>
 			)}
-			{comparison && <EquipmentComparisonView comparison={comparison} />}
+			{comparisons.map((comparison) => (
+				<EquipmentComparisonView
+					key={comparison.slot}
+					comparison={comparison}
+				/>
+			))}
 			<div className="flex flex-wrap gap-2">
 				{equippedSlot ? (
 					<Button

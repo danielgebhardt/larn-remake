@@ -25,7 +25,7 @@ describe("Comparing gear with its compatible equipped slot", () => {
 			item("leather-armor"),
 			item("iron-helmet"),
 		);
-		expect(compareEquipment(item("chain-armor"), equipment)).toEqual({
+		expect(compareEquipment(item("chain-armor"), equipment)).toMatchObject({
 			slot: "chest",
 			stat: "Armor",
 			carriedValue: 2,

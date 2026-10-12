@@ -117,3 +117,11 @@ Eight behavior cases failed before adding the catalog: both loot sources honor i
 Iron/tower shields give 2/3 armor (floors 4–11/10–20); plate/dragon chest armor and steel/runic helmets give 3/4 (8–16/14–20). Found/drop bands remain inclusive. Distinct shield, layered armor and crown icons reuse the existing item color family. Scholar robe (floors 7–16) gives only 1 armor but +2 Intelligence, exercising a meaningful equipment tradeoff through the shared derived-stat path.
 
 Seven tests failed before content addition, then passed: eligible sources/depth bands, the correct equipped slot, turn charging, total armor/incoming mitigation, and robe Intelligence. Item details show non-ring attribute bonuses as well as armor. Browser equipped battle axe (Attack 4–6) and scholar robe (Armor 2, Intelligence 12), each advancing one turn. #175 expands the comparison beyond the still-simple armor-only badge.
+
+## #175 — Honest equipment comparisons and fewer obsolete deep drops
+
+Comparisons include relevant armor, attack/Strength, Dexterity, Intelligence and health/mana capacity contributions. Mixed gains/losses use a neutral blue “Tradeoff” badge with every value explained, rather than reducing a caster robe to an armor downgrade. Ring details show left and right separately; the bag badge chooses the most useful compatible slot and names it. Comparison never equips or mutates gear.
+
+Basic weapons/shields/leather gear stop appearing by floors 4–8, while chain armor and iron helmets stop at 12. Existing carried/saved equipment remains valid. At floor 20 the base found pool previously included 15 obsolete weight out of 33 (45.5%); the base drop pool included 14 out of 32 (43.8%), before individual monster preferences. Both now contain ten useful kinds with total weight 18 and zero obsolete basics. Supplies keep full-depth eligibility. These are catalog-weight calculations, not sampled player outcomes.
+
+Four domain cases initially failed where behavior was absent, then passed; two display cases verify the robe’s losses/gains and separate ring slots. Existing simple comparison assertions retain their behavior without freezing the new explanatory rows. Browser showed the robe’s −2 armor, +2 Intelligence and +2 mana capacity as a Tradeoff while inspection stayed on turn zero.

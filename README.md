@@ -428,7 +428,7 @@ Tactical continuation coverage compares full action results and actual seeded hi
 
 Saves belong to the same browser profile and origin (protocol, hostname and port). Localhost and a deployed site have separate slots; clearing site data/private-session closure can remove local saves. Export files provide backups and manual transfer. Input is capped at 4 MiB; storage failures are reported without erasing the previous slot. Measured fully explored 100×100×20 samples fit a conservative 5 MiB storage budget; see [local-save review notes](docs/local-save-review.md) for size measurements, tests and commit guidance. IndexedDB, multiple slots, autosave, further migrations and server synchronization remain future choices.
 
-Two ring slots are available in Character. Rings fit either slot; choosing a slot, swapping or unequipping uses the ordinary equipment turn rules. Save format v7 migrates older adventures with empty left/right ring slots.
+Two ring slots are available in Character. Rings fit either slot; choosing a slot, swapping or unequipping uses the ordinary equipment turn rules. Save format v8 migrates older adventures with empty left/right ring slots.
 
 Ring bonuses are derived from equipped item definitions: Strength/Dexterity/Intelligence +2, Vitality/Mana capacity +4, copper armor +1. Capacity increases do not heal/refill; removing capacity clamps current resources. Effective combat, spells and status displays use the same loadout calculations.
 
@@ -439,3 +439,5 @@ Giant spider bites poison on a landed hit: 1 damage after retaliation for three 
 Trolls recover 2 HP per active phase, up to their maximum. Damage suppresses recovery on that phase and the next. Version 7 saves retain actor-owned injury timing; older actors migrate with an unknown last-injury time while preserving health and intent.
 
 Cultists cast Ember Bolt, or Heal when badly wounded, once per three phases with actor-based staggering. Spell damage always hits and bypasses physical armor; walls and control spells can prevent the cast. Recovery phases do not grant a second attack.
+
+Elemental resistance halves damage (minimum 1) and weakness doubles it; activity messages explain the result. Salamanders and frost giants warn a fixed, wall-aware blast area for two response turns. Walk out, reposition or interrupt the source before it resolves. The source-visible countdown and marked visible tiles pause off-floor and persist in version 8 saves. Enemy area attacks currently harm only the player.

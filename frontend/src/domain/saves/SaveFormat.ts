@@ -8,14 +8,14 @@ import type {
 } from "../dungeon/RunConfiguration";
 import type { GameState } from "../game/GameState";
 import { levelForExperience } from "../game/Progression";
-import type { SaveDocumentV7 } from "./SaveDocumentV7";
+import type { SaveDocumentV8 } from "./SaveDocumentV8";
 import { validateSaveDocument } from "./SaveValidation";
 
-export const SAVE_FORMAT_VERSION = 7;
+export const SAVE_FORMAT_VERSION = 8;
 // Bound imported input before parsing. A maximum-size snapshot is measured in the review.
 export const MAX_SAVE_BYTES = 4 * 1024 * 1024;
 
-export type SaveDocument = SaveDocumentV7;
+export type SaveDocument = SaveDocumentV8;
 export type RestoredAdventure = {
 	state: GameState;
 	exploration: ExplorationState;
@@ -70,7 +70,15 @@ export const createSaveDocument = (
 				intent:
 					intent.type === "idle"
 						? { type: "idle" }
-						: { type: "preparing-attack", target: { ...intent.target } },
+						: intent.type === "preparing-area"
+							? {
+									type: "preparing-area",
+									target: { ...intent.target },
+									radius: intent.radius,
+									element: intent.element,
+									remaining: intent.remaining,
+								}
+							: { type: "preparing-attack", target: { ...intent.target } },
 			}),
 		),
 		activityHistory: state.activityHistory,

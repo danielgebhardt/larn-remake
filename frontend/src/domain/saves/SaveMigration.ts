@@ -8,6 +8,7 @@ import type { SaveDocumentV4 } from "./SaveDocumentV4";
 import type { SaveDocumentV5 } from "./SaveDocumentV5";
 import type { SaveDocumentV6 } from "./SaveDocumentV6";
 import type { SaveDocumentV7 } from "./SaveDocumentV7";
+import type { SaveDocumentV8 } from "./SaveDocumentV8";
 
 // Only migrate a structurally and semantically valid v1 snapshot. Preserve
 // played data; legacy monsters have no prepared attack to carry forward.
@@ -100,3 +101,25 @@ export const migrateSaveV6 = (legacy: SaveDocumentV6): SaveDocumentV7 => ({
 		})),
 	},
 });
+
+export const migrateSaveV7 = (legacy: SaveDocumentV7): SaveDocumentV8 => ({
+	...legacy,
+	version: 8,
+});
+
+// Each adapter handles one version; callers validate the original rules first.
+export const migratePlayedSave = (
+	document:
+		| SaveDocumentV3
+		| SaveDocumentV4
+		| SaveDocumentV5
+		| SaveDocumentV6
+		| SaveDocumentV7
+		| SaveDocumentV8,
+): SaveDocumentV8 => {
+	const v4 = document.version === 3 ? migrateSaveV3(document) : document;
+	const v5 = v4.version === 4 ? migrateSaveV4(v4) : v4;
+	const v6 = v5.version === 5 ? migrateSaveV5(v5) : v5;
+	const v7 = v6.version === 6 ? migrateSaveV6(v6) : v6;
+	return v7.version === 7 ? migrateSaveV7(v7) : v7;
+};

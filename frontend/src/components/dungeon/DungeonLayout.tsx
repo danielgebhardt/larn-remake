@@ -9,6 +9,7 @@ import {
 import type { Coordinate, Dungeon } from "../../domain/dungeon/DungeonTypes.ts";
 import { FLOOR } from "../../domain/dungeon/Tiles";
 import type { VisibilityGrid } from "../../domain/dungeon/Visibility.ts";
+import { spellArea as areaFootprint } from "../../domain/game/AreaSpells";
 import type { FloorItem } from "../../domain/items/FloorItems";
 import type { Monster } from "../../domain/monsters/Monster.ts";
 import DungeonRow from "./DungeonRow.tsx";
@@ -73,35 +74,41 @@ const DungeonLayout = ({
 		return rows;
 	}, [spellArea]);
 	const threatRows = useMemo(() => {
-		const rows = new Map<number, Set<number>>();
+		const heavy = new Map<number, Set<number>>();
+		const area = new Map<number, Set<number>>();
 		for (const monster of monsters) {
-			if (monster.health <= 0 || monster.intent.type !== "preparing-attack")
-				continue;
-			const { target } = monster.intent;
+			if (monster.health <= 0 || monster.intent.type === "idle") continue;
 			const sourceVisible =
 				visible === undefined ||
 				visible[monster.coordinate.row]?.[monster.coordinate.col];
-			const targetVisible =
-				visible === undefined ||
-				visible[target.row]?.[target.col] ||
-				(target.row === playerPosition.row &&
-					target.col === playerPosition.col);
-			if (
-				!sourceVisible ||
-				!targetVisible ||
-				dungeon[target.row]?.[target.col] !== FLOOR
-			)
-				continue;
-			const columns = rows.get(target.row) ?? new Set<number>();
-			columns.add(target.col);
-			rows.set(target.row, columns);
+			if (!sourceVisible) continue;
+			const intent = monster.intent;
+			const targets =
+				intent.type === "preparing-area"
+					? areaFootprint(dungeon, intent.target, intent.radius)
+					: [intent.target];
+			const rows = intent.type === "preparing-area" ? area : heavy;
+			for (const target of targets) {
+				const targetVisible =
+					visible === undefined ||
+					visible[target.row]?.[target.col] ||
+					(target.row === playerPosition.row &&
+						target.col === playerPosition.col);
+				if (!targetVisible || dungeon[target.row]?.[target.col] !== FLOOR)
+					continue;
+				const columns = rows.get(target.row) ?? new Set<number>();
+				columns.add(target.col);
+				rows.set(target.row, columns);
+			}
 		}
-		return new Map(
-			[...rows].map(([row, columns]) => [
-				row,
-				[...columns].sort((a, b) => a - b),
-			]),
-		);
+		const sorted = (rows: Map<number, Set<number>>) =>
+			new Map(
+				[...rows].map(([row, columns]) => [
+					row,
+					[...columns].sort((a, b) => a - b),
+				]),
+			);
+		return { heavy: sorted(heavy), area: sorted(area) };
 	}, [monsters, visible, dungeon, playerPosition.row, playerPosition.col]);
 	const itemRows = useMemo(() => {
 		const rows = new Map<number, FloorItem[]>();
@@ -207,7 +214,8 @@ const DungeonLayout = ({
 							rowIndex={rowIndex}
 							monsters={monsterRows.get(rowIndex)}
 							floorItems={itemRows.get(rowIndex)}
-							threatColumns={threatRows.get(rowIndex)}
+							threatColumns={threatRows.heavy.get(rowIndex)}
+							areaThreatColumns={threatRows.area.get(rowIndex)}
 							spellColumns={spellRows.get(rowIndex)}
 							visible={visible?.[rowIndex]}
 							explored={explored?.[rowIndex]}

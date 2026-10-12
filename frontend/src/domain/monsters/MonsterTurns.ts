@@ -21,6 +21,7 @@ import {
 } from "../game/TimedEffects";
 import { chooseEnemySpell } from "./EnemyCasting";
 import { MONSTER_DEFINITIONS } from "./Monster";
+import { resolveMonsterArea } from "./MonsterAreaAttack";
 import { orthogonalDistance } from "./MonsterLocations";
 import { detectsPlayer, selectPursuitStep } from "./MonsterPursuit";
 import { selectRetreatStep } from "./MonsterRetreat";
@@ -89,6 +90,22 @@ export const resolveMonsterPhase = (
 				monsters = monsters.map((actor) =>
 					actor.id === monster.id ? { ...actor, coordinate } : actor,
 				);
+			continue;
+		}
+		const area = resolveMonsterArea(state, monster, rollSource);
+		if (area) {
+			monsters = monsters.map((actor) =>
+				actor.id === monster.id ? area.monster : actor,
+			);
+			events.push(...area.events);
+			if (area.damage !== undefined) {
+				player = {
+					...player,
+					health: Math.max(0, player.health - area.damage),
+				};
+				if (player.health === 0)
+					events.push({ type: "player-died", turn: state.turn });
+			}
 			continue;
 		}
 		// Both attack range and prepared-target adjacency use Manhattan distance.

@@ -1,6 +1,11 @@
 import { selectWeighted } from "../content/WeightedSelection";
 import type { Coordinate } from "../dungeon/DungeonTypes.ts";
 import { MAX_FLOORS } from "../dungeon/RunConfiguration";
+import {
+	type AreaElement,
+	DAMAGE_ELEMENTS,
+	type DamageElement,
+} from "../game/DamageElements";
 import type { ItemKind } from "../items/Item";
 
 export type EnemySpellKind = "ember-bolt" | "shock" | "heal";
@@ -8,7 +13,14 @@ export type MonsterKind = keyof typeof monsterCatalog;
 
 export type MonsterIntent =
 	| { type: "idle" }
-	| { type: "preparing-attack"; target: Coordinate };
+	| { type: "preparing-attack"; target: Coordinate }
+	| {
+			type: "preparing-area";
+			target: Coordinate;
+			radius: 1 | 2;
+			element: AreaElement;
+			remaining: number;
+	  };
 
 export type Monster = {
 	// Stable identity: floorNumber:spawnIndex (index starts at 1).
@@ -41,6 +53,15 @@ export type MonsterDefinition = {
 	regeneration?: number;
 	enemySpells?: readonly EnemySpellKind[];
 	spellInterval?: number;
+	resists?: readonly DamageElement[];
+	weaknesses?: readonly DamageElement[];
+	areaAttack?: {
+		element: AreaElement;
+		range: number;
+		radius: 1 | 2;
+		minDamage: number;
+		maxDamage: number;
+	};
 };
 export const validateMonsterDefinition = (
 	definition: MonsterDefinition,
@@ -63,6 +84,9 @@ export const validateMonsterDefinition = (
 		regeneration,
 		enemySpells,
 		spellInterval,
+		resists,
+		weaknesses,
+		areaAttack,
 	} = definition;
 	if (
 		(actionInterval !== undefined &&
@@ -83,6 +107,22 @@ export const validateMonsterDefinition = (
 			(!enemySpells ||
 				!Number.isSafeInteger(spellInterval) ||
 				spellInterval < 2)) ||
+		(resists ?? []).some((element) => !DAMAGE_ELEMENTS.includes(element)) ||
+		(weaknesses ?? []).some(
+			(element) =>
+				!DAMAGE_ELEMENTS.includes(element) || resists?.includes(element),
+		) ||
+		(areaAttack !== undefined &&
+			(!(areaAttack.element === "fire" || areaAttack.element === "cold") ||
+				!Number.isInteger(areaAttack.range) ||
+				areaAttack.range < 2 ||
+				![1, 2].includes(areaAttack.radius) ||
+				!Number.isInteger(areaAttack.minDamage) ||
+				areaAttack.minDamage < 1 ||
+				!Number.isInteger(areaAttack.maxDamage) ||
+				areaAttack.maxDamage < areaAttack.minDamage ||
+				preparesAttack ||
+				enemySpells !== undefined)) ||
 		!Number.isSafeInteger(experienceReward) ||
 		experienceReward <= 0 ||
 		!Number.isFinite(dropChance) ||
@@ -178,6 +218,7 @@ const monsterCatalog = {
 		lootPreferences: { "chain-armor": 2, "iron-helmet": 2 },
 	},
 	skeleton: {
+		resists: ["poison"],
 		name: "skeleton",
 		minFloor: 2,
 		maxFloor: 8,
@@ -282,6 +323,8 @@ const monsterCatalog = {
 		spellInterval: 3,
 	},
 	"stone-golem": {
+		resists: ["physical", "poison"],
+		weaknesses: ["lightning"],
 		name: "stone golem",
 		minFloor: 10,
 		maxFloor: 20,
@@ -296,6 +339,8 @@ const monsterCatalog = {
 		actionInterval: 2,
 	},
 	wraith: {
+		resists: ["physical"],
+		weaknesses: ["sonic"],
 		name: "wraith",
 		minFloor: 10,
 		maxFloor: 20,
@@ -322,6 +367,15 @@ const monsterCatalog = {
 	},
 	salamander: {
 		name: "salamander",
+		resists: ["fire"],
+		weaknesses: ["cold"],
+		areaAttack: {
+			element: "fire",
+			range: 5,
+			radius: 1,
+			minDamage: 6,
+			maxDamage: 10,
+		},
 		minFloor: 12,
 		maxFloor: 19,
 		maxHealth: 24,
@@ -331,9 +385,6 @@ const monsterCatalog = {
 		spawnWeight: 1,
 		dropChance: 0.7,
 		lootPreferences: {},
-		rangedAttackRange: 5,
-		enemySpells: ["ember-bolt"],
-		spellInterval: 3,
 	},
 	"frost-giant": {
 		name: "frost giant",
@@ -346,9 +397,18 @@ const monsterCatalog = {
 		spawnWeight: 1,
 		dropChance: 0.7,
 		lootPreferences: {},
-		preparesAttack: true,
+		resists: ["cold"],
+		weaknesses: ["fire"],
+		areaAttack: {
+			element: "cold",
+			range: 2,
+			radius: 1,
+			minDamage: 8,
+			maxDamage: 12,
+		},
 	},
 	necromancer: {
+		resists: ["shadow"],
 		name: "necromancer",
 		minFloor: 15,
 		maxFloor: 20,
@@ -364,6 +424,7 @@ const monsterCatalog = {
 		spellInterval: 3,
 	},
 	"demon-warden": {
+		resists: ["arcane", "shadow"],
 		name: "demon warden",
 		minFloor: 17,
 		maxFloor: 20,

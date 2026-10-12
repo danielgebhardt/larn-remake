@@ -4,6 +4,7 @@ import type { EquipmentChangeEvent } from "../items/EquipmentChanges";
 import type { FloorItemEvent } from "../items/FloorItems";
 import type { ItemKind } from "../items/Item";
 import type { MonsterKind } from "../monsters/Monster.ts";
+import type { AreaElement, DamageElement } from "./DamageElements";
 import type { SpellKind } from "./Spells";
 import type { EffectKind } from "./TimedEffects";
 
@@ -46,6 +47,27 @@ export type ActivityEvent = { turn: number } & (
 			spell: SpellKind;
 			recovered: number;
 	  }
+	| {
+			type: "monster-resisted" | "monster-vulnerable";
+			monster: MonsterKind;
+			element: DamageElement;
+			damage: number;
+	  }
+	| {
+			type: "monster-area-prepared";
+			monster: MonsterKind;
+			element: AreaElement;
+			target: Coordinate;
+			radius: number;
+			remaining: number;
+	  }
+	| {
+			type: "monster-area-hit";
+			monster: MonsterKind;
+			element: AreaElement;
+			damage: number;
+	  }
+	| { type: "monster-area-avoided"; monster: MonsterKind; element: AreaElement }
 	| { type: "spell-healed"; spell: SpellKind; recovered: number }
 	| {
 			type:

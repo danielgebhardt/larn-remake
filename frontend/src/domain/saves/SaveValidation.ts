@@ -1,12 +1,9 @@
 import { isConsistentSave } from "./SaveConsistency";
 import type { SaveDocument, SaveResult } from "./SaveFormat";
 import {
+	migratePlayedSave,
 	migrateSaveV1,
 	migrateSaveV2,
-	migrateSaveV3,
-	migrateSaveV4,
-	migrateSaveV5,
-	migrateSaveV6,
 } from "./SaveMigration";
 import { isSaveDocumentV1 } from "./SaveShapeV1";
 import { isSaveDocumentV2 } from "./SaveShapeV2";
@@ -15,7 +12,12 @@ import { isSaveDocumentV4 } from "./SaveShapeV4";
 import { isSaveDocumentV5 } from "./SaveShapeV5";
 import { isSaveDocumentV6 } from "./SaveShapeV6";
 import { isSaveDocumentV7 } from "./SaveShapeV7";
+import { isSaveDocumentV8 } from "./SaveShapeV8";
 
+const inconsistent = {
+	ok: false,
+	error: "This save contains inconsistent adventure data.",
+} as const;
 export const validateSaveDocument = (
 	data: unknown,
 ): SaveResult<SaveDocument> => {
@@ -24,57 +26,39 @@ export const validateSaveDocument = (
 		data !== null &&
 		!Array.isArray(data) &&
 		(!("version" in data) ||
-			![1, 2, 3, 4, 5, 6, 7].includes(data.version as number))
+			![1, 2, 3, 4, 5, 6, 7, 8].includes(data.version as number))
 	)
 		return {
 			ok: false,
 			error: "This save uses an unsupported format version.",
 		};
 	if (isSaveDocumentV1(data) || isSaveDocumentV2(data)) {
-		if (!isConsistentSave(data))
-			return {
-				ok: false,
-				error: "This save contains inconsistent adventure data.",
-			};
-		const current = migrateSaveV2(
+		if (!isConsistentSave(data)) return inconsistent;
+		const grown = migrateSaveV2(
 			data.version === 1 ? migrateSaveV1(data) : data,
 		);
+		const current = migratePlayedSave(grown);
 		return isConsistentSave(current)
-			? {
-					ok: true,
-					value: migrateSaveV6(
-						migrateSaveV5(migrateSaveV4(migrateSaveV3(current))),
-					),
-				}
-			: { ok: false, error: "This save contains inconsistent adventure data." };
+			? { ok: true, value: current }
+			: inconsistent;
 	}
-	if (isSaveDocumentV3(data))
-		return isConsistentSave(data)
-			? {
-					ok: true,
-					value: migrateSaveV6(
-						migrateSaveV5(migrateSaveV4(migrateSaveV3(data))),
-					),
-				}
-			: { ok: false, error: "This save contains inconsistent adventure data." };
-	if (isSaveDocumentV4(data))
-		return isConsistentSave(data)
-			? { ok: true, value: migrateSaveV6(migrateSaveV5(migrateSaveV4(data))) }
-			: { ok: false, error: "This save contains inconsistent adventure data." };
-	if (isSaveDocumentV5(data))
-		return isConsistentSave(data)
-			? { ok: true, value: migrateSaveV6(migrateSaveV5(data)) }
-			: { ok: false, error: "This save contains inconsistent adventure data." };
-	if (isSaveDocumentV6(data))
-		return isConsistentSave(data)
-			? { ok: true, value: migrateSaveV6(data) }
-			: { ok: false, error: "This save contains inconsistent adventure data." };
-	if (!isSaveDocumentV7(data))
+	if (
+		!(
+			isSaveDocumentV3(data) ||
+			isSaveDocumentV4(data) ||
+			isSaveDocumentV5(data) ||
+			isSaveDocumentV6(data) ||
+			isSaveDocumentV7(data) ||
+			isSaveDocumentV8(data)
+		)
+	)
 		return {
 			ok: false,
 			error: "This save contains invalid or missing adventure data.",
 		};
-	return isConsistentSave(data)
-		? { ok: true, value: data }
-		: { ok: false, error: "This save contains inconsistent adventure data." };
+	if (!isConsistentSave(data)) return inconsistent;
+	const current = migratePlayedSave(data);
+	return isConsistentSave(current)
+		? { ok: true, value: current }
+		: inconsistent;
 };

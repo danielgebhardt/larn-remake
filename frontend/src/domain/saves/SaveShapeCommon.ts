@@ -7,6 +7,7 @@ import {
 	ACTIVITY_LOG_LIMIT,
 	type ActivityEvent,
 } from "../game/ActivityHistory";
+import { DAMAGE_ELEMENTS } from "../game/DamageElements";
 import { MAX_PLAYER_LEVEL } from "../game/Progression";
 import { SPELL_DEFINITIONS } from "../game/Spells";
 import { EFFECT_DEFINITIONS } from "../game/TimedEffects";
@@ -124,6 +125,32 @@ const eventFields = {
 		monster: monsterKind,
 		spell: spellKind,
 		recovered: natural,
+	},
+	"monster-resisted": {
+		monster: monsterKind,
+		element: oneOf(DAMAGE_ELEMENTS),
+		damage: natural,
+	},
+	"monster-vulnerable": {
+		monster: monsterKind,
+		element: oneOf(DAMAGE_ELEMENTS),
+		damage: natural,
+	},
+	"monster-area-prepared": {
+		monster: monsterKind,
+		element: oneOf(["fire", "cold"]),
+		target: coordinate,
+		radius: integer(1, 2),
+		remaining: integer(1, 3),
+	},
+	"monster-area-hit": {
+		monster: monsterKind,
+		element: oneOf(["fire", "cold"]),
+		damage: natural,
+	},
+	"monster-area-avoided": {
+		monster: monsterKind,
+		element: oneOf(["fire", "cold"]),
 	},
 	"spell-healed": { spell: spellKind, recovered: natural },
 	"player-hit": { monster: monsterKind, damage: natural },

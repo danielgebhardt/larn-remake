@@ -33,6 +33,7 @@ const DungeonCell = memo(function DungeonCell({
 	selectedTarget,
 	onTargetRequested,
 	threatened = false,
+	areaThreatened = false,
 	inSpellArea = false,
 }: {
 	rowIndex: number;
@@ -48,6 +49,7 @@ const DungeonCell = memo(function DungeonCell({
 	selectedTarget?: boolean;
 	onTargetRequested?: (id: string) => void;
 	threatened?: boolean;
+	areaThreatened?: boolean;
 	inSpellArea?: boolean;
 }) {
 	const description = monsterKind
@@ -70,9 +72,13 @@ const DungeonCell = memo(function DungeonCell({
 	return (
 		<td
 			ref={playerRef}
-			aria-label={`row${rowIndex}col${columnIndex}${label ? ` - ${label}` : ""}${threatened ? " - prepared heavy attack" : ""}${inSpellArea ? " - spell area" : ""}`}
+			aria-label={`row${rowIndex}col${columnIndex}${label ? ` - ${label}` : ""}${threatened ? " - prepared heavy attack" : ""}${inSpellArea ? " - spell area" : ""}${areaThreatened ? " - prepared area attack" : ""}`}
 			title={
-				threatened ? "Prepared heavy attack: move away to dodge." : undefined
+				areaThreatened
+					? "Prepared area attack: leave the highlighted tiles before the blast."
+					: threatened
+						? "Prepared heavy attack: move away to dodge."
+						: undefined
 			}
 			data-visibility={visibility}
 			className={`relative size-[var(--dungeon-tile-size)] ${background}`}
@@ -102,7 +108,7 @@ const DungeonCell = memo(function DungeonCell({
 					className="pointer-events-none absolute inset-0 rounded-xs border-2 border-violet-500 bg-violet-500/20 dark:border-violet-300"
 				/>
 			)}
-			{threatened && (
+			{(threatened || areaThreatened) && (
 				<span
 					aria-hidden="true"
 					className="pointer-events-none absolute inset-0 rounded-xs border-2 border-map-threat bg-map-threat/15"
@@ -136,6 +142,7 @@ const DungeonRow = memo(
 		selectedTargetId,
 		onTargetRequested,
 		threatColumns,
+		areaThreatColumns,
 		spellColumns,
 	}: {
 		row: readonly string[];
@@ -153,6 +160,7 @@ const DungeonRow = memo(
 		selectedTargetId?: string;
 		onTargetRequested?: (id: string) => void;
 		threatColumns?: readonly number[];
+		areaThreatColumns?: readonly number[];
 		spellColumns?: readonly number[];
 	}) {
 		return (
@@ -199,6 +207,10 @@ const DungeonRow = memo(
 								visibility === "visible" &&
 								(spellColumns?.includes(columnIndex) ?? false)
 							}
+							areaThreatened={
+								visibility === "visible" &&
+								(areaThreatColumns?.includes(columnIndex) ?? false)
+							}
 							threatened={
 								visibility === "visible" &&
 								(threatColumns?.includes(columnIndex) ?? false)
@@ -232,6 +244,11 @@ const DungeonRow = memo(
 		(previous.spellColumns?.length ?? 0) === (next.spellColumns?.length ?? 0) &&
 		(previous.spellColumns ?? []).every(
 			(column, index) => column === next.spellColumns?.[index],
+		) &&
+		(previous.areaThreatColumns?.length ?? 0) ===
+			(next.areaThreatColumns?.length ?? 0) &&
+		(previous.areaThreatColumns ?? []).every(
+			(column, index) => column === next.areaThreatColumns?.[index],
 		) &&
 		previous.targetIds === next.targetIds &&
 		previous.selectedTargetId === next.selectedTargetId &&

@@ -1,15 +1,18 @@
 import { createMonsterDrop } from "../items/MonsterDrops";
 import { MONSTER_DEFINITIONS, type Monster } from "../monsters/Monster";
+import { resistedDamage } from "../monsters/MonsterResistance";
 import { type ActivityEvent, appendActivityEvents } from "./ActivityHistory";
 import {
 	dexterityAtLevel,
 	intelligenceAtLevel,
 	strengthAtLevel,
 } from "./Attributes";
+import type { DamageElement } from "./DamageElements";
 import type { GameState } from "./GameState";
 import { growManaCapacity } from "./Mana";
 import { gainExperience, HEALTH_PER_LEVEL } from "./Progression";
 import type { SpellKind } from "./Spells";
+import { SPELL_DEFINITIONS } from "./Spells";
 import type { EffectKind } from "./TimedEffects";
 
 type DamageSource =
@@ -25,10 +28,29 @@ export const damageMonster = (
 	source: DamageSource,
 ): GameState => {
 	const turn = state.turn;
-	const health = Math.max(0, monster.health - damage);
+	const spell =
+		source.type === "spell-hit" ? SPELL_DEFINITIONS[source.spell] : undefined;
+	const element: DamageElement =
+		source.type === "player-hit"
+			? "physical"
+			: source.type === "condition-hit"
+				? "poison"
+				: spell && "element" in spell
+					? spell.element
+					: "arcane";
+	const inflicted = resistedDamage(monster.kind, damage, element);
+	const health = Math.max(0, monster.health - inflicted);
 	const events: ActivityEvent[] = [
-		{ ...source, monster: monster.kind, damage, turn },
+		{ ...source, monster: monster.kind, damage: inflicted, turn },
 	];
+	if (inflicted !== damage)
+		events.push({
+			type: inflicted < damage ? "monster-resisted" : "monster-vulnerable",
+			monster: monster.kind,
+			element,
+			damage: inflicted,
+			turn,
+		});
 	if (health === 0)
 		events.push({ type: "monster-died", turn, monster: monster.kind });
 	let floorItems = state.floorItems;

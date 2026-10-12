@@ -1,4 +1,5 @@
 import type { Coordinate } from "../dungeon/DungeonTypes";
+import { hasLineOfSight } from "../dungeon/Visibility";
 import { maximumMana } from "../game/Mana";
 import { DEFAULT_PLAYER_MAX_HEALTH } from "../game/PlayerStats";
 import { HEALTH_PER_LEVEL, levelForExperience } from "../game/Progression";
@@ -21,6 +22,7 @@ import type { SaveDocumentV4 } from "./SaveDocumentV4";
 import type { SaveDocumentV5 } from "./SaveDocumentV5";
 import type { SaveDocumentV6 } from "./SaveDocumentV6";
 import type { SaveDocumentV7 } from "./SaveDocumentV7";
+import type { SaveDocumentV8 } from "./SaveDocumentV8";
 
 export const isConsistentSave = (
 	document:
@@ -30,7 +32,8 @@ export const isConsistentSave = (
 		| SaveDocumentV4
 		| SaveDocumentV5
 		| SaveDocumentV6
-		| SaveDocumentV7,
+		| SaveDocumentV7
+		| SaveDocumentV8,
 ): boolean => {
 	const { state, configuration: config } = document;
 	const { run, quest } = state;
@@ -211,8 +214,28 @@ export const isConsistentSave = (
 		!document.state.monsters.every(
 			(monster) =>
 				monster.intent.type === "idle" ||
-				(walkable(monster.floorNumber, monster.intent.target) &&
-					orthogonalDistance(monster.coordinate, monster.intent.target) === 1),
+				(monster.intent.type === "preparing-area"
+					? (() => {
+							const profile = MONSTER_DEFINITIONS[monster.kind].areaAttack;
+							const intent = monster.intent;
+							return (
+								!!profile &&
+								intent.radius === profile.radius &&
+								intent.element === profile.element &&
+								intent.remaining <= profile.radius + 1 &&
+								walkable(monster.floorNumber, intent.target) &&
+								orthogonalDistance(monster.coordinate, intent.target) <=
+									profile.range &&
+								hasLineOfSight(
+									floorAt(monster.floorNumber).terrain.map((row) => [...row]),
+									monster.coordinate,
+									intent.target,
+								)
+							);
+						})()
+					: walkable(monster.floorNumber, monster.intent.target) &&
+						orthogonalDistance(monster.coordinate, monster.intent.target) ===
+							1),
 		)
 	)
 		return false;

@@ -133,8 +133,9 @@ export const castSpell = (
 	);
 	if ("lifeDrain" in definition && definition.lifeDrain) {
 		const recovered = Math.min(
-			damage,
-			target.health,
+			target.health -
+				(damaged.monsters.find((monster) => monster.id === target.id)?.health ??
+					0),
 			damaged.player.maxHealth - damaged.player.health,
 		);
 		if (recovered > 0)

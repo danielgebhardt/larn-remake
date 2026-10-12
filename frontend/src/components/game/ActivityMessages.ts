@@ -54,6 +54,16 @@ export const formatActivityEvent = (event: ActivityEvent): string => {
 			return `${prefix}The ${MONSTER_DEFINITIONS[event.monster].name} casts ${SPELL_DEFINITIONS[event.spell].name} for ${event.damage} damage. Physical armor does not block magic.`;
 		case "monster-spell-healed":
 			return `${prefix}The ${MONSTER_DEFINITIONS[event.monster].name} casts ${SPELL_DEFINITIONS[event.spell].name} and recovers ${event.recovered} health.`;
+		case "monster-resisted":
+			return `${prefix}The ${MONSTER_DEFINITIONS[event.monster].name} resists ${event.element}; the hit deals ${event.damage} damage.`;
+		case "monster-vulnerable":
+			return `${prefix}The ${MONSTER_DEFINITIONS[event.monster].name} is vulnerable to ${event.element}; the hit deals ${event.damage} damage.`;
+		case "monster-area-prepared":
+			return `${prefix}The ${MONSTER_DEFINITIONS[event.monster].name} prepares a ${event.element} blast. Leave the marked area within ${event.remaining} turns.`;
+		case "monster-area-hit":
+			return `${prefix}The ${MONSTER_DEFINITIONS[event.monster].name}'s ${event.element} blast hits you for ${event.damage} damage.`;
+		case "monster-area-avoided":
+			return `${prefix}You escape the ${MONSTER_DEFINITIONS[event.monster].name}'s ${event.element} blast.`;
 		case "spell-healed":
 			return `${prefix}${SPELL_DEFINITIONS[event.spell].name} restores ${event.recovered} health.`;
 		case "spell-hit":

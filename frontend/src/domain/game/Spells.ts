@@ -1,5 +1,6 @@
 import type { Equipment } from "../items/Equipment";
 import { deriveAttributes } from "./Attributes";
+import type { DamageElement } from "./DamageElements";
 import type { Progression } from "./Progression";
 import type { EffectKind, PlayerEffectKind } from "./TimedEffects";
 
@@ -10,6 +11,7 @@ export type SpellDefinition = SpellDetails &
 				mode: "targeted";
 				effect: "damage";
 				range: number;
+				element?: DamageElement;
 				minimumDamage: number;
 				maximumDamage: number;
 				condition?: EffectKind;
@@ -28,6 +30,7 @@ export type SpellDefinition = SpellDetails &
 				mode: "self";
 				effect: "damage";
 				radius: number;
+				element?: DamageElement;
 				minimumDamage: number;
 				maximumDamage: number;
 				condition?: EffectKind;
@@ -38,6 +41,7 @@ export type SpellDefinition = SpellDetails &
 
 export const SPELL_DEFINITIONS = {
 	"magic-missile": {
+		element: "arcane",
 		name: "Magic Missile",
 		mode: "targeted",
 		effect: "damage",
@@ -49,6 +53,7 @@ export const SPELL_DEFINITIONS = {
 			"A homing bolt that always hits one monster within range and clear line of sight.",
 	},
 	"ember-bolt": {
+		element: "fire",
 		name: "Ember Bolt",
 		mode: "targeted",
 		effect: "damage",
@@ -60,6 +65,7 @@ export const SPELL_DEFINITIONS = {
 			"A short-range burst of flame. More forceful than Magic Missile, but costs more mana.",
 	},
 	"frost-bolt": {
+		element: "cold",
 		name: "Frost Bolt",
 		mode: "targeted",
 		effect: "damage",
@@ -72,6 +78,7 @@ export const SPELL_DEFINITIONS = {
 			"Chill one monster for three active phases. It skips alternating actions, starting with this cast; recasting refreshes the slow.",
 	},
 	shock: {
+		element: "lightning",
 		name: "Shock",
 		mode: "targeted",
 		effect: "damage",
@@ -83,6 +90,7 @@ export const SPELL_DEFINITIONS = {
 			"A focused jolt with stronger damage than Magic Missile at a higher mana cost.",
 	},
 	"stone-lance": {
+		element: "physical",
 		name: "Stone Lance",
 		mode: "targeted",
 		effect: "damage",
@@ -94,6 +102,7 @@ export const SPELL_DEFINITIONS = {
 			"A heavy stone projectile with a longer reach and substantial mana cost.",
 	},
 	"sonic-spear": {
+		element: "sonic",
 		name: "Sonic Spear",
 		mode: "targeted",
 		effect: "damage",
@@ -104,6 +113,7 @@ export const SPELL_DEFINITIONS = {
 		description: "A powerful long-range strike for the deeper dungeon.",
 	},
 	"drain-life": {
+		element: "shadow",
 		name: "Drain Life",
 		mode: "targeted",
 		effect: "damage",
@@ -148,6 +158,7 @@ export const SPELL_DEFINITIONS = {
 	},
 
 	"poison-dart": {
+		element: "poison",
 		name: "Poison Dart",
 		mode: "targeted",
 		effect: "damage",
@@ -214,6 +225,7 @@ export const SPELL_DEFINITIONS = {
 			"Send one monster to a seeded safe tile farther from you on this floor. Keeps its health and conditions, cancels its prepared attack.",
 	},
 	fireball: {
+		element: "fire",
 		name: "Fireball",
 		mode: "targeted",
 		effect: "damage",
@@ -226,6 +238,7 @@ export const SPELL_DEFINITIONS = {
 			"Explode around one monster, hitting enemies within one step of it. Walls block the blast; no friendly fire. One turn and one mana cost.",
 	},
 	"frost-nova": {
+		element: "cold",
 		name: "Frost Nova",
 		mode: "self",
 		effect: "damage",

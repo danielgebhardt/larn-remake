@@ -1,3 +1,4 @@
+import { Tabs } from "@base-ui/react/tabs";
 import {
 	Children,
 	type ReactNode,
@@ -63,13 +64,27 @@ const Card = ({
 		<div className="grid gap-1 text-xs leading-relaxed">{children}</div>
 	</li>
 );
-const Group = ({ name, children }: { name: string; children: ReactNode }) =>
-	Children.count(children) > 0 ? (
-		<section aria-label={name} className="grid gap-3">
+const CATALOG_SECTIONS = [
+	"Monsters",
+	"Spells",
+	"Items",
+	"Dungeon objects",
+	"Terrain",
+] as const;
+const Group = ({ name, children }: { name: string; children: ReactNode }) => (
+	<Tabs.Panel value={name} className="min-h-0 flex-1 overflow-y-auto">
+		<div className="grid gap-3">
 			<h3 className="text-lg font-semibold">{name}</h3>
-			<ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">{children}</ul>
-		</section>
-	) : null;
+			{Children.count(children) > 0 ? (
+				<ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">{children}</ul>
+			) : (
+				<p role="status" className="text-muted-foreground">
+					No matching entries in this section.
+				</p>
+			)}
+		</div>
+	</Tabs.Panel>
+);
 const itemBonuses = (definition: ItemDefinition) =>
 	[
 		definition.attackBonus ? `Attack +${definition.attackBonus}` : null,
@@ -95,17 +110,39 @@ const DeveloperCatalog = ({
 	return (
 		<SheetContent
 			finalFocus={finalFocus}
-			className="overflow-y-auto data-[side=right]:w-full sm:data-[side=right]:max-w-5xl"
+			className="data-[side=right]:w-full sm:data-[side=right]:max-w-5xl"
 		>
-			<SheetHeader>
+			<SheetHeader className="shrink-0">
 				<SheetTitle>Developer catalog</SheetTitle>
 				<SheetDescription>
 					Live definitions and game SVGs. Inspection is free; this view includes
 					undiscovered content.
 				</SheetDescription>
 			</SheetHeader>
-			<div className="grid gap-6 px-4 pb-6">
-				<label htmlFor={filterId} className="grid gap-2 text-sm font-medium">
+			<Tabs.Root
+				defaultValue="Monsters"
+				onValueChange={() => setQuery("")}
+				className="flex min-h-0 flex-1 flex-col gap-4 px-4 pb-6"
+			>
+				<Tabs.List
+					activateOnFocus
+					aria-label="Catalog sections"
+					className="flex shrink-0 flex-wrap gap-1 border-b"
+				>
+					{CATALOG_SECTIONS.map((section) => (
+						<Tabs.Tab
+							key={section}
+							value={section}
+							className="rounded-t-md border-b-2 border-transparent px-3 py-2 font-medium text-muted-foreground outline-offset-2 focus-visible:outline-2 focus-visible:outline-primary data-active:border-primary data-active:text-foreground"
+						>
+							{section}
+						</Tabs.Tab>
+					))}
+				</Tabs.List>
+				<label
+					htmlFor={filterId}
+					className="grid shrink-0 gap-2 text-sm font-medium"
+				>
 					Filter catalog
 					<Input
 						id={filterId}
@@ -296,7 +333,7 @@ const DeveloperCatalog = ({
 							);
 						})}
 				</Group>
-			</div>
+			</Tabs.Root>
 		</SheetContent>
 	);
 };

@@ -336,3 +336,10 @@ Human review checkpoints:
 - Try optional discoveries and occupied-door closure; inspect spent descriptions and confirm that cancellation/failure spends no turn.
 - Save a played run, continue it, reload it and repeat the same actions. Inspect Character/Spells and catalog in light/dark themes on the smallest intended screen.
 - Judge quiet travel, repeated gear and recovery pressure manually. Automated policies remain omniscient, greedy and incomplete for control/buff/reposition spells; their win rates do not establish human difficulty. Next balance work should consider travel, enemy strength/density, supplies and XP together.
+
+
+## #214 — Catalog section tabs
+
+The catalog now opens on Monsters and provides keyboard-accessible tabs for Monsters, Spells, Items, Dungeon objects and Terrain. Only the selected panel is exposed. Search filters that section, clears when switching tabs, and reports empty results explicitly. Tabs and search remain above an independently scrolling panel; the actual definition metadata and 24px/48px SVG previews remain unchanged.
+
+Three behavior regressions failed before implementation, then passed: section isolation/counts, an item-only search in Monsters followed by switching/searching Items, and arrow/End keyboard activation without a gameplay turn. Existing filtering, disabled-flag, pause and map-focus checks remain. Browser verified filtering/reset and keyboard activation at desktop and 390px width; the catalog has no internal horizontal overflow.

@@ -1,9 +1,11 @@
 import { screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, it, vi } from "vitest";
+import { TILE_LABELS } from "../components/dungeon/TileVisuals";
 import { SPELL_DEFINITIONS } from "../domain/game/Spells";
 import { ITEM_DEFINITIONS } from "../domain/items/Item";
 import { MONSTER_DEFINITIONS } from "../domain/monsters/Monster";
+import { OBJECT_DEFINITIONS } from "../domain/objects/DungeonObject";
 import { renderHome, resetHomeTestState } from "./HomeTestHelpers";
 import Home from "./TestHome";
 
@@ -25,8 +27,14 @@ describe("Developer catalog", () => {
 			["Monsters", MONSTER_DEFINITIONS],
 			["Spells", SPELL_DEFINITIONS],
 			["Items", ITEM_DEFINITIONS],
+			["Dungeon objects", OBJECT_DEFINITIONS],
+			["Terrain", TILE_LABELS],
 		] as const) {
-			const region = within(sheet).getByRole("region", { name: label });
+			await user.click(within(sheet).getByRole("tab", { name: label }));
+			const region = within(sheet).getByRole("tabpanel", {
+				name: label,
+			});
+			expect(within(sheet).getAllByRole("tabpanel")).toHaveLength(1);
 			expect(within(region).getAllByRole("listitem")).toHaveLength(
 				Object.keys(definitions).length,
 			);
@@ -58,6 +66,56 @@ describe("Developer catalog", () => {
 		expect(
 			within(sheet).queryByRole("button", { name: /cast|equip|drink/i }),
 		).not.toBeInTheDocument();
+	});
+	it("filters only the open section and clears the search when switching tabs", async () => {
+		renderHome(<Home />);
+		const user = userEvent.setup();
+		await user.click(screen.getByRole("button", { name: "Catalog" }));
+		const sheet = within(
+			await screen.findByRole("dialog", { name: "Developer catalog" }),
+		);
+		expect(sheet.getByRole("tab", { name: "Monsters" })).toHaveAttribute(
+			"aria-selected",
+			"true",
+		);
+		const search = sheet.getByRole("searchbox", { name: "Filter catalog" });
+		await user.type(search, "iron sword");
+		expect(
+			sheet.getByText("No matching entries in this section."),
+		).toBeVisible();
+		expect(
+			sheet.queryByRole("heading", { name: "Iron sword" }),
+		).not.toBeInTheDocument();
+
+		await user.click(sheet.getByRole("tab", { name: "Items" }));
+		expect(search).toHaveValue("");
+		expect(sheet.getAllByRole("listitem")).toHaveLength(
+			Object.keys(ITEM_DEFINITIONS).length,
+		);
+		await user.type(search, "iron sword");
+		expect(sheet.getAllByRole("listitem")).toHaveLength(1);
+		expect(sheet.getByRole("heading", { name: "Iron sword" })).toBeVisible();
+
+		await user.click(sheet.getByRole("tab", { name: "Monsters" }));
+		expect(search).toHaveValue("");
+		expect(sheet.getAllByRole("listitem")).toHaveLength(
+			Object.keys(MONSTER_DEFINITIONS).length,
+		);
+	});
+	it("supports keyboard tab navigation without moving the player", async () => {
+		renderHome(<Home />);
+		const user = userEvent.setup();
+		await user.click(screen.getByRole("button", { name: "Catalog" }));
+		const sheet = within(
+			await screen.findByRole("dialog", { name: "Developer catalog" }),
+		);
+		await user.click(sheet.getByRole("tab", { name: "Monsters" }));
+		await user.keyboard("{ArrowRight}");
+		expect(sheet.getByRole("tab", { name: "Spells" })).toHaveFocus();
+		expect(sheet.getByRole("tabpanel", { name: "Spells" })).toBeVisible();
+		await user.keyboard("{End}");
+		expect(sheet.getByRole("tabpanel", { name: "Terrain" })).toBeVisible();
+		expect(screen.getByLabelText("Turn count")).toHaveTextContent("Turn 0");
 	});
 	it("hides the entry point when the developer feature is disabled", () => {
 		flags.developerCatalog = false;

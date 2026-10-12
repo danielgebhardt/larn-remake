@@ -1,4 +1,5 @@
 import {
+	Axe,
 	BookOpen,
 	Circle,
 	FlaskConical,
@@ -9,6 +10,7 @@ import {
 	Shield,
 	Shirt,
 	Sword,
+	Swords,
 } from "lucide-react";
 import { ITEM_DEFINITIONS, type ItemKind } from "../../domain/items/Item";
 
@@ -27,6 +29,10 @@ const icons: Record<Exclude<ItemKind, BookKind>, LucideIcon> = {
 	"mana-potion": FlaskConical,
 	"short-sword": Sword,
 	"iron-sword": Sword,
+	"steel-sword": Sword,
+	"battle-axe": Axe,
+	runeblade: Swords,
+	"star-forged-blade": Swords,
 	"wooden-shield": Shield,
 	"leather-armor": Shirt,
 	"chain-armor": Shirt,

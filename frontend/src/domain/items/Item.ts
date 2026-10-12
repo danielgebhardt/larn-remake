@@ -127,6 +127,53 @@ export const ITEM_DEFINITIONS = {
 		description:
 			"Restores up to 5 health when consumed. Drinking uses one turn.",
 	},
+	"steel-sword": {
+		name: "Steel sword",
+		type: "weapon",
+		attackBonus: 3,
+		armor: 0,
+		description:
+			"A tempered blade for the middle dungeon. Adds 3 melee attack.",
+		minFloor: 4,
+		maxFloor: 10,
+		foundWeight: 1,
+		dropWeight: 1,
+	},
+	"battle-axe": {
+		name: "Battle axe",
+		type: "weapon",
+		attackBonus: 4,
+		armor: 0,
+		description: "A heavy axe that rewards close combat. Adds 4 melee attack.",
+		minFloor: 8,
+		maxFloor: 15,
+		foundWeight: 1,
+		dropWeight: 1,
+	},
+	runeblade: {
+		name: "Runeblade",
+		type: "weapon",
+		attackBonus: 6,
+		armor: 0,
+		description:
+			"An ancient blade with a strong enchanted edge. Adds 6 melee attack.",
+		minFloor: 12,
+		maxFloor: 20,
+		foundWeight: 1,
+		dropWeight: 1,
+	},
+	"star-forged-blade": {
+		name: "Star-forged blade",
+		type: "weapon",
+		attackBonus: 8,
+		armor: 0,
+		description:
+			"A rare blade made for the deepest encounters. Adds 8 melee attack.",
+		minFloor: 16,
+		maxFloor: 20,
+		foundWeight: 1,
+		dropWeight: 1,
+	},
 	"iron-sword": {
 		minFloor: 2,
 		maxFloor: MAX_FLOORS,

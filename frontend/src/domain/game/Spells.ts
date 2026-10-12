@@ -1,6 +1,6 @@
 import { deriveAttributes } from "./Attributes";
 import type { Progression } from "./Progression";
-import type { EffectKind } from "./TimedEffects";
+import type { EffectKind, PlayerEffectKind } from "./TimedEffects";
 
 type SpellDetails = { name: string; cost: number; description: string };
 export type SpellDefinition = SpellDetails &
@@ -20,7 +20,7 @@ export type SpellDefinition = SpellDetails &
 				condition: EffectKind;
 				range: number;
 		  }
-		| { mode: "self"; effect: "condition"; condition: "renewing" }
+		| { mode: "self"; effect: "condition"; condition: PlayerEffectKind }
 		| { mode: "self"; effect: "heal"; healing: number }
 	);
 
@@ -155,6 +155,33 @@ export const SPELL_DEFINITIONS = {
 		cost: 5,
 		description:
 			"Restore 2 health after monsters act for four committed turns, including this turn. Does not save you from a fatal hit.",
+	},
+	protection: {
+		name: "Protection",
+		mode: "self",
+		effect: "condition",
+		condition: "protected",
+		cost: 3,
+		description:
+			"Gain 2 armor for six committed turns, including this turn. Recasting refreshes the duration without stacking.",
+	},
+	strength: {
+		name: "Strength",
+		mode: "self",
+		effect: "condition",
+		condition: "strengthened",
+		cost: 4,
+		description:
+			"Gain 2 Strength for six committed turns, improving melee damage. Recasting refreshes the duration without stacking.",
+	},
+	dexterity: {
+		name: "Dexterity",
+		mode: "self",
+		effect: "condition",
+		condition: "nimble",
+		cost: 4,
+		description:
+			"Gain 2 Dexterity for six committed turns, improving hit and evasion chances. Recasting refreshes the duration without stacking.",
 	},
 	heal: {
 		name: "Heal",

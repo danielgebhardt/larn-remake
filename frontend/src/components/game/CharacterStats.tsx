@@ -6,6 +6,7 @@ import {
 import { attackProfile, deriveAccuracy } from "../../domain/game/MeleeRules";
 import type { PlayerStats } from "../../domain/game/PlayerStats";
 import type { Progression } from "../../domain/game/Progression";
+import type { TimedEffect } from "../../domain/game/TimedEffects";
 import type { Equipment } from "../../domain/items/Equipment";
 
 import HealthDisplay from "./HealthDisplay";
@@ -14,14 +15,16 @@ const CharacterStats = ({
 	player,
 	equipment,
 	progression,
+	effects = [],
 }: {
 	player: PlayerStats;
 	equipment: Equipment;
 	progression: Progression;
+	effects?: readonly TimedEffect[];
 }) => {
-	const combat = deriveCombatStats(equipment, progression);
+	const combat = deriveCombatStats(equipment, progression, effects);
 	const armor = armorContributions(equipment);
-	const accuracy = deriveAccuracy(progression);
+	const accuracy = deriveAccuracy(progression, effects);
 	const profile = attackProfile(combat.attack, accuracy.playerHitThreshold);
 
 	return (
@@ -76,6 +79,8 @@ const CharacterStats = ({
 					</output>
 					<p className="mt-1 text-xs text-muted-foreground">
 						Shield {armor.shield} + chest {armor.chest} + head {armor.head}
+						{combat.armor > armor.shield + armor.chest + armor.head &&
+							" + spell 2"}
 					</p>
 					<output
 						aria-label="Character evasion"

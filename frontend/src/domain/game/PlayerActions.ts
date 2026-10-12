@@ -287,8 +287,9 @@ const resolveAttack = (
 	const turn = state.turn;
 	const outcome = resolveMeleeAttack(
 		attackProfile(
-			deriveCombatStats(state.equipment, state.progression).attack,
-			deriveAccuracy(state.progression).playerHitThreshold,
+			deriveCombatStats(state.equipment, state.progression, state.effects)
+				.attack,
+			deriveAccuracy(state.progression, state.effects).playerHitThreshold,
 		),
 		rollSource({
 			seed: state.run.seed,

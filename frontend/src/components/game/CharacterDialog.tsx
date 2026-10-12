@@ -9,6 +9,7 @@ import type { PlayerStats } from "../../domain/game/PlayerStats";
 import type { Progression } from "../../domain/game/Progression";
 import type { SpellHotbar } from "../../domain/game/SpellHotbar";
 import type { SpellKind } from "../../domain/game/Spells";
+import type { TimedEffect } from "../../domain/game/TimedEffects";
 import type { Bag } from "../../domain/items/Bag";
 import type { Equipment, EquipmentSlot } from "../../domain/items/Equipment";
 import type { FloorItem } from "../../domain/items/FloorItems";
@@ -26,6 +27,7 @@ import QuestStatus from "./QuestStatus";
 import SpellsView from "./SpellsView";
 
 type CharacterDialogProps = {
+	effects?: readonly TimedEffect[];
 	player: PlayerStats;
 	mana: number;
 	knownSpells: readonly SpellKind[];
@@ -47,6 +49,7 @@ type CharacterDialogProps = {
 
 const CharacterDialog = ({
 	player,
+	effects = [],
 	mana,
 	knownSpells,
 	spellHotbar,
@@ -150,6 +153,7 @@ const CharacterDialog = ({
 					>
 						<div className="shrink-0 border-b px-4 py-3">
 							<CharacterStats
+								effects={effects}
 								player={player}
 								equipment={equipment}
 								progression={progression}
@@ -157,7 +161,11 @@ const CharacterDialog = ({
 						</div>
 						<div className="min-h-0 overflow-y-auto p-4">
 							<div className="grid items-start gap-5 md:grid-cols-2 lg:grid-cols-[minmax(0,0.65fr)_minmax(0,1fr)_minmax(0,1.25fr)]">
-								<ProgressionView progression={progression} mana={mana} />
+								<ProgressionView
+									effects={effects}
+									progression={progression}
+									mana={mana}
+								/>
 								<div className="grid content-start gap-4">
 									<EquipmentView
 										equipment={equipment}

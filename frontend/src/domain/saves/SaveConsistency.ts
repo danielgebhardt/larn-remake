@@ -2,6 +2,7 @@ import type { Coordinate } from "../dungeon/DungeonTypes";
 import { maximumMana } from "../game/Mana";
 import { DEFAULT_PLAYER_MAX_HEALTH } from "../game/PlayerStats";
 import { HEALTH_PER_LEVEL, levelForExperience } from "../game/Progression";
+import { PLAYER_EFFECT_KINDS } from "../game/TimedEffects";
 import { type EquipmentSlot, equipmentSlotFor } from "../items/Equipment";
 import { ITEM_DEFINITIONS } from "../items/Item";
 import { MONSTER_DEFINITIONS } from "../monsters/Monster";
@@ -32,8 +33,9 @@ export const isConsistentSave = (
 				.size !== effects.length ||
 			effects.some((effect) =>
 				effect.actorId === "player"
-					? effect.floorNumber !== null || effect.kind !== "renewing"
-					: effect.kind === "renewing" ||
+					? effect.floorNumber !== null ||
+						!PLAYER_EFFECT_KINDS.some((kind) => kind === effect.kind)
+					: PLAYER_EFFECT_KINDS.some((kind) => kind === effect.kind) ||
 						!state.monsters.some(
 							(actor) =>
 								actor.id === effect.actorId &&

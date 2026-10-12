@@ -1,8 +1,10 @@
+import { playerEffectBonuses } from "./EffectBonuses";
 import {
 	levelForExperience,
 	MAX_PLAYER_LEVEL,
 	type Progression,
 } from "./Progression";
+import type { TimedEffect } from "./TimedEffects";
 
 export const BASE_ATTRIBUTE = 10;
 const ATTRIBUTE_GAIN = 2;
@@ -21,10 +23,14 @@ export const dexterityAtLevel = (level: number): number => {
 	return BASE_ATTRIBUTE + Math.floor(level / 2) * ATTRIBUTE_GAIN;
 };
 export const intelligenceAtLevel = strengthAtLevel;
-export const deriveAttributes = (progression: Progression) => {
+export const deriveAttributes = (
+	progression: Progression,
+	effects: readonly TimedEffect[] = [],
+) => {
 	const level = levelForExperience(progression.experience);
-	const strength = strengthAtLevel(level);
-	const dexterity = dexterityAtLevel(level);
+	const bonuses = playerEffectBonuses(effects);
+	const strength = strengthAtLevel(level) + bonuses.strength;
+	const dexterity = dexterityAtLevel(level) + bonuses.dexterity;
 	const intelligence = intelligenceAtLevel(level);
 	return {
 		intelligence,

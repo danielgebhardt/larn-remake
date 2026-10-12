@@ -1,6 +1,7 @@
 import {
 	Droplets,
 	Flame,
+	Footprints,
 	Ghost,
 	HeartHandshake,
 	HeartPlus,
@@ -8,8 +9,10 @@ import {
 	Moon,
 	Mountain,
 	Network,
+	Shield,
 	Snowflake,
 	Sparkles,
+	Swords,
 	Waves,
 	Zap,
 } from "lucide-react";
@@ -31,6 +34,9 @@ export const SPELL_ICONS = {
 	fear: Ghost,
 	"poison-dart": Droplets,
 	renewal: HeartPulse,
+	protection: Shield,
+	strength: Swords,
+	dexterity: Footprints,
 };
 const SpellHotbarView = ({
 	knownSpells,

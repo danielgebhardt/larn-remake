@@ -1,14 +1,17 @@
 import type { Equipment } from "../items/Equipment";
 import { ITEM_DEFINITIONS } from "../items/Item";
 import { deriveAttributes } from "./Attributes";
+import { playerEffectBonuses } from "./EffectBonuses";
 import { BASE_PLAYER_ATTACK_DAMAGE } from "./PlayerStats";
 import type { Progression } from "./Progression";
+import type { TimedEffect } from "./TimedEffects";
 
 export const deriveCombatStats = (
 	equipment: Equipment,
 	progression: Progression,
+	effects: readonly TimedEffect[] = [],
 ) => {
-	const strengthBonus = deriveAttributes(progression).strengthModifier;
+	const strengthBonus = deriveAttributes(progression, effects).strengthModifier;
 	const weaponBonus = equipment.mainHand
 		? ITEM_DEFINITIONS[equipment.mainHand.kind].attackBonus
 		: 0;
@@ -21,7 +24,7 @@ export const deriveCombatStats = (
 		weaponBonus,
 		strengthBonus,
 		attack: BASE_PLAYER_ATTACK_DAMAGE + strengthBonus + weaponBonus,
-		armor,
+		armor: armor + playerEffectBonuses(effects).armor,
 	};
 };
 

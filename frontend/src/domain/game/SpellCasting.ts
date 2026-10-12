@@ -13,7 +13,7 @@ import {
 	spellKnowledgeError,
 	spellPotency,
 } from "./Spells";
-import { applyPlayerRenewal, applyTimedEffect } from "./TimedEffects";
+import { applyPlayerEffect, applyTimedEffect } from "./TimedEffects";
 
 export type CastAction = { type: "cast"; spell: SpellKind; targetId?: string };
 export const isSpellTarget = (
@@ -67,10 +67,13 @@ export const castSpell = (
 	}
 	if (definition.mode === "self" && definition.effect === "condition")
 		return {
-			state: applyPlayerRenewal({
-				...state,
-				mana: state.mana - definition.cost,
-			}),
+			state: applyPlayerEffect(
+				{
+					...state,
+					mana: state.mana - definition.cost,
+				},
+				definition.condition,
+			),
 		};
 	const target = state.monsters.find(
 		(monster) => monster.id === action.targetId,

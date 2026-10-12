@@ -313,6 +313,7 @@ const Home = ({
 							Character
 						</Dialog.Trigger>
 						<CharacterDialog
+							effects={game.state.effects}
 							spellHotbar={game.state.spellHotbar}
 							mana={game.state.mana}
 							knownSpells={game.state.knownSpells}

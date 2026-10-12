@@ -28,8 +28,15 @@ export const resolveMonsterPhase = (
 	let player = state.player;
 	let monsters = state.monsters;
 	const events: ActivityEvent[] = [];
-	const { armor } = deriveCombatStats(state.equipment, state.progression);
-	const { monsterHitThreshold } = deriveAccuracy(state.progression);
+	const { armor } = deriveCombatStats(
+		state.equipment,
+		state.progression,
+		state.effects,
+	);
+	const { monsterHitThreshold } = deriveAccuracy(
+		state.progression,
+		state.effects,
+	);
 	// IDs encode floor:spawnIndex; sort numeric indices, not incidental storage order.
 	const active = state.monsters
 		.filter(

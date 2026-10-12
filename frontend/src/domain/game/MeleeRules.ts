@@ -1,6 +1,7 @@
 import { deriveAttributes } from "./Attributes";
 import { resolveIncomingDamage } from "./CombatStats";
 import type { Progression } from "./Progression";
+import type { TimedEffect } from "./TimedEffects";
 
 export const PLAYER_HIT_THRESHOLD = 4;
 export const MONSTER_HIT_THRESHOLD = 5;
@@ -15,9 +16,12 @@ export const accuracyThresholds = (modifier: number) => {
 		monsterHitThreshold: clamp(MONSTER_HIT_THRESHOLD + modifier),
 	};
 };
-export const deriveAccuracy = (progression: Progression) => {
+export const deriveAccuracy = (
+	progression: Progression,
+	effects: readonly TimedEffect[] = [],
+) => {
 	const thresholds = accuracyThresholds(
-		deriveAttributes(progression).dexterityModifier,
+		deriveAttributes(progression, effects).dexterityModifier,
 	);
 	return {
 		...thresholds,

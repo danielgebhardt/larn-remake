@@ -6,18 +6,21 @@ import {
 	type Progression,
 	progressionProgress,
 } from "../../domain/game/Progression";
+import type { TimedEffect } from "../../domain/game/TimedEffects";
 
 import ManaDisplay from "./ManaDisplay";
 
 const ProgressionView = ({
 	progression,
 	mana,
+	effects = [],
 }: {
 	progression: Progression;
+	effects?: readonly TimedEffect[];
 	mana: number;
 }) => {
 	const { level, earned, needed, remaining } = progressionProgress(progression);
-	const attributes = deriveAttributes(progression);
+	const attributes = deriveAttributes(progression, effects);
 	return (
 		<section
 			aria-label="Character progression"
@@ -59,6 +62,15 @@ const ProgressionView = ({
 					</output>
 				</>
 			)}
+			{effects.some(
+				(effect) =>
+					effect.actorId === "player" &&
+					(effect.kind === "strengthened" || effect.kind === "nimble"),
+			) && (
+				<p className="text-xs text-primary">
+					Attributes include your active temporary spell bonuses.
+				</p>
+			)}
 			<div className="grid gap-1 border-t pt-2">
 				<output
 					aria-label="Character Strength"
@@ -68,7 +80,8 @@ const ProgressionView = ({
 					Strength {attributes.strength}
 				</output>
 				<p className="text-xs text-muted-foreground">
-					+{attributes.strengthModifier} melee damage · grows at levels 3 and 5
+					+{attributes.strengthModifier} melee damage · grows at odd levels from
+					3
 				</p>
 			</div>
 			<div className="grid gap-1 border-t pt-2">
@@ -81,7 +94,7 @@ const ProgressionView = ({
 				</output>
 				<p className="text-xs text-muted-foreground">
 					+{attributes.dexterityModifier * 5} points to hit / evade chance ·
-					grows at levels 2 and 4
+					grows at even levels
 				</p>
 			</div>
 			<div className="grid gap-1 border-t pt-2">
@@ -99,8 +112,8 @@ const ProgressionView = ({
 				/>
 				<p className="text-xs text-muted-foreground">
 					+{attributes.intelligenceModifier} spell damage / healing · +
-					{attributes.intelligenceModifier * 2} mana capacity · grows at levels
-					3 and 5
+					{attributes.intelligenceModifier * 2} mana capacity · grows at odd
+					levels from 3
 				</p>
 			</div>
 			<p className="border-t pt-2 text-xs leading-relaxed text-muted-foreground">

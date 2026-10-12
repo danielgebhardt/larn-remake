@@ -10,7 +10,17 @@ export const EFFECT_DEFINITIONS = {
 	afraid: { name: "Afraid", duration: 3 },
 	poisoned: { name: "Poisoned", duration: 3 },
 	renewing: { name: "Renewal", duration: 4 },
+	protected: { name: "Protection", duration: 6 },
+	strengthened: { name: "Strength", duration: 6 },
+	nimble: { name: "Dexterity", duration: 6 },
 } as const;
+export const PLAYER_EFFECT_KINDS = [
+	"renewing",
+	"protected",
+	"strengthened",
+	"nimble",
+] as const;
+export type PlayerEffectKind = (typeof PLAYER_EFFECT_KINDS)[number];
 export type EffectKind = keyof typeof EFFECT_DEFINITIONS;
 export type TimedEffect = Readonly<{
 	actorId: string;
@@ -123,25 +133,28 @@ export const advanceTimedEffects = (state: GameState): GameState => {
 	return changed ? { ...next, effects } : state;
 };
 
-export const applyPlayerRenewal = (state: GameState): GameState => ({
+export const applyPlayerEffect = (
+	state: GameState,
+	kind: PlayerEffectKind,
+): GameState => ({
 	...state,
 	activityHistory: appendActivityEvents(state.activityHistory, [
 		{
 			type: "player-condition-applied",
-			condition: "renewing",
-			duration: EFFECT_DEFINITIONS.renewing.duration,
+			condition: kind,
+			duration: EFFECT_DEFINITIONS[kind].duration,
 			turn: state.turn,
 		},
 	]),
 	effects: [
 		...state.effects.filter(
-			(effect) => effect.actorId !== "player" || effect.kind !== "renewing",
+			(effect) => effect.actorId !== "player" || effect.kind !== kind,
 		),
 		{
 			actorId: "player",
 			floorNumber: null,
-			kind: "renewing",
-			remaining: EFFECT_DEFINITIONS.renewing.duration,
+			kind: kind,
+			remaining: EFFECT_DEFINITIONS[kind].duration,
 		},
 	],
 });

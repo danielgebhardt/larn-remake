@@ -1,5 +1,7 @@
 // @vitest-environment node
+
 import { describe, expect, it } from "vitest";
+import { bagWithSpareGear } from "../../src/__tests/CarriedGearTestHelpers";
 import { COMPACT_TEST_CONFIGURATION } from "../../src/__tests/TestRunConfiguration";
 import {
 	connectDungeonFloors,
@@ -66,6 +68,8 @@ const act = (adventure, action) => {
 describe("Saving and resuming real adventures", () => {
 	it("finishes identically after a mid-adventure save on floor 2, including victory and discovery", () => {
 		let original = start();
+		// This continuation test uses a carried upgrade to exercise a victorious saved run.
+		original.state = { ...original.state, bag: bagWithSpareGear() };
 		let loaded = null;
 		for (
 			let actionCount = 0;

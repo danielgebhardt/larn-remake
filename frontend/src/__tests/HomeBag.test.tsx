@@ -3,6 +3,7 @@ import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import * as GameState from "../domain/game/GameState";
 import { type Bag, createBag } from "../domain/items/Bag";
+import { bagWithSpareGear } from "./CarriedGearTestHelpers";
 import {
 	renderHome as render,
 	resetHomeTestState,
@@ -11,7 +12,7 @@ import {
 import Home from "./TestHome";
 import { createThreeFloorTraversalRun } from "./testhelpers";
 
-const openBag = async (bag?: Bag) => {
+const openBag = async (bag: Bag = bagWithSpareGear()) => {
 	if (bag) {
 		const create = GameState.createGameState;
 		vi.spyOn(GameState, "createGameState").mockImplementationOnce((run) => ({
@@ -35,7 +36,7 @@ const openBag = async (bag?: Bag) => {
 afterEach(resetHomeTestState);
 
 describe("Character bag", () => {
-	it("shows starter spares and used/available capacity separately from equipment", async () => {
+	it("shows carried spares and used/available capacity separately from equipment", async () => {
 		const { panel, bagView } = await openBag();
 		expect(bagView.getByLabelText("Bag capacity")).toHaveTextContent(
 			"2 / 20 slots used · 18 available",

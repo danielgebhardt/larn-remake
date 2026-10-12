@@ -1,12 +1,15 @@
 // @vitest-environment node
+
 import { describe, expect, it } from "vitest";
 import { createGameState } from "../domain/game/GameState";
 import { createBag } from "../domain/items/Bag";
+import { bagWithSpareGear } from "./CarriedGearTestHelpers";
 import { resolvePlayerActionWithHits as resolvePlayerAction } from "./ControlledCombatTestHelpers";
 import { createCorridorEncounter } from "./MonsterEncounterTestHelpers";
 
 const state = () => ({
 	...createGameState(createCorridorEncounter()),
+	bag: bagWithSpareGear(),
 	monsters: [],
 	floorItems: [
 		{
@@ -105,7 +108,7 @@ describe("Floor item transfers", () => {
 		const before = state();
 		const dropped = resolvePlayerAction(before, {
 			type: "drop",
-			itemId: "starting:bag:1",
+			itemId: "carried:sword",
 		}).state;
 		const onStair = {
 			...dropped,
@@ -127,10 +130,10 @@ describe("Floor item transfers", () => {
 		expect(returned.floorItems).toBe(dropped.floorItems);
 		const fresh = createGameState(before.run);
 		expect(
-			fresh.floorItems.some((entry) => entry.item.id === "starting:bag:1"),
+			fresh.floorItems.some((entry) => entry.item.id === "carried:sword"),
 		).toBe(false);
-		expect(fresh.bag.items.some((item) => item.id === "starting:bag:1")).toBe(
-			true,
+		expect(fresh.bag.items.some((item) => item.id === "carried:sword")).toBe(
+			false,
 		);
 	});
 	it.each(["pickup", "drop"] as const)(
@@ -151,7 +154,7 @@ describe("Floor item transfers", () => {
 			};
 			const result = resolvePlayerAction(before, {
 				type,
-				itemId: type === "pickup" ? "loot:1" : "starting:bag:1",
+				itemId: type === "pickup" ? "loot:1" : "carried:sword",
 			}).state;
 			expect(result.turn).toBe(1);
 			expect(result.player.health).toBe(9);
@@ -168,7 +171,7 @@ describe("Floor item transfers", () => {
 		before.run = { ...before.run, playerCoordinate: { row: 1, col: 12 } };
 		const dropped = resolvePlayerAction(before, {
 			type: "drop",
-			itemId: "starting:bag:1",
+			itemId: "carried:sword",
 		}).state;
 		expect(dropped.run).toBe(before.run);
 		const away = resolvePlayerAction(dropped, {

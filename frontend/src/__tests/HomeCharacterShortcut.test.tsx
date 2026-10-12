@@ -46,10 +46,10 @@ describe("Character shortcut", () => {
 			else await user.keyboard("i");
 			await screen.findByRole("dialog", { name: "Character" });
 			await user.click(
-				screen.getByRole("button", { name: "Iron sword, slot 1" }),
+				screen.getByRole("button", { name: "Main hand: Short sword" }),
 			);
 			fireEvent.keyDown(
-				screen.getByRole("button", { name: "Iron sword, slot 1" }),
+				screen.getByRole("button", { name: "Main hand: Short sword" }),
 				{ key: "i", repeat: true },
 			);
 			expect(screen.getByRole("dialog", { name: "Character" })).toBeVisible();

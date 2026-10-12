@@ -6,11 +6,13 @@ import { createGameState } from "../domain/game/GameState";
 import { createBag } from "../domain/items/Bag";
 import { createEquipment } from "../domain/items/Equipment";
 import { MONSTER_DEFINITIONS } from "../domain/monsters/Monster";
+import { bagWithSpareGear } from "./CarriedGearTestHelpers";
 import { resolvePlayerActionWithHits as resolvePlayerAction } from "./ControlledCombatTestHelpers";
 import { createCorridorEncounter } from "./MonsterEncounterTestHelpers";
 
 const game = () => ({
 	...createGameState(createCorridorEncounter()),
+	bag: bagWithSpareGear(),
 	monsters: [],
 });
 const ownership = (state: ReturnType<typeof createGameState>) =>
@@ -25,7 +27,7 @@ describe("Gear transfers", () => {
 		const snapshot = structuredClone(before);
 		const result = resolvePlayerAction(before, {
 			type: "equip",
-			itemId: "starting:bag:1",
+			itemId: "carried:sword",
 			slot: "mainHand",
 		});
 		expect(result.turnAdvanced).toBe(true);
@@ -45,10 +47,10 @@ describe("Gear transfers", () => {
 		const before = game();
 		const result = resolvePlayerAction(before, {
 			type: "equip",
-			itemId: "starting:bag:2",
+			itemId: "carried:shield",
 			slot: "offHand",
 		}).state;
-		expect(result.equipment.offHand?.id).toBe("starting:bag:2");
+		expect(result.equipment.offHand?.id).toBe("carried:shield");
 		expect(result.bag.items[1]?.id).toBe("starting:off-hand");
 		expect(ownership(result)).toEqual(ownership(before));
 	});
@@ -75,7 +77,7 @@ describe("Gear transfers", () => {
 		const before = { ...game(), equipment: createEquipment() };
 		const result = resolvePlayerAction(before, {
 			type: "equip",
-			itemId: "starting:bag:1",
+			itemId: "carried:sword",
 			slot: "mainHand",
 		}).state;
 		expect(result.equipment.mainHand?.kind).toBe("iron-sword");
@@ -116,8 +118,8 @@ describe("Gear transfers", () => {
 	});
 	it.each([
 		{ type: "equip", itemId: "missing", slot: "mainHand" },
-		{ type: "equip", itemId: "starting:bag:1", slot: "offHand" },
-		{ type: "equip", itemId: "starting:bag:2", slot: "mainHand" },
+		{ type: "equip", itemId: "carried:sword", slot: "offHand" },
+		{ type: "equip", itemId: "carried:shield", slot: "mainHand" },
 	] as const)(
 		"rejects an unavailable or incompatible item: $itemId in $slot",
 		(action) => {
@@ -167,7 +169,7 @@ describe("Gear action turns", () => {
 				};
 				const action =
 					type === "equip"
-						? { type, itemId: "starting:bag:2", slot: "offHand" as const }
+						? { type, itemId: "carried:shield", slot: "offHand" as const }
 						: { type, slot: "offHand" as const };
 				const result = resolvePlayerAction(state, action).state;
 				expect(result.player.health).toBe(type === "equip" ? 7 : 6);
@@ -220,7 +222,7 @@ describe("Gear action turns", () => {
 		};
 		const result = resolvePlayerAction(before, {
 			type: "equip",
-			itemId: "starting:bag:1",
+			itemId: "carried:sword",
 			slot: "mainHand",
 		}).state;
 		expect(result.run).toBe(before.run);
@@ -279,7 +281,7 @@ describe("Gear action turns", () => {
 		};
 		const dead = resolvePlayerAction(before, {
 			type: "equip",
-			itemId: "starting:bag:1",
+			itemId: "carried:sword",
 			slot: "mainHand",
 		}).state;
 		expect(dead.player.health).toBe(0);

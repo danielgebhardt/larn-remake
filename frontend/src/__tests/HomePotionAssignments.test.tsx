@@ -119,7 +119,9 @@ describe("Assigning potion shortcuts in Character", () => {
 		expect(fresh.getByLabelText("Potion slot 3 assignment")).toHaveTextContent(
 			"Empty",
 		);
-		await user.click(fresh.getByRole("button", { name: "Iron sword, slot 1" }));
+		await user.click(
+			fresh.getByRole("button", { name: "Main hand: Short sword" }),
+		);
 		expect(
 			fresh.queryByRole("button", { name: /Assign to potion slot/ }),
 		).not.toBeInTheDocument();

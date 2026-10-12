@@ -218,7 +218,7 @@ describe("Character sheet", () => {
 					"Wooden shield",
 				),
 			).toBeVisible();
-			expect(after.getByLabelText("Bag capacity")).toHaveTextContent("2 / 20");
+			expect(after.getByLabelText("Bag capacity")).toHaveTextContent("0 / 20");
 		},
 	);
 });

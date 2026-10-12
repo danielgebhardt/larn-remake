@@ -35,6 +35,13 @@ describe("Version-1 save compatibility", () => {
 			value: document,
 		});
 	});
+	it("keeps carried gear from an old save even though new bags are empty", () => {
+		const { adventure } = loadVersionOne();
+		expect(adventure.state.bag.items).toEqual([
+			{ id: "starting:bag:1", kind: "iron-sword" },
+			{ id: "starting:bag:2", kind: "wooden-shield" },
+		]);
+	});
 	it("does not implicitly add new top-level game state to the current format", () => {
 		const { document, adventure } = loadVersionOne();
 		const extendedState = { ...adventure.state, uiSelectedItem: "bag:sword" };

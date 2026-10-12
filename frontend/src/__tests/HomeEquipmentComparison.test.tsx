@@ -109,9 +109,7 @@ describe("Equipment comparison in Character", () => {
 		await user.keyboard("c");
 		await user.click(screen.getByRole("button", { name: "New Dungeon" }));
 		await user.click(screen.getByRole("button", { name: "Character" }));
-		expect(
-			screen.getByRole("button", { name: "Iron sword, slot 1" }),
-		).toHaveAccessibleDescription(/Better/);
+		expect(screen.getByText("Your bag is empty.")).toBeVisible();
 		expect(screen.getByLabelText("Turn count")).toHaveTextContent("Turn 0");
 	});
 });

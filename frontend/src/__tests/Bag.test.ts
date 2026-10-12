@@ -8,6 +8,7 @@ import {
 	createStartingBag,
 } from "../domain/items/Bag";
 import type { ItemInstance } from "../domain/items/Item";
+import { bagWithSpareGear } from "./CarriedGearTestHelpers";
 import { resolvePlayerActionWithHits as resolvePlayerAction } from "./ControlledCombatTestHelpers";
 import { createCorridorEncounter } from "./MonsterEncounterTestHelpers";
 import { createThreeFloorTraversalRun } from "./testhelpers";
@@ -48,31 +49,24 @@ describe("Bag capacity and ownership", () => {
 });
 
 describe("Starting and retained bags", () => {
-	it("starts with spare gear separate from the equipped item identities", () => {
+	it("starts with an empty bag while keeping the equipped sword and shield", () => {
 		const game = createGameState(createThreeFloorTraversalRun());
-		expect(game.bag.items.map((item) => item.kind)).toEqual([
-			"iron-sword",
-			"wooden-shield",
-		]);
-		const ids = [
-			game.equipment.mainHand?.id,
-			game.equipment.offHand?.id,
-			...game.bag.items.map((item) => item.id),
-		];
-		expect(new Set(ids).size).toBe(4);
+		expect(game.bag.items).toEqual([]);
+		expect(game.equipment.mainHand?.kind).toBe("short-sword");
+		expect(game.equipment.offHand?.kind).toBe("wooden-shield");
 	});
 	it("creates fresh bag instances with reproducible initial contents", () => {
 		const first = createStartingBag();
 		const next = createStartingBag();
 		expect(next).toEqual(first);
 		expect(next.items).not.toBe(first.items);
-		expect(next.items[0]).not.toBe(first.items[0]);
+		expect(next.items).toEqual([]);
 	});
-	it("restores the starter bag on replay without changing the previous bag", () => {
+	it("empties the bag on replay without changing the previous bag", () => {
 		const original = createGameState(createThreeFloorTraversalRun());
-		const changed = { ...original, bag: createBag() };
+		const changed = { ...original, bag: bagWithSpareGear() };
 		expect(createGameState(changed.run).bag).toEqual(original.bag);
-		expect(changed.bag.items).toEqual([]);
+		expect(changed.bag.items).toEqual(bagWithSpareGear().items);
 	});
 	it("retains the bag through movement, floor traversal, waiting, and blocked movement", () => {
 		const original = {
@@ -104,6 +98,7 @@ describe("Starting and retained bags", () => {
 	it("retains carried gear in combat without adding its bonuses to attack or armor", () => {
 		const game = {
 			...createGameState(createCorridorEncounter()),
+			bag: bagWithSpareGear(),
 			monsters: [
 				{
 					intent: { type: "idle" as const },

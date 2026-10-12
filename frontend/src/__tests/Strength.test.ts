@@ -1,4 +1,5 @@
 // @vitest-environment node
+
 import { describe, expect, it } from "vitest";
 import { deriveAttributes } from "../domain/game/Attributes";
 import { deriveCombatStats } from "../domain/game/CombatStats";
@@ -7,6 +8,7 @@ import {
 	createEquipment,
 	createStartingEquipment,
 } from "../domain/items/Equipment";
+import { bagWithSpareGear } from "./CarriedGearTestHelpers";
 import { resolvePlayerActionWithHits } from "./ControlledCombatTestHelpers";
 import { createCorridorEncounter } from "./MonsterEncounterTestHelpers";
 
@@ -47,7 +49,10 @@ describe("Earned Strength", () => {
 		});
 	});
 	it("uses newly earned Strength on the next attack, leaving monster damage unchanged", () => {
-		const initial = createGameState(createCorridorEncounter());
+		const initial = {
+			...createGameState(createCorridorEncounter()),
+			bag: bagWithSpareGear(),
+		};
 		const before: GameState = {
 			...initial,
 			run: { ...initial.run, playerCoordinate: { row: 1, col: 2 } },
@@ -101,7 +106,10 @@ describe("Earned Strength", () => {
 		expect(before.progression.experience).toBe(29);
 	});
 	it("keeps earned Strength when equipping and removing a weapon, then resets on replay", () => {
-		const initial = createGameState(createCorridorEncounter());
+		const initial = {
+			...createGameState(createCorridorEncounter()),
+			bag: bagWithSpareGear(),
+		};
 		const before = {
 			...initial,
 			monsters: [],
@@ -109,7 +117,7 @@ describe("Earned Strength", () => {
 		};
 		const equipped = resolvePlayerActionWithHits(before, {
 			type: "equip",
-			itemId: "starting:bag:1",
+			itemId: "carried:sword",
 			slot: "mainHand",
 		}).state;
 		expect(

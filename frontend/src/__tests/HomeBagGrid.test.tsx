@@ -1,6 +1,8 @@
 import { screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
+import * as GameState from "../domain/game/GameState";
+import { bagWithSpareGear } from "./CarriedGearTestHelpers";
 import {
 	renderHome as render,
 	resetHomeTestState,
@@ -10,6 +12,11 @@ import { createCorridorEncounter } from "./MonsterEncounterTestHelpers";
 import Home from "./TestHome";
 
 const setup = async () => {
+	const create = GameState.createGameState;
+	vi.spyOn(GameState, "createGameState").mockImplementationOnce((run) => ({
+		...create(run),
+		bag: bagWithSpareGear(),
+	}));
 	stubDungeonRun(createCorridorEncounter());
 	render(<Home />);
 	const user = userEvent.setup();

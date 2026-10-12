@@ -11,8 +11,4 @@ export const createBag = (items: readonly ItemInstance[] = []): Bag => {
 	return { items: [...items] };
 };
 
-export const createStartingBag = (): Bag =>
-	createBag([
-		{ id: "starting:bag:1", kind: "iron-sword" },
-		{ id: "starting:bag:2", kind: "wooden-shield" },
-	]);
+export const createStartingBag = (): Bag => createBag();

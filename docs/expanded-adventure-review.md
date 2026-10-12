@@ -247,3 +247,9 @@ Fatal actions close competing menus/choosers so the death dialog owns focus. Arr
 A living player now warns strictly below 50% of their actual maximum HP; exactly half does not warn. The same derived predicate drives the red health value, stronger static badge and a 20% destructive-color tint mixed with the adventure container’s card background. The padded area is noticeable in both themes while terrain/fog retain their existing contrast. Healing, equipment capacity changes, level growth, restart and restored state recalculate naturally. Death has its separate modal rather than a low-health badge.
 
 Threshold tests now cover higher capacities, the exact half boundary, capacity changes and damage→Character→potion/restart flows. The new cases failed first, then passed. UI tests assert the semantic warning state rather than the old border class. Browser imported a 4/10 run and verified the red container/badge in both dark and light appearances. Combat/resource rules and saves are unchanged.
+
+## #204 — Empty starting bag
+
+New adventures and seed replays keep the equipped short sword and wooden shield but start with all 20 bag slots available. This removes the compulsory immediate iron-sword upgrade. Existing save data keeps its actual carried items, with a captured version-1 save asserting that explicitly.
+
+Transfer and item-inspection tests now supply spare gear explicitly through a small fixture. Empty-start pickup tests assert slot 1 and restart tests assert an empty bag; no change to equipment bonuses, potion assignment or spell knowledge. The save-continuation diagnostic test explicitly supplies a carried upgrade to exercise its victorious continuation scenario. New diagnostic runs use the actual empty starting bag and need a fresh balance baseline in #197/#198.

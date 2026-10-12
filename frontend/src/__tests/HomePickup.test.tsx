@@ -123,7 +123,7 @@ describe("G pickup from gameplay", () => {
 			).toHaveFocus();
 			await user.click(screen.getByRole("button", { name: "Character" }));
 			expect(
-				await screen.findByRole("button", { name: "Healing potion, slot 3" }),
+				await screen.findByRole("button", { name: "Healing potion, slot 1" }),
 			).toBeVisible();
 		},
 	);
@@ -371,7 +371,7 @@ describe("G pickup from gameplay", () => {
 		);
 		await user.click(screen.getByRole("button", { name: "Character" }));
 		expect(
-			await screen.findByRole("button", { name: "Healing potion, slot 3" }),
+			await screen.findByRole("button", { name: "Healing potion, slot 1" }),
 		).toBeVisible();
 		expect(
 			screen.getByRole("button", { name: "Pick up Wooden shield, item 1" }),

@@ -2,6 +2,7 @@ import { screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import * as GameState from "../domain/game/GameState";
+import { bagWithSpareGear } from "./CarriedGearTestHelpers";
 import {
 	renderHome as render,
 	resetHomeTestState,
@@ -14,6 +15,11 @@ afterEach(resetHomeTestState);
 describe("Picking up and dropping from Character", () => {
 	it("drops then picks up the same item with one turn each and leaves background gameplay paused", async () => {
 		stubDungeonRun(createThreeFloorTraversalRun());
+		const create = GameState.createGameState;
+		vi.spyOn(GameState, "createGameState").mockImplementationOnce((run) => ({
+			...create(run),
+			bag: bagWithSpareGear(),
+		}));
 		render(<Home />);
 		const user = userEvent.setup();
 		await user.click(screen.getByRole("button", { name: "Character" }));

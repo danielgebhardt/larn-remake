@@ -6,6 +6,7 @@ import * as GameState from "../domain/game/GameState.ts";
 import type { Monster } from "../domain/monsters/Monster.ts";
 import * as MonsterPursuit from "../domain/monsters/MonsterPursuit";
 import { ThemeProvider } from "../settings/ThemeProvider.tsx";
+import { bagWithSpareGear } from "./CarriedGearTestHelpers";
 import { stubDungeonRun } from "./HomeTestHelpers.tsx";
 import Home from "./TestHome";
 import { createTestDungeonFloor } from "./testhelpers.ts";
@@ -51,11 +52,14 @@ export const renderEncounter = (initialHealth?: number) => {
 	const stubs = stubDungeonRun(run, [goblin]);
 	// These fixtures isolate combat and recovery; HomePursuit exercises real AI.
 	vi.spyOn(MonsterPursuit, "selectPursuitStep").mockReturnValue(undefined);
-	if (initialHealth !== undefined) {
+	{
 		const create = GameState.createGameState;
 		vi.spyOn(GameState, "createGameState").mockImplementationOnce((run) => ({
 			...create(run),
-			player: { health: initialHealth, maxHealth: 10 },
+			bag: bagWithSpareGear(),
+			...(initialHealth === undefined
+				? {}
+				: { player: { health: initialHealth, maxHealth: 10 } }),
 		}));
 	}
 	render(<Home initialFogConfiguration={{ enabled: true, radius: 1 }} />, {

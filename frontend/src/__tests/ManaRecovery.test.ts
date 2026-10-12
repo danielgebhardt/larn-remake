@@ -1,13 +1,16 @@
 // @vitest-environment node
+
 import { describe, expect, it } from "vitest";
 import { createGameState, type GameState } from "../domain/game/GameState";
 import type { PlayerAction } from "../domain/game/PlayerActions";
 import { createBag } from "../domain/items/Bag";
+import { bagWithSpareGear } from "./CarriedGearTestHelpers";
 import { resolvePlayerActionWithHits } from "./ControlledCombatTestHelpers";
 import { createCorridorEncounter } from "./MonsterEncounterTestHelpers";
 
 const quiet = (): GameState => ({
 	...createGameState(createCorridorEncounter()),
+	bag: bagWithSpareGear(),
 	monsters: [],
 	mana: 4,
 });
@@ -36,9 +39,9 @@ describe("Mana recovery on committed turns", () => {
 	const actions: PlayerAction[] = [
 		{ type: "move", direction: "right" },
 		{ type: "wait" },
-		{ type: "equip", itemId: "starting:bag:1", slot: "mainHand" },
+		{ type: "equip", itemId: "carried:sword", slot: "mainHand" },
 		{ type: "unequip", slot: "offHand" },
-		{ type: "drop", itemId: "starting:bag:1" },
+		{ type: "drop", itemId: "carried:sword" },
 		{ type: "pickup", itemId: "ground" },
 		{ type: "consume", itemId: "potion" },
 		{ type: "use-hotbar", slot: 1 },

@@ -1,9 +1,11 @@
 // @vitest-environment node
+
 import { describe, expect, it } from "vitest";
 import {
 	bruteEncounter,
 	preparingBrute,
 } from "../../src/__tests/BruteTestHelpers";
+import { bagWithSpareGear } from "../../src/__tests/CarriedGearTestHelpers";
 import { createBag } from "../../src/domain/items/Bag";
 import { createRoutes } from "../review-routing.mjs";
 import { chooseTacticalAwareAction } from "../review-tactics.mjs";
@@ -82,6 +84,7 @@ describe("Tactical-aware diagnostic decisions", () => {
 	});
 	it("does not dodge an inactive floor's preparation", () => {
 		const state = preparingBrute();
+		state.bag = bagWithSpareGear();
 		state.monsters = state.monsters.map((actor) => ({
 			...actor,
 			floorNumber: 3,

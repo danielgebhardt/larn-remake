@@ -8,7 +8,12 @@ export const EFFECT_DEFINITIONS = {
 	rooted: { name: "Webbed", duration: 3 },
 	asleep: { name: "Asleep", duration: 3 },
 	afraid: { name: "Afraid", duration: 3 },
-	poisoned: { name: "Poisoned", duration: 3 },
+	poisoned: {
+		name: "Poisoned",
+		duration: 3,
+		monsterDamage: 2,
+		playerDamage: 1,
+	},
 	renewing: { name: "Renewal", duration: 4 },
 	protected: { name: "Protection", duration: 6 },
 	strengthened: { name: "Strength", duration: 6 },
@@ -19,6 +24,14 @@ export const PLAYER_EFFECT_KINDS = [
 	"protected",
 	"strengthened",
 	"nimble",
+	"poisoned",
+] as const;
+export const MONSTER_EFFECT_KINDS = [
+	"slowed",
+	"rooted",
+	"asleep",
+	"afraid",
+	"poisoned",
 ] as const;
 export type PlayerEffectKind = (typeof PLAYER_EFFECT_KINDS)[number];
 export type EffectKind = keyof typeof EFFECT_DEFINITIONS;
@@ -103,10 +116,37 @@ export const advanceTimedEffects = (state: GameState): GameState => {
 		}
 		changed = true;
 		if (next.player.health > 0 && effect.kind === "poisoned" && actor)
-			next = damageMonster(next, actor, 2, {
-				type: "condition-hit",
-				condition: "poisoned",
-			});
+			next = damageMonster(
+				next,
+				actor,
+				EFFECT_DEFINITIONS.poisoned.monsterDamage,
+				{
+					type: "condition-hit",
+					condition: "poisoned",
+				},
+			);
+		if (next.player.health > 0 && isPlayer && effect.kind === "poisoned") {
+			const damage = Math.min(
+				next.player.health,
+				EFFECT_DEFINITIONS.poisoned.playerDamage,
+			);
+			const health = next.player.health - damage;
+			next = {
+				...next,
+				player: { ...next.player, health },
+				activityHistory: appendActivityEvents(next.activityHistory, [
+					{
+						type: "player-condition-hit",
+						condition: "poisoned",
+						damage,
+						turn: next.turn,
+					},
+					...(health === 0
+						? [{ type: "player-died" as const, turn: next.turn }]
+						: []),
+				]),
+			};
+		}
 		if (next.player.health > 0 && isPlayer && effect.kind === "renewing") {
 			const recovered = Math.min(2, next.player.maxHealth - next.player.health);
 			if (recovered > 0)
@@ -146,17 +186,7 @@ export const applyPlayerEffect = (
 			turn: state.turn,
 		},
 	]),
-	effects: [
-		...state.effects.filter(
-			(effect) => effect.actorId !== "player" || effect.kind !== kind,
-		),
-		{
-			actorId: "player",
-			floorNumber: null,
-			kind: kind,
-			remaining: EFFECT_DEFINITIONS[kind].duration,
-		},
-	],
+	effects: refreshPlayerEffect(state.effects, kind),
 });
 
 export const hasMonsterEffect = (
@@ -167,3 +197,18 @@ export const hasMonsterEffect = (
 	state.effects.some(
 		(effect) => effect.actorId === monster.id && effect.kind === kind,
 	);
+
+export const refreshPlayerEffect = (
+	effects: readonly TimedEffect[],
+	kind: PlayerEffectKind,
+): readonly TimedEffect[] => [
+	...effects.filter(
+		(effect) => effect.actorId !== "player" || effect.kind !== kind,
+	),
+	{
+		actorId: "player",
+		floorNumber: null,
+		kind,
+		remaining: EFFECT_DEFINITIONS[kind].duration,
+	},
+];

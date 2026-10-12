@@ -433,3 +433,5 @@ Two ring slots are available in Character. Rings fit either slot; choosing a slo
 Ring bonuses are derived from equipped item definitions: Strength/Dexterity/Intelligence +2, Vitality/Mana capacity +4, copper armor +1. Capacity increases do not heal/refill; removing capacity clamps current resources. Effective combat, spells and status displays use the same loadout calculations.
 
 Equipment comparisons list all relevant contributions. Green/red indicate clear upgrades/downgrades, blue indicates equal gear or an explicitly explained tradeoff. Rings compare each compatible slot. Basic equipment has upper floor limits so the deepest loot pool contains stronger gear and supplies rather than repeated starter equipment.
+
+Giant spider bites poison on a landed hit: 1 damage after retaliation for three committed phases, refreshed rather than stacked. A red condition badge shows the remaining timer. Player poison travels with you across floors/saves and a fatal tick cannot be reversed by ongoing Renewal.

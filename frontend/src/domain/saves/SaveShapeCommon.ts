@@ -110,6 +110,10 @@ const eventFields = {
 	},
 	"spell-hit": { spell: spellKind, monster: monsterKind, damage: natural },
 	"spell-repositioned": { spell: spellKind, monster: optional(monsterKind) },
+	"player-condition-hit": {
+		condition: oneOf(Object.keys(EFFECT_DEFINITIONS)),
+		damage: natural,
+	},
 	"spell-healed": { spell: spellKind, recovered: natural },
 	"player-hit": { monster: monsterKind, damage: natural },
 	"monster-hit": { monster: monsterKind, damage: natural },

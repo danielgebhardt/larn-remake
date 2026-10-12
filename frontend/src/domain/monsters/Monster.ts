@@ -35,6 +35,7 @@ export type MonsterDefinition = {
 	// Disabled content can be exercised in encounters before seeded rollout.
 	spawnEnabled?: boolean;
 	actionInterval?: number;
+	onHitCondition?: "poisoned";
 };
 export const validateMonsterDefinition = (
 	definition: MonsterDefinition,
@@ -53,10 +54,12 @@ export const validateMonsterDefinition = (
 		spawnEnabled,
 		preparesAttack,
 		actionInterval,
+		onHitCondition,
 	} = definition;
 	if (
 		(actionInterval !== undefined &&
 			(!Number.isSafeInteger(actionInterval) || actionInterval < 1)) ||
+		(onHitCondition !== undefined && onHitCondition !== "poisoned") ||
 		!Number.isSafeInteger(experienceReward) ||
 		experienceReward <= 0 ||
 		!Number.isFinite(dropChance) ||
@@ -211,6 +214,7 @@ const monsterCatalog = {
 		detectionRadius: 6,
 		spawnWeight: 1,
 		dropChance: 0.45,
+		onHitCondition: "poisoned",
 		lootPreferences: {},
 	},
 } satisfies Record<string, MonsterDefinition>;

@@ -36,7 +36,11 @@ export const formatActivityEvent = (event: ActivityEvent): string => {
 			return `${prefix}You avoid the ${MONSTER_DEFINITIONS[event.monster].name}'s heavy attack.`;
 		case "player-missed":
 			return `${prefix}You miss the ${MONSTER_DEFINITIONS[event.monster].name}.`;
+		case "player-condition-hit":
+			return `${prefix}${EFFECT_DEFINITIONS[event.condition].name} deals ${event.damage} damage to you.`;
 		case "player-condition-applied":
+			if (event.condition === "poisoned")
+				return `${prefix}You are poisoned for ${event.duration} committed turns.`;
 			return `${prefix}You gain ${EFFECT_DEFINITIONS[event.condition].name} for ${event.duration} committed turns.`;
 		case "condition-hit":
 			return `${prefix}${EFFECT_DEFINITIONS[event.condition].name} deals ${event.damage} damage to the ${MONSTER_DEFINITIONS[event.monster].name}.`;

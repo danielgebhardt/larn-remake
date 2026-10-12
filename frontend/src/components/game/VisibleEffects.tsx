@@ -41,7 +41,11 @@ const VisibleEffects = ({
 					{own.map((effect) => (
 						<li
 							key={effect.kind}
-							className="rounded-md border border-emerald-500/40 bg-emerald-500/10 px-2 py-1 text-emerald-800 dark:text-emerald-200"
+							className={
+								effect.kind === "poisoned"
+									? "rounded-md border border-destructive/40 bg-destructive/10 px-2 py-1 text-destructive"
+									: "rounded-md border border-emerald-500/40 bg-emerald-500/10 px-2 py-1 text-emerald-800 dark:text-emerald-200"
+							}
 						>
 							{effectLabel(effect)}
 						</li>

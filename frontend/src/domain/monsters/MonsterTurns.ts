@@ -13,7 +13,12 @@ import {
 	deriveAccuracy,
 	resolveMeleeAttack,
 } from "../game/MeleeRules";
-import { hasMonsterEffect, monsterSkipsAction } from "../game/TimedEffects";
+import {
+	EFFECT_DEFINITIONS,
+	hasMonsterEffect,
+	monsterSkipsAction,
+	refreshPlayerEffect,
+} from "../game/TimedEffects";
 import { MONSTER_DEFINITIONS } from "./Monster";
 import { orthogonalDistance } from "./MonsterLocations";
 import { detectsPlayer, selectPursuitStep } from "./MonsterPursuit";
@@ -27,6 +32,7 @@ export const resolveMonsterPhase = (
 	if (state.quest.victory) return state;
 	let player = state.player;
 	let monsters = state.monsters;
+	let effects = state.effects;
 	const events: ActivityEvent[] = [];
 	const { armor } = deriveCombatStats(
 		state.equipment,
@@ -161,6 +167,15 @@ export const resolveMonsterPhase = (
 			monster: monster.kind,
 			damage,
 		});
+		if (player.health > 0 && definition.onHitCondition) {
+			effects = refreshPlayerEffect(effects, definition.onHitCondition);
+			events.push({
+				type: "player-condition-applied",
+				condition: definition.onHitCondition,
+				duration: EFFECT_DEFINITIONS[definition.onHitCondition].duration,
+				turn: state.turn,
+			});
+		}
 		if (player.health === 0)
 			events.push({ type: "player-died", turn: state.turn });
 	}
@@ -169,6 +184,7 @@ export const resolveMonsterPhase = (
 		...state,
 		player,
 		monsters,
+		effects,
 		activityHistory: appendActivityEvents(state.activityHistory, events),
 	};
 };

@@ -9,6 +9,11 @@ import type { SpellKind } from "./Spells";
 import type { EffectKind } from "./TimedEffects";
 
 export type ActivityEvent = { turn: number } & (
+	| {
+			type: "throne-used";
+			outcome: import("../objects/DungeonThrones").ThroneOutcome;
+	  }
+	| { type: "throne-wound"; damage: number }
 	| { type: "fountain-restored"; health: number; mana: number }
 	| { type: "fountain-poisoned"; damage: number }
 	| { type: "trap-disarmed" }

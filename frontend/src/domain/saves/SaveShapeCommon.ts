@@ -95,6 +95,17 @@ const victory = object({
 });
 
 const eventFields = {
+	"throne-used": {
+		outcome: oneOf([
+			"blessing",
+			"recovery",
+			"curse",
+			"relocation",
+			"treasure",
+			"wound",
+		]),
+	},
+	"throne-wound": { damage: integer(1, 8) },
 	"fountain-restored": { health: natural, mana: natural },
 	"fountain-poisoned": { damage: integer(1, 3) },
 	"trap-disarmed": {},

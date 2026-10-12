@@ -8,6 +8,10 @@ import { MONSTER_DEFINITIONS } from "../../domain/monsters/Monster";
 export const formatActivityEvent = (event: ActivityEvent): string => {
 	const prefix = `Turn ${event.turn} — `;
 	switch (event.type) {
+		case "throne-wound":
+			return `${prefix}The throne wounds you for ${event.damage} damage.`;
+		case "throne-used":
+			return `${prefix}${{ blessing: "The throne grants lasting experience.", recovery: "The throne restores up to 8 health and 6 mana.", curse: "The throne curses you with poison.", relocation: "The throne carries you to a safe room tile on this floor.", treasure: "You pry loose the throne’s treasure.", wound: "The throne punishes your greed." }[event.outcome]} Its power is spent.`;
 		case "fountain-restored":
 			return `${prefix}The fountain restores ${event.health} health and ${event.mana} mana. It runs dry.`;
 		case "fountain-poisoned":

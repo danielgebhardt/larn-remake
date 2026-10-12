@@ -3,15 +3,11 @@ import { MONSTER_DEFINITIONS, type Monster } from "../monsters/Monster";
 import { resistedDamage } from "../monsters/MonsterResistance";
 import { goldAmount } from "../objects/Gold";
 import { type ActivityEvent, appendActivityEvents } from "./ActivityHistory";
-import {
-	dexterityAtLevel,
-	intelligenceAtLevel,
-	strengthAtLevel,
-} from "./Attributes";
+
 import type { DamageElement } from "./DamageElements";
+import { experienceReward } from "./ExperienceRewards";
 import type { GameState } from "./GameState";
-import { growManaCapacity } from "./Mana";
-import { gainExperience, HEALTH_PER_LEVEL } from "./Progression";
+
 import type { SpellKind } from "./Spells";
 import { SPELL_DEFINITIONS } from "./Spells";
 import type { EffectKind } from "./TimedEffects";
@@ -70,45 +66,12 @@ export const damageMonster = (
 	let mana = state.mana;
 	if (health === 0) {
 		const reward = MONSTER_DEFINITIONS[monster.kind].experienceReward;
-		const gained = gainExperience(progression, player, reward);
-		progression = gained.progression;
+		const gained = experienceReward(state, reward);
 		player = gained.player;
-		mana = growManaCapacity(
-			state.mana,
-			state.progression,
-			progression,
-			state.equipment,
-		);
-		events.push({ type: "experience-gained", amount: reward, turn });
-		for (const level of gained.levels) {
-			events.push({
-				type: "level-gained",
-				level,
-				healthGain: HEALTH_PER_LEVEL,
-				turn,
-			});
-			if (strengthAtLevel(level) > strengthAtLevel(level - 1))
-				events.push({
-					type: "attribute-gained",
-					attribute: "Strength",
-					value: strengthAtLevel(level),
-					turn,
-				});
-			if (intelligenceAtLevel(level) > intelligenceAtLevel(level - 1))
-				events.push({
-					type: "attribute-gained",
-					attribute: "Intelligence",
-					value: intelligenceAtLevel(level),
-					turn,
-				});
-			if (dexterityAtLevel(level) > dexterityAtLevel(level - 1))
-				events.push({
-					type: "attribute-gained",
-					attribute: "Dexterity",
-					value: dexterityAtLevel(level),
-					turn,
-				});
-		}
+		progression = gained.progression;
+		mana = gained.mana;
+		events.push(...gained.events);
+
 		const drop = createMonsterDrop(state.run.seed, monster);
 		if (drop && !floorItems.some((entry) => entry.item.id === drop.item.id)) {
 			floorItems = [...floorItems, drop];

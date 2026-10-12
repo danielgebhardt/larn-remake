@@ -1,5 +1,6 @@
 import {
 	Archive,
+	Armchair,
 	Coins,
 	DoorClosed,
 	DoorOpen,
@@ -18,6 +19,7 @@ const icons: Record<DungeonObjectKind, LucideIcon> = {
 	chest: Archive,
 	trap: TriangleAlert,
 	fountain: Droplets,
+	throne: Armchair,
 };
 const DungeonObjectIcon = ({ object }: { object: DungeonObject }) => {
 	const Icon =

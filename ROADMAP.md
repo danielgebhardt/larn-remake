@@ -9,7 +9,7 @@ This project is a remake and reimagining of Larn, and a place to practice TDD an
 - The developer remains the primary owner of architecture, implementation, tests, and acceptance. AI can plan, review, pair, or implement when explicitly asked. Creating issues does not authorize implementing them.
 - Usually work test-first, one failing test at a time. Favor readable behavior tests and no more than one `describe` nested inside another.
 - Prefer stories that demonstrate a visible capability or a small rule with a clear consumer. Complete larger systems through small dependent slices.
-- When an epic is explicitly delegated, use a branch, one commit per story, and project statuses Backlog/Ready → In Progress → In Review → Done. Final acceptance remains the developer's responsibility.
+- When an epic is explicitly delegated, use a branch, one commit per story, native GitHub epic/sub-issue links, and project statuses Backlog/Ready → In Progress → In Review → Done. Final acceptance remains the developer's responsibility.
 - Keep the domain independent of React. Add abstractions when more than one concrete behavior needs them; avoid a generalized RPG modifier engine in advance.
 - Follow [Definition of Done](docs/definition-of-done.md) and [AI working agreement](docs/ai-working-agreement.md). Run relevant checks and use browser review for actual layout, focus, scrolling, and accessibility behavior.
 
@@ -45,9 +45,9 @@ Current limitations relevant to the next work:
 | 3 | First winnable adventure | Merged: descent, cure recovery and return victory. |
 | 4 | Experience, levels, and useful attributes | Merged: capped growth, XP, Strength and Dexterity. |
 | 5 | Mana and practical spellcasting | Merged: Intelligence, two known spells, targeting and renewable mana. |
-| 6 | Distinct enemy tactics | Planned in #146: cover, a response turn and a balance checkpoint. |
-| 7 | Dungeon interactions | Doors, finite-use rewards and visible traps create exploration choices. |
-| 8 | Spellbooks, then town/gold | More acquired abilities and a broader run economy when useful. |
+| 6 | Distinct enemy tactics | Merged #146: cover, response turns and tactical diagnostics. |
+| 7 | Expanded adventure | Implemented for review: twenty creatures/spells, found books, rings, finite discoveries and gold. |
+| 8 | Human playtest and pacing | Review combat/recovery and quiet travel together, then difficulty and town/economy. |
 
 Manual local save/resume is merged. CI remains deferred until prioritized. Supporting twenty floors is a configuration/content capability; it is not a commitment to fill or balance twenty floors before the first short adventure works.
 
@@ -266,9 +266,9 @@ Completed, reviewed and merged into main from `codex/turn-ownership-cleanup`:
 
 All 1,425 frontend tests, Biome, TypeScript checks and the production build passed at the final code commit. See [the readiness review](docs/codebase-review-2026-10-11.md) for the original findings, commit explanations and deferred work. An adventure coordinator hook in Home remains optional; measure crowded pursuit and threat rendering in the tactics checkpoint before optimizing further.
 
-## Next epic: Distinct enemy tactics
+## Completed epic: Distinct enemy tactics
 
-[Epic #146](https://github.com/danielgebhardt/larn-remake/issues/146) is underway on `codex/enemy-tactics`. Stories #147–153 implement instance-owned intent, save format v2 with validated v1 migration, controlled archer shots, the brute’s fixed-tile response opportunity, tactical visuals/Help with fog-safe threat markers, seeded floor-appropriate mixed populations within existing caps, save/replay plus complete-adventure integration coverage, and matched tactical diagnostics with a measured blocked-pursuit optimization. Implementation is ready for developer review and human playtest; acceptance and merge remain pending. Balance values remain unchanged. See [final playtest results and recommendations](docs/enemy-tactics-playtest.md). See [the story review guide](docs/enemy-tactics-review.md). The readiness cleanup above is merged; its turn and protected-arrival contracts are reused.
+[Epic #146](https://github.com/danielgebhardt/larn-remake/issues/146) was reviewed and merged from `codex/enemy-tactics`. Stories #147–153 implement instance-owned intent, save format v2 with validated v1 migration, controlled archer shots, the brute’s fixed-tile response opportunity, tactical visuals/Help with fog-safe threat markers, seeded floor-appropriate mixed populations within existing caps, save/replay plus complete-adventure integration coverage, and matched tactical diagnostics with a measured blocked-pursuit optimization. Implementation is merged; human playtests and balance decisions remain ongoing. Balance values remain unchanged. See [final playtest results and recommendations](docs/enemy-tactics-playtest.md). See [the story review guide](docs/enemy-tactics-review.md). The readiness cleanup above is merged; its turn and protected-arrival contracts are reused.
 
 | Order | Story | Outcome |
 | --- | --- | --- |
@@ -314,6 +314,10 @@ Cure-and-return, character progression, mana/spellcasting, and local save/resume
 
 ## Expanded adventure milestone
 
-The next authorized implementation spans six epics, indexed in [the story plan](docs/expanded-adventure-plan.md). Recommended testing and balance configuration becomes **60×60×20**. Character cap becomes **20**, with intended late-adventure upper levels rather than reaching the cap halfway down. Establish progression early, then revisit the curve with the expanded creature catalog and matched seed evidence.
+The implementation on `codex/expanded-adventure` spans six epics, indexed in [the story plan](docs/expanded-adventure-plan.md). Recommended testing and balance configuration becomes **60×60×20**. Character cap becomes **20**, with intended late-adventure upper levels rather than reaching the cap halfway down. Establish progression early, then revisit the curve with the expanded creature catalog and matched seed evidence.
 
 Ordered priorities: Settings keyboard-focus fix; welcome/start/resume; level progression; found books and twenty total spells with run-specific discovery; rings and useful equipment; twenty total creature kinds; doors, gold, chests, traps, fountains, thrones and shrines; resource/pacing review and complete adventure verification. Existing supports for other map sizes remain correctness requirements, not equal balance commitments. Town, manual attributes, complex initiative and crafting remain deferred. One commit per story on `codex/expanded-adventure`, completed stories In review pending developer acceptance.
+
+The expanded milestone is now implemented for review, with a one-commit-per-story guide in [expanded adventure review notes](docs/expanded-adventure-review.md). It includes compatible save migrations through v10 and the playtest-polish stories: dedicated death dialog, below-half health tint, empty starting bag, spent-object descriptions, seven-column Character bag, five-tile camera margin, numbered object interaction and developer SVG catalog. Recovery remains every 30 turns after matched 20/30/50 comparisons; population remains capped at twelve. The review records long quiet stretches on large maps, so next gameplay tuning should consider travel, encounter strength, supplies and XP together. These are implemented branch changes awaiting developer acceptance, not a claim that main is already updated.
+
+[Vercel/static frontend publishing #211](https://github.com/danielgebhardt/larn-remake/issues/211), [capable enemies opening doors #212](https://github.com/danielgebhardt/larn-remake/issues/212), and [difficulty controls #213](https://github.com/danielgebhardt/larn-remake/issues/213) remain backlog choices. The developer is investigating hosting; no deployment was performed. Future epics use native parent/sub-issues consistently.

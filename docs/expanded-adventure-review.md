@@ -315,3 +315,24 @@ A shared ordered nearby-object selector keeps domain and UI targeting consistent
 A default-on feature flag adds Catalog beside the header menus. The searchable sheet derives its cards from the existing monster, spell, item, object and terrain definitions and renders their actual registered SVGs at 24px and 48px. It includes stable kinds, monster traits/stats/floor bands, gear bonuses and spawn weights, spell cost/range/effects, and live/spent object previews. Filtering hides empty groups; the sheet remains scrollable and keyboard-accessible in both themes. No duplicate content registry or privileged gameplay controls were added.
 
 Catalog opening pauses normal gameplay and targeting, inspection never spends a turn, and closing restores map focus. A visibility flag can hide the entry point; account-backed authorization remains future work. Tests first failed for the missing entry point, then verified definition-driven counts, filtering, paused shortcuts and flag-off behavior. Browser checks inspected the full dark-mode gallery and filtered light-mode stair previews. The component is loaded lazily in a separate approximately 4.7kB chunk.
+
+
+## #200 — Final continuation and review handoff
+
+The milestone and playtest polish are ready for developer review on `codex/expanded-adventure`. Each implementation story has its own commit; In review means implemented and checked, not accepted or merged. README and ROADMAP now describe the actual starting bag, proportional health warning, current save format and deferred hosting/door-AI/difficulty work.
+
+A generated-adventure test covers both recommended 60×60×20 and maximum 100×100×20 runs with their real 240 actors and discoveries. It round-trips the current save, then compares eight subsequent committed phases and exploration state, including the 30-turn mana recovery boundary. Existing captured v1 compatibility and historical-version migration tests remain independent of the current writer. Existing complete-adventure diagnostics cover victory, death, return travel and distinct routing/action-budget failures.
+
+Final rules retained: recommended **60×60×20**, character cap **20**, mana recovery **1 every 30 committed turns**, starting spells **Magic Missile and Heal**, an **empty starting bag** with equipped short sword/shield, monster population **2–12 / one per 30 safe tiles**, and the measured late-level XP curve. No automatic respawning, deployment or difficulty multiplier was added.
+
+Browser checks at **1280×720** covered both themes, the compact Character panel, live catalog previews and numbered door interaction. A maximum-size run with every floor remembered serialized to **1,707,458 bytes** and successfully used confirmed local Save and Load. Its active 10,000-cell map remained responsive through twenty accepted keyboard moves with all 240 run actors retained. After loading, G and H produced their expected action feedback without requiring another map click. These are functional checks, not frame-rate measurements. Selected item details, expanded explanations and unusually tall history can still scroll intentionally.
+
+Validation: full frontend tests, automatic Biome checks/fixes and production build/typecheck run in the story commit hook; backend `./gradlew test --rerun-tasks` also passes. The main JavaScript chunk is approximately **545kB** before gzip and produces Vite's size warning; the optional catalog is already a separate approximately 4.7kB chunk. Further splitting should follow a measured startup need rather than broad structural changes at this handoff.
+
+Human review checkpoints:
+
+- Start and replay a recommended run, open/close Settings and Save/Load, then use movement, G, H, E and spell targeting without clicking the map again.
+- Compare equipment, books, mana/antidote supplies and dangerous ranged/announced attacks across early, middle and deep floors. Check that visible warnings and fatal-damage summaries explain what happened.
+- Try optional discoveries and occupied-door closure; inspect spent descriptions and confirm that cancellation/failure spends no turn.
+- Save a played run, continue it, reload it and repeat the same actions. Inspect Character/Spells and catalog in light/dark themes on the smallest intended screen.
+- Judge quiet travel, repeated gear and recovery pressure manually. Automated policies remain omniscient, greedy and incomplete for control/buff/reposition spells; their win rates do not establish human difficulty. Next balance work should consider travel, enemy strength/density, supplies and XP together.

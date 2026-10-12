@@ -1,6 +1,6 @@
 # Manual local adventure saves: review guide
 
-Epic #143, stories #138–142. Branch `codex/local-adventure-saves`; one commit per story. Implemented October 11, 2026. Developer acceptance and merge remain pending.
+Epic #143, stories #138–142. Branch `codex/local-adventure-saves`; one commit per story. Implemented October 11, 2026. Developer accepted the epic and merged it into main.
 
 **UI refinement:** Save/Load now has its own header button and sheet, separate from Settings. Confirmations, file flows and the one-slot format are unchanged; gameplay pauses while the new sheet is open. The original commit/browser history below records the initial Settings placement.
 
@@ -14,11 +14,11 @@ Epic #143, stories #138–142. Branch `codex/local-adventure-saves`; one commit 
 
 ## Product behavior
 
-Save always confirms, including the empty slot. Load confirms before replacing current progress. Cancel/Escape changes neither slot nor run and spends no turn. Save/Load confirmation previews seed, floor/depth, level and turn; the Settings slot also displays its saved time. A failed write never deletes the old slot first.
+Save always confirms, including the empty slot. Load confirms before replacing current progress. Cancel/Escape changes neither slot nor run and spends no turn. Save/Load confirmation previews seed, floor/depth, level and turn; the Save/Load slot also displays its saved time. A failed write never deletes the old slot first.
 
-Export downloads the current run immediately; Import loads a chosen valid file immediately. Neither changes the browser slot. Invalid/incompatible/oversized/unreadable files leave progress intact. Selecting the same file again works, and closing Settings aborts a pending read. There is no autosave or startup auto-load: a page reload starts a fresh run until the player explicitly loads/imports.
+Export downloads the current run immediately; Import loads a chosen valid file immediately. Neither changes the browser slot. Invalid/incompatible/oversized/unreadable files leave progress intact. Selecting the same file again works, and closing Save/Load aborts a pending read. There is no autosave or startup auto-load: a page reload starts a fresh run until the player explicitly loads/imports.
 
-All operations live in Settings; gameplay stays paused while it is open. Restore applies state/configuration/fog together, resets drafts/errors/transient menus and clears targeting. The map receives focus after the closing animation. Victory is retained and its summary reopens; death remains ended. Appearance stays separate from the save.
+All operations live in the dedicated Save/Load sheet; gameplay stays paused while it is open. Restore applies state/configuration/fog together, resets drafts/errors/transient menus and clears targeting. The map receives focus after the closing animation. Victory is retained and its summary reopens; death remains ended. Appearance stays separate from the save.
 
 ## Data and boundaries
 
@@ -31,6 +31,16 @@ Validation checks all required shapes and catalog identifiers, ordered floor dim
 The format version is independent of storage. Unknown versions are rejected, not partially loaded. Incompatible model/catalog changes need a deliberate version bump or migration later. Stored terrain survives generator changes; old saves still use the running game's combat/balance rules, so continuation across changed rules is not promised. Saved IDs/seed/turn preserve keyed randomness within the same rules.
 
 `SaveFormat`/`SaveValidation` have no browser-storage dependency. `LocalAdventureSave` and `AdventureSaveFiles` adapt that format to the browser; they share the same parse boundary. No dependencies or backend endpoints were added.
+
+## Follow-up save boundary cleanup
+
+Reviewed on `codex/turn-ownership-cleanup`, pending developer merge:
+
+- `5863a15` rejects monsters on protected stair/arrival tiles using the same location rule as gameplay.
+- `6dae4f5` defines the v1 saved-state aggregate and monster fields explicitly in `SaveDocumentV1.ts`, with the writer selecting those fields. Runtime shapes are checked in `SaveShapeV1.ts`, semantic rules in `SaveConsistency.ts`, and format-version dispatch in `SaveValidation.ts`.
+- A literal `adventure-v1.json` fixture is retained independently of the current writer. Tests verify restore/continuation and prevent incidental state/monster properties from entering v1 output.
+
+The current format remains **version 1**; no migration was needed for these boundary changes. Balance/catalog compatibility checks still use the running game’s rules and may reject older snapshots after tuning. Required persistent monster intent will introduce a deliberate format version and v1 migration in #147. Deterministic continuation is guaranteed within identical rules, not across balance changes.
 
 ## Maximum-size measurement
 

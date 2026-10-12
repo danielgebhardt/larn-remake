@@ -24,6 +24,9 @@ The following milestones are implemented and merged; they are foundations, not o
 - Multiple seeded goblins with detection, orthogonal pursuit, stable collision-safe monster phases, and Space to wait.
 - Starting weapon/shield, equipment-derived attack and armor, equip/swap/unequip, a 20-slot bag, pickup/drop, seeded floor loot, and monster drops.
 - Healing potions, G pickup/chooser, item-arrival announcements, four potion shortcuts with keys 1–4, and automatic assignment of newly acquired potion kinds.
+- Mana potions, Magic Missile and Heal, spell targeting and hotbar, Character/Spells tabs, and automatic level-based Intelligence growth.
+- Confirmed localStorage save/load, file export/import, and a dedicated Save/Load sheet with restored dungeon keyboard focus.
+- Numbered pickup choices with keyboard paging (#144), and consistent Character/Spells dialog dimensions (#145), merged into main.
 
 Current limitations relevant to the next work:
 
@@ -31,7 +34,7 @@ Current limitations relevant to the next work:
 - Main/off hand, chest, and head equipment are implemented; other slots are deferred.
 - Seeded hit/miss and bounded damage are implemented and merged in epic #99. Armor affects landed damage separately from accuracy; criticals remain deferred; earned Strength and Dexterity are merged in epic #116.
 - Settings permits five through twenty floors. The default is five 15×15 floors.
-- The cure-and-return objective in epic #109 is merged. XP, capped leveling, Strength, and Dexterity in epic #116 are merged. Mana, Intelligence and two initially known spells in epic #127 are implemented on `codex/mana-spellcasting`, pending developer review. Other attributes and save/resume remain future work.
+- The cure-and-return objective in epic #109 is merged. XP, capped leveling, Strength, and Dexterity in epic #116 are merged. Mana, Intelligence and two initially known spells in epic #127, plus manual local saves in epic #143, are merged. Other attributes remain future work.
 
 ## Recommended milestone order
 
@@ -39,12 +42,14 @@ Current limitations relevant to the next work:
 | --- | --- | --- |
 | 1 | Floor-aware monsters, loot, chest/helmet equipment | Merged: depth changes encounters and rewards; gear choices matter. |
 | 2 | Reproducible randomized melee | Merged: hit/miss and bounded damage create uncertainty with understandable feedback. |
-| 3 | First winnable adventure | A short descent, quest item, return trip, and victory give the game a purpose. |
-| 4 | Experience, levels, and useful attributes | Characters grow through observable, documented rules. |
-| 5 | Mana, first spells, and status effects | Players gain alternatives to bump attacks and drinking healing potions. |
-| 6 | Town, gold, and broader adventure systems | Rewards and risk acquire a persistent context within the run. |
+| 3 | First winnable adventure | Merged: descent, cure recovery and return victory. |
+| 4 | Experience, levels, and useful attributes | Merged: capped growth, XP, Strength and Dexterity. |
+| 5 | Mana and practical spellcasting | Merged: Intelligence, two known spells, targeting and renewable mana. |
+| 6 | Distinct enemy tactics | Planned in #146: cover, a response turn and a balance checkpoint. |
+| 7 | Dungeon interactions | Doors, finite-use rewards and visible traps create exploration choices. |
+| 8 | Spellbooks, then town/gold | More acquired abilities and a broader run economy when useful. |
 
-Local save/resume and CI can move earlier when they solve a concrete problem. Supporting twenty floors is a configuration/content capability; it is not a commitment to fill or balance twenty floors before the first short adventure works.
+Manual local save/resume is merged. CI remains deferred until prioritized. Supporting twenty floors is a configuration/content capability; it is not a commitment to fill or balance twenty floors before the first short adventure works.
 
 ## Epic 1: Floor-aware content and armor
 
@@ -205,23 +210,22 @@ Character cap 5 is independent of dungeon depth 5–20. XP continues accumulatin
 
 Before expanding the rules, the developer should play several large twenty-floor runs and review progression pace, potion availability, sustained combat after the cap, and exploration behavior. The diagnostic is an omniscient coverage tool, not a human win-rate estimate. Its action-budget cutoffs and routing failures are reported separately from death.
 
-Remaining attribute work: Constitution when it has a clear health/resistance benefit; Intelligence is implemented with mana and usable spells in epic #127, pending review. Wisdom/Charisma, point allocation, respecs, classes, skill trees, criticals, and generalized modifiers wait for concrete gameplay needs. Twenty-floor balance remains open.
+Remaining attribute work: Constitution when it has a clear health/resistance benefit; Intelligence is merged with mana and usable spells in epic #127. Wisdom/Charisma, point allocation, respecs, classes, skill trees, criticals, and generalized modifiers wait for concrete gameplay needs. Twenty-floor balance remains open.
 
 ## Feedback polish and next epic proposals
 
 Stories #125–126 are merged: shared low-health feedback at 1–5 HP and highlighted major activity entries. Large-map playtests found sparse encounters, redundant gear, and early capped progression. The 50×50×10 diagnostic also exposes its hoarding limitation: selecting only useful gear improves outcomes dramatically. Address the diagnostic policy before drawing supply-balance conclusions from its deaths.
 
-The agreed mana epic is implemented for review; subsequent priorities remain proposals:
+The mana epic and manual local saves are merged; next priorities are:
 
-1. **Mana and practical spellcasting:** one ranged spell, explicit range/line-of-sight/target rules, mana cost and recovery, clear feedback, then a self-healing spell. Introduce Intelligence only with a meaningful contribution. Reuse deterministic action resolution and normal monster retaliation.
-2. **Enemies with distinct tactics:** one ranged enemy using the targeting foundation and one contrasting melee behavior. Add depth-appropriate content alongside the behavior, then revisit encounter spacing, XP pace, and obsolete gear eligibility. Raising population alone would accelerate the current level cap and increase healing demand.
-3. **Dungeon interactions:** doors, a finite-use chest or fountain, and then a simple visible trap. Each should introduce a choice, seeded placement, retained state, and a defined turn cost. Introduce an interaction mechanism only when its first actual object needs it.
+1. **Enemies with distinct tactics:** one ranged enemy using the targeting foundation and one contrasting melee behavior. Add depth-appropriate content alongside the behavior, then revisit encounter spacing, XP pace, and obsolete gear eligibility. Raising population alone would accelerate the current level cap and increase healing demand.
+2. **Dungeon interactions:** doors, a finite-use chest or fountain, and then a simple visible trap. Each should introduce a choice, seeded placement, retained state, and a defined turn cost. Introduce an interaction mechanism only when its first actual object needs it.
 
 The [Larn monster list](https://larn.fandom.com/wiki/Monsters) describes speed differences, breath attacks, and resistances; [spells](https://larn.fandom.com/wiki/Spells) describe directional targeting and range; [dungeon objects](https://larn.fandom.com/wiki/Dungeon_Objects) include doors, fountains, chests, mirrors, and traps. These are inspiration for meaningful choices, not a requirement to copy formulas, permanent stat drains, equipment destruction, or the full catalog. The wiki home could not be fetched directly; available indexed page content informed these proposals. Existing later mana/town plans remain below; no new gameplay epic is authorized by this planning note.
 
 ## Milestone 5: Mana and practical spellcasting
 
-[Epic #127](https://github.com/danielgebhardt/larn-remake/issues/127) is implemented on `codex/mana-spellcasting`, pending developer review. Story order: #128 → #137 → #129 → #130 → #131 → #132 → #133 → #134 → #135. See [mana review notes](docs/mana-review.md) for the ordered commits, rules, recorded diagnostics, browser review and manual checkpoint.
+[Epic #127](https://github.com/danielgebhardt/larn-remake/issues/127) is merged into main. Story order: #128 → #137 → #129 → #130 → #131 → #132 → #133 → #134 → #135. See [mana review notes](docs/mana-review.md) for the ordered commits, rules, recorded diagnostics, browser review and manual checkpoint.
 
 - Intelligence grows automatically by level, consistent with Strength/Dexterity; it improves mana capacity and both spell effects. Growth preserves missing mana.
 - Both Magic Missile and Heal start known. Knowledge is independent of levels; future spells require found spellbooks, with actual books/acquisition deferred.
@@ -249,9 +253,38 @@ Likely later priorities:
 - **Distinct enemies:** ranged attacks, abilities, wandering, or remembered pursuit targets should create tactical differences before simply increasing catalog size.
 - **Original economy extras:** banks/interest, taxes, identification/unknown consumables, and specialized services are optional late work. Decide which improve this remake's game loop.
 
+
+## Readiness cleanup before tactical enemies
+
+Completed and reviewed on `codex/turn-ownership-cleanup`; pending developer merge:
+
+- `26cd7c9`: PlayerActions owns committed turns; effect helpers share that turn context.
+- `5863a15`: imported/stored monsters must respect protected stairs and arrival tiles.
+- `6dae4f5`: explicit v1 save aggregate/monster contract, separate structural and semantic validation, retained compatibility fixture and documented balance limits.
+- `6b7c6f7`: selected spell definitions drive supported effects, potency, range and targeting presentation.
+- `06b0846`: keyboard handling is separate from map rendering, with shared Home menu guards and retained post-run Character access.
+
+All 1,425 frontend tests, Biome, TypeScript checks and the production build passed at the final code commit. See [the readiness review](docs/codebase-review-2026-10-11.md) for the original findings, commit explanations and deferred work. An adventure coordinator hook in Home remains optional; measure crowded pursuit and threat rendering in the tactics checkpoint before optimizing further.
+
+## Next epic: Distinct enemy tactics
+
+[Epic #146](https://github.com/danielgebhardt/larn-remake/issues/146) and stories #147–153 are in Backlog. The reviewed readiness cleanup above prepares the turn and save boundaries. Merge that branch before starting #147; persistent intent and its versioned save migration are still outstanding. No refactors or new enemy mechanics are authorized merely by creating these issues.
+
+| Order | Story | Outcome |
+| --- | --- | --- |
+| 1 | [#147](https://github.com/danielgebhardt/larn-remake/issues/147) | Monster-owned intent and versioned v1 save migration, using the prepared committed-turn owner. |
+| 2 | [#148](https://github.com/danielgebhardt/larn-remake/issues/148) | Goblin archer: adjacent melee, clear shots at distance 2–4, otherwise pursuit. |
+| 3 | [#149](https://github.com/danielgebhardt/larn-remake/issues/149) | Brute: prepare at the current player tile, then resolve after one committed response action. |
+| 4 | [#150](https://github.com/danielgebhardt/larn-remake/issues/150) | Distinct visuals, visible fixed-tile threats, accessible activity and Help. |
+| 5 | [#151](https://github.com/danielgebhardt/larn-remake/issues/151) | Seeded floor-appropriate mixtures within current caps and safe-spawn rules. |
+| 6 | [#152](https://github.com/danielgebhardt/larn-remake/issues/152) | Resume/replay, malformed intent, ended-run and complete-adventure regressions. |
+| 7 | [#153](https://github.com/danielgebhardt/larn-remake/issues/153) | Matched diagnostics, human checkpoint and measured performance/balance review. |
+
+Proposed archers appear on floors 2–20, brutes on 4–20. The brute aims at a fixed tile, so moving away can avoid its prepared blow; it does not silently follow the player. Inactive floors pause intent, and save/load retains it. Actors still take at most one action per committed turn. Start with existing population caps and 30-turn mana recovery, then review tuning explicitly. Creature projectile interception, retreat AI, generalized abilities, statuses, speed/initiative and respawns remain deferred.
+
 ## Local save/resume and persistence
 
-Manual local-save epic #143 and stories #138–142 are implemented on `codex/local-adventure-saves`, awaiting developer review. The dedicated Save/Load sheet provides one localStorage slot with explicit confirmation for both Save and Load, and file export/import without an extra confirmation. The versioned format stores full floor snapshots, played state, configuration/fog and discovery; loading validates before replacing progress, preserves deterministic continuation within the current rules, and retains dead/won status. No startup auto-load or autosave. See `docs/local-save-review.md` for commit order and maximum-size measurements.
+Manual local-save epic #143 and stories #138–142 are merged into main. The dedicated Save/Load sheet provides one localStorage slot with explicit confirmation for both Save and Load, and file export/import without an extra confirmation. The versioned format stores full floor snapshots, played state, configuration/fog and discovery; loading validates before replacing progress, preserves deterministic continuation within the current rules, and retains dead/won status. No startup auto-load or autosave. See `docs/local-save-review.md` for commit order and maximum-size measurements.
 
 Future work, only when useful: multiple named slots, measured autosave, IndexedDB if synchronous writes become noticeable, and explicit version migrations. Export/import already supports backups and manual cross-device transfer. Browser storage is tied to an origin/profile; seed-only reconstruction is not a substitute for played state. Keep storage separate from snapshot rules so a later adapter can reuse the format and validation.
 
@@ -277,4 +310,4 @@ Avoid an exhaustive browser/device matrix, screenshot baselines for every tile, 
 - Mid-run spawning, respawn, reinforcement schedules, sophisticated AI, and complex speed/initiative systems.
 - Multiplayer, cloud persistence, accounts, and deployment infrastructure without a concrete use case.
 
-Cure-and-return and character progression are merged; mana/spellcasting is implemented for review. Human playtesting may justify balance or exploration polish before the proposed enemy tactics and dungeon interactions.
+Cure-and-return, character progression, mana/spellcasting, and local save/resume are merged. Human playtesting may justify balance or exploration polish before the proposed enemy tactics and dungeon interactions.

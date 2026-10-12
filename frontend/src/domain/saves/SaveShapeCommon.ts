@@ -9,6 +9,7 @@ import {
 } from "../game/ActivityHistory";
 import { MAX_PLAYER_LEVEL } from "../game/Progression";
 import { SPELL_DEFINITIONS } from "../game/Spells";
+import { EFFECT_DEFINITIONS } from "../game/TimedEffects";
 import { BAG_CAPACITY } from "../items/Bag";
 import { EQUIPMENT_SLOT_LABELS } from "../items/Equipment";
 import { ITEM_DEFINITIONS } from "../items/Item";
@@ -93,6 +94,11 @@ const victory = object({
 });
 
 const eventFields = {
+	"condition-applied": {
+		monster: monsterKind,
+		condition: oneOf(Object.keys(EFFECT_DEFINITIONS)),
+		duration: integer(1, 100),
+	},
 	"spell-hit": { spell: spellKind, monster: monsterKind, damage: natural },
 	"spell-healed": { spell: spellKind, recovered: natural },
 	"player-hit": { monster: monsterKind, damage: natural },

@@ -13,6 +13,7 @@ import {
 	deriveAccuracy,
 	resolveMeleeAttack,
 } from "../game/MeleeRules";
+import { monsterSkipsAction } from "../game/TimedEffects";
 import { MONSTER_DEFINITIONS } from "./Monster";
 import { orthogonalDistance } from "./MonsterLocations";
 import { detectsPlayer, selectPursuitStep } from "./MonsterPursuit";
@@ -37,6 +38,7 @@ export const resolveMonsterPhase = (
 		.sort((a, b) => Number(a.id.split(":")[1]) - Number(b.id.split(":")[1]));
 	for (const monster of active) {
 		if (player.health <= 0) break;
+		if (monsterSkipsAction(state, monster)) continue;
 		// Both attack range and prepared-target adjacency use Manhattan distance.
 		const distance = orthogonalDistance(
 			monster.coordinate,

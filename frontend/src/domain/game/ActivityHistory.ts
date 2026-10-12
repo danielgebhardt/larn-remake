@@ -5,6 +5,7 @@ import type { FloorItemEvent } from "../items/FloorItems";
 import type { ItemKind } from "../items/Item";
 import type { MonsterKind } from "../monsters/Monster.ts";
 import type { SpellKind } from "./Spells";
+import type { EffectKind } from "./TimedEffects";
 
 export type ActivityEvent = { turn: number } & (
 	| {
@@ -12,6 +13,12 @@ export type ActivityEvent = { turn: number } & (
 			spell: SpellKind;
 			monster: MonsterKind;
 			damage: number;
+	  }
+	| {
+			type: "condition-applied";
+			monster: MonsterKind;
+			condition: EffectKind;
+			duration: number;
 	  }
 	| { type: "spell-healed"; spell: SpellKind; recovered: number }
 	| { type: "player-hit"; monster: MonsterKind; damage: number }

@@ -9,6 +9,7 @@ import type { Coordinate } from "../domain/dungeon/DungeonTypes";
 import { deriveAttributes } from "../domain/game/Attributes";
 import { createGameState, type GameState } from "../domain/game/GameState";
 import { resolvePlayerAction } from "../domain/game/PlayerActions";
+import { ITEM_DEFINITIONS } from "../domain/items/Item";
 import { resolvePlayerActionWithHits } from "./ControlledCombatTestHelpers";
 import { COMPACT_TEST_CONFIGURATION } from "./TestRunConfiguration";
 import {
@@ -152,9 +153,18 @@ describe("Complete cure-and-return adventures", () => {
 		).toEqual([20]);
 		expect(
 			long.floorItems.filter(
-				(x) => x.item.kind !== "cure" && x.floorNumber <= 5,
+				(x) =>
+					x.item.kind !== "cure" &&
+					ITEM_DEFINITIONS[x.item.kind].type !== "spellbook" &&
+					x.floorNumber <= 5,
 			),
-		).toEqual(short.floorItems.filter((x) => x.item.kind !== "cure"));
+		).toEqual(
+			short.floorItems.filter(
+				(x) =>
+					x.item.kind !== "cure" &&
+					ITEM_DEFINITIONS[x.item.kind].type !== "spellbook",
+			),
+		);
 		expect(long.monsters.filter((x) => x.floorNumber <= 5)).toEqual(
 			short.monsters,
 		);

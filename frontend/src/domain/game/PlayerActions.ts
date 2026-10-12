@@ -39,6 +39,7 @@ import {
 	fillNewSpellSlots,
 	type SpellAssignmentAction,
 } from "./SpellHotbar";
+import { advanceTimedEffects } from "./TimedEffects";
 
 export type PlayerAction =
 	| { type: "move"; direction: MovementDirection }
@@ -138,7 +139,9 @@ export const resolvePlayerAction = (
 	return {
 		state: result.quest.victory
 			? result
-			: recoverManaAfterTurn(resolveMonsterPhase(result, rollSource)),
+			: recoverManaAfterTurn(
+					advanceTimedEffects(resolveMonsterPhase(result, rollSource)),
+				),
 		turnAdvanced: true,
 	};
 };

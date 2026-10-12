@@ -17,6 +17,7 @@ import QuestStatus from "./components/game/QuestStatus";
 import SpellHotbarView from "./components/game/SpellHotbarView";
 import { useSpellTargeting } from "./components/game/useSpellTargeting";
 import VictoryDialog from "./components/game/VictoryDialog";
+import VisibleEffects from "./components/game/VisibleEffects";
 import {
 	connectDungeonFloors,
 	type DungeonRun,
@@ -443,6 +444,11 @@ const Home = ({
 						/>
 					</div>
 					<QuestStatus quest={game.state.quest} />
+					<VisibleEffects
+						effects={game.state.effects}
+						monsters={activeMonsters}
+						visible={fogConfiguration.enabled ? exploration.visible : undefined}
+					/>
 					{victory && (
 						<Button
 							variant="outline"

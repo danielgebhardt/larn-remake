@@ -137,6 +137,19 @@ export const ITEM_DEFINITIONS = {
 		foundWeight: 0,
 		dropWeight: 0,
 	},
+	"book-frost-bolt": {
+		name: "Spellbook: Frost Bolt",
+		type: "spellbook",
+		teaches: "frost-bolt",
+		attackBonus: 0,
+		armor: 0,
+		description:
+			"Pick up to learn Frost Bolt: 4 mana, range 5, 2–4 damage plus Intelligence and a three-phase slow. Reading uses one turn and no bag slot.",
+		minFloor: 2,
+		maxFloor: 8,
+		foundWeight: 0,
+		dropWeight: 0,
+	},
 	"mana-potion": {
 		name: "Mana potion",
 		type: "potion",

@@ -13,13 +13,36 @@ import type { SaveDocumentV1 } from "./SaveDocumentV1";
 import type { SaveDocumentV2 } from "./SaveDocumentV2";
 import type { SaveDocumentV3 } from "./SaveDocumentV3";
 import type { SaveDocumentV4 } from "./SaveDocumentV4";
+import type { SaveDocumentV5 } from "./SaveDocumentV5";
 
 export const isConsistentSave = (
-	document: SaveDocumentV1 | SaveDocumentV2 | SaveDocumentV3 | SaveDocumentV4,
+	document:
+		| SaveDocumentV1
+		| SaveDocumentV2
+		| SaveDocumentV3
+		| SaveDocumentV4
+		| SaveDocumentV5,
 ): boolean => {
 	const { state, configuration: config } = document;
 	const { run, quest } = state;
-	if (document.version === 4) {
+	if (document.version === 5) {
+		const effects = document.state.effects;
+		if (
+			new Set(effects.map((effect) => `${effect.actorId}:${effect.kind}`))
+				.size !== effects.length ||
+			effects.some(
+				(effect) =>
+					!state.monsters.some(
+						(actor) =>
+							actor.id === effect.actorId &&
+							actor.floorNumber === effect.floorNumber &&
+							actor.health > 0,
+					),
+			)
+		)
+			return false;
+	}
+	if (document.version === 4 || document.version === 5) {
 		const slots = document.state.spellHotbar.filter((spell) => spell !== null);
 		if (
 			new Set(slots).size !== slots.length ||

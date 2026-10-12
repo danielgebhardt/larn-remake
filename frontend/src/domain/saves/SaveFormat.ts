@@ -8,14 +8,14 @@ import type {
 } from "../dungeon/RunConfiguration";
 import type { GameState } from "../game/GameState";
 import { levelForExperience } from "../game/Progression";
-import type { SaveDocumentV4 } from "./SaveDocumentV4";
+import type { SaveDocumentV5 } from "./SaveDocumentV5";
 import { validateSaveDocument } from "./SaveValidation";
 
-export const SAVE_FORMAT_VERSION = 4;
+export const SAVE_FORMAT_VERSION = 5;
 // Bound imported input before parsing. A maximum-size snapshot is measured in the review.
 export const MAX_SAVE_BYTES = 4 * 1024 * 1024;
 
-export type SaveDocument = SaveDocumentV4;
+export type SaveDocument = SaveDocumentV5;
 export type RestoredAdventure = {
 	state: GameState;
 	exploration: ExplorationState;
@@ -42,6 +42,7 @@ export const createSaveDocument = (
 		mana: state.mana,
 		knownSpells: state.knownSpells,
 		spellHotbar: state.spellHotbar,
+		effects: state.effects,
 		quest: state.quest,
 		monstersDefeated: state.monstersDefeated,
 		player: state.player,

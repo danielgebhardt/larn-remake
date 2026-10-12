@@ -1,5 +1,6 @@
 import { deriveAttributes } from "./Attributes";
 import type { Progression } from "./Progression";
+import type { EffectKind } from "./TimedEffects";
 
 type SpellDetails = { name: string; cost: number; description: string };
 export type SpellDefinition = SpellDetails &
@@ -10,6 +11,7 @@ export type SpellDefinition = SpellDetails &
 				range: number;
 				minimumDamage: number;
 				maximumDamage: number;
+				condition?: EffectKind;
 		  }
 		| { mode: "self"; effect: "heal"; healing: number }
 	);
@@ -36,6 +38,18 @@ export const SPELL_DEFINITIONS = {
 		maximumDamage: 7,
 		description:
 			"A short-range burst of flame. More forceful than Magic Missile, but costs more mana.",
+	},
+	"frost-bolt": {
+		name: "Frost Bolt",
+		mode: "targeted",
+		effect: "damage",
+		cost: 4,
+		range: 5,
+		minimumDamage: 2,
+		maximumDamage: 4,
+		condition: "slowed",
+		description:
+			"Chill one monster for three active phases. It skips alternating actions, starting with this cast; recasting refreshes the slow.",
 	},
 	heal: {
 		name: "Heal",

@@ -5,6 +5,7 @@ import type { SaveDocumentV1 } from "./SaveDocumentV1";
 import type { SaveDocumentV2 } from "./SaveDocumentV2";
 import type { SaveDocumentV3 } from "./SaveDocumentV3";
 import type { SaveDocumentV4 } from "./SaveDocumentV4";
+import type { SaveDocumentV5 } from "./SaveDocumentV5";
 
 // Only migrate a structurally and semantically valid v1 snapshot. Preserve
 // played data; legacy monsters have no prepared attack to carry forward.
@@ -69,4 +70,10 @@ export const migrateSaveV3 = (legacy: SaveDocumentV3): SaveDocumentV4 => ({
 		...legacy.state,
 		spellHotbar: createSpellHotbar(legacy.state.knownSpells),
 	},
+});
+
+export const migrateSaveV4 = (legacy: SaveDocumentV4): SaveDocumentV5 => ({
+	...legacy,
+	version: 5,
+	state: { ...legacy.state, effects: [] },
 });

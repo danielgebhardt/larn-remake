@@ -13,6 +13,7 @@ import {
 	spellKnowledgeError,
 	spellPotency,
 } from "./Spells";
+import { applyTimedEffect } from "./TimedEffects";
 
 export type CastAction = { type: "cast"; spell: SpellKind; targetId?: string };
 export const isSpellTarget = (
@@ -79,15 +80,17 @@ export const castSpell = (
 		attackerId: `player:spell:${action.spell}`,
 		targetId: target.id,
 	}).damage(potency.minimumDamage, potency.maximumDamage);
+	const damaged = damageMonster(
+		{ ...state, mana: state.mana - definition.cost },
+		target,
+		damage,
+		{ type: "spell-hit", spell: action.spell },
+	);
+	const survivor = damaged.monsters.find((monster) => monster.id === target.id);
 	return {
-		state: damageMonster(
-			{ ...state, mana: state.mana - definition.cost },
-			target,
-			damage,
-			{
-				type: "spell-hit",
-				spell: action.spell,
-			},
-		),
+		state:
+			survivor && "condition" in definition
+				? applyTimedEffect(damaged, survivor, definition.condition)
+				: damaged,
 	};
 };

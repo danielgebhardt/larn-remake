@@ -1,5 +1,6 @@
 import type { ActivityEvent } from "../../domain/game/ActivityHistory.ts";
 import { SPELL_DEFINITIONS } from "../../domain/game/Spells";
+import { EFFECT_DEFINITIONS } from "../../domain/game/TimedEffects";
 import { EQUIPMENT_SLOT_LABELS } from "../../domain/items/Equipment";
 import { ITEM_DEFINITIONS } from "../../domain/items/Item";
 import { MONSTER_DEFINITIONS } from "../../domain/monsters/Monster";
@@ -35,6 +36,8 @@ export const formatActivityEvent = (event: ActivityEvent): string => {
 			return `${prefix}You avoid the ${MONSTER_DEFINITIONS[event.monster].name}'s heavy attack.`;
 		case "player-missed":
 			return `${prefix}You miss the ${MONSTER_DEFINITIONS[event.monster].name}.`;
+		case "condition-applied":
+			return `${prefix}The ${MONSTER_DEFINITIONS[event.monster].name} is ${EFFECT_DEFINITIONS[event.condition].name.toLowerCase()} for ${event.duration} active phases.`;
 		case "spell-healed":
 			return `${prefix}${SPELL_DEFINITIONS[event.spell].name} restores ${event.recovered} health.`;
 		case "spell-hit":

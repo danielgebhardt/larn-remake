@@ -1,7 +1,14 @@
 import { MAX_FLOORS } from "../dungeon/RunConfiguration";
 export type ItemDefinition = {
 	name: string;
-	type: "potion" | "weapon" | "shield" | "chest-armor" | "helmet" | "quest";
+	type:
+		| "potion"
+		| "weapon"
+		| "shield"
+		| "chest-armor"
+		| "helmet"
+		| "quest"
+		| "spellbook";
 	attackBonus: number;
 	armor: number;
 	description: string;
@@ -116,6 +123,19 @@ export const ITEM_DEFINITIONS = {
 		maxFloor: MAX_FLOORS,
 		foundWeight: 1,
 		dropWeight: 1,
+	},
+	"book-ember-bolt": {
+		name: "Spellbook: Ember Bolt",
+		type: "spellbook",
+		teaches: "ember-bolt",
+		attackBonus: 0,
+		armor: 0,
+		description:
+			"Pick up to learn Ember Bolt: 4 mana, range 4, 3–7 damage plus Intelligence. Reading uses one turn and no bag slot.",
+		minFloor: 1,
+		maxFloor: 5,
+		foundWeight: 1,
+		dropWeight: 0,
 	},
 	"mana-potion": {
 		name: "Mana potion",

@@ -157,6 +157,7 @@ const resolvePlayerEffect = (
 		return {
 			...state,
 			bag: transfer.bag,
+			knownSpells: transfer.knownSpells ?? state.knownSpells,
 			quest:
 				action.type === "pickup" && transfer.event.item === "cure"
 					? { ...state.quest, cureRecovered: true }

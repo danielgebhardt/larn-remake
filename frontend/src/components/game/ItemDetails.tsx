@@ -17,6 +17,7 @@ import EquipmentComparisonView from "./EquipmentComparisonView";
 
 const labels = {
 	quest: "Quest item",
+	spellbook: "Spellbook",
 	weapon: "Weapon",
 	shield: "Shield",
 	potion: "Potion",

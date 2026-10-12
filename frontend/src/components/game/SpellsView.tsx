@@ -65,8 +65,8 @@ const SpellsView = ({
 			<p className="text-xs text-muted-foreground">
 				A successful cast uses one turn before monsters act. Unaffordable or
 				invalid casts are free. Intelligence improves spell potency and mana
-				capacity; levels do not teach spells. Future spells will be learned from
-				found spellbooks.
+				capacity; levels do not teach spells. Learn more spells from found
+				spellbooks.
 			</p>
 		</div>
 	);

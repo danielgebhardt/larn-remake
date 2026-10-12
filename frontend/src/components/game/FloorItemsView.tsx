@@ -51,7 +51,14 @@ const FloorItemsView = ({
 								<span className="size-4 shrink-0">
 									<ItemIcon kind={item.kind} />
 								</span>
-								Pick up {ITEM_DEFINITIONS[item.kind].name}
+								<span className="text-left">
+									Pick up {ITEM_DEFINITIONS[item.kind].name}
+									{ITEM_DEFINITIONS[item.kind].type === "spellbook" && (
+										<span className="mt-1 block text-xs text-muted-foreground">
+											{ITEM_DEFINITIONS[item.kind].description}
+										</span>
+									)}
+								</span>
 							</Button>
 						</li>
 					))}

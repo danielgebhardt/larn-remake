@@ -1,4 +1,5 @@
 import {
+	BookOpen,
 	FlaskConical,
 	FlaskRound,
 	Gem,
@@ -12,6 +13,7 @@ import type { ItemKind } from "../../domain/items/Item";
 
 const icons: Record<ItemKind, LucideIcon> = {
 	cure: Gem,
+	"book-ember-bolt": BookOpen,
 	"healing-potion": FlaskRound,
 	"mana-potion": FlaskConical,
 	"short-sword": Sword,
@@ -28,7 +30,7 @@ const ItemIcon = ({ kind }: { kind: ItemKind }) => {
 		<Icon
 			aria-hidden="true"
 			focusable="false"
-			className={`size-full ${kind === "cure" ? "text-item-cure" : kind === "healing-potion" ? "text-item-potion" : kind === "mana-potion" ? "text-item-mana" : "text-item-gear"}`}
+			className={`size-full ${kind === "book-ember-bolt" ? "text-violet-700 dark:text-violet-300" : kind === "cure" ? "text-item-cure" : kind === "healing-potion" ? "text-item-potion" : kind === "mana-potion" ? "text-item-mana" : "text-item-gear"}`}
 		/>
 	);
 };

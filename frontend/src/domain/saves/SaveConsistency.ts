@@ -3,6 +3,7 @@ import { maximumMana } from "../game/Mana";
 import { DEFAULT_PLAYER_MAX_HEALTH } from "../game/PlayerStats";
 import { HEALTH_PER_LEVEL, levelForExperience } from "../game/Progression";
 import { type EquipmentSlot, equipmentSlotFor } from "../items/Equipment";
+import { ITEM_DEFINITIONS } from "../items/Item";
 import { MONSTER_DEFINITIONS } from "../monsters/Monster";
 import {
 	orthogonalDistance,
@@ -107,7 +108,11 @@ export const isConsistentSave = (
 		if (entry && equipmentSlotFor(entry) !== (name as EquipmentSlot))
 			return false;
 	if (
-		state.bag.items.some((entry) => entry.kind === "cure") ||
+		state.bag.items.some(
+			(entry) =>
+				entry.kind === "cure" ||
+				ITEM_DEFINITIONS[entry.kind].type === "spellbook",
+		) ||
 		!state.floorItems.every((entry) =>
 			walkable(entry.floorNumber, entry.coordinate),
 		)

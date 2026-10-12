@@ -1,7 +1,8 @@
 import type { Coordinate } from "../dungeon/DungeonTypes";
 import type { GameState } from "../game/GameState";
+import type { SpellKind } from "../game/Spells";
 import { BAG_CAPACITY, type Bag, createBag } from "./Bag";
-import type { ItemInstance, ItemKind } from "./Item";
+import { ITEM_DEFINITIONS, type ItemInstance, type ItemKind } from "./Item";
 
 export type FloorItem = Readonly<{
 	item: ItemInstance;
@@ -16,7 +17,12 @@ export type FloorItemEvent = {
 	item: ItemKind;
 };
 type Transfer =
-	| { bag: Bag; floorItems: readonly FloorItem[]; event: FloorItemEvent }
+	| {
+			bag: Bag;
+			floorItems: readonly FloorItem[];
+			event: FloorItemEvent;
+			knownSpells?: readonly SpellKind[];
+	  }
 	| { error: string };
 
 export const itemsAtPlayer = (
@@ -38,6 +44,17 @@ export const transferFloorItem = (
 			(entry) => entry.item.id === action.itemId,
 		);
 		if (!found) return { error: "That item is not on your current tile." };
+		const definition = ITEM_DEFINITIONS[found.item.kind];
+		if (definition.type === "spellbook") {
+			if (state.knownSpells.includes(definition.teaches))
+				return { error: "You already know that spell." };
+			return {
+				bag: state.bag,
+				floorItems: state.floorItems.filter((entry) => entry !== found),
+				knownSpells: [...state.knownSpells, definition.teaches],
+				event: { type: "item-picked-up", item: found.item.kind },
+			};
+		}
 		if (found.item.kind === "cure") {
 			if (state.quest.cureRecovered)
 				return { error: "You already recovered the cure." };

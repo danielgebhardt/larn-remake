@@ -26,6 +26,17 @@ export const SPELL_DEFINITIONS = {
 		description:
 			"A homing bolt that always hits one monster within range and clear line of sight.",
 	},
+	"ember-bolt": {
+		name: "Ember Bolt",
+		mode: "targeted",
+		effect: "damage",
+		cost: 4,
+		range: 4,
+		minimumDamage: 3,
+		maximumDamage: 7,
+		description:
+			"A short-range burst of flame. More forceful than Magic Missile, but costs more mana.",
+	},
 	heal: {
 		name: "Heal",
 		mode: "self",

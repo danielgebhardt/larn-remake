@@ -62,4 +62,48 @@ describe("Monster rendering efficiency", () => {
 		expect(vi.mocked(MonsterIcon).mock.calls.length).toBeLessThan(3);
 		expect(vi.mocked(MonsterIcon).mock.calls.length).toBeGreaterThan(0);
 	});
+	it("updates only the warning tile when a brute prepares and clears intent", () => {
+		const terrain = Array.from({ length: 100 }, () =>
+			Array<string>(100).fill(FLOOR),
+		);
+		const brute: Monster = {
+			id: "1:1",
+			kind: "dungeon-brute",
+			floorNumber: 1,
+			coordinate: { row: 50, col: 50 },
+			health: 10,
+			intent: { type: "idle" },
+		};
+		const props = {
+			dungeon: terrain,
+			monsters: [brute],
+			playerPosition: { row: 49, col: 50 },
+			onMoveRequested: vi.fn(),
+		};
+		const { rerender } = render(<DungeonLayout {...props} />);
+		vi.mocked(TileIcon).mockClear();
+		vi.mocked(MonsterIcon).mockClear();
+		rerender(
+			<DungeonLayout
+				{...props}
+				monsters={[
+					{
+						...brute,
+						intent: { type: "preparing-attack", target: props.playerPosition },
+					},
+				]}
+			/>,
+		);
+		expect(
+			screen.getByLabelText("row49col50 - player - prepared heavy attack"),
+		).toBeVisible();
+		expect(vi.mocked(TileIcon).mock.calls.length).toBeLessThan(5);
+		expect(vi.mocked(MonsterIcon)).not.toHaveBeenCalled();
+		vi.mocked(TileIcon).mockClear();
+		rerender(<DungeonLayout {...props} />);
+		expect(
+			screen.queryByLabelText(/prepared heavy attack/),
+		).not.toBeInTheDocument();
+		expect(vi.mocked(TileIcon).mock.calls.length).toBeLessThan(5);
+	});
 });

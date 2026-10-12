@@ -1,6 +1,6 @@
 # Distinct enemy tactics: review guide
 
-Epic #146, branch `codex/enemy-tactics`. Implement stories one commit at a time and pause for developer review. Stories #147–149 are implemented for review. Tactical presentation and mixed spawning remain outstanding.
+Epic #146, branch `codex/enemy-tactics`. Implement stories one commit at a time and pause for developer review. Stories #147–150 are implemented for review. Mixed spawning and the final replay/playtest checkpoints remain outstanding.
 
 ## #147: Instance intent and compatible save evolution
 
@@ -47,3 +47,21 @@ PlayerActions still owns response timing. Rejected movement, missing items, inva
 Stairs change the active floor before the monster phase. The departing brute stays paused with its original target across additional turns and save/load. On return it resolves that target once, rather than aiming at the stair arrival. V2 already supports the intent shape; this story adds the new activity variants to source validation and narration without another format bump. Presentation/highlighting belongs to #150.
 
 The focused suite covers preparation without rolls, sequential phases, fixed-target dodging, out-of-detection cleanup, evasion, raw 4–6 damage with armor/minimum damage, pursuit, rejected/free actions, nine committed response types, kills, fatal stopping, victory, real linked stair revisits and exact saved/uninterrupted next-turn equality. Narration distinguishes preparation, landed blow, failed roll and avoided blow. Sixteen behavior tests failed after the catalog existed but before phase implementation. Existing archer tests pass. Full frontend verification runs in the story commit hook; backend and generated populations are unchanged. Pause before #150 for review.
+
+## #150: Readable tactical enemies and visible threats
+
+Archers use Lucide's bow-and-arrow SVG in cyan; brutes use a custom broad-shouldered, square-jawed SVG in indigo. Both have separate light/dark tokens within the monster palette, rather than loot colors. The catalog remains the single source of monster labels. No spawn flag or gameplay rule changes in this story.
+
+The map derives a sparse set of threatened columns per row from living prepared actors. Both the source monster and its fixed target must be currently visible; the player tile follows the map's existing always-visible rule. Hidden/remembered sources never reveal a warning on a visible target, and hidden/remembered targets never reveal a warning from a visible source. Fog-off treats valid floor tiles as visible. Overlapping threats share one marker; dead or cleared intent removes it.
+
+A target cell keeps its existing content and gains an inset danger border, faint tint and a small warning badge. Its accessible label appends “prepared heavy attack,” with a native explanatory title. The overlay is decorative and ignores pointer events, preserving item/player/stair icons and spell-target buttons. Violet spell selection remains separate from the danger border. Preparation activity gets a warning icon, stronger text and subtle danger styling; routine shots, blows and dodges retain ordinary narration. Existing log order, announcements and scrolling are unchanged.
+
+Help explains both silhouettes, Manhattan archer range, walls/creature interception, one committed response action, healing/gear timing and paused intent across floors. No menu or keyboard mapping changes.
+
+Row memoization compares the sparse threat columns by value. Each cell receives a consistent boolean warning prop: the performance test caught undefined-to-false changes that otherwise redrew unthreatened cells when a marker appeared. Preparation and clearing on a 100×100 map now perform fewer than five TileIcon renders and no MonsterIcon rerender for unchanged actor visuals. This is a focused render contract, not a browser frame-time benchmark; broader profiling remains #153.
+
+Tests cover fixed targets, source/target fog combinations, removal/death, overlap, player/stair/item preservation, clickable selected monster targets, new labels, Help and activity emphasis. Five initial marker tests and three presentation/performance tests failed before their fixes. Existing keyboard targeting regressions pass.
+
+Browser review used validated controlled 15×15×5 and 100×100×5 snapshots at the isolated `127.0.0.1:5174` origin, in both themes and at 1280×720 laptop dimensions. It exercised imported focus, Z selection/cancellation beside the warning, keyboard dodge, repeated preparation, Heal before retaliation, Help and player-following scrolling. The large fixture also contained a hidden prepared brute: source/target stayed remembered floor with no leaked monster/warning label. No browser warnings/errors were observed; the existing unavailable backend diagnostic remained visible. Temporary tab/server and viewport override were cleaned up. Dark/light screenshots accompany the implementation response.
+
+Final frontend verification runs in the story commit hook. Pause before #151, which enables floor-appropriate mixed populations and initial idle intent.

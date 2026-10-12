@@ -1,3 +1,4 @@
+import { TriangleAlert } from "lucide-react";
 import { memo, type RefObject } from "react";
 import {
 	ENTRANCE,
@@ -31,6 +32,7 @@ const DungeonCell = memo(function DungeonCell({
 	targetable,
 	selectedTarget,
 	onTargetRequested,
+	threatened = false,
 }: {
 	rowIndex: number;
 	columnIndex: number;
@@ -44,6 +46,7 @@ const DungeonCell = memo(function DungeonCell({
 	targetable?: boolean;
 	selectedTarget?: boolean;
 	onTargetRequested?: (id: string) => void;
+	threatened?: boolean;
 }) {
 	const description = monsterKind
 		? MONSTER_VISUALS[monsterKind].label
@@ -65,9 +68,12 @@ const DungeonCell = memo(function DungeonCell({
 	return (
 		<td
 			ref={playerRef}
-			aria-label={`row${rowIndex}col${columnIndex}${label ? ` - ${label}` : ""}`}
+			aria-label={`row${rowIndex}col${columnIndex}${label ? ` - ${label}` : ""}${threatened ? " - prepared heavy attack" : ""}`}
+			title={
+				threatened ? "Prepared heavy attack: move away to dodge." : undefined
+			}
 			data-visibility={visibility}
-			className={`size-[var(--dungeon-tile-size)] ${background}`}
+			className={`relative size-[var(--dungeon-tile-size)] ${background}`}
 		>
 			{monsterKind ? (
 				targetable && monsterId ? (
@@ -87,6 +93,17 @@ const DungeonCell = memo(function DungeonCell({
 				<ItemIcon kind={itemKind} />
 			) : (
 				tile !== undefined && <TileIcon tile={tile} />
+			)}
+			{threatened && (
+				<span
+					aria-hidden="true"
+					className="pointer-events-none absolute inset-0 rounded-xs border-2 border-map-threat bg-map-threat/15"
+				>
+					<TriangleAlert
+						className="absolute -right-0.5 -top-0.5 size-2.5 fill-background text-map-threat"
+						strokeWidth={2.5}
+					/>
+				</span>
 			)}
 		</td>
 	);
@@ -110,6 +127,7 @@ const DungeonRow = memo(
 		targetIds,
 		selectedTargetId,
 		onTargetRequested,
+		threatColumns,
 	}: {
 		row: readonly string[];
 		visible?: readonly boolean[];
@@ -125,6 +143,7 @@ const DungeonRow = memo(
 		targetIds?: readonly string[];
 		selectedTargetId?: string;
 		onTargetRequested?: (id: string) => void;
+		threatColumns?: readonly number[];
 	}) {
 		return (
 			<tr
@@ -166,6 +185,10 @@ const DungeonRow = memo(
 							columnIndex={columnIndex}
 							tile={visibility === "unknown" ? undefined : tile}
 							visibility={visibility}
+							threatened={
+								visibility === "visible" &&
+								(threatColumns?.includes(columnIndex) ?? false)
+							}
 							monsterId={monster?.id}
 							targetable={
 								monster &&
@@ -204,6 +227,11 @@ const DungeonRow = memo(
 		previous.entranceColumn === next.entranceColumn &&
 		previous.downStairColumn === next.downStairColumn &&
 		previous.playerRef === next.playerRef &&
+		(previous.threatColumns?.length ?? 0) ===
+			(next.threatColumns?.length ?? 0) &&
+		(previous.threatColumns ?? []).every(
+			(column, index) => column === next.threatColumns?.[index],
+		) &&
 		(previous.floorItems?.length ?? 0) === (next.floorItems?.length ?? 0) &&
 		(previous.floorItems ?? []).every(
 			(item, index) => item === next.floorItems?.[index],

@@ -7,6 +7,7 @@ import {
 	useRef,
 } from "react";
 import type { Coordinate, Dungeon } from "../../domain/dungeon/DungeonTypes.ts";
+import { FLOOR } from "../../domain/dungeon/Tiles";
 import type { VisibilityGrid } from "../../domain/dungeon/Visibility.ts";
 import type { FloorItem } from "../../domain/items/FloorItems";
 import type { Monster } from "../../domain/monsters/Monster.ts";
@@ -59,6 +60,37 @@ const DungeonLayout = ({
 	monsters = NO_MONSTERS,
 	floorItems = NO_ITEMS,
 }: DungeonLayoutProps) => {
+	const threatRows = useMemo(() => {
+		const rows = new Map<number, Set<number>>();
+		for (const monster of monsters) {
+			if (monster.health <= 0 || monster.intent.type !== "preparing-attack")
+				continue;
+			const { target } = monster.intent;
+			const sourceVisible =
+				visible === undefined ||
+				visible[monster.coordinate.row]?.[monster.coordinate.col];
+			const targetVisible =
+				visible === undefined ||
+				visible[target.row]?.[target.col] ||
+				(target.row === playerPosition.row &&
+					target.col === playerPosition.col);
+			if (
+				!sourceVisible ||
+				!targetVisible ||
+				dungeon[target.row]?.[target.col] !== FLOOR
+			)
+				continue;
+			const columns = rows.get(target.row) ?? new Set<number>();
+			columns.add(target.col);
+			rows.set(target.row, columns);
+		}
+		return new Map(
+			[...rows].map(([row, columns]) => [
+				row,
+				[...columns].sort((a, b) => a - b),
+			]),
+		);
+	}, [monsters, visible, dungeon, playerPosition.row, playerPosition.col]);
 	const itemRows = useMemo(() => {
 		const rows = new Map<number, FloorItem[]>();
 		for (const item of floorItems) {
@@ -162,6 +194,7 @@ const DungeonLayout = ({
 							rowIndex={rowIndex}
 							monsters={monsterRows.get(rowIndex)}
 							floorItems={itemRows.get(rowIndex)}
+							threatColumns={threatRows.get(rowIndex)}
 							visible={visible?.[rowIndex]}
 							explored={explored?.[rowIndex]}
 							playerColumn={

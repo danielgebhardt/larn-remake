@@ -27,7 +27,7 @@ const props = {
 };
 
 describe("Goblin map rendering", () => {
-	it.each(["giant-rat", "orc"] as const)(
+	it.each(["giant-rat", "orc", "goblin-archer", "dungeon-brute"] as const)(
 		"labels a visible %s by its kind",
 		(kind) => {
 			render(<DungeonLayout {...props} monsters={[{ ...goblin, kind }]} />);

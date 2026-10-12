@@ -16,6 +16,7 @@ import {
 	SheetTitle,
 } from "@/components/ui/sheet";
 import DungeonLegend from "../components/dungeon/DungeonLegend.tsx";
+import MonsterIcon from "../components/monsters/MonsterIcon";
 import { MANA_RECOVERY_INTERVAL } from "../domain/game/Mana";
 import {
 	MONSTER_HIT_CHANCE,
@@ -23,6 +24,7 @@ import {
 } from "../domain/game/MeleeRules";
 import { HEALTH_PER_LEVEL, MAX_PLAYER_LEVEL } from "../domain/game/Progression";
 import { SPELL_DEFINITIONS } from "../domain/game/Spells";
+import { MONSTER_DEFINITIONS } from "../domain/monsters/Monster";
 
 const Keycap = ({
 	children,
@@ -214,6 +216,38 @@ const DungeonHelp = () => (
 						movement does not use a turn.
 					</li>
 				</ul>
+			</section>
+			<section
+				aria-label="Enemy tactics"
+				className="grid gap-3 rounded-lg border p-4 text-sm"
+			>
+				<h3 className="font-medium">Enemy tactics</h3>
+				<div className="flex items-center gap-2 font-medium">
+					<MonsterIcon kind="goblin-archer" /> Goblin archer
+				</div>
+				<p>
+					Archers shoot at distance 2–
+					{MONSTER_DEFINITIONS["goblin-archer"].rangedAttackRange}. Horizontal
+					and vertical distance count together. Walls block sight and shots;
+					other monsters do not block arrows. When adjacent they use melee, and
+					beyond shooting range they pursue. They never move and attack in the
+					same turn.
+				</p>
+				<div className="flex items-center gap-2 font-medium">
+					<MonsterIcon kind="dungeon-brute" /> Dungeon brute
+				</div>
+				<p>
+					A brute marks a fixed tile before its heavy attack. The danger border
+					and warning badge mark that tile while the monster and tile are
+					visible. You have one committed action: move away to dodge. It cannot
+					aim at your new position during that attack.
+				</p>
+				<p>
+					Healing, casting and gear changes use your response, and happen before
+					the attack. Browsing menus, canceled targeting and rejected actions
+					are free. Changing floors pauses a prepared attack; it retains the
+					original target when you return.
+				</p>
 			</section>
 			<section
 				aria-label="Spellcasting"

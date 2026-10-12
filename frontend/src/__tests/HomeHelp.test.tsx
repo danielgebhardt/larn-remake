@@ -188,4 +188,17 @@ describe("Home Help menu", () => {
 			),
 		).toBeVisible();
 	});
+	it("explains enemy range, cover and the committed response to a prepared attack", async () => {
+		const user = renderHelpRun();
+		const help = await openHelp(user);
+		const tactics = within(help).getByRole("region", { name: "Enemy tactics" });
+		expect(tactics).toHaveTextContent("Goblin archer");
+		expect(tactics).toHaveTextContent("2–4");
+		expect(tactics).toHaveTextContent("Walls block sight and shots");
+		expect(tactics).toHaveTextContent("one committed action");
+		expect(tactics).toHaveTextContent("move away to dodge");
+		expect(tactics).toHaveTextContent(
+			"Healing, casting and gear changes use your response",
+		);
+	});
 });

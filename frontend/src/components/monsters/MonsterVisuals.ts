@@ -1,7 +1,8 @@
-import { Rat, Skull } from "lucide-react";
+import { BowArrow, Rat, Skull } from "lucide-react";
 import type { ComponentType, SVGProps } from "react";
 import { MONSTER_DEFINITIONS } from "../../domain/monsters/Monster";
 import type { MonsterKind } from "../../domain/monsters/Monster.ts";
+import BruteIcon from "./BruteIcon";
 import GoblinIcon from "./GoblinIcon.tsx";
 
 export const MONSTER_VISUALS: Record<
@@ -17,16 +18,14 @@ export const MONSTER_VISUALS: Record<
 		color: "text-goblin",
 		label: MONSTER_DEFINITIONS.goblin.name,
 	},
-	// Provisional art until the tactical presentation story (#150).
 	"goblin-archer": {
-		icon: GoblinIcon,
-		color: "text-goblin",
+		icon: BowArrow,
+		color: "text-monster-archer",
 		label: MONSTER_DEFINITIONS["goblin-archer"].name,
 	},
-	// Provisional art until #150; seeded rollout remains disabled.
 	"dungeon-brute": {
-		icon: Skull,
-		color: "text-monster-orc",
+		icon: BruteIcon,
+		color: "text-monster-brute",
 		label: MONSTER_DEFINITIONS["dungeon-brute"].name,
 	},
 	"giant-rat": {

@@ -38,7 +38,7 @@ const Keycap = ({
 }) => (
 	<kbd
 		aria-label={label}
-		className="inline-flex h-8 min-w-8 items-center justify-center rounded-md border border-border bg-background px-2 font-mono text-xs font-semibold text-foreground shadow-sm"
+		className="inline-flex h-7 min-w-7 items-center justify-center rounded-md border border-border bg-background px-2 font-mono text-xs font-semibold text-foreground shadow-sm"
 	>
 		{children}
 	</kbd>
@@ -60,7 +60,7 @@ const DungeonHelp = ({
 }) => (
 	<SheetContent
 		finalFocus={finalFocus}
-		className="overflow-y-auto data-[side=right]:w-full"
+		className="overflow-y-auto data-[side=right]:w-full sm:data-[side=right]:max-w-4xl"
 	>
 		<SheetHeader>
 			<SheetTitle>Help / Controls</SheetTitle>
@@ -69,95 +69,100 @@ const DungeonHelp = ({
 			</SheetDescription>
 		</SheetHeader>
 		<div className="grid gap-6 px-4 pb-6">
-			<section aria-labelledby="keyboard-controls-title" className="grid gap-3">
-				<h3
-					id="keyboard-controls-title"
-					className="flex items-center gap-2 font-medium"
+			<div className="grid items-start gap-6 md:grid-cols-2">
+				<section
+					aria-labelledby="keyboard-controls-title"
+					className="grid gap-3"
 				>
-					<Keyboard
-						aria-hidden="true"
-						className="size-4 text-muted-foreground"
-					/>{" "}
-					Keyboard controls
-				</h3>
-				<ul className="divide-y divide-border rounded-lg border bg-muted/30 px-3">
-					{movementControls.map(({ direction, key, Icon }) => (
-						<li
-							key={direction}
-							className="flex items-center justify-between gap-3 py-3"
-						>
-							<span>Move {direction}</span>
-							<span className="flex items-center gap-2">
-								<Keycap>{key}</Keycap>
-								<span className="text-xs text-muted-foreground">or</span>
-								<Keycap label={`Arrow ${direction}`}>
-									<Icon aria-hidden="true" className="size-4" />
-								</Keycap>
+					<h3
+						id="keyboard-controls-title"
+						className="flex items-center gap-2 font-medium"
+					>
+						<Keyboard
+							aria-hidden="true"
+							className="size-4 text-muted-foreground"
+						/>{" "}
+						Keyboard controls
+					</h3>
+					<ul className="divide-y divide-border rounded-lg border bg-muted/30 px-3">
+						{movementControls.map(({ direction, key, Icon }) => (
+							<li
+								key={direction}
+								className="flex items-center justify-between gap-3 py-2"
+							>
+								<span>Move {direction}</span>
+								<span className="flex items-center gap-2">
+									<Keycap>{key}</Keycap>
+									<span className="text-xs text-muted-foreground">or</span>
+									<Keycap label={`Arrow ${direction}`}>
+										<Icon aria-hidden="true" className="size-4" />
+									</Keycap>
+								</span>
+							</li>
+						))}
+						<li className="flex items-center justify-between gap-3 py-2">
+							<span>Wait one turn</span>
+							<Keycap>Space</Keycap>
+						</li>
+						<li className="flex items-center justify-between gap-3 py-2">
+							<span>Interact with a nearby object</span>
+							<Keycap>E</Keycap>
+						</li>
+						<li className="flex items-center justify-between gap-3 py-2">
+							<span>Pick up an item</span>
+							<Keycap>G</Keycap>
+						</li>
+						<li className="flex items-center justify-between gap-3 py-2">
+							<span>Open / close Character</span>
+							<span className="flex gap-1">
+								<Keycap>I</Keycap>
+								<Keycap>C</Keycap>
 							</span>
 						</li>
-					))}
-					<li className="flex items-center justify-between gap-3 py-3">
-						<span>Wait one turn</span>
-						<Keycap>Space</Keycap>
-					</li>
-					<li className="flex items-center justify-between gap-3 py-3">
-						<span>Interact with a nearby object</span>
-						<Keycap>E</Keycap>
-					</li>
-					<li className="flex items-center justify-between gap-3 py-3">
-						<span>Pick up an item</span>
-						<Keycap>G</Keycap>
-					</li>
-					<li className="flex items-center justify-between gap-3 py-3">
-						<span>Open / close Character</span>
-						<span className="flex gap-1">
-							<Keycap>I</Keycap>
-							<Keycap>C</Keycap>
-						</span>
-					</li>
-					<li className="flex items-center justify-between gap-3 py-3">
-						<span>Use potion shortcut</span>
-						<span className="flex gap-1">
-							<Keycap>1</Keycap>
-							<Keycap>2</Keycap>
-							<Keycap>3</Keycap>
-							<Keycap>4</Keycap>
-						</span>
-					</li>
-					<li className="flex items-center justify-between gap-3 py-3">
-						<span>Target a ranged spell</span>
-						<Keycap>Z</Keycap>
-					</li>
-					<li className="flex items-center justify-between gap-3 py-3">
-						<span>Cast Heal on self</span>
-						<Keycap>H</Keycap>
-					</li>
-					<li className="flex items-center justify-between gap-3 py-3">
-						<span>Close this sheet</span>
-						<Keycap>Esc</Keycap>
-					</li>
-				</ul>
-				<p className="text-xs leading-relaxed text-muted-foreground">
-					Click the dungeon map to focus gameplay. While a menu is open,
-					gameplay keys are paused.
-				</p>
-			</section>
-			<section aria-labelledby="map-symbols-title" className="grid gap-3">
-				<h3
-					id="map-symbols-title"
-					className="flex items-center gap-2 font-medium"
-				>
-					<MapIcon
-						aria-hidden="true"
-						className="size-4 text-muted-foreground"
-					/>
-					Map symbols
-				</h3>
-				<DungeonLegend />
-				<p className="text-xs leading-relaxed text-muted-foreground">
-					Visibility shading applies when fog of war is enabled.
-				</p>
-			</section>
+						<li className="flex items-center justify-between gap-3 py-2">
+							<span>Use potion shortcut</span>
+							<span className="flex gap-1">
+								<Keycap>1</Keycap>
+								<Keycap>2</Keycap>
+								<Keycap>3</Keycap>
+								<Keycap>4</Keycap>
+							</span>
+						</li>
+						<li className="flex items-center justify-between gap-3 py-2">
+							<span>Target a ranged spell</span>
+							<Keycap>Z</Keycap>
+						</li>
+						<li className="flex items-center justify-between gap-3 py-2">
+							<span>Cast Heal on self</span>
+							<Keycap>H</Keycap>
+						</li>
+						<li className="flex items-center justify-between gap-3 py-2">
+							<span>Close this sheet</span>
+							<Keycap>Esc</Keycap>
+						</li>
+					</ul>
+					<p className="text-xs leading-relaxed text-muted-foreground">
+						Click the dungeon map to focus gameplay. While a menu is open,
+						gameplay keys are paused.
+					</p>
+				</section>
+				<section aria-labelledby="map-symbols-title" className="grid gap-3">
+					<h3
+						id="map-symbols-title"
+						className="flex items-center gap-2 font-medium"
+					>
+						<MapIcon
+							aria-hidden="true"
+							className="size-4 text-muted-foreground"
+						/>
+						Map symbols
+					</h3>
+					<DungeonLegend />
+					<p className="text-xs leading-relaxed text-muted-foreground">
+						Visibility shading applies when fog of war is enabled.
+					</p>
+				</section>
+			</div>
 			<section aria-labelledby="gameplay-notes-title" className="grid gap-3">
 				<h3
 					id="gameplay-notes-title"

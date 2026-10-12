@@ -343,3 +343,10 @@ Human review checkpoints:
 The catalog now opens on Monsters and provides keyboard-accessible tabs for Monsters, Spells, Items, Dungeon objects and Terrain. Only the selected panel is exposed. Search filters that section, clears when switching tabs, and reports empty results explicitly. Tabs and search remain above an independently scrolling panel; the actual definition metadata and 24px/48px SVG previews remain unchanged.
 
 Three behavior regressions failed before implementation, then passed: section isolation/counts, an item-only search in Monsters followed by switching/searching Items, and arrow/End keyboard activation without a gameplay turn. Existing filtering, disabled-flag, pause and map-focus checks remain. Browser verified filtering/reset and keyboard activation at desktop and 390px width; the catalog has no internal horizontal overflow.
+
+
+## #215 — Wider Help reference
+
+Help now uses up to 896px on desktop, with keyboard controls and map symbols in two columns. All later gameplay notes, observed creatures, tactics, spellcasting and progression explanations span the full width. Keycaps and row padding are slightly more compact. Below the medium breakpoint the reference columns stack; the sheet retains vertical scrolling for the complete guide. Content and gameplay rules are unchanged.
+
+All eleven existing Help behavior tests pass, covering the descriptions, Escape/Close, keyboard opening, paused gameplay, preserved Settings drafts and map-focus restoration. Since this is a presentation change, browser layout checks provide the additional evidence instead of class-name assertions: at 1280×720 the reference columns are 412px each and following notes are 848px wide; at 390px the sections stack and the sheet has no internal horizontal overflow. Both dark and light appearances were inspected.

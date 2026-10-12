@@ -467,3 +467,5 @@ Death opens a game-over summary with the final run values and last recorded dama
 Living players below **50% of maximum health** receive a red HP value, low-health badge and a muted red adventure-container background. Exactly half health does not warn. Recovery or capacity changes update the warning immediately; death uses the game-over dialog.
 
 Identified utility potions include Antidote (floor 2+, removes current poison), Greater healing potion (floor 8+, up to 15 HP), and Greater mana potion (floor 8+, up to 12 mana). They share normal pickup, bag, hotbar and one-turn drinking rules. A potion with no useful effect remains in the bag and spends no turn. Antidote does not grant immunity to a subsequent attack.
+
+The dungeon camera follows with a five-tile comfort margin on each axis. On small viewports, the margin shrinks to keep the player visible; map boundaries still clamp scrolling. Manual scrolling remains intact until accepted movement, a floor change or viewport resize requires following again.

@@ -165,7 +165,7 @@ const DungeonLayout = ({
 			tileStart:
 				tile.left - view.left - viewport.clientLeft + viewport.scrollLeft,
 			tileSize: tile.width,
-			margin: tile.width,
+			margin: tile.width * 5,
 		});
 		const top = getScrollOffset({
 			offset: viewport.scrollTop,
@@ -173,7 +173,7 @@ const DungeonLayout = ({
 			contentSize: viewport.scrollHeight,
 			tileStart: tile.top - view.top - viewport.clientTop + viewport.scrollTop,
 			tileSize: tile.height,
-			margin: tile.height,
+			margin: tile.height * 5,
 		});
 		if (left !== viewport.scrollLeft) viewport.scrollLeft = left;
 		if (top !== viewport.scrollTop) viewport.scrollTop = top;

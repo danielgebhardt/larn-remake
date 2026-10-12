@@ -58,6 +58,25 @@ describe("dungeon viewport following", () => {
 		vi.restoreAllMocks();
 		vi.unstubAllGlobals();
 	});
+	it("starts following five tiles before either viewport edge", () => {
+		width = 480;
+		height = 480;
+		const props = {
+			dungeon: terrain,
+			playerPosition: { row: 8, col: 8 },
+			onMoveRequested: noop,
+		};
+		const { rerender } = render(<DungeonLayout {...props} />);
+		const viewport = screen.getByRole("region", { name: "Dungeon map" });
+		expect(viewport.scrollLeft).toBe(0);
+		rerender(
+			<DungeonLayout {...props} playerPosition={{ row: 15, col: 15 }} />,
+		);
+		expect(viewport.scrollLeft).toBe(24);
+		expect(viewport.scrollTop).toBe(0); // map height exactly fits
+		rerender(<DungeonLayout {...props} playerPosition={{ row: 8, col: 5 }} />);
+		expect(viewport.scrollLeft).toBe(0);
+	});
 	it("shows an off-screen initial player on both axes without moving focus or the outer page", () => {
 		const onMove = vi.fn();
 		render(
@@ -68,8 +87,8 @@ describe("dungeon viewport following", () => {
 			/>,
 		);
 		const viewport = screen.getByRole("region", { name: "Dungeon map" });
-		expect(viewport.scrollLeft).toBe(288);
-		expect(viewport.scrollTop).toBe(192);
+		expect(viewport.scrollLeft).toBe(312);
+		expect(viewport.scrollTop).toBe(204);
 		expect(document.activeElement).toBe(document.body);
 		expect(window.scrollX).toBe(0);
 		expect(window.scrollY).toBe(0);
@@ -97,7 +116,7 @@ describe("dungeon viewport following", () => {
 		expect(viewport.scrollLeft).toBe(300);
 		expect(viewport.scrollTop).toBe(200);
 		rerender(<DungeonLayout {...props} playerPosition={{ row: 1, col: 2 }} />);
-		expect(viewport.scrollLeft).toBe(24);
+		expect(viewport.scrollLeft).toBe(0);
 		expect(viewport.scrollTop).toBe(0);
 	});
 	it("does not recenter until the parent updates the player position", () => {
@@ -139,7 +158,7 @@ describe("dungeon viewport following", () => {
 		expect(viewport.scrollTop).toBe(0);
 	});
 	it("brings the player back into view after the map container shrinks and cleans up observation", () => {
-		width = 500;
+		width = 600;
 		height = 400;
 		const { unmount } = render(
 			<DungeonLayout
@@ -153,8 +172,8 @@ describe("dungeon viewport following", () => {
 		width = 120;
 		height = 96;
 		act(() => resized());
-		expect(viewport.scrollLeft).toBe(288);
-		expect(viewport.scrollTop).toBe(192);
+		expect(viewport.scrollLeft).toBe(312);
+		expect(viewport.scrollTop).toBe(204);
 		unmount();
 		expect(disconnect).toHaveBeenCalledOnce();
 	});

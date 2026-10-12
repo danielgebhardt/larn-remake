@@ -1,4 +1,3 @@
-import type { DungeonFloor } from "../dungeon/DungeonRun";
 import {
 	type ExplorationState,
 	updateExploration,
@@ -9,23 +8,14 @@ import type {
 } from "../dungeon/RunConfiguration";
 import type { GameState } from "../game/GameState";
 import { levelForExperience } from "../game/Progression";
+import type { SaveDocumentV1 } from "./SaveDocumentV1";
 import { validateSaveDocument } from "./SaveValidation";
 
 export const SAVE_FORMAT_VERSION = 1;
 // Bound imported input before parsing. A maximum-size snapshot is measured in the review.
 export const MAX_SAVE_BYTES = 4 * 1024 * 1024;
 
-type SavedFloor = Omit<DungeonFloor, "terrain"> & { terrain: string[] };
-export type SaveDocument = {
-	version: typeof SAVE_FORMAT_VERSION;
-	savedAt: string;
-	configuration: RunConfiguration;
-	fog: FogConfiguration;
-	state: Omit<GameState, "run"> & {
-		run: Omit<GameState["run"], "floors"> & { floors: SavedFloor[] };
-	};
-	explored: { floorNumber: number; rows: string[] }[];
-};
+export type SaveDocument = SaveDocumentV1;
 export type RestoredAdventure = {
 	state: GameState;
 	exploration: ExplorationState;
@@ -48,11 +38,38 @@ export const createSaveDocument = (
 	configuration: { ...configuration },
 	fog: { ...fog },
 	state: {
-		...state,
+		turn: state.turn,
+		mana: state.mana,
+		knownSpells: state.knownSpells,
+		quest: state.quest,
+		monstersDefeated: state.monstersDefeated,
+		player: state.player,
+		progression: state.progression,
+		equipment: state.equipment,
+		bag: state.bag,
+		potionHotbar: state.potionHotbar,
+		floorItems: state.floorItems,
+		monsters: state.monsters.map(
+			({ id, kind, floorNumber, coordinate, health }) => ({
+				id,
+				kind,
+				floorNumber,
+				coordinate,
+				health,
+			}),
+		),
+		activityHistory: state.activityHistory,
 		run: {
-			...state.run,
+			seed: state.run.seed,
+			activeFloor: state.run.activeFloor,
+			playerCoordinate: state.run.playerCoordinate,
 			floors: state.run.floors.map((floor) => ({
-				...floor,
+				floorNumber: floor.floorNumber,
+				partitions: floor.partitions,
+				rooms: floor.rooms,
+				corridors: floor.corridors,
+				upStair: floor.upStair,
+				downStair: floor.downStair,
 				terrain: floor.terrain.map((row) => row.join("")),
 			})),
 		},
@@ -85,7 +102,12 @@ export const restoreSave = (document: SaveDocument): RestoredAdventure => {
 		run: {
 			...document.state.run,
 			floors: document.state.run.floors.map((floor) => ({
-				...floor,
+				floorNumber: floor.floorNumber,
+				partitions: floor.partitions,
+				rooms: floor.rooms,
+				corridors: floor.corridors,
+				upStair: floor.upStair,
+				downStair: floor.downStair,
 				terrain: floor.terrain.map((row) => [...row]),
 			})),
 		},

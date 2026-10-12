@@ -3,7 +3,7 @@ import {
 	EQUIPMENT_SLOT_LABELS,
 	type Equipment,
 	type EquipmentSlot,
-	equipmentSlotFor,
+	fitsEquipmentSlot,
 	replaceEquipmentSlot,
 } from "./Equipment";
 import type { ItemKind } from "./Item";
@@ -45,7 +45,7 @@ export const changeEquipment = (
 	const index = bag.items.findIndex((item) => item.id === action.itemId);
 	const selected = bag.items[index];
 	if (!selected) return { error: "That item is no longer in your bag." };
-	if (equipmentSlotFor(selected) !== action.slot)
+	if (!fitsEquipmentSlot(selected, action.slot))
 		return { error: `That item does not fit the ${label.toLowerCase()}.` };
 	if (Object.values(equipment).some((item) => item?.id === selected.id))
 		return { error: "That item is already equipped." };

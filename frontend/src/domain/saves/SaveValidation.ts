@@ -5,12 +5,14 @@ import {
 	migrateSaveV2,
 	migrateSaveV3,
 	migrateSaveV4,
+	migrateSaveV5,
 } from "./SaveMigration";
 import { isSaveDocumentV1 } from "./SaveShapeV1";
 import { isSaveDocumentV2 } from "./SaveShapeV2";
 import { isSaveDocumentV3 } from "./SaveShapeV3";
 import { isSaveDocumentV4 } from "./SaveShapeV4";
 import { isSaveDocumentV5 } from "./SaveShapeV5";
+import { isSaveDocumentV6 } from "./SaveShapeV6";
 
 export const validateSaveDocument = (
 	data: unknown,
@@ -19,7 +21,8 @@ export const validateSaveDocument = (
 		typeof data === "object" &&
 		data !== null &&
 		!Array.isArray(data) &&
-		(!("version" in data) || ![1, 2, 3, 4, 5].includes(data.version as number))
+		(!("version" in data) ||
+			![1, 2, 3, 4, 5, 6].includes(data.version as number))
 	)
 		return {
 			ok: false,
@@ -35,18 +38,25 @@ export const validateSaveDocument = (
 			data.version === 1 ? migrateSaveV1(data) : data,
 		);
 		return isConsistentSave(current)
-			? { ok: true, value: migrateSaveV4(migrateSaveV3(current)) }
+			? {
+					ok: true,
+					value: migrateSaveV5(migrateSaveV4(migrateSaveV3(current))),
+				}
 			: { ok: false, error: "This save contains inconsistent adventure data." };
 	}
 	if (isSaveDocumentV3(data))
 		return isConsistentSave(data)
-			? { ok: true, value: migrateSaveV4(migrateSaveV3(data)) }
+			? { ok: true, value: migrateSaveV5(migrateSaveV4(migrateSaveV3(data))) }
 			: { ok: false, error: "This save contains inconsistent adventure data." };
 	if (isSaveDocumentV4(data))
 		return isConsistentSave(data)
-			? { ok: true, value: migrateSaveV4(data) }
+			? { ok: true, value: migrateSaveV5(migrateSaveV4(data)) }
 			: { ok: false, error: "This save contains inconsistent adventure data." };
-	if (!isSaveDocumentV5(data))
+	if (isSaveDocumentV5(data))
+		return isConsistentSave(data)
+			? { ok: true, value: migrateSaveV5(data) }
+			: { ok: false, error: "This save contains inconsistent adventure data." };
+	if (!isSaveDocumentV6(data))
 		return {
 			ok: false,
 			error: "This save contains invalid or missing adventure data.",

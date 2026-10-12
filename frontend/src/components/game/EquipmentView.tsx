@@ -12,6 +12,8 @@ const slots = [
 	{ key: "head", position: "col-start-2 row-start-1" },
 	{ key: "mainHand", position: "col-start-1 row-start-2" },
 	{ key: "offHand", position: "col-start-3 row-start-2" },
+	{ key: "leftRing", position: "col-start-1 row-start-3" },
+	{ key: "rightRing", position: "col-start-3 row-start-3" },
 	{ key: "chest", position: "col-start-2 row-start-3" },
 ] as const;
 const EquipmentView = ({

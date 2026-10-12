@@ -44,7 +44,7 @@ export type SaveDocumentV1 = {
 		monstersDefeated: number;
 		player: PlayerStats;
 		progression: Progression;
-		equipment: Equipment;
+		equipment: Pick<Equipment, "mainHand" | "offHand" | "chest" | "head">;
 		bag: Bag;
 		potionHotbar: PotionHotbar;
 		floorItems: readonly FloorItem[];

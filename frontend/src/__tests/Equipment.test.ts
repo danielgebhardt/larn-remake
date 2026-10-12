@@ -76,6 +76,8 @@ describe("Starting equipment", () => {
 			offHand: null,
 			chest: null,
 			head: null,
+			leftRing: null,
+			rightRing: null,
 		});
 	});
 	it("retains gear through walking, descent, ascent, waiting, and blocked movement", () => {
@@ -116,6 +118,8 @@ describe("Equipment ownership", () => {
 			offHand: null,
 			chest: null,
 			head: null,
+			leftRing: null,
+			rightRing: null,
 		});
 	});
 	it("distinguishes two copies of the same item kind by identity", () => {

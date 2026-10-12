@@ -5,7 +5,7 @@ import type { Equipment } from "../../domain/items/Equipment";
 import {
 	EQUIPMENT_SLOT_LABELS,
 	type EquipmentSlot,
-	equipmentSlotFor,
+	equipmentSlotsFor,
 } from "../../domain/items/Equipment";
 import { compareEquipment } from "../../domain/items/EquipmentComparison";
 import { ITEM_DEFINITIONS, type ItemInstance } from "../../domain/items/Item";
@@ -17,6 +17,7 @@ import EquipmentComparisonView from "./EquipmentComparisonView";
 
 const labels = {
 	quest: "Quest item",
+	ring: "Ring",
 	spellbook: "Spellbook",
 	weapon: "Weapon",
 	shield: "Shield",
@@ -45,7 +46,7 @@ const ItemDetails = ({
 }) => {
 	const titleId = useId();
 	const details = ITEM_DEFINITIONS[item.kind];
-	const slot = equipmentSlotFor(item);
+	const slots = equipmentSlotsFor(item);
 	const comparison = equippedSlot ? null : compareEquipment(item, equipment);
 	const act = (action: PlayerAction) => {
 		onAction(action);
@@ -92,15 +93,16 @@ const ItemDetails = ({
 						>
 							Drop item
 						</Button>
-						{slot && (
+						{slots.map((slot) => (
 							<Button
 								type="button"
 								disabled={!alive}
+								key={slot}
 								onClick={() => act({ type: "equip", itemId: item.id, slot })}
 							>
 								Equip in {EQUIPMENT_SLOT_LABELS[slot].toLowerCase()}
 							</Button>
-						)}
+						))}
 						{details.type === "potion" && (
 							<Button
 								type="button"

@@ -8,7 +8,8 @@ export type ItemDefinition = {
 		| "chest-armor"
 		| "helmet"
 		| "quest"
-		| "spellbook";
+		| "spellbook"
+		| "ring";
 	attackBonus: number;
 	armor: number;
 	description: string;
@@ -18,6 +19,18 @@ export type ItemDefinition = {
 	dropWeight: number;
 };
 export const ITEM_DEFINITIONS = {
+	"copper-ring": {
+		name: "Copper ring",
+		type: "ring",
+		attackBonus: 0,
+		armor: 0,
+		description:
+			"A plain copper band. Fits either ring slot; it grants no magical bonus.",
+		minFloor: 2,
+		maxFloor: 8,
+		foundWeight: 1,
+		dropWeight: 1,
+	},
 	cure: {
 		name: "Cure",
 		type: "quest",

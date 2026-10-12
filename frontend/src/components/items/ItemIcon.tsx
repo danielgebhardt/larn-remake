@@ -1,5 +1,6 @@
 import {
 	BookOpen,
+	Circle,
 	FlaskConical,
 	FlaskRound,
 	Gem,
@@ -16,6 +17,7 @@ const isBookKind = (kind: ItemKind): kind is BookKind =>
 	ITEM_DEFINITIONS[kind].type === "spellbook";
 const icons: Record<Exclude<ItemKind, BookKind>, LucideIcon> = {
 	cure: Gem,
+	"copper-ring": Circle,
 	"healing-potion": FlaskRound,
 	"mana-potion": FlaskConical,
 	"short-sword": Sword,

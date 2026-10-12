@@ -22,7 +22,7 @@ describe("Portable adventure save files", () => {
 		);
 		expect(imported).toEqual(parseSave(versionOneFile));
 		if (!imported.ok) throw new Error(imported.error);
-		expect(imported.value.version).toBe(5);
+		expect(imported.value.version).toBe(6);
 		expect(
 			imported.value.state.monsters.every(
 				(monster) => monster.intent.type === "idle",
@@ -68,7 +68,7 @@ describe("Portable adventure save files", () => {
 		).toEqual({ ok: true, value: document });
 		for (const text of [
 			"broken",
-			serializeSave({ ...document, version: 99 as 5 }),
+			serializeSave({ ...document, version: 99 as 6 }),
 		])
 			expect((await readAdventureFile(new File([text], "save.json"))).ok).toBe(
 				false,

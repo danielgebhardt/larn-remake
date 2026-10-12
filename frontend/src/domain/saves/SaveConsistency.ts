@@ -3,7 +3,7 @@ import { maximumMana } from "../game/Mana";
 import { DEFAULT_PLAYER_MAX_HEALTH } from "../game/PlayerStats";
 import { HEALTH_PER_LEVEL, levelForExperience } from "../game/Progression";
 import { PLAYER_EFFECT_KINDS } from "../game/TimedEffects";
-import { type EquipmentSlot, equipmentSlotFor } from "../items/Equipment";
+import { type EquipmentSlot, fitsEquipmentSlot } from "../items/Equipment";
 import { ITEM_DEFINITIONS } from "../items/Item";
 import { MONSTER_DEFINITIONS } from "../monsters/Monster";
 import {
@@ -15,6 +15,7 @@ import type { SaveDocumentV2 } from "./SaveDocumentV2";
 import type { SaveDocumentV3 } from "./SaveDocumentV3";
 import type { SaveDocumentV4 } from "./SaveDocumentV4";
 import type { SaveDocumentV5 } from "./SaveDocumentV5";
+import type { SaveDocumentV6 } from "./SaveDocumentV6";
 
 export const isConsistentSave = (
 	document:
@@ -22,11 +23,12 @@ export const isConsistentSave = (
 		| SaveDocumentV2
 		| SaveDocumentV3
 		| SaveDocumentV4
-		| SaveDocumentV5,
+		| SaveDocumentV5
+		| SaveDocumentV6,
 ): boolean => {
 	const { state, configuration: config } = document;
 	const { run, quest } = state;
-	if (document.version === 5) {
+	if ("effects" in document.state) {
 		const effects = document.state.effects;
 		if (
 			new Set(effects.map((effect) => `${effect.actorId}:${effect.kind}`))
@@ -46,7 +48,7 @@ export const isConsistentSave = (
 		)
 			return false;
 	}
-	if (document.version === 4 || document.version === 5) {
+	if ("spellHotbar" in document.state) {
 		const slots = document.state.spellHotbar.filter((spell) => spell !== null);
 		if (
 			new Set(slots).size !== slots.length ||
@@ -141,8 +143,7 @@ export const isConsistentSave = (
 	];
 	if (!unique(allItems.map((entry) => entry.id))) return false;
 	for (const [name, entry] of Object.entries(state.equipment))
-		if (entry && equipmentSlotFor(entry) !== (name as EquipmentSlot))
-			return false;
+		if (entry && !fitsEquipmentSlot(entry, name as EquipmentSlot)) return false;
 	if (
 		state.bag.items.some(
 			(entry) =>

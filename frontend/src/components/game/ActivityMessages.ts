@@ -21,6 +21,10 @@ export const formatActivityEvent = (event: ActivityEvent): string => {
 			return `${prefix}You ${event.toFloor > event.fromFloor ? "descend" : "ascend"} to floor ${event.toFloor}.`;
 		case "monster-missed":
 			return `${prefix}The ${MONSTER_DEFINITIONS[event.monster].name} misses you.`;
+		case "monster-shot-missed":
+			return `${prefix}The ${MONSTER_DEFINITIONS[event.monster].name}'s shot misses you.`;
+		case "monster-shot-hit":
+			return `${prefix}The ${MONSTER_DEFINITIONS[event.monster].name} shoots you for ${event.damage} damage.`;
 		case "player-missed":
 			return `${prefix}You miss the ${MONSTER_DEFINITIONS[event.monster].name}.`;
 		case "spell-healed":

@@ -97,6 +97,8 @@ const eventFields = {
 	"spell-healed": { spell: spellKind, recovered: natural },
 	"player-hit": { monster: monsterKind, damage: natural },
 	"monster-hit": { monster: monsterKind, damage: natural },
+	"monster-shot-hit": { monster: monsterKind, damage: natural },
+	"monster-shot-missed": { monster: monsterKind },
 	"monster-died": { monster: monsterKind },
 	"player-missed": { monster: monsterKind },
 	"monster-missed": { monster: monsterKind },

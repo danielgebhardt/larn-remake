@@ -8,6 +8,21 @@ import {
 } from "../domain/monsters/Monster";
 
 describe("Floor-aware monster catalog", () => {
+	it("defines the provisional archer profile without enabling seeded encounters yet", () => {
+		expect(MONSTER_DEFINITIONS["goblin-archer"]).toMatchObject({
+			maxHealth: 5,
+			attackDamage: 2,
+			rangedAttackRange: 4,
+			detectionRadius: 6,
+			experienceReward: 6,
+			minFloor: 2,
+			maxFloor: 20,
+			spawnWeight: 1,
+			spawnEnabled: false,
+		});
+		for (let floor = 1; floor <= 20; floor++)
+			expect(eligibleMonsterKinds(floor)).not.toContain("goblin-archer");
+	});
 	it("selects eligible kinds by relative weight, with inclusive floor boundaries", () => {
 		expect(selectMonsterKind(1, () => 0)).toBe("goblin");
 		expect(selectMonsterKind(1, () => 0.6)).toBe("giant-rat");
@@ -41,6 +56,8 @@ describe("Floor-aware monster catalog", () => {
 		{ maxHealth: 0 },
 		{ attackDamage: 1.5 },
 		{ detectionRadius: -1 },
+		{ rangedAttackRange: 1 },
+		{ rangedAttackRange: 2.5 },
 	])("rejects unusable definitions: %j", (overrides) => {
 		expect(() =>
 			validateMonsterDefinition({

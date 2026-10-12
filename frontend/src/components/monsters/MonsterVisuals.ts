@@ -17,6 +17,12 @@ export const MONSTER_VISUALS: Record<
 		color: "text-goblin",
 		label: MONSTER_DEFINITIONS.goblin.name,
 	},
+	// Provisional art until the tactical presentation story (#150).
+	"goblin-archer": {
+		icon: GoblinIcon,
+		color: "text-goblin",
+		label: MONSTER_DEFINITIONS["goblin-archer"].name,
+	},
 	"giant-rat": {
 		icon: Rat,
 		color: "text-monster-rat",

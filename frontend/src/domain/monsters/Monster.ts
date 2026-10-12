@@ -3,7 +3,7 @@ import type { Coordinate } from "../dungeon/DungeonTypes.ts";
 import { MAX_FLOORS } from "../dungeon/RunConfiguration";
 import type { ItemKind } from "../items/Item";
 
-export type MonsterKind = "goblin" | "giant-rat" | "orc";
+export type MonsterKind = "goblin" | "giant-rat" | "orc" | "goblin-archer";
 
 export type MonsterIntent =
 	| { type: "idle" }
@@ -30,6 +30,9 @@ export type MonsterDefinition = {
 	spawnWeight: number;
 	dropChance: number;
 	lootPreferences: Partial<Record<ItemKind, number>>;
+	rangedAttackRange?: number;
+	// Disabled content can be exercised in encounters before seeded rollout.
+	spawnEnabled?: boolean;
 };
 export const validateMonsterDefinition = (
 	definition: MonsterDefinition,
@@ -44,6 +47,8 @@ export const validateMonsterDefinition = (
 		maxHealth,
 		attackDamage,
 		detectionRadius,
+		rangedAttackRange,
+		spawnEnabled,
 	} = definition;
 	if (
 		!Number.isSafeInteger(experienceReward) ||
@@ -66,7 +71,10 @@ export const validateMonsterDefinition = (
 		!Number.isInteger(attackDamage) ||
 		attackDamage < 1 ||
 		!Number.isInteger(detectionRadius) ||
-		detectionRadius < 0
+		detectionRadius < 0 ||
+		(rangedAttackRange !== undefined &&
+			(!Number.isSafeInteger(rangedAttackRange) || rangedAttackRange < 2)) ||
+		(spawnEnabled !== undefined && typeof spawnEnabled !== "boolean")
 	)
 		throw new RangeError(
 			"Invalid monster stats, floor range, or spawn weight.",
@@ -109,13 +117,31 @@ export const MONSTER_DEFINITIONS: Record<MonsterKind, MonsterDefinition> = {
 		dropChance: 0.7,
 		lootPreferences: { "chain-armor": 2, "iron-helmet": 2 },
 	},
+	"goblin-archer": {
+		name: "goblin archer",
+		experienceReward: 6,
+		maxHealth: 5,
+		attackDamage: 2,
+		detectionRadius: 6,
+		rangedAttackRange: 4,
+		minFloor: 2,
+		maxFloor: MAX_FLOORS,
+		spawnWeight: 1,
+		spawnEnabled: false,
+		dropChance: 0.5,
+		lootPreferences: { "short-sword": 2, "wooden-shield": 2 },
+	},
 };
 for (const definition of Object.values(MONSTER_DEFINITIONS))
 	validateMonsterDefinition(definition);
 export const eligibleMonsterKinds = (floor: number): MonsterKind[] =>
 	(Object.keys(MONSTER_DEFINITIONS) as MonsterKind[]).filter((kind) => {
 		const definition = MONSTER_DEFINITIONS[kind];
-		return floor >= definition.minFloor && floor <= definition.maxFloor;
+		return (
+			definition.spawnEnabled !== false &&
+			floor >= definition.minFloor &&
+			floor <= definition.maxFloor
+		);
 	});
 
 export const selectMonsterKind = (

@@ -38,9 +38,18 @@ export const resolveMonsterPhase = (
 	for (const monster of active) {
 		if (player.health <= 0) break;
 		if (!detectsPlayer(state.run, monster)) continue;
-		if (
-			orthogonalDistance(monster.coordinate, state.run.playerCoordinate) !== 1
-		) {
+		// Detection already requires clear terrain sight. Creatures do not
+		// intercept shots; range uses Manhattan distance like melee adjacency.
+		const distance = orthogonalDistance(
+			monster.coordinate,
+			state.run.playerCoordinate,
+		);
+		const definition = MONSTER_DEFINITIONS[monster.kind];
+		const shooting =
+			definition.rangedAttackRange !== undefined &&
+			distance >= 2 &&
+			distance <= definition.rangedAttackRange;
+		if (distance !== 1 && !shooting) {
 			const coordinate = selectPursuitStep(state.run, monster, monsters);
 			if (coordinate)
 				monsters = monsters.map((actor) =>
@@ -49,22 +58,19 @@ export const resolveMonsterPhase = (
 			continue;
 		}
 		const outcome = resolveMeleeAttack(
-			attackProfile(
-				MONSTER_DEFINITIONS[monster.kind].attackDamage,
-				monsterHitThreshold,
-			),
+			attackProfile(definition.attackDamage, monsterHitThreshold),
 			rollSource({
 				seed: state.run.seed,
 				floorNumber: state.run.activeFloor,
 				turn: state.turn,
-				attackerId: monster.id,
+				attackerId: shooting ? `${monster.id}:shot` : monster.id,
 				targetId: "player",
 			}),
 			armor,
 		);
 		if (!outcome.hit) {
 			events.push({
-				type: "monster-missed",
+				type: shooting ? "monster-shot-missed" : "monster-missed",
 				turn: state.turn,
 				monster: monster.kind,
 			});
@@ -73,7 +79,7 @@ export const resolveMonsterPhase = (
 		const damage = outcome.damage;
 		player = { ...player, health: Math.max(0, player.health - damage) };
 		events.push({
-			type: "monster-hit",
+			type: shooting ? "monster-shot-hit" : "monster-hit",
 			turn: state.turn,
 			monster: monster.kind,
 			damage,

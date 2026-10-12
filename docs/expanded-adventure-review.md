@@ -81,3 +81,9 @@ Ticks use stable actor order after retaliation; inactive monster effects pause, 
 Protection adds 2 armor (3 mana, books 3–12); Strength and Dexterity each add 2 to the corresponding attribute (4 mana, books 5–15). Six committed phases include the casting response. Refreshing replaces the duration instead of stacking. These global player effects expire on turn boundaries and persist through saves without altering earned XP, level, health or mana capacity.
 
 Combat and the Character displays derive the same effective attributes: Strength changes melee damage, Dexterity changes real hit/evasion thresholds within existing clamps, and Protection reduces incoming damage while retaining the minimum of one. A small pure bonus helper avoids a dependency cycle through condition damage and progression. Five behavior cases failed first, then passed; saved continuation and effective stat display are also covered. Sixteen total functional spells are now implemented.
+
+## #168 — Blink and Teleport Away
+
+Blink self-casts for 4 mana to a seeded safe tile within range 3; Teleport Away costs 6 mana and sends a target within range 5 to a safe tile farther from the player on the same floor. Both exclude occupied tiles, stairs, arrivals and the entrance. Empty candidate sets fail without a turn or mana cost. Destinations use an independent seed/turn/spell/actor stream and stable terrain traversal. Blink announces items under the landing tile; it cannot accidentally transition floors or deliver the cure.
+
+Teleport preserves identity, health and conditions and cancels prepared attacks. Its log says the monster moved without revealing hidden coordinates. Books occupy respective floor bands 4–14 and 6–18. Three initial behavior tests failed, then passed; actor avoidance and landing item feedback are covered too. Eighteen functional spells now exist.

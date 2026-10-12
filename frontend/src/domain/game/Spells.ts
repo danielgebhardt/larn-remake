@@ -22,6 +22,8 @@ export type SpellDefinition = SpellDetails &
 		  }
 		| { mode: "self"; effect: "condition"; condition: PlayerEffectKind }
 		| { mode: "self"; effect: "heal"; healing: number }
+		| { mode: "self"; effect: "reposition"; range: number }
+		| { mode: "targeted"; effect: "reposition"; range: number }
 	);
 
 export const SPELL_DEFINITIONS = {
@@ -183,6 +185,24 @@ export const SPELL_DEFINITIONS = {
 		description:
 			"Gain 2 Dexterity for six committed turns, improving hit and evasion chances. Recasting refreshes the duration without stacking.",
 	},
+	blink: {
+		name: "Blink",
+		mode: "self",
+		effect: "reposition",
+		range: 3,
+		cost: 4,
+		description:
+			"Blink to a seeded safe tile within three steps. Walls, actors and stair arrivals are excluded. No destination costs nothing.",
+	},
+	"teleport-away": {
+		name: "Teleport Away",
+		mode: "targeted",
+		effect: "reposition",
+		range: 5,
+		cost: 6,
+		description:
+			"Send one monster to a seeded safe tile farther from you on this floor. Keeps its health and conditions, cancels its prepared attack.",
+	},
 	heal: {
 		name: "Heal",
 		mode: "self",
@@ -219,6 +239,8 @@ export const spellPotency = (
 			} as const;
 		case "condition":
 			return { effect: "condition", condition: definition.condition } as const;
+		case "reposition":
+			return { effect: "reposition" } as const;
 		case "heal":
 			return {
 				effect: "heal",

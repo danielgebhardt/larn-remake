@@ -85,7 +85,9 @@ const SpellsView = ({
 									? `Heal up to ${potency.healing} health · ${definition.cost} mana`
 									: potency.effect === "condition"
 										? `${EFFECT_DEFINITIONS[potency.condition].name} · ${EFFECT_DEFINITIONS[potency.condition].duration} active phases · ${definition.cost} mana`
-										: `Damage ${potency.minimumDamage}–${potency.maximumDamage} · ${definition.cost} mana`}
+										: potency.effect === "reposition"
+											? `Reposition · ${definition.cost} mana`
+											: `Damage ${potency.minimumDamage}–${potency.maximumDamage} · ${definition.cost} mana`}
 							</p>
 							<fieldset
 								aria-label={`Assign ${definition.name} shortcut`}

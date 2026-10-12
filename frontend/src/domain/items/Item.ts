@@ -308,6 +308,32 @@ export const ITEM_DEFINITIONS = {
 		foundWeight: 0,
 		dropWeight: 0,
 	},
+	"book-blink": {
+		name: "Spellbook: Blink",
+		type: "spellbook",
+		teaches: "blink",
+		attackBonus: 0,
+		armor: 0,
+		description:
+			"Learn Blink: 4 mana. Move to a safe nearby tile within three steps. Reading uses one turn and no bag slot.",
+		minFloor: 4,
+		maxFloor: 14,
+		foundWeight: 0,
+		dropWeight: 0,
+	},
+	"book-teleport-away": {
+		name: "Spellbook: Teleport Away",
+		type: "spellbook",
+		teaches: "teleport-away",
+		attackBonus: 0,
+		armor: 0,
+		description:
+			"Learn Teleport Away: 6 mana. Move one monster farther away on this floor, range 5. Reading uses one turn and no bag slot.",
+		minFloor: 6,
+		maxFloor: 18,
+		foundWeight: 0,
+		dropWeight: 0,
+	},
 	"mana-potion": {
 		name: "Mana potion",
 		type: "potion",

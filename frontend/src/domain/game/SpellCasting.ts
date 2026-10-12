@@ -6,6 +6,7 @@ import { appendActivityEvents } from "./ActivityHistory";
 import type { AttackRollSource } from "./CombatRandomness";
 import type { GameState } from "./GameState";
 import { damageMonster } from "./MonsterDamage";
+import { repositionSpell } from "./RepositionSpells";
 import {
 	SPELL_DEFINITIONS,
 	type SpellDefinition,
@@ -75,6 +76,13 @@ export const castSpell = (
 				definition.condition,
 			),
 		};
+	if (definition.mode === "self" && definition.effect === "reposition")
+		return repositionSpell(
+			state,
+			action.spell,
+			definition.cost,
+			definition.range,
+		);
 	const target = state.monsters.find(
 		(monster) => monster.id === action.targetId,
 	);
@@ -83,6 +91,14 @@ export const castSpell = (
 			error:
 				"Choose a living monster within range and clear line of sight on this floor.",
 		};
+	if (definition.effect === "reposition")
+		return repositionSpell(
+			state,
+			action.spell,
+			definition.cost,
+			definition.range,
+			target,
+		);
 	if (potency.effect === "condition")
 		return {
 			state: applyTimedEffect(
@@ -91,6 +107,7 @@ export const castSpell = (
 				potency.condition,
 			),
 		};
+	if (potency.effect !== "damage") return { error: "Invalid spell effect." };
 	const damage = rolls({
 		seed: state.run.seed,
 		floorNumber: state.run.activeFloor,

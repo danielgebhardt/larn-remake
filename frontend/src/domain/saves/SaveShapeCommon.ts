@@ -109,6 +109,7 @@ const eventFields = {
 		duration: integer(1, 100),
 	},
 	"spell-hit": { spell: spellKind, monster: monsterKind, damage: natural },
+	"spell-repositioned": { spell: spellKind, monster: optional(monsterKind) },
 	"spell-healed": { spell: spellKind, recovered: natural },
 	"player-hit": { monster: monsterKind, damage: natural },
 	"monster-hit": { monster: monsterKind, damage: natural },

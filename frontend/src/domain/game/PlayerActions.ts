@@ -34,6 +34,11 @@ import {
 import { damageMonster } from "./MonsterDamage";
 import { levelForExperience } from "./Progression";
 import { type CastAction, castSpell } from "./SpellCasting";
+import {
+	assignSpell,
+	fillNewSpellSlots,
+	type SpellAssignmentAction,
+} from "./SpellHotbar";
 
 export type PlayerAction =
 	| { type: "move"; direction: MovementDirection }
@@ -42,7 +47,8 @@ export type PlayerAction =
 	| EquipmentAction
 	| ConsumeAction
 	| HotbarAction
-	| FloorItemAction;
+	| FloorItemAction
+	| SpellAssignmentAction;
 
 export type ActionResolution = {
 	state: GameState;
@@ -63,6 +69,16 @@ export const resolvePlayerAction = (
 				? { error: "The adventure is complete." }
 				: {}),
 		};
+	if (action.type === "assign-spell") {
+		const slots = assignSpell(state.spellHotbar, state.knownSpells, action);
+		if ("error" in slots)
+			return { state, turnAdvanced: false, error: slots.error };
+		return {
+			state:
+				slots === state.spellHotbar ? state : { ...state, spellHotbar: slots },
+			turnAdvanced: false,
+		};
+	}
 	if (action.type === "assign-hotbar" || action.type === "clear-hotbar") {
 		const change = changeHotbarAssignment(
 			state.potionHotbar,
@@ -130,7 +146,7 @@ export const resolvePlayerAction = (
 // Free assignments and hotbar aliases are handled before committing a turn.
 const resolvePlayerEffect = (
 	state: GameState,
-	action: Exclude<PlayerAction, HotbarAction>,
+	action: Exclude<PlayerAction, HotbarAction | SpellAssignmentAction>,
 	rollSource: AttackRollSource,
 ): GameState | { error: string } | undefined => {
 	const turn = state.turn;
@@ -158,6 +174,11 @@ const resolvePlayerEffect = (
 			...state,
 			bag: transfer.bag,
 			knownSpells: transfer.knownSpells ?? state.knownSpells,
+			spellHotbar: fillNewSpellSlots(
+				state.spellHotbar,
+				state.knownSpells,
+				transfer.knownSpells ?? state.knownSpells,
+			),
 			quest:
 				action.type === "pickup" && transfer.event.item === "cure"
 					? { ...state.quest, cureRecovered: true }

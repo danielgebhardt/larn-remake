@@ -1,5 +1,6 @@
 import { Flame, HeartPlus, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import type { SpellHotbar } from "../../domain/game/SpellHotbar";
 import { SPELL_DEFINITIONS, type SpellKind } from "../../domain/game/Spells";
 
 export const SPELL_ICONS = {
@@ -9,11 +10,13 @@ export const SPELL_ICONS = {
 };
 const SpellHotbarView = ({
 	knownSpells,
+	slots,
 	enabled,
 	targeting,
 	onActivate,
 }: {
 	knownSpells: readonly SpellKind[];
+	slots: SpellHotbar;
 	enabled: boolean;
 	targeting?: SpellKind;
 	onActivate: (spell: SpellKind) => void;
@@ -22,7 +25,21 @@ const SpellHotbarView = ({
 		aria-label="Spell hotbar"
 		className="flex items-center gap-1.5 border-l border-border pl-3"
 	>
-		{knownSpells.map((spell) => {
+		{slots.map((spell, index) => {
+			if (!spell || !knownSpells.includes(spell))
+				return (
+					<span
+						key={index}
+						role="img"
+						aria-label={`Spell slot ${index + 1}: empty`}
+						className="relative flex size-12 items-center justify-center rounded-lg border border-dashed text-muted-foreground"
+					>
+						<kbd className="absolute top-0.5 left-1 text-[10px]">
+							{index + 5}
+						</kbd>
+						—
+					</span>
+				);
 			const definition = SPELL_DEFINITIONS[spell];
 			const Icon = SPELL_ICONS[spell];
 			const label = `${definition.name}, ${definition.cost} mana`;
@@ -31,6 +48,7 @@ const SpellHotbarView = ({
 					key={spell}
 					variant="outline"
 					aria-label={label}
+					aria-keyshortcuts={String(index + 5)}
 					title={label}
 					aria-pressed={
 						definition.mode === "targeted" ? targeting === spell : undefined
@@ -43,7 +61,7 @@ const SpellHotbarView = ({
 				>
 					<Icon aria-hidden="true" className="size-5" />
 					<kbd className="absolute top-0.5 left-1 text-[10px] text-muted-foreground">
-						{definition.mode === "self" ? "H" : "Z"}
+						{index + 5}
 					</kbd>
 					<span
 						aria-hidden="true"

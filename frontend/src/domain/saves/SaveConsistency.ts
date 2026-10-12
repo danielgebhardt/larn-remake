@@ -12,12 +12,21 @@ import {
 import type { SaveDocumentV1 } from "./SaveDocumentV1";
 import type { SaveDocumentV2 } from "./SaveDocumentV2";
 import type { SaveDocumentV3 } from "./SaveDocumentV3";
+import type { SaveDocumentV4 } from "./SaveDocumentV4";
 
 export const isConsistentSave = (
-	document: SaveDocumentV1 | SaveDocumentV2 | SaveDocumentV3,
+	document: SaveDocumentV1 | SaveDocumentV2 | SaveDocumentV3 | SaveDocumentV4,
 ): boolean => {
 	const { state, configuration: config } = document;
 	const { run, quest } = state;
+	if (document.version === 4) {
+		const slots = document.state.spellHotbar.filter((spell) => spell !== null);
+		if (
+			new Set(slots).size !== slots.length ||
+			slots.some((spell) => !document.state.knownSpells.includes(spell))
+		)
+			return false;
+	}
 	const level =
 		document.version < 3
 			? Math.min(5, levelForExperience(state.progression.experience))

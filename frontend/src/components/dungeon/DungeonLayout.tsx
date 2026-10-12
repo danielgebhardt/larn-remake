@@ -49,6 +49,7 @@ const DungeonLayout = ({
 	onCharacterRequested,
 	onPotionRequested,
 	onSpellRequested,
+	onSpellSlotRequested,
 	onTargetingKey,
 	targetIds,
 	selectedTargetId,
@@ -170,6 +171,7 @@ const DungeonLayout = ({
 		onCharacterRequested,
 		onPotionRequested,
 		onSpellRequested,
+		onSpellSlotRequested,
 		onTargetingKey,
 		movementEnabled,
 	});

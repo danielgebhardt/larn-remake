@@ -1,8 +1,10 @@
 import { maximumMana } from "../game/Mana";
 import { HEALTH_PER_LEVEL, levelForExperience } from "../game/Progression";
+import { createSpellHotbar } from "../game/SpellHotbar";
 import type { SaveDocumentV1 } from "./SaveDocumentV1";
 import type { SaveDocumentV2 } from "./SaveDocumentV2";
 import type { SaveDocumentV3 } from "./SaveDocumentV3";
+import type { SaveDocumentV4 } from "./SaveDocumentV4";
 
 // Only migrate a structurally and semantically valid v1 snapshot. Preserve
 // played data; legacy monsters have no prepared attack to carry forward.
@@ -59,3 +61,12 @@ export const migrateSaveV2 = (legacy: SaveDocumentV2): SaveDocumentV3 => {
 		},
 	};
 };
+
+export const migrateSaveV3 = (legacy: SaveDocumentV3): SaveDocumentV4 => ({
+	...legacy,
+	version: 4,
+	state: {
+		...legacy.state,
+		spellHotbar: createSpellHotbar(legacy.state.knownSpells),
+	},
+});

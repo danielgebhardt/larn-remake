@@ -17,6 +17,7 @@ import { maximumMana } from "./Mana";
 import { createPlayerStats, type PlayerStats } from "./PlayerStats.ts";
 import { createProgression, type Progression } from "./Progression";
 
+import { createSpellHotbar, type SpellHotbar } from "./SpellHotbar";
 import { createKnownSpells, type SpellKind } from "./Spells";
 
 export type GameState = {
@@ -24,6 +25,7 @@ export type GameState = {
 	turn: number;
 	mana: number;
 	knownSpells: readonly SpellKind[];
+	spellHotbar: SpellHotbar;
 	quest: QuestState;
 	monstersDefeated: number;
 	player: PlayerStats;
@@ -47,6 +49,7 @@ export const createGameState = (run: DungeonRun): GameState => {
 		run,
 		turn: 0,
 		knownSpells: createKnownSpells(),
+		spellHotbar: createSpellHotbar(createKnownSpells()),
 		mana: maximumMana(createProgression()),
 		quest: createQuest(run),
 		monstersDefeated: 0,

@@ -1,5 +1,8 @@
+import { Button } from "@/components/ui/button";
 import { MANA_RECOVERY_INTERVAL } from "../../domain/game/Mana";
+import type { PlayerAction } from "../../domain/game/PlayerActions";
 import type { Progression } from "../../domain/game/Progression";
+import { SPELL_SLOTS, type SpellHotbar } from "../../domain/game/SpellHotbar";
 import {
 	SPELL_DEFINITIONS,
 	type SpellKind,
@@ -10,10 +13,16 @@ import { SPELL_ICONS } from "./SpellHotbarView";
 
 const SpellsView = ({
 	knownSpells,
+	slots,
+	onAction,
+	assignmentsEnabled,
 	mana,
 	progression,
 }: {
 	knownSpells: readonly SpellKind[];
+	slots: SpellHotbar;
+	onAction: (action: PlayerAction) => void;
+	assignmentsEnabled: boolean;
 	mana: number;
 	progression: Progression;
 }) => {
@@ -26,6 +35,32 @@ const SpellsView = ({
 					monsters act.
 				</p>
 			</div>
+			<section aria-label="Spell shortcuts" className="rounded-lg border p-3">
+				<p className="mb-2 text-xs text-muted-foreground">
+					Four spell shortcuts use keys 5–8. Assign below; changing shortcuts is
+					free. Z still targets Magic Missile and H casts Heal.
+				</p>
+				<div className="flex flex-wrap gap-2">
+					{SPELL_SLOTS.map((slot) => (
+						<Button
+							key={slot}
+							size="sm"
+							variant="outline"
+							disabled={!assignmentsEnabled || slots[slot - 1] === null}
+							aria-label={`Clear spell slot ${slot}`}
+							onClick={() =>
+								onAction({ type: "assign-spell", slot, spell: null })
+							}
+						>
+							{slot + 4}:{" "}
+							{slots[slot - 1]
+								? SPELL_DEFINITIONS[slots[slot - 1] as SpellKind].name
+								: "Empty"}{" "}
+							×
+						</Button>
+					))}
+				</div>
+			</section>
 			<div className="grid gap-4 sm:grid-cols-2">
 				{knownSpells.map((spell) => {
 					const definition = SPELL_DEFINITIONS[spell];
@@ -49,6 +84,26 @@ const SpellsView = ({
 									? `Heal up to ${potency.healing} health · ${definition.cost} mana`
 									: `Damage ${potency.minimumDamage}–${potency.maximumDamage} · ${definition.cost} mana`}
 							</p>
+							<fieldset
+								aria-label={`Assign ${definition.name} shortcut`}
+								className="flex gap-2"
+							>
+								{SPELL_SLOTS.map((slot) => (
+									<Button
+										key={slot}
+										size="sm"
+										variant="outline"
+										disabled={!assignmentsEnabled}
+										aria-pressed={slots[slot - 1] === spell}
+										aria-label={`Assign ${definition.name} to spell slot ${slot}`}
+										onClick={() =>
+											onAction({ type: "assign-spell", slot, spell })
+										}
+									>
+										{slot + 4}
+									</Button>
+								))}
+							</fieldset>
 							<p className="text-sm text-muted-foreground">
 								{definition.description}
 							</p>

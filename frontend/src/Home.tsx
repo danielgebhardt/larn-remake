@@ -312,6 +312,7 @@ const Home = ({
 							Character
 						</Dialog.Trigger>
 						<CharacterDialog
+							spellHotbar={game.state.spellHotbar}
 							mana={game.state.mana}
 							knownSpells={game.state.knownSpells}
 							progression={game.state.progression}
@@ -428,6 +429,7 @@ const Home = ({
 							onActivate={handlePotionRequested}
 						/>
 						<SpellHotbarView
+							slots={game.state.spellHotbar}
 							knownSpells={game.state.knownSpells}
 							enabled={gameplayEnabled}
 							targeting={spells.targeting?.spell}
@@ -463,6 +465,15 @@ const Home = ({
 					<DungeonLayout
 						mapRef={mapRef}
 						onSpellRequested={spells.activate}
+						onSpellSlotRequested={(slot) => {
+							const spell = game.state.spellHotbar[slot - 1];
+							if (spell) spells.activate(spell);
+							else
+								setGame((current) => ({
+									...current,
+									actionError: `Spell slot ${slot} is empty. Assign a spell in Character.`,
+								}));
+						}}
 						onTargetingKey={spells.targeting ? spells.handleKey : undefined}
 						targetIds={spells.targetIds}
 						selectedTargetId={spells.targeting?.id}

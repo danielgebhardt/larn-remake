@@ -7,6 +7,7 @@ import type { QuestState } from "../../domain/game/Adventure";
 import type { PlayerAction } from "../../domain/game/PlayerActions";
 import type { PlayerStats } from "../../domain/game/PlayerStats";
 import type { Progression } from "../../domain/game/Progression";
+import type { SpellHotbar } from "../../domain/game/SpellHotbar";
 import type { SpellKind } from "../../domain/game/Spells";
 import type { Bag } from "../../domain/items/Bag";
 import type { Equipment, EquipmentSlot } from "../../domain/items/Equipment";
@@ -28,6 +29,7 @@ type CharacterDialogProps = {
 	player: PlayerStats;
 	mana: number;
 	knownSpells: readonly SpellKind[];
+	spellHotbar: SpellHotbar;
 	progression: Progression;
 	won?: boolean;
 	quest: QuestState;
@@ -47,6 +49,7 @@ const CharacterDialog = ({
 	player,
 	mana,
 	knownSpells,
+	spellHotbar,
 	progression,
 	won = false,
 	quest,
@@ -238,6 +241,9 @@ const CharacterDialog = ({
 					</Tabs.Panel>
 					<Tabs.Panel value="spells" className="min-h-0 flex-1 overflow-y-auto">
 						<SpellsView
+							slots={spellHotbar}
+							onAction={onAction}
+							assignmentsEnabled={!won}
 							knownSpells={knownSpells}
 							mana={mana}
 							progression={progression}

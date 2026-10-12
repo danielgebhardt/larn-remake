@@ -274,9 +274,11 @@ const DungeonHelp = () => (
 					and insufficient mana cost no turn.
 				</p>
 				<p>
-					Intelligence improves spell damage, healing, and maximum mana. The
-					Spells tab shows current effects. Future spells come from found
-					spellbooks, never automatic level unlocks.
+					Spell shortcuts 5–8 activate the four slots assigned in Character →
+					Spells. Assignments are free. Intelligence improves spell damage,
+					healing, and maximum mana. The Spells tab shows current effects.
+					Future spells come from found spellbooks, never automatic level
+					unlocks.
 				</p>
 			</section>
 			<section

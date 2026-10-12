@@ -1,5 +1,9 @@
+import { DEFAULT_FOG_CONFIGURATION } from "../src/domain/dungeon/RunConfiguration";
+import { hasLineOfSight } from "../src/domain/dungeon/Visibility";
 import { equipmentSlotFor } from "../src/domain/items/Equipment";
 import { compareEquipment } from "../src/domain/items/EquipmentComparison";
+import { orthogonalDistance } from "../src/domain/monsters/MonsterLocations";
+import { navigationRun } from "../src/domain/objects/NavigationTerrain";
 
 const incoming = new Set([
 	"monster-hit",
@@ -39,6 +43,12 @@ export const createReviewMetrics = () => ({
 	damage: { received: 0, dealt: 0, receivedByKind: {} },
 	killsByKind: {},
 	discoveries: {},
+	travel: {
+		moves: 0,
+		unchallengedMoves: 0,
+		longestQuietStreak: 0,
+		currentQuietStreak: 0,
+	},
 	levelUps: [],
 	equipmentReview: {
 		observed: { better: 0, same: 0, lower: 0, tradeoff: 0 },
@@ -59,6 +69,36 @@ export const observeReviewEquipment = (metrics, state, seen) => {
 	}
 };
 export const recordReviewTurn = (metrics, before, action, after) => {
+	const travel = metrics.travel;
+	const moved =
+		action.type === "move" &&
+		(before.run.activeFloor !== after.run.activeFloor ||
+			orthogonalDistance(
+				before.run.playerCoordinate,
+				after.run.playerCoordinate,
+			) > 0);
+	if (moved) {
+		travel.moves++;
+		const terrain =
+			navigationRun(before).floors[before.run.activeFloor - 1].terrain;
+		const challenged = before.monsters.some(
+			(actor) =>
+				actor.health > 0 &&
+				actor.floorNumber === before.run.activeFloor &&
+				orthogonalDistance(actor.coordinate, before.run.playerCoordinate) <=
+					DEFAULT_FOG_CONFIGURATION.radius &&
+				hasLineOfSight(terrain, before.run.playerCoordinate, actor.coordinate),
+		);
+		if (!challenged) {
+			travel.unchallengedMoves++;
+			travel.currentQuietStreak++;
+			travel.longestQuietStreak = Math.max(
+				travel.longestQuietStreak,
+				travel.currentQuietStreak,
+			);
+		} else travel.currentQuietStreak = 0;
+	} else travel.currentQuietStreak = 0;
+
 	for (const { event, id } of after.activityHistory.entries) {
 		if (id < before.activityHistory.nextId) continue;
 		if (Object.hasOwn(metrics.combat, event.type)) metrics.combat[event.type]++;
@@ -117,6 +157,7 @@ export const summarizeReviewMetrics = (results) => {
 		combat,
 		damage,
 		discoveries,
+		travel,
 		killsByKind,
 		equipmentReview,
 		initial,
@@ -124,6 +165,14 @@ export const summarizeReviewMetrics = (results) => {
 		levelUps,
 		seed,
 	} of results) {
+		if (travel) {
+			totals.travel.moves += travel.moves;
+			totals.travel.unchallengedMoves += travel.unchallengedMoves;
+			totals.travel.longestQuietStreak = Math.max(
+				totals.travel.longestQuietStreak,
+				travel.longestQuietStreak,
+			);
+		}
 		for (const [kind, count] of Object.entries(discoveries ?? {}))
 			totals.discoveries[kind] = (totals.discoveries[kind] ?? 0) + count;
 		for (const [type, count] of Object.entries(combat))

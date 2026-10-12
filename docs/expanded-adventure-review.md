@@ -289,3 +289,17 @@ Compared matched seeds 0–4 at 60×60×20 with the expanded tactical policy, em
 Before/after gameplay values remain **30 turns per mana, Magic Missile 3 mana, Heal 4 mana**. Slower regeneration gives less spell counterplay without evidence it is needed; faster recovery helps but is insufficient for this imperfect diagnostic policy. A five-seed sample, omniscient routing, greedy damage-spell choices and unoptimized control/buff use do not establish human difficulty. Retain the current values pending human playtests rather than tuning to an automated policy. Larger health/mana potions and antidotes from #196 now make recovery decisions depth-dependent.
 
 Reproduction: from `frontend`, run `node scripts/review-adventure.mjs --seed-start 0 --seed-count 5 --rows 60 --cols 60 --floors 20 --policy tactical-aware --max-actions 30000 --mana-recovery 30` and repeat with 20 or 50.
+
+## #198 — Encounter and exploration pacing review
+
+Added per-floor generation counts and actual-travel measurements. Bump attacks are not travel. “Unchallenged” means no living enemy within six orthogonal steps and clear line of sight before moving; it is a deliberately simple diagnostic measure, not an assertion that the player feels safe. A test first failed for missing travel counters and now verifies consecutive walks and stationary bump actions.
+
+| Map / floors | Seeds | Mean turns to outcome | Movement share | Unchallenged share of movement | Longest quiet streak | Mean walkable tiles / floor | Monsters / floor | Objects / floor |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| 10×10 / 5 | 0–1 | 173 | 65.3% | 96.5% | 23 | 31 | 2 | 5.0 |
+| 60×60 / 20 | 0–4 | 8,622 | 93.8% | 89.9% | 207 | 1,315 | 12 | 7.1 |
+| 100×100 / 20 | 0–1 | 19,092 | 97.0% | 93.3% | 445 | 3,713 | 12 | 7.1 |
+
+Both minimum-map runs won; recommended/maximum-map samples died without routing or budget failures. The same five recommended seeds reproduced #197 outcomes after adding counters. Across recommended seeds, equipment observations included 71 better, 125 same, 31 lower and 61 mixed tradeoffs; 67 useful copies were picked up/equipped. That confirms both meaningful upgrades and persistent repetition. Five-seed level outcomes were 13–19 on floors 12–18, supporting the current late level cap.
+
+Keep recommended size **60×60×20**, density **2–12, one per 30 safe tiles**, the current depth bands and XP curve for this milestone. Increasing the cap alone would increase combat pressure and accelerate leveling while leaving a large travel component. Next pacing work should jointly test quiet-travel reduction, encounter strength/density and supply/reward budgets; mixed ring tradeoffs should remain a human decision. Maximum-size maps remain supported but are a long-travel option. Existing density/protected-arrival tests retain bounded populations and deterministic placement across sizes. No gameplay tuning is justified solely by this imperfect omniscient policy.

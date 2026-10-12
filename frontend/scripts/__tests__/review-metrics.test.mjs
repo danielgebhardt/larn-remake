@@ -11,6 +11,42 @@ import {
 } from "../review-metrics.mjs";
 
 describe("Diagnostic combat and equipment counters", () => {
+	it("counts actual travel and consecutive unchallenged movement without counting a bump attack", () => {
+		const before = { ...mixedEncounter(), monsters: [], objects: [] };
+		const first = {
+			...before,
+			run: { ...before.run, playerCoordinate: { row: 4, col: 5 } },
+		};
+		const second = {
+			...first,
+			run: { ...first.run, playerCoordinate: { row: 4, col: 6 } },
+		};
+		const metrics = createReviewMetrics();
+		recordReviewTurn(
+			metrics,
+			before,
+			{ type: "move", direction: "right" },
+			first,
+		);
+		recordReviewTurn(
+			metrics,
+			first,
+			{ type: "move", direction: "right" },
+			second,
+		);
+		recordReviewTurn(
+			metrics,
+			second,
+			{ type: "move", direction: "right" },
+			second,
+		);
+		expect(metrics.travel).toMatchObject({
+			moves: 2,
+			unchallengedMoves: 2,
+			longestQuietStreak: 2,
+			currentQuietStreak: 0,
+		});
+	});
 	it("records a useful pickup and upgrade without confusing them with final equipped slots", () => {
 		const state = { ...mixedEncounter(), monsters: [] };
 		state.floorItems = [

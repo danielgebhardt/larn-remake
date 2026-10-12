@@ -107,6 +107,22 @@ try {
 				),
 			);
 			const initial = {
+				floors: state.run.floors.map((floor) => ({
+					floor: floor.floorNumber,
+					walkable: floor.terrain.reduce(
+						(sum, row) => sum + row.filter((tile) => tile === ".").length,
+						0,
+					),
+					monsters: state.monsters.filter(
+						(m) => m.floorNumber === floor.floorNumber,
+					).length,
+					items: state.floorItems.filter(
+						(i) => i.floorNumber === floor.floorNumber,
+					).length,
+					objects: state.objects
+						.filter((o) => o.floorNumber === floor.floorNumber)
+						.map((o) => o.kind),
+				})),
 				monsters: state.monsters.map((monster) => ({
 					floor: monster.floorNumber,
 					kind: monster.kind,

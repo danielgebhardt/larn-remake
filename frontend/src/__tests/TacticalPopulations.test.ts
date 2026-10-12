@@ -1,4 +1,5 @@
 // @vitest-environment node
+
 import { describe, expect, it, vi } from "vitest";
 import { MONSTER_VISUALS } from "../components/monsters/MonsterVisuals";
 import {
@@ -8,10 +9,7 @@ import {
 } from "../domain/dungeon/DungeonRun";
 import type { Coordinate, Dungeon } from "../domain/dungeon/DungeonTypes";
 import { updateExploration } from "../domain/dungeon/Exploration";
-import {
-	DEFAULT_FOG_CONFIGURATION,
-	DEFAULT_RUN_CONFIGURATION,
-} from "../domain/dungeon/RunConfiguration";
+import { DEFAULT_FOG_CONFIGURATION } from "../domain/dungeon/RunConfiguration";
 import { FLOOR } from "../domain/dungeon/Tiles";
 import { createGameState } from "../domain/game/GameState";
 import { resolvePlayerAction } from "../domain/game/PlayerActions";
@@ -33,8 +31,9 @@ import {
 	restoreSave,
 	serializeSave,
 } from "../domain/saves/SaveFormat";
+import { COMPACT_TEST_CONFIGURATION } from "./TestRunConfiguration";
 
-const configuration = { ...DEFAULT_RUN_CONFIGURATION, rows: 50, cols: 50 };
+const configuration = { ...COMPACT_TEST_CONFIGURATION, rows: 50, cols: 50 };
 const generatedRun = (seed: number, floorCount = 5) =>
 	connectDungeonFloors(generateDungeonRun(seed, floorCount, configuration));
 

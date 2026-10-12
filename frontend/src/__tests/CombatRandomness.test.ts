@@ -1,8 +1,9 @@
 // @vitest-environment node
+
 import { describe, expect, it, vi } from "vitest";
 import * as DungeonRun from "../domain/dungeon/DungeonRun";
-import { DEFAULT_RUN_CONFIGURATION } from "../domain/dungeon/RunConfiguration";
 import { createAttackRolls } from "../domain/game/CombatRandomness";
+import { COMPACT_TEST_CONFIGURATION } from "./TestRunConfiguration";
 
 const context = {
 	seed: 123,
@@ -30,7 +31,7 @@ describe("Independently seeded attack rolls", () => {
 	});
 	it("is independent of terrain generation and the order hit/damage are requested", () => {
 		const expected = result();
-		DungeonRun.generateDungeonRun(123, 5, DEFAULT_RUN_CONFIGURATION);
+		DungeonRun.generateDungeonRun(123, 5, COMPACT_TEST_CONFIGURATION);
 		const rolls = createAttackRolls(context);
 		expect(rolls.damage(2, 4)).toBe(expected.damage);
 		expect(rolls.d20()).toBe(expected.hit);

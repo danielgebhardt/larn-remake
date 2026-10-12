@@ -1,15 +1,16 @@
 // @vitest-environment node
+
 import { describe, expect, it } from "vitest";
 import {
 	connectDungeonFloors,
 	generateDungeonRun,
 	type MovementDirection,
 } from "../domain/dungeon/DungeonRun";
-import { DEFAULT_RUN_CONFIGURATION } from "../domain/dungeon/RunConfiguration";
 import { createGameState } from "../domain/game/GameState";
 import { spawnRunMonsters } from "../domain/monsters/MonsterPlacement";
 import { resolvePlayerActionWithHits as resolvePlayerAction } from "./ControlledCombatTestHelpers";
 import { createCorridorEncounter } from "./MonsterEncounterTestHelpers";
+import { COMPACT_TEST_CONFIGURATION } from "./TestRunConfiguration";
 
 // Fix the encounter count so density tuning does not change its action script.
 const corridorState = (run = createCorridorEncounter()) => ({
@@ -68,7 +69,7 @@ describe("Complete moving encounters", () => {
 		expect(restarted.activityHistory.entries).toEqual([]);
 	});
 	it("does not evolve populated inactive floors while playing on another floor", () => {
-		const { floorCount, ...configuration } = DEFAULT_RUN_CONFIGURATION;
+		const { floorCount, ...configuration } = COMPACT_TEST_CONFIGURATION;
 		const initial = createGameState(
 			connectDungeonFloors(generateDungeonRun(123, floorCount, configuration)),
 		);

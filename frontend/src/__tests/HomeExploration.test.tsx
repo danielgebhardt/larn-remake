@@ -11,7 +11,6 @@ import {
 	STAIRS_UP,
 	WALL,
 } from "../domain/dungeon/Tiles.ts";
-import Home from "../Home.tsx";
 import {
 	closeSettings,
 	openSettings,
@@ -20,6 +19,7 @@ import {
 	resetHomeTestState,
 	waitForSettingsClosed,
 } from "./HomeTestHelpers.tsx";
+import Home from "./TestHome";
 import {
 	createTestDungeonFloor,
 	createThreeFloorTraversalRun,

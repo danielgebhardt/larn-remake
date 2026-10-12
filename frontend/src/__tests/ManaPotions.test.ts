@@ -1,10 +1,10 @@
 // @vitest-environment node
+
 import { describe, expect, it } from "vitest";
 import {
 	connectDungeonFloors,
 	generateDungeonRun,
 } from "../domain/dungeon/DungeonRun";
-import { DEFAULT_RUN_CONFIGURATION } from "../domain/dungeon/RunConfiguration";
 import { createGameState } from "../domain/game/GameState";
 import { createBag } from "../domain/items/Bag";
 import { eligibleLootKinds } from "../domain/items/Item";
@@ -13,6 +13,7 @@ import { createMonsterDrop } from "../domain/items/MonsterDrops";
 import { hotbarSlotContents } from "../domain/items/PotionHotbar";
 import { resolvePlayerActionWithHits } from "./ControlledCombatTestHelpers";
 import { createCorridorEncounter } from "./MonsterEncounterTestHelpers";
+import { COMPACT_TEST_CONFIGURATION } from "./TestRunConfiguration";
 
 const potion = { id: "mana:1", kind: "mana-potion" } as const;
 const ready = (mana = 0) => ({
@@ -138,13 +139,13 @@ describe("Mana potions", () => {
 			for (const source of ["found", "drop"] as const)
 				expect(eligibleLootKinds(floor, source)).toContain("mana-potion");
 		const run = connectDungeonFloors(
-			generateDungeonRun(123, 5, DEFAULT_RUN_CONFIGURATION),
+			generateDungeonRun(123, 5, COMPACT_TEST_CONFIGURATION),
 		);
 		const items = spawnRunItems(run, [], 20);
 		expect(items.some((entry) => entry.item.kind === "mana-potion")).toBe(true);
 		expect(spawnRunItems(run, [], 20)).toEqual(items);
 		const extended = connectDungeonFloors(
-			generateDungeonRun(123, 10, DEFAULT_RUN_CONFIGURATION),
+			generateDungeonRun(123, 10, COMPACT_TEST_CONFIGURATION),
 		);
 		expect(
 			spawnRunItems(extended, [], 20).filter((entry) => entry.floorNumber <= 5),

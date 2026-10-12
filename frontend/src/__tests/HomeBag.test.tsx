@@ -3,12 +3,12 @@ import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import * as GameState from "../domain/game/GameState";
 import { type Bag, createBag } from "../domain/items/Bag";
-import Home from "../Home";
 import {
 	renderHome as render,
 	resetHomeTestState,
 	stubDungeonRun,
 } from "./HomeTestHelpers";
+import Home from "./TestHome";
 import { createThreeFloorTraversalRun } from "./testhelpers";
 
 const openBag = async (bag?: Bag) => {

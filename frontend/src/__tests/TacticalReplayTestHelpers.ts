@@ -1,8 +1,5 @@
 import { updateExploration } from "../domain/dungeon/Exploration";
-import {
-	DEFAULT_FOG_CONFIGURATION,
-	DEFAULT_RUN_CONFIGURATION,
-} from "../domain/dungeon/RunConfiguration";
+import { DEFAULT_FOG_CONFIGURATION } from "../domain/dungeon/RunConfiguration";
 import type { GameState } from "../domain/game/GameState";
 import {
 	type PlayerAction,
@@ -11,6 +8,7 @@ import {
 import { createBag } from "../domain/items/Bag";
 import { createSaveDocument } from "../domain/saves/SaveFormat";
 import { bruteEncounter } from "./BruteTestHelpers";
+import { COMPACT_TEST_CONFIGURATION } from "./TestRunConfiguration";
 
 // One open floor makes the response turn and archer's clear shot explicit.
 // All five linked floors and the cure remain valid for the real save boundary.
@@ -47,7 +45,7 @@ export const tacticalSnapshot = (state: GameState) =>
 	createSaveDocument(
 		state,
 		updateExploration(state.run, DEFAULT_FOG_CONFIGURATION.radius),
-		DEFAULT_RUN_CONFIGURATION,
+		COMPACT_TEST_CONFIGURATION,
 		DEFAULT_FOG_CONFIGURATION,
 		new Date("2026-10-11T12:00:00Z"),
 	);

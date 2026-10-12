@@ -6,14 +6,12 @@ import {
 	generateDungeonRun,
 } from "../domain/dungeon/DungeonRun";
 import { updateExploration } from "../domain/dungeon/Exploration";
-import { DEFAULT_RUN_CONFIGURATION } from "../domain/dungeon/RunConfiguration";
 import { createGameState } from "../domain/game/GameState";
 import {
 	createSaveDocument,
 	parseSave,
 	serializeSave,
 } from "../domain/saves/SaveFormat";
-import Home from "../Home";
 import { LOCAL_SAVE_KEY } from "../persistence/LocalAdventureSave";
 import { ThemeProvider } from "../settings/ThemeProvider";
 import {
@@ -28,6 +26,8 @@ import {
 	savedAdventure,
 	savedAdventureWithPickupAndHealing,
 } from "./SaveTestHelpers";
+import Home from "./TestHome";
+import { COMPACT_TEST_CONFIGURATION } from "./TestRunConfiguration";
 
 const setup = () => {
 	render(<Home />, { wrapper: ThemeProvider });
@@ -227,7 +227,7 @@ describe("Confirmed local Save and Load", () => {
 		expect(screen.getByLabelText("Turn count")).toHaveTextContent("Turn 0");
 	});
 	it("restores configuration, fog, progression and spell knowledge together for future new runs", async () => {
-		const config = { ...DEFAULT_RUN_CONFIGURATION, rows: 10, cols: 12 };
+		const config = { ...COMPACT_TEST_CONFIGURATION, rows: 10, cols: 12 };
 		const run = connectDungeonFloors(generateDungeonRun(123, 5, config));
 		const state = {
 			...createGameState(run),

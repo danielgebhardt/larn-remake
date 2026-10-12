@@ -4,10 +4,7 @@ import { type ComponentProps, cloneElement, type ReactElement } from "react";
 import { expect, vi } from "vitest";
 import * as DungeonRun from "../domain/dungeon/DungeonRun.ts";
 import type { Coordinate, Dungeon } from "../domain/dungeon/DungeonTypes.ts";
-import {
-	DEFAULT_FOG_CONFIGURATION,
-	DEFAULT_RUN_CONFIGURATION,
-} from "../domain/dungeon/RunConfiguration.ts";
+import { DEFAULT_FOG_CONFIGURATION } from "../domain/dungeon/RunConfiguration";
 import * as CombatRandomness from "../domain/game/CombatRandomness";
 import * as CurePlacement from "../domain/items/CurePlacement";
 import type { FloorItem } from "../domain/items/FloorItems";
@@ -18,9 +15,10 @@ import * as MonsterPlacement from "../domain/monsters/MonsterPlacement.ts";
 import type Home from "../Home.tsx";
 import { ThemeProvider } from "../settings/ThemeProvider.tsx";
 import { predictableAttackRolls } from "./ControlledCombatTestHelpers";
+import { COMPACT_TEST_CONFIGURATION } from "./TestRunConfiguration";
 import { findFloorPath } from "./testhelpers.ts";
 
-const { floorCount, ...DEFAULT_DUNGEON_CONFIG } = DEFAULT_RUN_CONFIGURATION;
+const { floorCount, ...DEFAULT_DUNGEON_CONFIG } = COMPACT_TEST_CONFIGURATION;
 
 export { DEFAULT_DUNGEON_CONFIG };
 

@@ -2,13 +2,13 @@ import { screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, expect, it, vi } from "vitest";
 import * as GameState from "../domain/game/GameState";
-import Home from "../Home";
 import {
 	renderHome as render,
 	resetHomeTestState,
 	stubDungeonRun,
 } from "./HomeTestHelpers";
 import { createCorridorEncounter } from "./MonsterEncounterTestHelpers";
+import Home from "./TestHome";
 
 afterEach(resetHomeTestState);
 it("returns focus to gameplay after New Dungeon so G works without clicking the map", async () => {

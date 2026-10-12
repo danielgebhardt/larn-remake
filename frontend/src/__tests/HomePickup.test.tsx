@@ -4,13 +4,13 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import * as GameState from "../domain/game/GameState";
 import { createBag } from "../domain/items/Bag";
 import type { FloorItem } from "../domain/items/FloorItems";
-import Home from "../Home";
 import {
 	renderHome as render,
 	resetHomeTestState,
 	stubDungeonRun,
 } from "./HomeTestHelpers";
 import { createCorridorEncounter } from "./MonsterEncounterTestHelpers";
+import Home from "./TestHome";
 
 const potion: FloorItem = {
 	item: { id: "loot:1", kind: "healing-potion" },

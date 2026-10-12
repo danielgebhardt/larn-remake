@@ -2,7 +2,6 @@ import { screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, expect, it, vi } from "vitest";
 import * as GameState from "../domain/game/GameState";
-import Home from "../Home";
 import {
 	openSettings,
 	renderHome,
@@ -11,6 +10,7 @@ import {
 	waitForSettingsClosed,
 } from "./HomeTestHelpers";
 import { createCorridorEncounter } from "./MonsterEncounterTestHelpers";
+import Home from "./TestHome";
 
 afterEach(resetHomeTestState);
 

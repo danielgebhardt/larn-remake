@@ -4,7 +4,6 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { DungeonRun } from "../domain/dungeon/DungeonRun.ts";
 import type { Monster } from "../domain/monsters/Monster.ts";
 import * as MonsterPursuit from "../domain/monsters/MonsterPursuit";
-import Home from "../Home.tsx";
 import { ThemeProvider } from "../settings/ThemeProvider.tsx";
 import {
 	closeSettings,
@@ -12,6 +11,7 @@ import {
 	resetHomeTestState,
 	stubDungeonRun,
 } from "./HomeTestHelpers.tsx";
+import Home from "./TestHome";
 import { createTestDungeonFloor } from "./testhelpers.ts";
 
 const encounterRun = (): DungeonRun => ({

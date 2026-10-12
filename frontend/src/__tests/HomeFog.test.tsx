@@ -2,7 +2,6 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, it } from "vitest";
 import type { DungeonRun } from "../domain/dungeon/DungeonRun.ts";
-import Home from "../Home.tsx";
 import { ThemeProvider } from "../settings/ThemeProvider.tsx";
 import {
 	closeSettings,
@@ -10,6 +9,7 @@ import {
 	resetHomeTestState,
 	stubDungeonRun,
 } from "./HomeTestHelpers.tsx";
+import Home from "./TestHome";
 import { createTestDungeonFloor } from "./testhelpers.ts";
 
 const corridorRun = (): DungeonRun => ({

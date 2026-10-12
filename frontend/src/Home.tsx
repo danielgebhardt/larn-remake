@@ -67,12 +67,14 @@ type HomeProps = {
 	initialFogConfiguration?: FogConfiguration;
 	initialSeed?: number;
 	initialAdventure?: RestoredAdventure;
+	initialConfiguration?: RunConfiguration;
 };
 
 const Home = ({
 	initialFogConfiguration = DEFAULT_FOG_CONFIGURATION,
 	initialSeed,
 	initialAdventure,
+	initialConfiguration = DEFAULT_RUN_CONFIGURATION,
 }: HomeProps) => {
 	const [fogConfiguration, setFogConfiguration] = useState(
 		initialAdventure?.fog ?? initialFogConfiguration,
@@ -84,7 +86,7 @@ const Home = ({
 				exploration: initialAdventure.exploration,
 				actionError: "",
 			};
-		const run = createRun(initialSeed ?? 0, DEFAULT_RUN_CONFIGURATION);
+		const run = createRun(initialSeed ?? 0, initialConfiguration);
 		return {
 			state: createGameState(run),
 			exploration: updateExploration(run, fogConfiguration.radius),
@@ -99,12 +101,10 @@ const Home = ({
 	const canPlay = player.health > 0 && victory === null;
 	const { exploration } = game;
 	const [configuration, setConfiguration] = useState(
-		initialAdventure?.configuration ?? DEFAULT_RUN_CONFIGURATION,
+		initialAdventure?.configuration ?? initialConfiguration,
 	);
 	const [configDraft, setConfigDraft] = useState(() =>
-		configurationDraft(
-			initialAdventure?.configuration ?? DEFAULT_RUN_CONFIGURATION,
-		),
+		configurationDraft(initialAdventure?.configuration ?? initialConfiguration),
 	);
 	const [configErrors, setConfigErrors] = useState<ConfigurationErrors>({});
 	const [generationError, setGenerationError] = useState<string | null>(null);

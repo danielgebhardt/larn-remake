@@ -1,14 +1,15 @@
 // @vitest-environment node
+
 import { describe, expect, it } from "vitest";
 import {
 	connectDungeonFloors,
 	generateDungeonRun,
 } from "../domain/dungeon/DungeonRun";
-import { DEFAULT_RUN_CONFIGURATION } from "../domain/dungeon/RunConfiguration";
 import { eligibleLootKinds, ITEM_DEFINITIONS } from "../domain/items/Item";
 import { spawnRunItems } from "../domain/items/ItemPlacement";
 import { selectLootKind } from "../domain/items/Loot";
 import { createMonsterDrop } from "../domain/items/MonsterDrops";
+import { COMPACT_TEST_CONFIGURATION } from "./TestRunConfiguration";
 
 const goblin = {
 	intent: { type: "idle" as const },
@@ -46,7 +47,7 @@ describe("Depth-aware found and dropped loot", () => {
 	});
 	it("generates only eligible found items through floor 20", () => {
 		const run = connectDungeonFloors(
-			generateDungeonRun(123, 20, DEFAULT_RUN_CONFIGURATION),
+			generateDungeonRun(123, 20, COMPACT_TEST_CONFIGURATION),
 		);
 		const items = spawnRunItems(run, [], 10);
 		for (const entry of items) {

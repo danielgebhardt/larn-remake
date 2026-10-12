@@ -3,7 +3,6 @@ import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import * as GameState from "../domain/game/GameState";
 import * as MonsterPlacement from "../domain/monsters/MonsterPlacement";
-import Home from "../Home";
 import { ThemeProvider } from "../settings/ThemeProvider";
 import {
 	closeSettings,
@@ -13,6 +12,7 @@ import {
 	stubDungeonRun,
 } from "./HomeTestHelpers";
 import { createCorridorEncounter } from "./MonsterEncounterTestHelpers";
+import Home from "./TestHome";
 import { createTestDungeonFloor } from "./testhelpers";
 
 afterEach(resetHomeTestState);

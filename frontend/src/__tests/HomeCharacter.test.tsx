@@ -4,13 +4,13 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import * as GameState from "../domain/game/GameState";
 import { createBag } from "../domain/items/Bag";
 import { createEquipment } from "../domain/items/Equipment";
-import Home from "../Home";
 import {
 	readDungeonCells,
 	renderHome as render,
 	resetHomeTestState,
 	stubDungeonRun,
 } from "./HomeTestHelpers";
+import Home from "./TestHome";
 import { createThreeFloorTraversalRun } from "./testhelpers";
 
 const renderCharacterRun = () => {

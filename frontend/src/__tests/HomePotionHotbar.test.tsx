@@ -4,7 +4,6 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import * as GameState from "../domain/game/GameState";
 import { createBag } from "../domain/items/Bag";
 import { HOTBAR_SLOTS, type HotbarSlot } from "../domain/items/PotionHotbar";
-import Home from "../Home";
 import { resolvePlayerActionWithHits as resolvePlayerAction } from "./ControlledCombatTestHelpers";
 import {
 	renderHome as render,
@@ -12,6 +11,7 @@ import {
 	stubDungeonRun,
 } from "./HomeTestHelpers";
 import { createCorridorEncounter } from "./MonsterEncounterTestHelpers";
+import Home from "./TestHome";
 
 const setup = (
 	slot: HotbarSlot = 1,

@@ -1,13 +1,13 @@
 import { screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, it } from "vitest";
-import Home from "../Home";
 import {
 	renderHome as render,
 	resetHomeTestState,
 	stubDungeonRun,
 } from "./HomeTestHelpers";
 import { createCorridorEncounter } from "./MonsterEncounterTestHelpers";
+import Home from "./TestHome";
 
 const setup = async () => {
 	stubDungeonRun(createCorridorEncounter());

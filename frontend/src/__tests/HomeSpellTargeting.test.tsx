@@ -9,7 +9,6 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import type { DungeonRun } from "../domain/dungeon/DungeonRun";
 import * as GameState from "../domain/game/GameState";
 import { SPELL_DEFINITIONS } from "../domain/game/Spells";
-import Home from "../Home";
 import { ThemeProvider } from "../settings/ThemeProvider";
 import {
 	renderHome,
@@ -17,6 +16,7 @@ import {
 	stubDungeonRun,
 } from "./HomeTestHelpers";
 import { createCorridorEncounter } from "./MonsterEncounterTestHelpers";
+import Home from "./TestHome";
 import { createTestDungeonFloor } from "./testhelpers";
 
 const setup = (

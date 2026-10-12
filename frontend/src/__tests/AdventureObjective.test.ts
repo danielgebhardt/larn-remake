@@ -7,8 +7,8 @@ import { createCorridorEncounter } from "./MonsterEncounterTestHelpers";
 import { createThreeFloorTraversalRun } from "./testhelpers";
 
 describe("Cure-and-return objective", () => {
-	it("starts a five-floor adventure by default", () => {
-		expect(DEFAULT_RUN_CONFIGURATION.floorCount).toBe(5);
+	it("starts a twenty-floor adventure by default", () => {
+		expect(DEFAULT_RUN_CONFIGURATION.floorCount).toBe(20);
 	});
 	it("records the configured goal floor and original entrance with a fresh quest", () => {
 		const run = createThreeFloorTraversalRun();

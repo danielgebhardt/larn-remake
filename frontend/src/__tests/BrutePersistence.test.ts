@@ -1,11 +1,9 @@
 // @vitest-environment node
+
 import { describe, expect, it } from "vitest";
 import { formatActivityEvent } from "../components/game/ActivityMessages";
 import { updateExploration } from "../domain/dungeon/Exploration";
-import {
-	DEFAULT_FOG_CONFIGURATION,
-	DEFAULT_RUN_CONFIGURATION,
-} from "../domain/dungeon/RunConfiguration";
+import { DEFAULT_FOG_CONFIGURATION } from "../domain/dungeon/RunConfiguration";
 import type { ActivityEvent } from "../domain/game/ActivityHistory";
 import type { GameState } from "../domain/game/GameState";
 import { resolvePlayerAction } from "../domain/game/PlayerActions";
@@ -16,12 +14,13 @@ import {
 	serializeSave,
 } from "../domain/saves/SaveFormat";
 import { bruteEncounter } from "./BruteTestHelpers";
+import { COMPACT_TEST_CONFIGURATION } from "./TestRunConfiguration";
 
 const roundTrip = (state: GameState): GameState => {
 	const document = createSaveDocument(
 		state,
 		updateExploration(state.run, DEFAULT_FOG_CONFIGURATION.radius),
-		DEFAULT_RUN_CONFIGURATION,
+		COMPACT_TEST_CONFIGURATION,
 		DEFAULT_FOG_CONFIGURATION,
 	);
 	const parsed = parseSave(serializeSave(document));

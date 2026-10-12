@@ -1,14 +1,15 @@
 // @vitest-environment node
+
 import { describe, expect, it } from "vitest";
 import {
 	connectDungeonFloors,
 	generateDungeonRun,
 } from "../domain/dungeon/DungeonRun";
-import { DEFAULT_RUN_CONFIGURATION } from "../domain/dungeon/RunConfiguration";
 import {
 	monsterCountForSpace,
 	spawnRunMonsters,
 } from "../domain/monsters/MonsterPlacement";
+import { COMPACT_TEST_CONFIGURATION } from "./TestRunConfiguration";
 
 describe("Capped monster population density", () => {
 	it.each([-1, 1.5, NaN, Infinity])(
@@ -30,7 +31,7 @@ describe("Capped monster population density", () => {
 	it("caps large floors, preserves explicit counts, and reproduces populations", () => {
 		const run = connectDungeonFloors(
 			generateDungeonRun(0, 2, {
-				...DEFAULT_RUN_CONFIGURATION,
+				...COMPACT_TEST_CONFIGURATION,
 				rows: 100,
 				cols: 100,
 			}),

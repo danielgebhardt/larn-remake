@@ -1,10 +1,10 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, it } from "vitest";
-import Home from "../Home";
 import { ThemeProvider } from "../settings/ThemeProvider";
 import { resetHomeTestState, stubDungeonRun } from "./HomeTestHelpers";
 import { createCorridorEncounter } from "./MonsterEncounterTestHelpers";
+import Home from "./TestHome";
 
 afterEach(resetHomeTestState);
 describe("Visible hit and miss feedback", () => {

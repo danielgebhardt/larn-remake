@@ -6,7 +6,7 @@ export const REVIEW_USAGE = `Usage: node scripts/review-adventure.mjs [seeds...]
   --policy NAME                 baseline (default), spell-aware or tactical-aware
   --summary-only                Print aggregate results only
   --help                        Show this usage
-Defaults: seeds 0, 1, 123, 987; 15×15; 5 floors.
+Defaults: seeds 0, 1, 123, 987; 60×60; 20 floors.
 LARN_REVIEW_TRACE=1 adds actions to each per-seed result.`;
 
 export function parseReviewOptions(args, defaults, limits, maxSeed) {

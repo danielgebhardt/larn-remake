@@ -2,12 +2,12 @@ import { screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import * as DungeonRun from "../domain/dungeon/DungeonRun.ts";
-import Home from "../Home.tsx";
 import {
 	renderHome as render,
 	resetHomeTestState,
 	stubDungeonRun,
 } from "./HomeTestHelpers.tsx";
+import Home from "./TestHome";
 import {
 	createTestDungeonFloor,
 	createThreeFloorTraversalRun,

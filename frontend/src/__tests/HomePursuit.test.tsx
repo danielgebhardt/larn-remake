@@ -1,7 +1,6 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, it } from "vitest";
-import Home from "../Home";
 import { ThemeProvider } from "../settings/ThemeProvider";
 import {
 	closeSettings,
@@ -9,6 +8,7 @@ import {
 	resetHomeTestState,
 	stubDungeonRun,
 } from "./HomeTestHelpers";
+import Home from "./TestHome";
 import { createTestDungeonFloor } from "./testhelpers";
 
 afterEach(resetHomeTestState);

@@ -1,7 +1,6 @@
 import { screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, it } from "vitest";
-import Home from "../Home";
 import {
 	readDungeonCells,
 	renderHome as render,
@@ -9,6 +8,7 @@ import {
 	stubDungeonRun,
 } from "./HomeTestHelpers";
 import { createCorridorEncounter } from "./MonsterEncounterTestHelpers";
+import Home from "./TestHome";
 
 const renderHelpRun = () => {
 	stubDungeonRun(createCorridorEncounter());

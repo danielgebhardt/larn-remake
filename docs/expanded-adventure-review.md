@@ -19,3 +19,9 @@ Two behavior tests first failed against the old startup, then passed. Browser in
 The opening offers the existing Save/Load sheet. Saving/exporting are disabled without an active adventure, while confirmed local loading and validated file import remain available. Successful restoration mounts Home from the restored aggregate, configuration and discovery instead of generating terrain. Cancellation and corrupt saves leave the opening and local slot untouched.
 
 Three regression tests first failed without startup Save/Load, then passed. Browser resumed the existing seed-zero save at turn one with Dungeon map focus; the stored slot was not changed. Shared controls retain active-adventure confirmation behavior and now describe startup loading accurately.
+
+## #158 — Recommended adventure and stable regression fixtures
+
+Begin/new adventures now default to 60×60×20; the opening states that recommendation and Settings retains the full supported ranges. Loaded configuration remains authoritative for subsequent restarts. Focused page/domain fixtures explicitly choose 15×15×5 through TestHome/TestRunConfiguration rather than inheriting product defaults; this preserves short interaction tests and historical seeded scenarios without weakening dedicated recommended-run coverage.
+
+Two recommended-configuration tests first failed, then passed. Browser created 3,600 displayed cells on Floor 1 of 20, focused Dungeon map and showed 60 rows × 60 columns · 20 floors in Settings. The existing startup, replay and resume tests cover no background turns and configuration ownership. Creature density, generation geometry and mana recovery are unchanged here.

@@ -1,15 +1,16 @@
 // @vitest-environment node
+
 import { describe, expect, it } from "vitest";
 import {
 	connectDungeonFloors,
 	generateDungeonRun,
 } from "../domain/dungeon/DungeonRun";
 import type { Coordinate } from "../domain/dungeon/DungeonTypes";
-import { DEFAULT_RUN_CONFIGURATION } from "../domain/dungeon/RunConfiguration";
 import { deriveAttributes } from "../domain/game/Attributes";
 import { createGameState, type GameState } from "../domain/game/GameState";
 import { resolvePlayerAction } from "../domain/game/PlayerActions";
 import { resolvePlayerActionWithHits } from "./ControlledCombatTestHelpers";
+import { COMPACT_TEST_CONFIGURATION } from "./TestRunConfiguration";
 import {
 	createTestDungeonFloor,
 	createThreeFloorTraversalRun,
@@ -139,7 +140,7 @@ describe("Complete cure-and-return adventures", () => {
 		const make = (floors: number) =>
 			createGameState(
 				connectDungeonFloors(
-					generateDungeonRun(123, floors, DEFAULT_RUN_CONFIGURATION),
+					generateDungeonRun(123, floors, COMPACT_TEST_CONFIGURATION),
 				),
 			);
 		const short = make(5),

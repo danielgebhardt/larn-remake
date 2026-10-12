@@ -2,7 +2,6 @@ import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { serializeSave } from "../domain/saves/SaveFormat";
-import Home from "../Home";
 import { LOCAL_SAVE_KEY } from "../persistence/LocalAdventureSave";
 import { ThemeProvider } from "../settings/ThemeProvider";
 import versionOneFile from "./fixtures/adventure-v1.json?raw";
@@ -16,6 +15,7 @@ import {
 	savedAdventure,
 	savedAdventureWithPickupAndHealing,
 } from "./SaveTestHelpers";
+import Home from "./TestHome";
 
 const setup = () => {
 	render(<Home />, { wrapper: ThemeProvider });

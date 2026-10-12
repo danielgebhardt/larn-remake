@@ -20,12 +20,12 @@ The application currently includes:
 - Configurable dungeon creation with rectangular dimensions.
 - Binary space partitioning that divides dungeon space into terminal regions.
 - Rooms carved into terminal regions and corridors connecting those rooms.
-- Up to 20 floors with automatic stair transitions and a depth display; five floors by default.
+- Up to 20 floors with automatic stair transitions and a depth display; twenty floors by default.
 - Configurable fog of war with wall-blocked sight and exploration memory per floor.
 - Current run seed display and replay of the complete dungeon from an entered seed.
 - A compact play screen using Tailwind CSS and shadcn/ui (Base UI, Nova), with styled controls, a map legend in Help, and scrollable dungeon tiles.
 
-The playable run is generated in the frontend when the page loads. By default it contains five rectangular floors. Terrain and stair links are retained throughout exploration and ordinary React rerenders. The earlier fixed dungeon remains available as a test fixture.
+The page opens with a brief adventure introduction. Begin Adventure generates a random frontend run; Save/Load can resume before starting. The recommended default contains twenty 60×60 floors. Terrain and stair links are retained throughout exploration and ordinary React rerenders. The earlier fixed dungeon remains available as a test fixture.
 
 Stair placement uses an independent seeded random source for each floor, derived from the run seed, floor number, and a `stairs` namespace. Down stairs choose equally among rooms outside the entry room, then choose a floor tile within that room. Up stairs stay at the floor entry, with reciprocal arrival coordinates. A single-room floor uses its center when distinct from the entry, otherwise its first distinct floor tile in row-major order; a floor with no distinct location fails clearly. The same seed and configuration reproduce the links regardless of floor generation or connection order, without changing terrain generation. Calls to the stair selector without a random source retain the deterministic last-room-center rule.
 
@@ -194,7 +194,7 @@ In **Settings**, **Enable fog of war** immediately switches between exploration 
 
 **Appearance** in Settings offers Light, Dark, and System. Dark is the default. Your choice is saved locally on this device; System follows changes to the operating system appearance. Changing appearance preserves exploration, seed drafts, and validation feedback. UI and dungeon colors are defined together in `frontend/src/App.css`, with charcoal/amber dark colors and a warm stone light palette.
 
-Settings focuses the seed input when opened and contains keyboard focus while open. Game movement and stair transitions are suspended throughout the panel. Use Escape or **Close** to dismiss it without applying a draft; focus returns to the Settings button and game controls resume. Opening, closing, or editing settings does not regenerate the dungeon. Unsubmitted drafts are retained during this session; **New Dungeon** resets the draft and feedback to match the new run.
+Settings focuses the seed input when opened and contains keyboard focus while open. Game movement and stair transitions are suspended throughout the panel. Use Escape or **Close** to dismiss it without applying a draft; focus returns to the dungeon map and all gameplay shortcuts resume. Focused toolbar controls retain their own keys. Opening, closing, or editing settings does not regenerate the dungeon. Unsubmitted drafts are retained during this session; **New Dungeon** resets the draft and feedback to match the new run.
 
 **New Dungeon** requests a random seed across that same range and replaces the entire run: all floors and stair links, depth, and player position. It returns the player to floor 1 at the new run's selected start. The displayed seed and input update to the new seed. A random seed can repeat; restarting still resets exploration, including when the seed repeats.
 
@@ -205,7 +205,7 @@ To demonstrate the exploration milestone:
 3. Open **Settings**, enter the noted seed, and start from it to recreate the complete run at its original start.
 4. Select **New Dungeon**, then explore again. Subsequent transitions use the new run's floors.
 
-Floor 1 has no up stair, and the deepest floor has no down stair. Floor count is configurable in Settings, from five to twenty floors; the default is five floors. Town, broader progression, and persistence belong to later work.
+Floor 1 has no up stair, and the deepest floor has no down stair. Floor count is configurable in Settings, from five to twenty floors; the recommended default is twenty 60×60 floors. Town, broader progression, and persistence belong to later work.
 
 ## Configuration
 
@@ -329,7 +329,7 @@ Backlog and completed stories are tracked in [GitHub Issues](https://github.com/
 
 ## Current development status
 
-The dungeon creation and exploration milestone now supports five generated floors by default, seeded stair placement, automatic descent and ascent, stable revisits, depth and seed display, complete seed replay, and whole-run restart. Rendering and movement support rectangular dungeons. Repeatability is guaranteed for the same seed, configuration, and generator version. The game now tracks turns and player health through a pure movement-action resolver, with deterministic pursuit and reproducible randomized bump combat against floor-aware seeded populations and a turn-associated activity log.
+The dungeon creation and exploration milestone now supports twenty generated floors by default, seeded stair placement, automatic descent and ascent, stable revisits, depth and seed display, complete seed replay, and whole-run restart. Rendering and movement support rectangular dungeons. Repeatability is guaranteed for the same seed, configuration, and generator version. The game now tracks turns and player health through a pure movement-action resolver, with deterministic pursuit and reproducible randomized bump combat against floor-aware seeded populations and a turn-associated activity log.
 
 ## Cure-and-return adventure
 

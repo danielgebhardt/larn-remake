@@ -1,11 +1,11 @@
 // @vitest-environment node
 import { describe, expect, it } from "vitest";
+import { COMPACT_TEST_CONFIGURATION } from "../../src/__tests/TestRunConfiguration";
 import {
 	connectDungeonFloors,
 	generateDungeonRun,
 } from "../../src/domain/dungeon/DungeonRun";
 import { updateExploration } from "../../src/domain/dungeon/Exploration";
-import { DEFAULT_RUN_CONFIGURATION } from "../../src/domain/dungeon/RunConfiguration";
 import { createGameState } from "../../src/domain/game/GameState";
 import { resolvePlayerAction } from "../../src/domain/game/PlayerActions";
 import {
@@ -22,7 +22,7 @@ import { chooseSpellAwareAction } from "../review-policy.mjs";
 import { createRoutes } from "../review-routing.mjs";
 
 const fog = { enabled: true, radius: 6 };
-const start = (configuration = DEFAULT_RUN_CONFIGURATION) => {
+const start = (configuration = COMPACT_TEST_CONFIGURATION) => {
 	const state = createGameState(
 		connectDungeonFloors(
 			generateDungeonRun(0, configuration.floorCount, configuration),
@@ -116,7 +116,7 @@ describe("Saving and resuming real adventures", () => {
 	});
 	it("fits a fully explored maximum-size adventure in a conservative 5 MiB single slot", () => {
 		const adventure = start({
-			...DEFAULT_RUN_CONFIGURATION,
+			...COMPACT_TEST_CONFIGURATION,
 			rows: 100,
 			cols: 100,
 			floorCount: 20,

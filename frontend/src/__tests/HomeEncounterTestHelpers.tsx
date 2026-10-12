@@ -5,9 +5,9 @@ import type { DungeonRun } from "../domain/dungeon/DungeonRun.ts";
 import * as GameState from "../domain/game/GameState.ts";
 import type { Monster } from "../domain/monsters/Monster.ts";
 import * as MonsterPursuit from "../domain/monsters/MonsterPursuit";
-import Home from "../Home.tsx";
 import { ThemeProvider } from "../settings/ThemeProvider.tsx";
 import { stubDungeonRun } from "./HomeTestHelpers.tsx";
+import Home from "./TestHome";
 import { createTestDungeonFloor } from "./testhelpers.ts";
 
 export const renderEncounter = (initialHealth?: number) => {

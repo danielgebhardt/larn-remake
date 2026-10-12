@@ -2,7 +2,6 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import type { DungeonRun } from "../domain/dungeon/DungeonRun.ts";
-import Home from "../Home.tsx";
 import { ThemeProvider } from "../settings/ThemeProvider.tsx";
 import {
 	closeSettings,
@@ -11,6 +10,7 @@ import {
 	stubDungeonRun,
 	waitForSettingsClosed,
 } from "./HomeTestHelpers.tsx";
+import Home from "./TestHome";
 import { createTestDungeonFloor } from "./testhelpers.ts";
 
 // Two long rooms allow discoveries well outside the radius to be checked after

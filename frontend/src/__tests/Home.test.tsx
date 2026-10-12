@@ -6,13 +6,13 @@ import * as DungeonGeneration from "../domain/dungeon/DungeonGeneration.ts";
 import { selectPlayerStart } from "../domain/dungeon/DungeonLocations.ts";
 import * as DungeonRun from "../domain/dungeon/DungeonRun.ts";
 import { FLOOR, WALL } from "../domain/dungeon/Tiles.ts";
-import Home from "../Home.tsx";
 import { server } from "../mocks/server.ts";
 import {
 	renderHome as render,
 	resetHomeTestState,
 	stubDungeonRun,
 } from "./HomeTestHelpers.tsx";
+import Home from "./TestHome";
 import {
 	createTestDungeonFloor,
 	createThreeFloorTraversalRun,

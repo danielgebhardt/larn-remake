@@ -1,19 +1,20 @@
 // @vitest-environment node
+
 import { describe, expect, it } from "vitest";
 import {
 	connectDungeonFloors,
 	generateDungeonRun,
 } from "../domain/dungeon/DungeonRun";
-import { DEFAULT_RUN_CONFIGURATION } from "../domain/dungeon/RunConfiguration";
 import { createGameState } from "../domain/game/GameState";
 import { spawnRunQuestItems } from "../domain/items/CurePlacement";
 import { eligibleLootKinds } from "../domain/items/Item";
+import { COMPACT_TEST_CONFIGURATION } from "./TestRunConfiguration";
 import { createThreeFloorTraversalRun, findFloorPath } from "./testhelpers";
 
 describe("Unique seeded cure placement", () => {
 	it("places one reachable cure on the final floor without occupying ordinary content or stairs", () => {
 		const run = connectDungeonFloors(
-			generateDungeonRun(0, 5, DEFAULT_RUN_CONFIGURATION),
+			generateDungeonRun(0, 5, COMPACT_TEST_CONFIGURATION),
 		);
 		const state = createGameState(run);
 		const cures = state.floorItems.filter((x) => x.item.kind === "cure");

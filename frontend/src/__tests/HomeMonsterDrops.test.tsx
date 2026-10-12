@@ -3,10 +3,10 @@ import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, it } from "vitest";
 import { ITEM_DEFINITIONS } from "../domain/items/Item";
 import { createMonsterDrop } from "../domain/items/MonsterDrops";
-import Home from "../Home";
 import { ThemeProvider } from "../settings/ThemeProvider";
 import { resetHomeTestState, stubDungeonRun } from "./HomeTestHelpers";
 import { createCorridorEncounter } from "./MonsterEncounterTestHelpers";
+import Home from "./TestHome";
 
 afterEach(resetHomeTestState);
 describe("Monster loot on screen", () => {

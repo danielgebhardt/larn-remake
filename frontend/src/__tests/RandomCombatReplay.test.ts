@@ -1,15 +1,16 @@
 // @vitest-environment node
+
 import { describe, expect, it, vi } from "vitest";
 import {
 	connectDungeonFloors,
 	generateDungeonRun,
 } from "../domain/dungeon/DungeonRun";
-import { DEFAULT_RUN_CONFIGURATION } from "../domain/dungeon/RunConfiguration";
 import { createGameState, type GameState } from "../domain/game/GameState";
 import { resolvePlayerAction } from "../domain/game/PlayerActions";
 import { createBag } from "../domain/items/Bag";
 import { spawnRunMonsters } from "../domain/monsters/MonsterPlacement";
 import { createCorridorEncounter } from "./MonsterEncounterTestHelpers";
+import { COMPACT_TEST_CONFIGURATION } from "./TestRunConfiguration";
 
 const initial = (): GameState => {
 	const run = createCorridorEncounter();
@@ -72,7 +73,9 @@ describe("Real seeded combat across complete action sequences", () => {
 	});
 	it("freezes real populated inactive floors while the active encounter evolves", () => {
 		const before = createGameState(
-			connectDungeonFloors(generateDungeonRun(0, 5, DEFAULT_RUN_CONFIGURATION)),
+			connectDungeonFloors(
+				generateDungeonRun(0, 5, COMPACT_TEST_CONFIGURATION),
+			),
 		);
 		const inactive = before.monsters.filter(
 			(monster) => monster.floorNumber !== 1,

@@ -7,7 +7,6 @@ import {
 	restoreSave,
 	serializeSave,
 } from "../domain/saves/SaveFormat";
-import Home from "../Home";
 import { LOCAL_SAVE_KEY } from "../persistence/LocalAdventureSave";
 import { ThemeProvider } from "../settings/ThemeProvider";
 import {
@@ -20,6 +19,7 @@ import {
 	preparedMixedEncounter,
 	tacticalSnapshot,
 } from "./TacticalReplayTestHelpers";
+import Home from "./TestHome";
 
 afterEach(resetHomeTestState);
 const load = async (method: "local" | "file") => {

@@ -1,7 +1,6 @@
 import { act, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, it } from "vitest";
-import Home from "../Home.tsx";
 import {
 	closeSettings,
 	openSettings,
@@ -10,6 +9,7 @@ import {
 	stubDungeonRun,
 	waitForSettingsClosed,
 } from "./HomeTestHelpers.tsx";
+import Home from "./TestHome";
 import { createThreeFloorTraversalRun } from "./testhelpers.ts";
 
 afterEach(resetHomeTestState);

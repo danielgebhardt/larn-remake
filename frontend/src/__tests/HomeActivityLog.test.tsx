@@ -6,7 +6,6 @@ import {
 	createActivityHistory,
 } from "../domain/game/ActivityHistory.ts";
 import * as GameState from "../domain/game/GameState.ts";
-import Home from "../Home.tsx";
 import {
 	closeSettings,
 	openSettings,
@@ -15,6 +14,7 @@ import {
 	stubDungeonRun,
 	waitForSettingsClosed,
 } from "./HomeTestHelpers.tsx";
+import Home from "./TestHome";
 import { createThreeFloorTraversalRun } from "./testhelpers.ts";
 
 const renderWithHistory = () => {

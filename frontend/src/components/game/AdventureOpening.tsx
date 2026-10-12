@@ -67,7 +67,7 @@ const AdventureOpening = ({
 							<AdventureSaveSheet onRestore={onRestore} />
 						</Sheet>
 						<p className="mt-3 text-center text-xs text-muted-foreground">
-							A new seed. A new journey.
+							Recommended adventure: 60 × 60 tiles · 20 floors.
 						</p>
 					</Dialog.Popup>
 				</Dialog.Portal>

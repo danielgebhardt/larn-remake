@@ -4,12 +4,12 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import * as DungeonGeneration from "../domain/dungeon/DungeonGeneration.ts";
 import * as DungeonRun from "../domain/dungeon/DungeonRun.ts";
 import { FLOOR } from "../domain/dungeon/Tiles.ts";
-import Home from "../Home.tsx";
 import {
 	renderHome as render,
 	resetHomeTestState,
 	stubDungeonRun,
 } from "./HomeTestHelpers.tsx";
+import Home from "./TestHome";
 import { createThreeFloorTraversalRun } from "./testhelpers.ts";
 
 afterEach(resetHomeTestState);

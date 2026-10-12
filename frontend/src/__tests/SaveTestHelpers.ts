@@ -3,20 +3,18 @@ import {
 	generateDungeonRun,
 } from "../domain/dungeon/DungeonRun";
 import { updateExploration } from "../domain/dungeon/Exploration";
-import {
-	DEFAULT_FOG_CONFIGURATION,
-	DEFAULT_RUN_CONFIGURATION,
-} from "../domain/dungeon/RunConfiguration";
+import { DEFAULT_FOG_CONFIGURATION } from "../domain/dungeon/RunConfiguration";
 import { createGameState } from "../domain/game/GameState";
 import { resolvePlayerAction } from "../domain/game/PlayerActions";
 import { createSaveDocument } from "../domain/saves/SaveFormat";
+import { COMPACT_TEST_CONFIGURATION } from "./TestRunConfiguration";
 
 export const savedAdventure = () => {
 	const run = connectDungeonFloors(
 		generateDungeonRun(
 			123,
-			DEFAULT_RUN_CONFIGURATION.floorCount,
-			DEFAULT_RUN_CONFIGURATION,
+			COMPACT_TEST_CONFIGURATION.floorCount,
+			COMPACT_TEST_CONFIGURATION,
 		),
 	);
 	let state = createGameState(run);
@@ -32,7 +30,7 @@ export const savedAdventure = () => {
 	return createSaveDocument(
 		state,
 		exploration,
-		DEFAULT_RUN_CONFIGURATION,
+		COMPACT_TEST_CONFIGURATION,
 		DEFAULT_FOG_CONFIGURATION,
 		new Date("2026-10-11T12:00:00.000Z"),
 	);

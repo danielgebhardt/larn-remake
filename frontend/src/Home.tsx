@@ -62,16 +62,20 @@ const createRun = (
 	);
 };
 
-type HomeProps = { initialFogConfiguration?: FogConfiguration };
+type HomeProps = {
+	initialFogConfiguration?: FogConfiguration;
+	initialSeed?: number;
+};
 
 const Home = ({
 	initialFogConfiguration = DEFAULT_FOG_CONFIGURATION,
+	initialSeed,
 }: HomeProps) => {
 	const [fogConfiguration, setFogConfiguration] = useState(
 		initialFogConfiguration,
 	);
 	const [game, setGame] = useState(() => {
-		const run = createRun(0, DEFAULT_RUN_CONFIGURATION);
+		const run = createRun(initialSeed ?? 0, DEFAULT_RUN_CONFIGURATION);
 		return {
 			state: createGameState(run),
 			exploration: updateExploration(run, fogConfiguration.radius),
@@ -101,6 +105,10 @@ const Home = ({
 	const [characterOpenedFromMap, setCharacterOpenedFromMap] = useState(false);
 	const [pickupOpen, setPickupOpen] = useState(false);
 	const mapRef = useRef<HTMLElement>(null);
+	useEffect(() => {
+		if (initialSeed !== undefined)
+			mapRef.current?.focus({ preventScroll: true });
+	}, [initialSeed]);
 	const currentItems = itemsAtPlayer(game.state);
 	// Empty loot or death ends selection; later movement must not reopen it.
 	useEffect(() => {

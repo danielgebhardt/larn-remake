@@ -311,3 +311,9 @@ Avoid an exhaustive browser/device matrix, screenshot baselines for every tile, 
 - Multiplayer, cloud persistence, accounts, and deployment infrastructure without a concrete use case.
 
 Cure-and-return, character progression, mana/spellcasting, and local save/resume are merged. Human playtesting may justify balance or exploration polish before the proposed enemy tactics and dungeon interactions.
+
+## Expanded adventure milestone
+
+The next authorized implementation spans six epics, indexed in [the story plan](docs/expanded-adventure-plan.md). Recommended testing and balance configuration becomes **60×60×20**. Character cap becomes **20**, with intended late-adventure upper levels rather than reaching the cap halfway down. Establish progression early, then revisit the curve with the expanded creature catalog and matched seed evidence.
+
+Ordered priorities: Settings keyboard-focus fix; welcome/start/resume; level progression; found books and twenty total spells with run-specific discovery; rings and useful equipment; twenty total creature kinds; doors, gold, chests, traps, fountains, thrones and shrines; resource/pacing review and complete adventure verification. Existing supports for other map sizes remain correctness requirements, not equal balance commitments. Town, manual attributes, complex initiative and crafting remain deferred. One commit per story on `codex/expanded-adventure`, completed stories In review pending developer acceptance.

@@ -115,6 +115,16 @@ const eventFields = {
 		damage: natural,
 	},
 	"monster-regenerated": { monster: monsterKind, recovered: natural },
+	"monster-spell-hit": {
+		monster: monsterKind,
+		spell: spellKind,
+		damage: natural,
+	},
+	"monster-spell-healed": {
+		monster: monsterKind,
+		spell: spellKind,
+		recovered: natural,
+	},
 	"spell-healed": { spell: spellKind, recovered: natural },
 	"player-hit": { monster: monsterKind, damage: natural },
 	"monster-hit": { monster: monsterKind, damage: natural },

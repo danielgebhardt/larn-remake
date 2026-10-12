@@ -19,6 +19,7 @@ import {
 	monsterSkipsAction,
 	refreshPlayerEffect,
 } from "../game/TimedEffects";
+import { chooseEnemySpell } from "./EnemyCasting";
 import { MONSTER_DEFINITIONS } from "./Monster";
 import { orthogonalDistance } from "./MonsterLocations";
 import { detectsPlayer, selectPursuitStep } from "./MonsterPursuit";
@@ -136,6 +137,42 @@ export const resolveMonsterPhase = (
 				});
 				continue;
 			}
+		}
+		if (
+			!preparing &&
+			definition.enemySpells &&
+			distance <= (definition.rangedAttackRange ?? 0)
+		) {
+			const cast = chooseEnemySpell(state, monster, rollSource);
+			if (cast.type === "heal") {
+				monsters = monsters.map((actor) =>
+					actor.id === monster.id
+						? { ...actor, health: actor.health + cast.recovered }
+						: actor,
+				);
+				events.push({
+					type: "monster-spell-healed",
+					monster: monster.kind,
+					spell: cast.spell,
+					recovered: cast.recovered,
+					turn: state.turn,
+				});
+			} else if (cast.type === "damage") {
+				player = {
+					...player,
+					health: Math.max(0, player.health - cast.damage),
+				};
+				events.push({
+					type: "monster-spell-hit",
+					monster: monster.kind,
+					spell: cast.spell,
+					damage: cast.damage,
+					turn: state.turn,
+				});
+				if (player.health === 0)
+					events.push({ type: "player-died", turn: state.turn });
+			}
+			continue;
 		}
 		const shooting =
 			!preparing &&

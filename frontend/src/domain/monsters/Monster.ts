@@ -3,6 +3,7 @@ import type { Coordinate } from "../dungeon/DungeonTypes.ts";
 import { MAX_FLOORS } from "../dungeon/RunConfiguration";
 import type { ItemKind } from "../items/Item";
 
+export type EnemySpellKind = "ember-bolt" | "shock" | "heal";
 export type MonsterKind = keyof typeof monsterCatalog;
 
 export type MonsterIntent =
@@ -38,6 +39,8 @@ export type MonsterDefinition = {
 	actionInterval?: number;
 	onHitCondition?: "poisoned";
 	regeneration?: number;
+	enemySpells?: readonly EnemySpellKind[];
+	spellInterval?: number;
 };
 export const validateMonsterDefinition = (
 	definition: MonsterDefinition,
@@ -58,6 +61,8 @@ export const validateMonsterDefinition = (
 		actionInterval,
 		onHitCondition,
 		regeneration,
+		enemySpells,
+		spellInterval,
 	} = definition;
 	if (
 		(actionInterval !== undefined &&
@@ -65,6 +70,19 @@ export const validateMonsterDefinition = (
 		(onHitCondition !== undefined && onHitCondition !== "poisoned") ||
 		(regeneration !== undefined &&
 			(!Number.isSafeInteger(regeneration) || regeneration < 1)) ||
+		(enemySpells !== undefined &&
+			(!Array.isArray(enemySpells) ||
+				!enemySpells.length ||
+				enemySpells.some(
+					(spell) => !["ember-bolt", "shock", "heal"].includes(spell),
+				) ||
+				new Set(enemySpells).size !== enemySpells.length ||
+				rangedAttackRange === undefined ||
+				preparesAttack)) ||
+		(spellInterval !== undefined &&
+			(!enemySpells ||
+				!Number.isSafeInteger(spellInterval) ||
+				spellInterval < 2)) ||
 		!Number.isSafeInteger(experienceReward) ||
 		experienceReward <= 0 ||
 		!Number.isFinite(dropChance) ||
@@ -260,6 +278,8 @@ const monsterCatalog = {
 		dropChance: 0.55,
 		lootPreferences: {},
 		rangedAttackRange: 5,
+		enemySpells: ["ember-bolt", "heal"],
+		spellInterval: 3,
 	},
 	"stone-golem": {
 		name: "stone golem",

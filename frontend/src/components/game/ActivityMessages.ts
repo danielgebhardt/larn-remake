@@ -50,6 +50,10 @@ export const formatActivityEvent = (event: ActivityEvent): string => {
 			return `${prefix}${SPELL_DEFINITIONS[event.spell].name} ${event.monster ? `sends the ${MONSTER_DEFINITIONS[event.monster].name} farther away.` : "moves you to a nearby tile."}`;
 		case "monster-regenerated":
 			return `${prefix}The ${MONSTER_DEFINITIONS[event.monster].name} regenerates ${event.recovered} health. Damage interrupts its recovery.`;
+		case "monster-spell-hit":
+			return `${prefix}The ${MONSTER_DEFINITIONS[event.monster].name} casts ${SPELL_DEFINITIONS[event.spell].name} for ${event.damage} damage. Physical armor does not block magic.`;
+		case "monster-spell-healed":
+			return `${prefix}The ${MONSTER_DEFINITIONS[event.monster].name} casts ${SPELL_DEFINITIONS[event.spell].name} and recovers ${event.recovered} health.`;
 		case "spell-healed":
 			return `${prefix}${SPELL_DEFINITIONS[event.spell].name} restores ${event.recovered} health.`;
 		case "spell-hit":

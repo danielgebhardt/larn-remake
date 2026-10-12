@@ -437,3 +437,5 @@ Equipment comparisons list all relevant contributions. Green/red indicate clear 
 Giant spider bites poison on a landed hit: 1 damage after retaliation for three committed phases, refreshed rather than stacked. A red condition badge shows the remaining timer. Player poison travels with you across floors/saves and a fatal tick cannot be reversed by ongoing Renewal.
 
 Trolls recover 2 HP per active phase, up to their maximum. Damage suppresses recovery on that phase and the next. Version 7 saves retain actor-owned injury timing; older actors migrate with an unknown last-injury time while preserving health and intent.
+
+Cultists cast Ember Bolt, or Heal when badly wounded, once per three phases with actor-based staggering. Spell damage always hits and bypasses physical armor; walls and control spells can prevent the cast. Recovery phases do not grant a second attack.

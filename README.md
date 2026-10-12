@@ -428,7 +428,7 @@ Tactical continuation coverage compares full action results and actual seeded hi
 
 Saves belong to the same browser profile and origin (protocol, hostname and port). Localhost and a deployed site have separate slots; clearing site data/private-session closure can remove local saves. Export files provide backups and manual transfer. Input is capped at 4 MiB; storage failures are reported without erasing the previous slot. Measured fully explored 100×100×20 samples fit a conservative 5 MiB storage budget; see [local-save review notes](docs/local-save-review.md) for size measurements, tests and commit guidance. IndexedDB, multiple slots, autosave, further migrations and server synchronization remain future choices.
 
-Two ring slots are available in Character. Rings fit either slot; choosing a slot, swapping or unequipping uses the ordinary equipment turn rules. Save format v9 migrates older adventures with empty left/right ring slots.
+Two ring slots are available in Character. Rings fit either slot; choosing a slot, swapping or unequipping uses the ordinary equipment turn rules. Save format v10 migrates older adventures with empty left/right ring slots.
 
 Ring bonuses are derived from equipped item definitions: Strength/Dexterity/Intelligence +2, Vitality/Mana capacity +4, copper armor +1. Capacity increases do not heal/refill; removing capacity clamps current resources. Effective combat, spells and status displays use the same loadout calculations.
 
@@ -445,3 +445,5 @@ Elemental resistance halves damage (minimum 1) and weakness doubles it; activity
 ### Dungeon doors
 
 New adventures can contain closed doors in passages. Bump a door to open it, or press **E** to open/close a nearby door. A successful interaction uses one turn. Closed doors block movement and sight, including spells; monsters currently cannot open them. Occupied doors cannot be closed. Door state persists in saves; older saved adventures keep their original floors without newly added doors.
+
+Gold is tracked separately from bag capacity. Walk onto coin caches to collect them automatically; defeated monsters also grant seeded, depth-scaled gold. The total appears above the dungeon, in Character and in the victory summary. Shops are deferred.

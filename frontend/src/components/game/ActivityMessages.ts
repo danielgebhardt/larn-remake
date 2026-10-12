@@ -8,6 +8,8 @@ import { MONSTER_DEFINITIONS } from "../../domain/monsters/Monster";
 export const formatActivityEvent = (event: ActivityEvent): string => {
 	const prefix = `Turn ${event.turn} — `;
 	switch (event.type) {
+		case "gold-collected":
+			return `${prefix}You collect ${event.amount} gold.`;
 		case "attribute-gained":
 			return `${prefix}${event.attribute} increases to ${event.value}.`;
 		case "experience-gained":

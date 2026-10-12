@@ -27,6 +27,7 @@ const VictoryDialog = ({
 		["Turns", summary.turns],
 		["Monsters defeated", summary.monstersDefeated],
 		["Health remaining", summary.health],
+		["Gold collected", summary.gold ?? 0],
 		["Level", summary.level],
 		["Total XP", summary.experience],
 	] as const;

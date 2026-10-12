@@ -48,6 +48,7 @@ describe("Returning through the entrance", () => {
 		expect(result.turnAdvanced).toBe(true);
 		expect(result.state.quest.victory).toEqual({
 			seed: 123,
+			gold: 0,
 			floors: 3,
 			turns: 1,
 			monstersDefeated: 4,

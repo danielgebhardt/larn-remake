@@ -1,6 +1,7 @@
 import { createMonsterDrop } from "../items/MonsterDrops";
 import { MONSTER_DEFINITIONS, type Monster } from "../monsters/Monster";
 import { resistedDamage } from "../monsters/MonsterResistance";
+import { goldAmount } from "../objects/Gold";
 import { type ActivityEvent, appendActivityEvents } from "./ActivityHistory";
 import {
 	dexterityAtLevel,
@@ -27,6 +28,11 @@ export const damageMonster = (
 	damage: number,
 	source: DamageSource,
 ): GameState => {
+	const current = state.monsters.find(
+		(actor) => actor.id === monster.id && actor.health > 0,
+	);
+	if (!current) return state;
+	monster = current;
 	const turn = state.turn;
 	const spell =
 		source.type === "spell-hit" ? SPELL_DEFINITIONS[source.spell] : undefined;
@@ -53,6 +59,11 @@ export const damageMonster = (
 		});
 	if (health === 0)
 		events.push({ type: "monster-died", turn, monster: monster.kind });
+	const gold =
+		health === 0
+			? goldAmount(state.run.seed, monster.floorNumber, monster.id)
+			: 0;
+	if (gold) events.push({ type: "gold-collected", amount: gold, turn });
 	let floorItems = state.floorItems;
 	let player = state.player;
 	let progression = state.progression;
@@ -127,6 +138,7 @@ export const damageMonster = (
 	return {
 		...state,
 		monsters,
+		gold: state.gold + gold,
 		effects: state.effects.some(
 			(effect) =>
 				effect.actorId === monster.id &&

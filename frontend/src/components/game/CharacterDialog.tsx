@@ -39,6 +39,7 @@ type CharacterDialogProps = {
 	bag: Bag;
 	potionHotbar: PotionHotbar;
 	floorItems: readonly FloorItem[];
+	gold?: number;
 	turn: number;
 	history: ActivityHistory;
 	actionError: string;
@@ -60,6 +61,7 @@ const CharacterDialog = ({
 	bag,
 	potionHotbar,
 	floorItems,
+	gold = 0,
 	turn,
 	history,
 	actionError,
@@ -279,7 +281,8 @@ const CharacterDialog = ({
 						className="grid gap-1 text-xs leading-relaxed"
 					>
 						<p className="font-medium tabular-nums">
-							Turn {turn} · Health {player.health} / {player.maxHealth}
+							Gold {gold} · Turn {turn} · Health {player.health} /{" "}
+							{player.maxHealth}
 						</p>
 						{events.map((entry) => (
 							<p key={entry.id} className="text-muted-foreground">

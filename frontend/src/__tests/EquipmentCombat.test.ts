@@ -138,6 +138,7 @@ describe("Equipment in the action cycle", () => {
 		expect(result.activityHistory.entries.map((entry) => entry.event)).toEqual([
 			{ type: "player-hit", turn: 1, monster: "goblin", damage: 2 },
 			{ type: "monster-died", turn: 1, monster: "goblin" },
+			{ type: "gold-collected", turn: 1, amount: 8 },
 			{ type: "experience-gained", turn: 1, amount: 5 },
 		]);
 	});

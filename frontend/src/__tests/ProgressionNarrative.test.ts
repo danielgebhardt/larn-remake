@@ -47,6 +47,7 @@ describe("Progression activity narrative", () => {
 			).toEqual([
 				"player-hit",
 				"monster-died",
+				"gold-collected",
 				"experience-gained",
 				"level-gained",
 				"attribute-gained",

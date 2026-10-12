@@ -54,22 +54,23 @@ describe("Combat on the play screen", () => {
 				"Health 9 / 10",
 			);
 			expect(screen.getByLabelText("Turn count")).toHaveTextContent("Turn 2");
-			expect(messages().slice(-3)).toEqual([
+			expect(messages().slice(-4)).toEqual([
 				"Turn 2 — You hit the goblin for 2 damage.",
 				"Turn 2 — The goblin dies.",
+				"Turn 2 — You collect 6 gold.",
 				"Turn 2 — You gain 5 XP.",
 			]);
 			await user.keyboard(key);
 			expect(screen.getByLabelText("row1col2 - player")).toBeVisible();
 			expect(screen.getByLabelText("Turn count")).toHaveTextContent("Turn 3");
-			expect(messages()).toHaveLength(5);
+			expect(messages()).toHaveLength(6);
 			// The defeated goblin must stay removed after leaving and returning.
 			await user.keyboard("sdda");
 			expect(
 				screen.getByRole("heading", { name: "Floor 1 of 2" }),
 			).toBeVisible();
 			expect(screen.queryByLabelText(/goblin/)).not.toBeInTheDocument();
-			expect(messages()).toHaveLength(7);
+			expect(messages()).toHaveLength(8);
 			expect(messages().slice(-2)).toEqual([
 				"Turn 5 — You descend to floor 2.",
 				"Turn 7 — You ascend to floor 1.",
@@ -105,9 +106,10 @@ describe("Combat on the play screen", () => {
 		expect(screen.getByLabelText("Player health")).toHaveTextContent(
 			"Health 7 / 10",
 		);
-		expect(messages().slice(-3)).toEqual([
+		expect(messages().slice(-4)).toEqual([
 			"Turn 8 — You hit the goblin for 2 damage.",
 			"Turn 8 — The goblin dies.",
+			"Turn 8 — You collect 6 gold.",
 			"Turn 8 — You gain 5 XP.",
 		]);
 	});

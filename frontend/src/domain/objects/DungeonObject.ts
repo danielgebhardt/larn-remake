@@ -10,6 +10,16 @@ export const OBJECT_DEFINITIONS = {
 		chance: 1,
 		placement: "passage",
 	},
+	gold: {
+		name: "Gold",
+		freshLabel: "gold coins",
+		usedLabel: "empty coin cache",
+		minFloor: 1,
+		maxFloor: 20,
+		maxPerFloor: 2,
+		chance: 1,
+		placement: "room",
+	},
 } as const;
 export type DungeonObjectKind = keyof typeof OBJECT_DEFINITIONS;
 export type DungeonObject = Readonly<{

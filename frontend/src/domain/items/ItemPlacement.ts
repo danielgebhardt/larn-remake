@@ -47,7 +47,7 @@ export const availableItemLocations = (
 	run: DungeonRun,
 	floor: DungeonRun["floors"][number],
 	monsters: readonly Monster[],
-	occupied: readonly FloorItem[] = [],
+	occupied: readonly Pick<FloorItem, "floorNumber" | "coordinate">[] = [],
 ): Coordinate[] => {
 	const protectedLocations = protectedSpawnLocations(run, floor.floorNumber);
 	if (floor.floorNumber === 1 && floor.rooms.length > 0)

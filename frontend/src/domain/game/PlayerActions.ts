@@ -23,6 +23,7 @@ import {
 } from "../items/PotionHotbar";
 import type { Monster } from "../monsters/Monster.ts";
 import { resolveMonsterPhase } from "../monsters/MonsterTurns";
+import { collectGoldAtPlayer } from "../objects/Gold";
 import { navigationRun } from "../objects/NavigationTerrain";
 import {
 	type InteractAction,
@@ -139,7 +140,9 @@ export const resolvePlayerAction = (
 	}
 	// Effects receive the committed turn; only this boundary advances it.
 	const committed = { ...state, turn: state.turn + 1 };
-	const result = resolvePlayerEffect(committed, action, rollSource);
+	const effect = resolvePlayerEffect(committed, action, rollSource);
+	const result =
+		effect && !("error" in effect) ? collectGoldAtPlayer(effect) : effect;
 	if (!result) return { state, turnAdvanced: false };
 	if ("error" in result)
 		return { state, turnAdvanced: false, error: result.error };
@@ -285,6 +288,7 @@ const announceArrival = (state: GameState, fromFloor: number): GameState => {
 						floors: state.quest.goalFloor,
 						turns: state.turn,
 						monstersDefeated: state.monstersDefeated,
+						gold: state.gold,
 						health: state.player.health,
 						level: levelForExperience(state.progression.experience),
 						experience: state.progression.experience,

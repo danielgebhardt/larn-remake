@@ -26,6 +26,7 @@ import type { TimedEffect } from "./TimedEffects";
 export type GameState = {
 	run: DungeonRun;
 	objects: readonly DungeonObject[];
+	gold: number;
 	turn: number;
 	mana: number;
 	knownSpells: readonly SpellKind[];
@@ -54,6 +55,7 @@ export const createGameState = (run: DungeonRun): GameState => {
 	return {
 		run,
 		objects: spawnRunObjects(run, monsters, floorItems),
+		gold: 0,
 		turn: 0,
 		knownSpells: createKnownSpells(),
 		spellHotbar: createSpellHotbar(createKnownSpells()),

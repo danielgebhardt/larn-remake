@@ -58,6 +58,7 @@ describe("Deterministic monster loot", () => {
 		).toEqual([
 			"player-hit",
 			"monster-died",
+			"gold-collected",
 			"experience-gained",
 			"monster-loot",
 		]);
@@ -72,7 +73,12 @@ describe("Deterministic monster loot", () => {
 		expect(result.floorItems).toEqual([]);
 		expect(
 			result.activityHistory.entries.map((entry) => entry.event.type),
-		).toEqual(["player-hit", "monster-died", "experience-gained"]);
+		).toEqual([
+			"player-hit",
+			"monster-died",
+			"gold-collected",
+			"experience-gained",
+		]);
 	});
 	it("coexists with another floor item and never resolves a second drop on later actions", () => {
 		const before = {

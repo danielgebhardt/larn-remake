@@ -4,6 +4,7 @@ import type { Coordinate } from "../dungeon/DungeonTypes";
 import { createSeededRandom } from "../dungeon/Seed";
 import { FLOOR } from "../dungeon/Tiles";
 import type { FloorItem } from "../items/FloorItems";
+import { availableItemLocations } from "../items/ItemPlacement";
 import type { Monster } from "../monsters/Monster";
 import {
 	coordinateKey,
@@ -77,6 +78,34 @@ export const spawnRunObjects = (
 			objects.push({
 				id: `floor:${floor.floorNumber}:object:door:${index}`,
 				kind: "door",
+				floorNumber: floor.floorNumber,
+				coordinate,
+				activated: false,
+			});
+		}
+	}
+	for (const floor of run.floors) {
+		const candidates = availableItemLocations(run, floor, monsters, [
+			...items,
+			...objects,
+		]);
+		for (
+			let index = 1;
+			index <= OBJECT_DEFINITIONS.gold.maxPerFloor && candidates.length;
+			index++
+		) {
+			const random = createSeededRandom(
+				hashStringToUint32(
+					`${run.seed}:${floor.floorNumber}:object:gold:${index}:tile`,
+				),
+			);
+			const [coordinate] = candidates.splice(
+				Math.floor(random() * candidates.length),
+				1,
+			);
+			objects.push({
+				id: `floor:${floor.floorNumber}:object:gold:${index}`,
+				kind: "gold",
 				floorNumber: floor.floorNumber,
 				coordinate,
 				activated: false,

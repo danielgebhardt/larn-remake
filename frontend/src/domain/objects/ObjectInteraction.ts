@@ -1,6 +1,7 @@
 import { appendActivityEvents } from "../game/ActivityHistory";
 import type { GameState } from "../game/GameState";
 import { orthogonalDistance } from "../monsters/MonsterLocations";
+import { collectGoldAtPlayer } from "./Gold";
 export type InteractAction = { type: "interact"; objectId?: string };
 export const interactObject = (
 	state: GameState,
@@ -9,7 +10,8 @@ export const interactObject = (
 	const nearby = state.objects.filter(
 		(object) =>
 			object.floorNumber === state.run.activeFloor &&
-			orthogonalDistance(object.coordinate, state.run.playerCoordinate) <= 1,
+			orthogonalDistance(object.coordinate, state.run.playerCoordinate) <= 1 &&
+			!(object.kind === "gold" && object.activated),
 	);
 	const player = state.run.playerCoordinate;
 	const order = (coordinate: { row: number; col: number }) =>
@@ -26,6 +28,11 @@ export const interactObject = (
 		? nearby.find((object) => object.id === action.objectId)
 		: [...nearby].sort((a, b) => order(a.coordinate) - order(b.coordinate))[0];
 	if (!object) return { error: "No object within reach." };
+	if (object.kind === "gold")
+		return orthogonalDistance(object.coordinate, player) === 0 &&
+			!object.activated
+			? collectGoldAtPlayer(state)
+			: { error: "Walk onto the coins to collect them." };
 	if (
 		object.activated &&
 		(orthogonalDistance(object.coordinate, player) === 0 ||

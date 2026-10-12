@@ -25,7 +25,7 @@ it("seeds doors in straight passage tiles without occupying actors, loot or prot
 	const first = createGameState(run);
 	expect(createGameState(run).objects).toEqual(first.objects);
 	expect(first.objects.length).toBeGreaterThan(0);
-	for (const door of first.objects) {
+	for (const door of first.objects.filter((object) => object.kind === "door")) {
 		expect(protectedFloorLocations(run, door.floorNumber)).not.toContainEqual(
 			door.coordinate,
 		);
@@ -48,8 +48,10 @@ it("seeds doors in straight passage tiles without occupying actors, loot or prot
 	}
 	for (const floor of run.floors)
 		expect(
-			first.objects.filter((door) => door.floorNumber === floor.floorNumber)
-				.length,
+			first.objects.filter(
+				(door) =>
+					door.kind === "door" && door.floorNumber === floor.floorNumber,
+			).length,
 		).toBeLessThanOrEqual(2);
 });
 it("preserves an opened door through saving and restores closed-door sight from the object state", () => {

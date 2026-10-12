@@ -69,7 +69,12 @@ describe("Randomized player bump attacks", () => {
 		expect(result.player.health).toBe(10);
 		expect(
 			result.activityHistory.entries.map((entry) => entry.event.type),
-		).toEqual(["player-hit", "monster-died", "experience-gained"]);
+		).toEqual([
+			"player-hit",
+			"monster-died",
+			"gold-collected",
+			"experience-gained",
+		]);
 	});
 	it("repeats a seeded action sequence and leaves rejected actions free", () => {
 		const play = () => {

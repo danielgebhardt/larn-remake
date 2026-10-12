@@ -103,9 +103,10 @@ describe("Magic Missile turns", () => {
 			player: { health: 11, maxHealth: 12 },
 		});
 		const events = after.activityHistory.entries.map((e) => e.event.type);
-		expect(events.slice(0, 4)).toEqual([
+		expect(events.slice(0, 5)).toEqual([
 			"spell-hit",
 			"monster-died",
+			"gold-collected",
 			"experience-gained",
 			"level-gained",
 		]);

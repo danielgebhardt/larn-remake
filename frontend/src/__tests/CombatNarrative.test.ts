@@ -61,6 +61,7 @@ describe("Combat activity narrative", () => {
 		).toEqual([
 			"player-hit",
 			"monster-died",
+			"gold-collected",
 			"experience-gained",
 			"monster-loot",
 			"monster-hit",
@@ -69,8 +70,8 @@ describe("Combat activity narrative", () => {
 			"Turn 1 — You hit the goblin for 2 damage.",
 		);
 		expect(messages(result)[1]).toBe("Turn 1 — The goblin dies.");
-		expect(messages(result)[3]).toMatch(/^Turn 1 — The goblin drops /);
-		expect(messages(result)[4]).toBe(
+		expect(messages(result)[4]).toMatch(/^Turn 1 — The goblin drops /);
+		expect(messages(result)[5]).toBe(
 			"Turn 1 — The giant rat hits you for 1 damage.",
 		);
 	});

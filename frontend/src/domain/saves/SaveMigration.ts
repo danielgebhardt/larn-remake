@@ -10,6 +10,7 @@ import type { SaveDocumentV6 } from "./SaveDocumentV6";
 import type { SaveDocumentV7 } from "./SaveDocumentV7";
 import type { SaveDocumentV8 } from "./SaveDocumentV8";
 import type { SaveDocumentV9 } from "./SaveDocumentV9";
+import type { SaveDocumentV10 } from "./SaveDocumentV10";
 
 // Only migrate a structurally and semantically valid v1 snapshot. Preserve
 // played data; legacy monsters have no prepared attack to carry forward.
@@ -117,18 +118,35 @@ export const migratePlayedSave = (
 		| SaveDocumentV6
 		| SaveDocumentV7
 		| SaveDocumentV8
-		| SaveDocumentV9,
-): SaveDocumentV9 => {
+		| SaveDocumentV9
+		| SaveDocumentV10,
+): SaveDocumentV10 => {
 	const v4 = document.version === 3 ? migrateSaveV3(document) : document;
 	const v5 = v4.version === 4 ? migrateSaveV4(v4) : v4;
 	const v6 = v5.version === 5 ? migrateSaveV5(v5) : v5;
 	const v7 = v6.version === 6 ? migrateSaveV6(v6) : v6;
 	const v8 = v7.version === 7 ? migrateSaveV7(v7) : v7;
-	return v8.version === 8 ? migrateSaveV8(v8) : v8;
+	const v9 = v8.version === 8 ? migrateSaveV8(v8) : v8;
+	return v9.version === 9 ? migrateSaveV9(v9) : v9;
 };
 
 export const migrateSaveV8 = (legacy: SaveDocumentV8): SaveDocumentV9 => ({
 	...legacy,
 	version: 9,
 	state: { ...legacy.state, objects: [] },
+});
+
+export const migrateSaveV9 = (legacy: SaveDocumentV9): SaveDocumentV10 => ({
+	...legacy,
+	version: 10,
+	state: {
+		...legacy.state,
+		gold: 0,
+		quest: {
+			...legacy.state.quest,
+			victory: legacy.state.quest.victory
+				? { ...legacy.state.quest.victory, gold: 0 }
+				: null,
+		},
+	},
 });

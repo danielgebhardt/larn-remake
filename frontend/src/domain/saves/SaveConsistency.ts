@@ -24,6 +24,7 @@ import type { SaveDocumentV6 } from "./SaveDocumentV6";
 import type { SaveDocumentV7 } from "./SaveDocumentV7";
 import type { SaveDocumentV8 } from "./SaveDocumentV8";
 import type { SaveDocumentV9 } from "./SaveDocumentV9";
+import type { SaveDocumentV10 } from "./SaveDocumentV10";
 
 export const isConsistentSave = (
 	document:
@@ -35,10 +36,13 @@ export const isConsistentSave = (
 		| SaveDocumentV6
 		| SaveDocumentV7
 		| SaveDocumentV8
-		| SaveDocumentV9,
+		| SaveDocumentV9
+		| SaveDocumentV10,
 ): boolean => {
 	const { state, configuration: config } = document;
 	const { run, quest } = state;
+	if ("gold" in state && quest.victory && quest.victory.gold !== state.gold)
+		return false;
 	if ("effects" in document.state) {
 		const effects = document.state.effects;
 		if (

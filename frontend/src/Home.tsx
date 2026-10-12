@@ -139,7 +139,9 @@ const Home = ({
 	const activeObjects = useMemo(
 		() =>
 			game.state.objects.filter(
-				(object) => object.floorNumber === run.activeFloor,
+				(object) =>
+					object.floorNumber === run.activeFloor &&
+					!(object.kind === "gold" && object.activated),
 			),
 		[game.state.objects, run.activeFloor],
 	);
@@ -329,6 +331,7 @@ const Home = ({
 							Character
 						</Dialog.Trigger>
 						<CharacterDialog
+							gold={game.state.gold}
 							effects={game.state.effects}
 							spellHotbar={game.state.spellHotbar}
 							mana={game.state.mana}
@@ -460,6 +463,7 @@ const Home = ({
 							onActivate={spells.activate}
 						/>
 						<PlayerStatus
+							gold={game.state.gold}
 							equipment={game.state.equipment}
 							mana={game.state.mana}
 							turn={turn}

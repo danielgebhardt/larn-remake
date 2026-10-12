@@ -7,6 +7,7 @@ export type VictorySummary = Readonly<{
 	floors: number;
 	turns: number;
 	monstersDefeated: number;
+	gold?: number;
 	health: number;
 	level: number;
 	experience: number;

@@ -9,12 +9,14 @@ import HealthDisplay from "./HealthDisplay";
 import ManaDisplay from "./ManaDisplay";
 
 const PlayerStatus = ({
+	gold = 0,
 	turn,
 	mana,
 	player,
 	progression,
 	equipment,
 }: {
+	gold?: number;
 	turn: number;
 	mana: number;
 	player: PlayerStats;
@@ -36,6 +38,7 @@ const PlayerStatus = ({
 			progression={progression}
 			label="Player mana"
 		/>
+		<output aria-label="Player gold">Gold {gold}</output>
 		<HealthDisplay player={player} label="Player health" />
 		{player.health === 0 && (
 			<p

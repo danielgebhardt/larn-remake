@@ -95,6 +95,7 @@ const victory = object({
 });
 
 const eventFields = {
+	"gold-collected": { amount: integer(1) },
 	"player-condition-applied": {
 		condition: oneOf(Object.keys(EFFECT_DEFINITIONS)),
 		duration: integer(1, 100),

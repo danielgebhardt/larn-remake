@@ -162,6 +162,7 @@ const CharacterDialog = ({
 						<div className="min-h-0 overflow-y-auto p-4">
 							<div className="grid items-start gap-5 md:grid-cols-2 lg:grid-cols-[minmax(0,0.65fr)_minmax(0,1fr)_minmax(0,1.25fr)]">
 								<ProgressionView
+									equipment={equipment}
 									effects={effects}
 									progression={progression}
 									mana={mana}
@@ -249,6 +250,7 @@ const CharacterDialog = ({
 					</Tabs.Panel>
 					<Tabs.Panel value="spells" className="min-h-0 flex-1 overflow-y-auto">
 						<SpellsView
+							equipment={equipment}
 							slots={spellHotbar}
 							onAction={onAction}
 							assignmentsEnabled={!won}

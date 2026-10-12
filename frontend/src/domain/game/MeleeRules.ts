@@ -1,3 +1,4 @@
+import type { Equipment } from "../items/Equipment";
 import { deriveAttributes } from "./Attributes";
 import { resolveIncomingDamage } from "./CombatStats";
 import type { Progression } from "./Progression";
@@ -19,9 +20,10 @@ export const accuracyThresholds = (modifier: number) => {
 export const deriveAccuracy = (
 	progression: Progression,
 	effects: readonly TimedEffect[] = [],
+	equipment?: Partial<Equipment>,
 ) => {
 	const thresholds = accuracyThresholds(
-		deriveAttributes(progression, effects).dexterityModifier,
+		deriveAttributes(progression, effects, equipment).dexterityModifier,
 	);
 	return {
 		...thresholds,

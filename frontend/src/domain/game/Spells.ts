@@ -1,3 +1,4 @@
+import type { Equipment } from "../items/Equipment";
 import { deriveAttributes } from "./Attributes";
 import type { Progression } from "./Progression";
 import type { EffectKind, PlayerEffectKind } from "./TimedEffects";
@@ -261,8 +262,13 @@ export const spellKnowledgeError = (
 export const spellPotency = (
 	progression: Progression,
 	definition: SpellDefinition,
+	equipment?: Partial<Equipment>,
 ) => {
-	const modifier = deriveAttributes(progression).intelligenceModifier;
+	const modifier = deriveAttributes(
+		progression,
+		[],
+		equipment,
+	).intelligenceModifier;
 	switch (definition.effect) {
 		case "damage":
 			return {

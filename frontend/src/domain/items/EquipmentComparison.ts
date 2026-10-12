@@ -2,6 +2,7 @@ import { type Equipment, equipmentSlotFor } from "./Equipment";
 import { ITEM_DEFINITIONS, type ItemInstance } from "./Item";
 
 export const compareEquipment = (item: ItemInstance, equipment: Equipment) => {
+	if (ITEM_DEFINITIONS[item.kind].type === "ring") return null;
 	const slot = equipmentSlotFor(item);
 	if (!slot) return null;
 	const stat = slot === "mainHand" ? "Attack bonus" : "Armor";

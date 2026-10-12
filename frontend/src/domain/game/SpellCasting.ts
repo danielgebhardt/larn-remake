@@ -47,7 +47,7 @@ export const castSpell = (
 		return {
 			error: `Not enough mana for ${definition.name}. You need ${definition.cost}.`,
 		};
-	const potency = spellPotency(state.progression, definition);
+	const potency = spellPotency(state.progression, definition, state.equipment);
 	if (potency.effect === "heal") {
 		if (state.player.health >= state.player.maxHealth)
 			return { error: "You are already at full health." };

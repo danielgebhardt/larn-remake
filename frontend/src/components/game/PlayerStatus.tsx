@@ -4,6 +4,7 @@ import {
 	levelForExperience,
 	type Progression,
 } from "../../domain/game/Progression";
+import type { Equipment } from "../../domain/items/Equipment";
 import HealthDisplay from "./HealthDisplay";
 import ManaDisplay from "./ManaDisplay";
 
@@ -12,11 +13,13 @@ const PlayerStatus = ({
 	mana,
 	player,
 	progression,
+	equipment,
 }: {
 	turn: number;
 	mana: number;
 	player: PlayerStats;
 	progression: Progression;
+	equipment?: Equipment;
 }) => (
 	<section
 		aria-label="Player status"
@@ -27,7 +30,12 @@ const PlayerStatus = ({
 		<output aria-label="Player level">
 			Level {levelForExperience(progression.experience)}
 		</output>
-		<ManaDisplay mana={mana} progression={progression} label="Player mana" />
+		<ManaDisplay
+			equipment={equipment}
+			mana={mana}
+			progression={progression}
+			label="Player mana"
+		/>
 		<HealthDisplay player={player} label="Player health" />
 		{player.health === 0 && (
 			<p

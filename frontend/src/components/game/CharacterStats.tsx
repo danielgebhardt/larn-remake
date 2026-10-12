@@ -3,11 +3,13 @@ import {
 	armorContributions,
 	deriveCombatStats,
 } from "../../domain/game/CombatStats";
+import { playerEffectBonuses } from "../../domain/game/EffectBonuses";
 import { attackProfile, deriveAccuracy } from "../../domain/game/MeleeRules";
 import type { PlayerStats } from "../../domain/game/PlayerStats";
 import type { Progression } from "../../domain/game/Progression";
 import type { TimedEffect } from "../../domain/game/TimedEffects";
 import type { Equipment } from "../../domain/items/Equipment";
+import { equipmentBonuses } from "../../domain/items/EquipmentBonuses";
 
 import HealthDisplay from "./HealthDisplay";
 
@@ -24,7 +26,7 @@ const CharacterStats = ({
 }) => {
 	const combat = deriveCombatStats(equipment, progression, effects);
 	const armor = armorContributions(equipment);
-	const accuracy = deriveAccuracy(progression, effects);
+	const accuracy = deriveAccuracy(progression, effects, equipment);
 	const profile = attackProfile(combat.attack, accuracy.playerHitThreshold);
 
 	return (
@@ -79,8 +81,9 @@ const CharacterStats = ({
 					</output>
 					<p className="mt-1 text-xs text-muted-foreground">
 						Shield {armor.shield} + chest {armor.chest} + head {armor.head}
-						{combat.armor > armor.shield + armor.chest + armor.head &&
-							" + spell 2"}
+						{equipmentBonuses(equipment).armor > 0 &&
+							` + rings ${equipmentBonuses(equipment).armor}`}
+						{playerEffectBonuses(effects).armor > 0 && " + spell 2"}
 					</p>
 					<output
 						aria-label="Character evasion"

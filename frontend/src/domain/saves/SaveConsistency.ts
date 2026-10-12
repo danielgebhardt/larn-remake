@@ -4,6 +4,7 @@ import { DEFAULT_PLAYER_MAX_HEALTH } from "../game/PlayerStats";
 import { HEALTH_PER_LEVEL, levelForExperience } from "../game/Progression";
 import { PLAYER_EFFECT_KINDS } from "../game/TimedEffects";
 import { type EquipmentSlot, fitsEquipmentSlot } from "../items/Equipment";
+import { equipmentBonuses } from "../items/EquipmentBonuses";
 import { ITEM_DEFINITIONS } from "../items/Item";
 import { MONSTER_DEFINITIONS } from "../monsters/Monster";
 import {
@@ -63,7 +64,10 @@ export const isConsistentSave = (
 	const manaLimit =
 		document.version < 3
 			? 10 + 2 * Math.floor((level - 1) / 2)
-			: maximumMana(state.progression);
+			: maximumMana(
+					state.progression,
+					document.version >= 6 ? state.equipment : undefined,
+				);
 	if (
 		document.version < 3 &&
 		state.activityHistory.entries.some(
@@ -84,7 +88,11 @@ export const isConsistentSave = (
 		quest.goalFloor !== config.floorCount ||
 		!walkable(1, quest.entrance) ||
 		state.player.maxHealth !==
-			DEFAULT_PLAYER_MAX_HEALTH + HEALTH_PER_LEVEL * (level - 1) ||
+			DEFAULT_PLAYER_MAX_HEALTH +
+				HEALTH_PER_LEVEL * (level - 1) +
+				(document.version >= 6
+					? equipmentBonuses(state.equipment).health
+					: 0) ||
 		state.player.health > state.player.maxHealth ||
 		state.mana > manaLimit ||
 		!unique(state.knownSpells) ||

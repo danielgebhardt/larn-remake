@@ -27,3 +27,18 @@ it("lets the player choose either ring slot explicitly", async () => {
 		screen.getByRole("button", { name: "Equip in left ring" }),
 	).toBeVisible();
 });
+
+it("describes a magical ring's actual bonus instead of implying armor", () => {
+	render(
+		<ItemDetails
+			item={{ id: "ring:int", kind: "ring-intelligence" }}
+			equipment={createEquipment()}
+			alive
+			onAction={vi.fn()}
+			afterAction={vi.fn()}
+			potionHotbar={[null, null, null, null]}
+		/>,
+	);
+	expect(screen.getByText("+2 intelligence")).toBeVisible();
+	expect(screen.queryByText("Armor 0")).not.toBeInTheDocument();
+});

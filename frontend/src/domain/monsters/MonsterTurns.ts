@@ -36,6 +36,7 @@ export const resolveMonsterPhase = (
 	const { monsterHitThreshold } = deriveAccuracy(
 		state.progression,
 		state.effects,
+		state.equipment,
 	);
 	// IDs encode floor:spawnIndex; sort numeric indices, not incidental storage order.
 	const active = state.monsters

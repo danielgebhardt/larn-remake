@@ -18,6 +18,11 @@ const isBookKind = (kind: ItemKind): kind is BookKind =>
 const icons: Record<Exclude<ItemKind, BookKind>, LucideIcon> = {
 	cure: Gem,
 	"copper-ring": Circle,
+	"ring-strength": Circle,
+	"ring-dexterity": Circle,
+	"ring-intelligence": Circle,
+	"ring-vitality": Circle,
+	"ring-mana": Circle,
 	"healing-potion": FlaskRound,
 	"mana-potion": FlaskConical,
 	"short-sword": Sword,

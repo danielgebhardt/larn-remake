@@ -7,6 +7,7 @@ import {
 	changeEquipment,
 	type EquipmentAction,
 } from "../items/EquipmentChanges";
+import { resourcesAfterEquipmentChange } from "../items/EquipmentResources";
 import {
 	type FloorItemAction,
 	itemsAtPlayer,
@@ -206,6 +207,7 @@ const resolvePlayerEffect = (
 		return {
 			...state,
 			equipment: change.equipment,
+			...resourcesAfterEquipmentChange(state, change.equipment),
 			bag: change.bag,
 			activityHistory: appendActivityEvents(state.activityHistory, [
 				{ ...change.event, turn },
@@ -289,7 +291,8 @@ const resolveAttack = (
 		attackProfile(
 			deriveCombatStats(state.equipment, state.progression, state.effects)
 				.attack,
-			deriveAccuracy(state.progression, state.effects).playerHitThreshold,
+			deriveAccuracy(state.progression, state.effects, state.equipment)
+				.playerHitThreshold,
 		),
 		rollSource({
 			seed: state.run.seed,

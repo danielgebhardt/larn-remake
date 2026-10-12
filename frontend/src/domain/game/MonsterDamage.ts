@@ -40,7 +40,12 @@ export const damageMonster = (
 		const gained = gainExperience(progression, player, reward);
 		progression = gained.progression;
 		player = gained.player;
-		mana = growManaCapacity(state.mana, state.progression, progression);
+		mana = growManaCapacity(
+			state.mana,
+			state.progression,
+			progression,
+			state.equipment,
+		);
 		events.push({ type: "experience-gained", amount: reward, turn });
 		for (const level of gained.levels) {
 			events.push({

@@ -70,7 +70,11 @@ const ItemDetails = ({
 					? `Recovery up to ${details.recovery.amount} ${details.recovery.resource}`
 					: details.type === "weapon"
 						? `Attack bonus +${details.attackBonus}`
-						: `Armor ${details.armor}`}
+						: details.type === "ring" && "stats" in details
+							? Object.entries(details.stats)
+									.map(([stat, bonus]) => `+${bonus} ${stat}`)
+									.join(" · ")
+							: `Armor ${details.armor}`}
 			</p>
 			{comparison && <EquipmentComparisonView comparison={comparison} />}
 			<div className="flex flex-wrap gap-2">

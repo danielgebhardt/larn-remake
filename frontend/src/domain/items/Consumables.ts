@@ -12,7 +12,10 @@ export type ConsumptionEvent = {
 };
 
 export const consumeItem = (
-	state: Pick<GameState, "player" | "mana" | "progression" | "bag">,
+	state: Pick<
+		GameState,
+		"player" | "mana" | "progression" | "bag" | "equipment"
+	>,
 	action: ConsumeAction,
 ):
 	| { player: PlayerStats; mana: number; bag: Bag; event: ConsumptionEvent }
@@ -28,7 +31,9 @@ export const consumeItem = (
 	const { resource, amount } = definition.recovery;
 	const current = resource === "health" ? player.health : mana;
 	const maximum =
-		resource === "health" ? player.maxHealth : maximumMana(state.progression);
+		resource === "health"
+			? player.maxHealth
+			: maximumMana(state.progression, state.equipment);
 	if (current >= maximum)
 		return { error: `You are already at full ${resource}.` };
 	const recovered = Math.min(amount, maximum - current);

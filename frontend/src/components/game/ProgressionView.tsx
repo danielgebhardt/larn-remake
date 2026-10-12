@@ -7,20 +7,23 @@ import {
 	progressionProgress,
 } from "../../domain/game/Progression";
 import type { TimedEffect } from "../../domain/game/TimedEffects";
+import type { Equipment } from "../../domain/items/Equipment";
 
 import ManaDisplay from "./ManaDisplay";
 
 const ProgressionView = ({
 	progression,
+	equipment,
 	mana,
 	effects = [],
 }: {
 	progression: Progression;
+	equipment?: Equipment;
 	effects?: readonly TimedEffect[];
 	mana: number;
 }) => {
 	const { level, earned, needed, remaining } = progressionProgress(progression);
-	const attributes = deriveAttributes(progression, effects);
+	const attributes = deriveAttributes(progression, effects, equipment);
 	return (
 		<section
 			aria-label="Character progression"
@@ -30,6 +33,11 @@ const ProgressionView = ({
 				<Sparkles aria-hidden="true" className="size-4 text-primary" />
 				Progression
 			</h3>
+			{equipment && (equipment.leftRing || equipment.rightRing) && (
+				<p className="text-xs text-primary">
+					Attributes and capacity include equipped ring bonuses.
+				</p>
+			)}
 			<div className="flex flex-wrap items-baseline justify-between gap-2">
 				<output
 					aria-label="Character level"
@@ -106,6 +114,7 @@ const ProgressionView = ({
 					Intelligence {attributes.intelligence}
 				</output>
 				<ManaDisplay
+					equipment={equipment}
 					mana={mana}
 					progression={progression}
 					label="Character mana"

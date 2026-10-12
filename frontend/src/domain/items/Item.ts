@@ -12,6 +12,12 @@ export type ItemDefinition = {
 		| "ring";
 	attackBonus: number;
 	armor: number;
+	stats?: Partial<
+		Record<
+			"strength" | "dexterity" | "intelligence" | "health" | "mana",
+			number
+		>
+	>;
 	description: string;
 	minFloor: number;
 	maxFloor: number;
@@ -23,11 +29,76 @@ export const ITEM_DEFINITIONS = {
 		name: "Copper ring",
 		type: "ring",
 		attackBonus: 0,
-		armor: 0,
+		armor: 1,
 		description:
-			"A plain copper band. Fits either ring slot; it grants no magical bonus.",
+			"A warded copper band. Adds 1 armor while worn in either ring slot.",
 		minFloor: 2,
 		maxFloor: 8,
+		foundWeight: 1,
+		dropWeight: 1,
+	},
+	"ring-strength": {
+		name: "Ring of Strength",
+		type: "ring",
+		attackBonus: 0,
+		armor: 0,
+		stats: { strength: 2 },
+		description:
+			"Adds 2 strength while equipped in either ring slot. Capacity increases do not refill resources.",
+		minFloor: 4,
+		maxFloor: 15,
+		foundWeight: 1,
+		dropWeight: 1,
+	},
+	"ring-dexterity": {
+		name: "Ring of Dexterity",
+		type: "ring",
+		attackBonus: 0,
+		armor: 0,
+		stats: { dexterity: 2 },
+		description:
+			"Adds 2 dexterity while equipped in either ring slot. Capacity increases do not refill resources.",
+		minFloor: 4,
+		maxFloor: 15,
+		foundWeight: 1,
+		dropWeight: 1,
+	},
+	"ring-intelligence": {
+		name: "Ring of Intelligence",
+		type: "ring",
+		attackBonus: 0,
+		armor: 0,
+		stats: { intelligence: 2 },
+		description:
+			"Adds 2 intelligence while equipped in either ring slot. Capacity increases do not refill resources.",
+		minFloor: 6,
+		maxFloor: 20,
+		foundWeight: 1,
+		dropWeight: 1,
+	},
+	"ring-vitality": {
+		name: "Ring of Vitality",
+		type: "ring",
+		attackBonus: 0,
+		armor: 0,
+		stats: { health: 4 },
+		description:
+			"Adds 4 health while equipped in either ring slot. Capacity increases do not refill resources.",
+		minFloor: 5,
+		maxFloor: 20,
+		foundWeight: 1,
+		dropWeight: 1,
+	},
+	"ring-mana": {
+		name: "Ring of Mana",
+		type: "ring",
+		attackBonus: 0,
+		armor: 0,
+		stats: { mana: 4 },
+		description:
+			"Adds 4 mana while equipped in either ring slot. Capacity increases do not refill resources.",
+		minFloor: 5,
+		maxFloor: 20,
 		foundWeight: 1,
 		dropWeight: 1,
 	},
@@ -394,6 +465,13 @@ export type ItemInstance = Readonly<{ id: string; kind: ItemKind }>;
 
 export type LootSource = "found" | "drop";
 export const validateItemDefinition = (definition: ItemDefinition): void => {
+	const stats = definition.stats ?? {};
+	if (
+		!Object.values(stats).every(
+			(value) => Number.isSafeInteger(value) && value >= 0,
+		)
+	)
+		throw new RangeError("Invalid equipment stat bonus.");
 	const { minFloor, maxFloor, foundWeight, dropWeight, armor, attackBonus } =
 		definition;
 	if (

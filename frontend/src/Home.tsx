@@ -438,6 +438,7 @@ const Home = ({
 							onActivate={spells.activate}
 						/>
 						<PlayerStatus
+							equipment={game.state.equipment}
 							mana={game.state.mana}
 							turn={turn}
 							player={player}

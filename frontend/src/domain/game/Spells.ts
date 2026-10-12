@@ -20,6 +20,7 @@ export type SpellDefinition = SpellDetails &
 				condition: EffectKind;
 				range: number;
 		  }
+		| { mode: "self"; effect: "condition"; condition: "renewing" }
 		| { mode: "self"; effect: "heal"; healing: number }
 	);
 
@@ -134,6 +135,27 @@ export const SPELL_DEFINITIONS = {
 			"Force one monster to retreat for three active phases instead of attacking. Cancels prepared attacks; blocked escape still consumes its action.",
 	},
 
+	"poison-dart": {
+		name: "Poison Dart",
+		mode: "targeted",
+		effect: "damage",
+		condition: "poisoned",
+		cost: 4,
+		range: 5,
+		minimumDamage: 1,
+		maximumDamage: 2,
+		description:
+			"Deal a small initial hit and poison a monster for three active phases. Poison deals 2 damage after its action; refreshing never stacks.",
+	},
+	renewal: {
+		name: "Renewal",
+		mode: "self",
+		effect: "condition",
+		condition: "renewing",
+		cost: 5,
+		description:
+			"Restore 2 health after monsters act for four committed turns, including this turn. Does not save you from a fatal hit.",
+	},
 	heal: {
 		name: "Heal",
 		mode: "self",

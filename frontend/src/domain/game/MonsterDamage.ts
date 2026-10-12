@@ -10,10 +10,12 @@ import type { GameState } from "./GameState";
 import { growManaCapacity } from "./Mana";
 import { gainExperience, HEALTH_PER_LEVEL } from "./Progression";
 import type { SpellKind } from "./Spells";
+import type { EffectKind } from "./TimedEffects";
 
 type DamageSource =
 	| { type: "player-hit" }
-	| { type: "spell-hit"; spell: SpellKind };
+	| { type: "spell-hit"; spell: SpellKind }
+	| { type: "condition-hit"; condition: EffectKind };
 
 // Melee and spells share one confirmed damage/kill reward path.
 export const damageMonster = (

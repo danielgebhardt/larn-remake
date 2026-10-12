@@ -112,7 +112,9 @@ const SpellsView = ({
 							</p>
 							<p className="text-xs text-muted-foreground">
 								{definition.mode === "self"
-									? "Self-cast: H or click its hotbar button after closing Character."
+									? spell === "heal"
+										? "Self-cast: H or click its hotbar button after closing Character."
+										: "Self-cast: use its assigned key or click its hotbar button after closing Character."
 									: `Targeted: Z or click its hotbar button after closing Character. Range ${definition.range} (horizontal and vertical distance combined), clear wall sight, and currently visible targets. Arrows or WASD cast at the nearest eligible monster straight in that direction; Enter or a target click casts at the highlighted target. Escape or Z cancels for free.`}
 							</p>
 						</section>

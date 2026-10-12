@@ -1,8 +1,10 @@
 import {
+	Droplets,
 	Flame,
 	Ghost,
 	HeartHandshake,
 	HeartPlus,
+	HeartPulse,
 	Moon,
 	Mountain,
 	Network,
@@ -27,6 +29,8 @@ export const SPELL_ICONS = {
 	web: Network,
 	sleep: Moon,
 	fear: Ghost,
+	"poison-dart": Droplets,
+	renewal: HeartPulse,
 };
 const SpellHotbarView = ({
 	knownSpells,

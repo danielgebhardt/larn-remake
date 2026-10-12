@@ -25,9 +25,10 @@ export const isSaveDocumentV5 = (value: unknown): value is SaveDocumentV5 => {
 				typeof effect.actorId === "string" &&
 				effect.actorId.length > 0 &&
 				effect.actorId.length <= 200 &&
-				Number.isInteger(effect.floorNumber) &&
-				effect.floorNumber >= 1 &&
-				effect.floorNumber <= 20 &&
+				(effect.floorNumber === null ||
+					(Number.isInteger(effect.floorNumber) &&
+						effect.floorNumber >= 1 &&
+						effect.floorNumber <= 20)) &&
 				typeof effect.kind === "string" &&
 				Object.hasOwn(EFFECT_DEFINITIONS, effect.kind) &&
 				Number.isInteger(effect.remaining) &&

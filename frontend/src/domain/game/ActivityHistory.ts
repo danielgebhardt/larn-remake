@@ -20,6 +20,17 @@ export type ActivityEvent = { turn: number } & (
 			condition: EffectKind;
 			duration: number;
 	  }
+	| {
+			type: "condition-hit";
+			condition: EffectKind;
+			monster: MonsterKind;
+			damage: number;
+	  }
+	| {
+			type: "player-condition-applied";
+			condition: EffectKind;
+			duration: number;
+	  }
 	| { type: "spell-healed"; spell: SpellKind; recovered: number }
 	| { type: "player-hit"; monster: MonsterKind; damage: number }
 	| { type: "monster-hit"; monster: MonsterKind; damage: number }

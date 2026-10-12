@@ -94,6 +94,15 @@ const victory = object({
 });
 
 const eventFields = {
+	"player-condition-applied": {
+		condition: oneOf(Object.keys(EFFECT_DEFINITIONS)),
+		duration: integer(1, 100),
+	},
+	"condition-hit": {
+		monster: monsterKind,
+		condition: oneOf(Object.keys(EFFECT_DEFINITIONS)),
+		damage: natural,
+	},
 	"condition-applied": {
 		monster: monsterKind,
 		condition: oneOf(Object.keys(EFFECT_DEFINITIONS)),

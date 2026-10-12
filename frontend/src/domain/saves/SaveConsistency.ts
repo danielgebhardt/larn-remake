@@ -30,14 +30,16 @@ export const isConsistentSave = (
 		if (
 			new Set(effects.map((effect) => `${effect.actorId}:${effect.kind}`))
 				.size !== effects.length ||
-			effects.some(
-				(effect) =>
-					!state.monsters.some(
-						(actor) =>
-							actor.id === effect.actorId &&
-							actor.floorNumber === effect.floorNumber &&
-							actor.health > 0,
-					),
+			effects.some((effect) =>
+				effect.actorId === "player"
+					? effect.floorNumber !== null || effect.kind !== "renewing"
+					: effect.kind === "renewing" ||
+						!state.monsters.some(
+							(actor) =>
+								actor.id === effect.actorId &&
+								actor.floorNumber === effect.floorNumber &&
+								actor.health > 0,
+						),
 			)
 		)
 			return false;

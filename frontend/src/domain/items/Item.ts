@@ -243,6 +243,32 @@ export const ITEM_DEFINITIONS = {
 		dropWeight: 0,
 	},
 
+	"book-poison-dart": {
+		name: "Spellbook: Poison Dart",
+		type: "spellbook",
+		teaches: "poison-dart",
+		attackBonus: 0,
+		armor: 0,
+		description:
+			"Learn Poison Dart: 4 mana, range 5, 1–2 initial damage plus Intelligence, then 2 poison damage for three active phases. Reading uses one turn and no bag slot.",
+		minFloor: 4,
+		maxFloor: 13,
+		foundWeight: 0,
+		dropWeight: 0,
+	},
+	"book-renewal": {
+		name: "Spellbook: Renewal",
+		type: "spellbook",
+		teaches: "renewal",
+		attackBonus: 0,
+		armor: 0,
+		description:
+			"Learn Renewal: 5 mana, restores 2 health after retaliation for four turns. A fatal hit still kills you. Reading uses one turn and no bag slot.",
+		minFloor: 3,
+		maxFloor: 12,
+		foundWeight: 0,
+		dropWeight: 0,
+	},
 	"mana-potion": {
 		name: "Mana potion",
 		type: "potion",

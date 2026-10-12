@@ -16,7 +16,7 @@ describe("Floor-aware monster catalog", () => {
 			detectionRadius: 6,
 			preparesAttack: true,
 			minFloor: 4,
-			maxFloor: 20,
+			maxFloor: 12,
 			spawnWeight: 1,
 		});
 	});
@@ -28,7 +28,7 @@ describe("Floor-aware monster catalog", () => {
 			detectionRadius: 6,
 			experienceReward: 6,
 			minFloor: 2,
-			maxFloor: 20,
+			maxFloor: 10,
 			spawnWeight: 1,
 		});
 	});
@@ -51,7 +51,17 @@ describe("Floor-aware monster catalog", () => {
 		[3, ["goblin", "giant-rat", "orc", "goblin-archer"]],
 		[4, ["goblin", "giant-rat", "orc", "goblin-archer", "dungeon-brute"]],
 		[5, ["goblin", "orc", "goblin-archer", "dungeon-brute"]],
-		[20, ["goblin", "orc", "goblin-archer", "dungeon-brute"]],
+		[
+			20,
+			[
+				"stone-golem",
+				"wraith",
+				"wyvern",
+				"frost-giant",
+				"necromancer",
+				"demon-warden",
+			],
+		],
 		[21, []],
 	] as const)("offers the eligible monsters on floor %i", (floor, kinds) => {
 		if (kinds.length === 0) expect(eligibleMonsterKinds(floor)).toEqual([]);

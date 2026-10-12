@@ -17,6 +17,8 @@ import {
 } from "@/components/ui/sheet";
 import DungeonLegend from "../components/dungeon/DungeonLegend.tsx";
 import MonsterIcon from "../components/monsters/MonsterIcon";
+import ObservedCreatures from "../components/monsters/ObservedCreatures";
+import type { VisibilityGrid } from "../domain/dungeon/Visibility";
 import { MANA_RECOVERY_INTERVAL } from "../domain/game/Mana";
 import {
 	MONSTER_HIT_CHANCE,
@@ -24,6 +26,7 @@ import {
 } from "../domain/game/MeleeRules";
 import { HEALTH_PER_LEVEL, MAX_PLAYER_LEVEL } from "../domain/game/Progression";
 import { SPELL_DEFINITIONS } from "../domain/game/Spells";
+import type { Monster } from "../domain/monsters/Monster";
 import { MONSTER_DEFINITIONS } from "../domain/monsters/Monster";
 
 const Keycap = ({
@@ -46,7 +49,13 @@ const movementControls = [
 	{ direction: "down", key: "S", Icon: ArrowDown },
 	{ direction: "right", key: "D", Icon: ArrowRight },
 ];
-const DungeonHelp = () => (
+const DungeonHelp = ({
+	monsters,
+	visible,
+}: {
+	monsters?: readonly Monster[];
+	visible?: VisibilityGrid;
+}) => (
 	<SheetContent className="overflow-y-auto data-[side=right]:w-full">
 		<SheetHeader>
 			<SheetTitle>Help / Controls</SheetTitle>
@@ -180,9 +189,10 @@ const DungeonHelp = () => (
 					<li>
 						<span className="font-medium text-foreground">Equipment.</span> Open
 						Character to inspect items, equip carried gear, or unequip an
-						occupied slot. Main/off hand, chest, and head are available; armor
-						from shield, chest, and head adds together. Successful gear changes
-						use a turn; inspecting items is free.
+						occupied slot. Main/off hand, chest, head and two rings are
+						available; armor from equipped gear adds together. Capacity
+						increases do not refill resources. Successful gear changes use a
+						turn; inspecting items is free.
 					</li>
 					<li>
 						<span className="font-medium text-foreground">Items.</span> Use G to
@@ -217,13 +227,17 @@ const DungeonHelp = () => (
 					</li>
 				</ul>
 			</section>
+			<ObservedCreatures monsters={monsters} visible={visible} />
 			<section
 				aria-label="Enemy tactics"
 				className="grid gap-3 rounded-lg border p-4 text-sm"
 			>
 				<h3 className="font-medium">Enemy tactics</h3>
 				<div className="flex items-center gap-2 font-medium">
-					<MonsterIcon kind="goblin-archer" /> Goblin archer
+					<span className="size-5 shrink-0">
+						<MonsterIcon kind="goblin-archer" />
+					</span>{" "}
+					Goblin archer
 				</div>
 				<p>
 					Archers shoot at distance 2–
@@ -234,7 +248,10 @@ const DungeonHelp = () => (
 					same turn.
 				</p>
 				<div className="flex items-center gap-2 font-medium">
-					<MonsterIcon kind="dungeon-brute" /> Dungeon brute
+					<span className="size-5 shrink-0">
+						<MonsterIcon kind="dungeon-brute" />
+					</span>{" "}
+					Dungeon brute
 				</div>
 				<p>
 					A brute marks a fixed tile before its heavy attack. The danger border
@@ -247,6 +264,11 @@ const DungeonHelp = () => (
 					the attack. Browsing menus, canceled targeting and rejected actions
 					are free. Changing floors pauses a prepared attack; it retains the
 					original target when you return.
+				</p>
+				<p>
+					Breath attacks mark an area and show a response countdown above the
+					map. Leave the highlighted tiles before the blast resolves. Walls
+					block the footprint; changing floors pauses the warning.
 				</p>
 			</section>
 			<section

@@ -413,7 +413,12 @@ const Home = ({
 							<HelpCircleIcon aria-hidden="true" focusable="false" />
 							Help
 						</SheetTrigger>
-						<DungeonHelp />
+						<DungeonHelp
+							monsters={activeMonsters}
+							visible={
+								fogConfiguration.enabled ? exploration.visible : undefined
+							}
+						/>
 					</Sheet>
 				}
 			/>

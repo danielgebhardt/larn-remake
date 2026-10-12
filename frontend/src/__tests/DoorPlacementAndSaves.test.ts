@@ -24,7 +24,9 @@ it("seeds doors in straight passage tiles without occupying actors, loot or prot
 	);
 	const first = createGameState(run);
 	expect(createGameState(run).objects).toEqual(first.objects);
-	expect(first.objects.length).toBeGreaterThan(0);
+	expect(
+		first.objects.filter((object) => object.kind === "door").length,
+	).toBeGreaterThan(0);
 	for (const door of first.objects.filter((object) => object.kind === "door")) {
 		expect(protectedFloorLocations(run, door.floorNumber)).not.toContainEqual(
 			door.coordinate,

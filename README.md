@@ -447,3 +447,5 @@ Elemental resistance halves damage (minimum 1) and weakness doubles it; activity
 New adventures can contain closed doors in passages. Bump a door to open it, or press **E** to open/close a nearby door. A successful interaction uses one turn. Closed doors block movement and sight, including spells; monsters currently cannot open them. Occupied doors cannot be closed. Door state persists in saves; older saved adventures keep their original floors without newly added doors.
 
 Gold is tracked separately from bag capacity. Walk onto coin caches to collect them automatically; defeated monsters also grant seeded, depth-scaled gold. The total appears above the dungeon, in Character and in the victory summary. Shops are deferred.
+
+Treasure chests can appear in safe room tiles. Press **E** within reach to open one for a turn. Its seeded, depth-appropriate reward remains on the floor even with a full bag. Walk onto the reward and press **G** to collect it. An opened chest cannot pay again, including after loading.

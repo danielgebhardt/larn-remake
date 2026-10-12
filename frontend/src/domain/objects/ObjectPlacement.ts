@@ -84,32 +84,44 @@ export const spawnRunObjects = (
 			});
 		}
 	}
-	for (const floor of run.floors) {
-		const candidates = availableItemLocations(run, floor, monsters, [
-			...items,
-			...objects,
-		]);
-		for (
-			let index = 1;
-			index <= OBJECT_DEFINITIONS.gold.maxPerFloor && candidates.length;
-			index++
-		) {
-			const random = createSeededRandom(
-				hashStringToUint32(
-					`${run.seed}:${floor.floorNumber}:object:gold:${index}:tile`,
-				),
-			);
-			const [coordinate] = candidates.splice(
-				Math.floor(random() * candidates.length),
-				1,
-			);
-			objects.push({
-				id: `floor:${floor.floorNumber}:object:gold:${index}`,
-				kind: "gold",
-				floorNumber: floor.floorNumber,
-				coordinate,
-				activated: false,
-			});
+	for (const [kind, definition] of Object.entries(OBJECT_DEFINITIONS)) {
+		if (definition.placement !== "room") continue;
+		for (const floor of run.floors) {
+			if (
+				floor.floorNumber < definition.minFloor ||
+				floor.floorNumber > definition.maxFloor
+			)
+				continue;
+			const candidates = availableItemLocations(run, floor, monsters, [
+				...items,
+				...objects,
+			]);
+			for (
+				let index = 1;
+				index <= definition.maxPerFloor && candidates.length;
+				index++
+			) {
+				const namespace = `${run.seed}:${floor.floorNumber}:object:${kind}:${index}`;
+				if (
+					createSeededRandom(hashStringToUint32(`${namespace}:present`))() >=
+					definition.chance
+				)
+					continue;
+				const random = createSeededRandom(
+					hashStringToUint32(`${namespace}:tile`),
+				);
+				const [coordinate] = candidates.splice(
+					Math.floor(random() * candidates.length),
+					1,
+				);
+				objects.push({
+					id: `floor:${floor.floorNumber}:object:${kind}:${index}`,
+					kind: kind as DungeonObject["kind"],
+					floorNumber: floor.floorNumber,
+					coordinate,
+					activated: false,
+				});
+			}
 		}
 	}
 	return objects;

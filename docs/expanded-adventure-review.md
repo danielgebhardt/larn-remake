@@ -191,3 +191,9 @@ Save format v9 stores stable object identities, coordinates and open state; olde
 New floors contain up to two independently seeded coin caches in safe room tiles. Walking or blinking onto one collects it automatically in the already committed turn; spent caches disappear and cannot pay again. Every confirmed monster defeat also grants a depth-scaled, identity-seeded amount through the shared reward owner. That owner now checks the current living actor before damage/rewards, so a stale defeated reference cannot grant duplicate XP, items or gold.
 
 Gold appears in the HUD, Character footer and victory summary, consumes no inventory capacity and has no shop yet. Format v10 stores a nonnegative safe integer wallet; v1–v9 migration starts at zero, including completed-run summaries. Tests cover collection/revisits, duplicate kill calls, current/legacy saves, invalid balances and the actual Character display. Existing isolated page fixtures explicitly stub object generation, and combat narrative expectations include gold. Browser imported a cache scene and collected six gold by moving right.
+
+## #188 — Finite treasure chests
+
+A seeded chance places at most one chest per floor in a safe room tile. E opens a reachable chest for one normal turn. Its identity selects depth-appropriate ordinary loot from an independent reward stream; the item is retained on the floor and collected with G after walking onto it. A full bag never blocks opening or destroys the reward. Reopening is a free rejection, including after save/load.
+
+Room objects now share safe placement while retaining separate presence/location namespaces. The object’s existing activated field represents an opened chest, so format v10 can persist it without another structural migration. Three tests failed first, then passed for one-time rewards, full-bag retention, deep eligibility and played continuation. Browser E displayed the chest reward and keyboard pickup instructions.

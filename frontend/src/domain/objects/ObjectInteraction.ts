@@ -2,6 +2,7 @@ import { appendActivityEvents } from "../game/ActivityHistory";
 import type { GameState } from "../game/GameState";
 import { orthogonalDistance } from "../monsters/MonsterLocations";
 import { collectGoldAtPlayer } from "./Gold";
+import { openChest } from "./TreasureChests";
 export type InteractAction = { type: "interact"; objectId?: string };
 export const interactObject = (
 	state: GameState,
@@ -28,6 +29,7 @@ export const interactObject = (
 		? nearby.find((object) => object.id === action.objectId)
 		: [...nearby].sort((a, b) => order(a.coordinate) - order(b.coordinate))[0];
 	if (!object) return { error: "No object within reach." };
+	if (object.kind === "chest") return openChest(state, object);
 	if (object.kind === "gold")
 		return orthogonalDistance(object.coordinate, player) === 0 &&
 			!object.activated

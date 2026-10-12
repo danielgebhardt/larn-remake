@@ -1,4 +1,10 @@
-import { Coins, DoorClosed, DoorOpen, type LucideIcon } from "lucide-react";
+import {
+	Archive,
+	Coins,
+	DoorClosed,
+	DoorOpen,
+	type LucideIcon,
+} from "lucide-react";
 import type {
 	DungeonObject,
 	DungeonObjectKind,
@@ -7,6 +13,7 @@ import type {
 const icons: Record<DungeonObjectKind, LucideIcon> = {
 	door: DoorClosed,
 	gold: Coins,
+	chest: Archive,
 };
 const DungeonObjectIcon = ({ object }: { object: DungeonObject }) => {
 	const Icon =

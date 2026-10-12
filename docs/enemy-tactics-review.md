@@ -1,6 +1,6 @@
 # Distinct enemy tactics: review guide
 
-Epic #146, branch `codex/enemy-tactics`. Implement stories one commit at a time and pause for developer review. Stories #147–151 are implemented for review. The final replay/playtest checkpoints remain outstanding.
+Epic #146, branch `codex/enemy-tactics`. Implement stories one commit at a time and pause for developer review. Stories #147–152 are implemented for review. The final diagnostic/balance/playtest checkpoint remains outstanding.
 
 ## #147: Instance intent and compatible save evolution
 
@@ -78,3 +78,20 @@ Tests first produced 12 expected failures before enabling the catalog entries. U
 Browser review imports a validated seed-123 50×50×5 generated population on isolated port 5174. Only the player's review position and fog setting were adjusted to inspect floor 4; monster types and initial positions came from ordinary generation. Floor 4 contained all five kinds with twelve actors. One real wait prepared the nearby brute's attack; Z selected it, Escape canceled for free, and Left dodged on turn 2, cleared the warning and logged avoidance. The import restored map focus, and the goblin-and-bow icon is shared by Help/map. The existing unavailable backend diagnostic is unchanged.
 
 Verification: 160 Vitest files / 1,531 tests, Biome and standalone typecheck pass. The commit hook repeats the full frontend suite and TypeScript/Vite build. Pause before #152 (save/replay and complete-adventure integration).
+
+
+## #152: Save/load continuation and full adventure integration
+
+This story adds regression coverage and documentation; existing production turn, persistence and focus ownership already satisfy these checks. It does not introduce another save version, rebuild actors on load, or change combat values. Domain and adapter scenarios use real seeded rolls. The separate short complete-adventure scenario uses landed nominal hits to isolate integration without becoming a balance golden test.
+
+`TacticalReplayTestHelpers.ts` defines a valid five-floor mixed encounter: one brute, one clear-shot archer, a wounded goblin, health/mana potions and the deepest-floor cure. A wait actually prepares the brute and resolves the archer's shot. A follow-up sequence includes a free invalid pickup, a dodge, spells, two kills, seeded loot, potion recovery and further brute combat. The fixture asserts these events occurred, avoiding a vacuous replay of an empty or already-ended fight.
+
+`TacticalSaveReplay.test.ts` compares uninterrupted continuation with both real local-storage load and FileReader import at three checkpoints: before preparation, immediately after preparation/shot, and after mixed kills/recovery. After each subsequent action it compares the entire action resolution and records actual seeded D20/damage values plus attack contexts for equality. This includes resources, positions/intent, rejected-action errors, turn costs, kills, drops and ordered history. Six final waits let the surviving brute approach and resolve further rolls even from the post-fight checkpoint. Death and victory round trips remain terminal. Malformed intent, out-of-bounds targets and protected actor positions fail through the real adapters without replacing a valid slot. A literal v1 file migrates to the same idle actors through both adapters and leaves original slot bytes unchanged; this does not promise matching outcomes across different rules versions.
+
+`HomeTacticalSaves.test.tsx` focuses on page ownership: confirmed local load and direct file import restore map focus; Character browsing pauses preparation; I closes it; Z selection/cancellation is free; H performs healing before retaliation without clicking the map. A subsequent confirmed save exposes the real page-owned aggregate for comparison with the domain action, without a state-inspection hook. Three representative invalid imports retain the current map/history/turn and prior slot while reporting an error. Existing save/load, file, keyboard, stair, death and victory suites retain their focused coverage.
+
+`TacticalAdventure.test.ts` uses five linked, short two-row rooms. It takes archer shots, defeats the archer with spells, encounters the brute, saves during actual preparation, restores and dodges, combines a spell/potion/melee to defeat it, earns both rewards, visits the deepest floor, recovers the cure and returns through cleared floors to victory. Every walked step checks that the player survives and reaches the tile or takes the final stair transition. Cleared actors stay absent on return; victory freezes actions and a fresh scenario resets the encounter. Save parsing is exercised at the battle checkpoint.
+
+Generated-run smoke review: `node scripts/review-adventure.mjs 0 1 123 987 --policy spell-aware --max-actions 1000` on default 15×15×5 yielded wins for seeds 0/1/987 at turns 127/144/157 and death for seed 123 on floor 2 at turn 22. No action-limit or no-route outcomes. This existing omniscient policy has no explicit brute dodge/cover response; its limited combat counters also omit tactical event families. Improving diagnostic policy/metrics and reviewing balance belong to #153, rather than tuning until this small batch wins. No new browser checkpoint is claimed for this test-only story; the real Home integration cases cover the restored shortcuts.
+
+Final verification runs through the commit hook: 163 frontend test files / 1,546 tests, Biome and TypeScript/Vite build. Standalone typecheck passes. Pause before #153, the final diagnostics and human play checkpoint.

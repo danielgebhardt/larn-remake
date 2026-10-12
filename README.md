@@ -369,7 +369,7 @@ Rule/ownership/AI tests use explicit controlled rolls where random outcomes woul
 
 ## Character progression
 
-Characters start at level 1 with 0 XP. Confirmed player kills award rat/goblin/orc rewards of 2/5/10 XP. Total XP is retained, with levels derived from cumulative thresholds `10 × n × (n − 1) / 2`: levels 1–5 require 0/10/30/60/100 XP. Character level is capped at 5 for now, independently of the 5–20-floor dungeon configuration.
+Characters start at level 1 with 0 XP. Confirmed player kills award rat/goblin/archer/orc/brute rewards of 2/5/6/10/12 XP. Total XP is retained, with levels derived from cumulative thresholds `10 × n × (n − 1) / 2`: levels 1–5 require 0/10/30/60/100 XP. Character level is capped at 5 for now, independently of the 5–20-floor dungeon configuration.
 
 Each gained level adds 2 maximum health and 2 current health, preserving missing health rather than granting a full heal. For example, 6/10 becomes 8/12. Multiple-level rewards apply every earned benefit through level 5. XP continues accumulating at the cap, but further rewards do not heal or grow attributes. `Progression.ts` owns the curve, cap, and health benefit; monster definitions own their rewards. XP and health level-ups apply within the kill action before surviving monsters retaliate, with no extra turn. The log records the reward and every crossed level after the death message. The map status shows level; Character has a progression column with total and within-level XP. At the cap, it shows maximum level reached. Victory captures final level and total XP. Both I and C toggle the combined Character/Inventory dialog; Escape also closes it.
 
@@ -405,7 +405,7 @@ Recover **1 mana at global turns 30, 60, 90…**, after monster retaliation, cap
 
 The Character dialog defaults to **Character** each time it opens; **Spells** lists the same authoritative known spells as the hotbar with derived effects, costs and controls. Tab browsing is free and does not cast or move. Close the dialog to use the hotbar or gameplay shortcuts. Levels improve potency and capacity; they **never unlock spells**. Future new spells require found spellbooks, which are not implemented yet.
 
-The adventure diagnostic keeps its existing **baseline** policy and offers `--policy spell-aware` for useful gear, visible ranged casts, healing and mana potion use without deliberate safe resting. Both policies are omniscient route walkers; report names, rules and action budgets alongside results. See [mana epic review notes](docs/mana-review.md) for commands, reproducible outcomes, commit order and the human playtest checkpoint.
+The adventure diagnostic retains **baseline** and **spell-aware** and adds `--policy tactical-aware` for visible fixed-target dodges, cover before recovery, and archer priority. Its bounded cover memory is local to the diagnostic run. All policies use omniscient routes and are not human win-rate estimates. Output records tactical attacks, resolved damage (including overkill), level-up floor/turn, mixtures, gear usefulness, spells and potions; budget exhaustion stays separate from death. `scripts/review-performance.mjs` measures crowded pursuit and tactical domain overhead independently of deterministic run output. See [enemy tactics playtest notes](docs/enemy-tactics-playtest.md) for matched/repeated seeds, timings, commands, limitations and your playtest checklist; earlier spell comparisons remain in [mana review notes](docs/mana-review.md).
 
 
 ## Manual adventure saves

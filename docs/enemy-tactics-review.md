@@ -1,6 +1,6 @@
 # Distinct enemy tactics: review guide
 
-Epic #146, branch `codex/enemy-tactics`. Implement stories one commit at a time and pause for developer review. Stories #147–152 are implemented for review. The final diagnostic/balance/playtest checkpoint remains outstanding.
+Epic #146, branch `codex/enemy-tactics`. Implement stories one commit at a time and pause for developer review. Stories #147–153 are implemented for review. Agent diagnostics/browser checks are complete; developer playtest, acceptance and merge remain pending.
 
 ## #147: Instance intent and compatible save evolution
 
@@ -95,3 +95,14 @@ This story adds regression coverage and documentation; existing production turn,
 Generated-run smoke review: `node scripts/review-adventure.mjs 0 1 123 987 --policy spell-aware --max-actions 1000` on default 15×15×5 yielded wins for seeds 0/1/987 at turns 127/144/157 and death for seed 123 on floor 2 at turn 22. No action-limit or no-route outcomes. This existing omniscient policy has no explicit brute dodge/cover response; its limited combat counters also omit tactical event families. Improving diagnostic policy/metrics and reviewing balance belong to #153, rather than tuning until this small batch wins. No new browser checkpoint is claimed for this test-only story; the real Home integration cases cover the restored shortcuts.
 
 Final verification runs through the commit hook: 163 frontend test files / 1,546 tests, Biome and TypeScript/Vite build. Standalone typecheck passes. Pause before #153, the final diagnostics and human play checkpoint.
+
+
+## #153: Tactical diagnostics, performance and final review
+
+The diagnostic retains old policies and adds a named tactical-aware alternative plus complete combat/damage, equipment, mixture and level-up counters. Tests first exposed missing dodging/cover behavior and later a cover/recovery oscillation. A bounded diagnostic-only recovery detour fixes the latter. All five matched seed batches (two sizes × two policies, plus one maximum-size seed) were repeated with byte-identical output. No population, resource or combat-stat tuning was applied.
+
+The one production change is a measured blocked-pursuit early exit: four unavailable destinations beside the player imply no possible path. A structural terrain-read regression failed before the fix. Synthetic crowded phase median fell from 16.596 ms to 0.036 ms; reachable pursuit and ranged/intent costs remain small. Existing BFS ordering and whole-run old-policy outputs are preserved.
+
+Detailed [playtest notes](enemy-tactics-playtest.md) and [recorded results](enemy-tactics-results.jsonl) contain commands, metrics, limitations, browser cover/dodge/keyboard/export-resume checks in both themes, and the human handoff. Large runs still reach level 5 on floors 2–3 and observe mostly redundant equipment. These are follow-up tuning decisions, not changes hidden inside this story.
+
+Verification: 166 frontend files / 1,559 tests, Biome, standalone typecheck and commit-hook TypeScript/Vite build. Fresh backend tests: two passed. All epic implementation is ready for review; stop here for developer playtest and acceptance.

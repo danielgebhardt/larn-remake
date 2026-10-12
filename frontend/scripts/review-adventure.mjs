@@ -43,6 +43,15 @@ try {
 	const { chooseSpellAwareAction } = await server.ssrLoadModule(
 		"/scripts/review-policy.mjs",
 	);
+	const {
+		createReviewMetrics,
+		observeReviewEquipment,
+		recordReviewTurn,
+		summarizeReviewMetrics,
+	} = await server.ssrLoadModule("/scripts/review-metrics.mjs");
+	const { chooseTacticalAwareAction } = await server.ssrLoadModule(
+		"/scripts/review-tactics.mjs",
+	);
 	const { maximumMana } = await server.ssrLoadModule(
 		"/src/domain/game/Mana.ts",
 	);
@@ -80,12 +89,9 @@ try {
 				})),
 			};
 			let kills = 0;
-			const combat = {
-				"player-hit": 0,
-				"player-missed": 0,
-				"monster-hit": 0,
-				"monster-missed": 0,
-			};
+			const metrics = createReviewMetrics();
+			const observedEquipment = new Set();
+			const tacticalMemory = {};
 			let potions = 0;
 			const potionUses = { "healing-potion": 0, "mana-potion": 0 };
 			const casts = { "magic-missile": 0, heal: 0 };
@@ -132,8 +138,11 @@ try {
 							value(ITEM_DEFINITIONS[current.kind])
 					);
 				});
-				if (options.policy === "spell-aware") {
-					action = chooseSpellAwareAction(state, route);
+				if (options.policy !== "baseline") {
+					action =
+						options.policy === "tactical-aware"
+							? chooseTacticalAwareAction(state, route, tacticalMemory)
+							: chooseSpellAwareAction(state, route);
 					if (!action) {
 						reason = "no route";
 						break;
@@ -198,10 +207,10 @@ try {
 						action = { type: "move", direction: path[0] };
 					}
 				}
+				observeReviewEquipment(metrics, state, observedEquipment);
 				const previousFloor = state.run.activeFloor;
 				actions.push(action);
 				const before = state.monsters.length;
-				const previousEventId = state.activityHistory.nextId;
 				const consumed =
 					action.type === "consume"
 						? state.bag.items.find((item) => item.id === action.itemId)
@@ -211,6 +220,7 @@ try {
 					throw new Error(
 						`Policy ${options.policy} rejected action at seed ${seed}, turn ${state.turn}: ${JSON.stringify(action)} (${result.error ?? "no committed turn"})`,
 					);
+				recordReviewTurn(metrics, state, action, result.state);
 				state = result.state;
 				if (consumed && Object.hasOwn(potionUses, consumed.kind)) {
 					potionUses[consumed.kind]++;
@@ -219,12 +229,7 @@ try {
 				if (action.type === "cast") casts[action.spell]++;
 
 				kills += before - state.monsters.length;
-				for (const entry of state.activityHistory.entries.filter(
-					(entry) => entry.id >= previousEventId,
-				)) {
-					if (Object.hasOwn(combat, entry.event.type))
-						combat[entry.event.type]++;
-				}
+
 				visited.add(state.run.activeFloor);
 				if (state.run.activeFloor !== previousFloor)
 					checkpoints.push({
@@ -264,7 +269,11 @@ try {
 				health: state.player.health,
 				kills,
 				potions,
-				combat,
+				...metrics,
+				decisions: {
+					dodgeSteps: tacticalMemory.dodgeSteps ?? 0,
+					coverSteps: tacticalMemory.coverSteps ?? 0,
+				},
 				equipment: Object.fromEntries(
 					Object.entries(state.equipment).map(([slot, item]) => [
 						slot,
@@ -280,6 +289,7 @@ try {
 			JSON.stringify({
 				...summarizeReviews(results, configuration, options.maxActions),
 				policy: options.policy,
+				...summarizeReviewMetrics(results),
 				casts: Object.fromEntries(
 					["magic-missile", "heal"].map((spell) => [
 						spell,

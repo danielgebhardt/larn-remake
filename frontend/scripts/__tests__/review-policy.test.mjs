@@ -13,7 +13,7 @@ const quiet = () => ({
 });
 const route = () => ["right"];
 describe("Explicit adventure review policies", () => {
-	it("names the baseline by default and accepts only the named spell-aware alternative", () => {
+	it("names the baseline by default and accepts explicit diagnostic alternatives", () => {
 		const defaults = { rows: 15, cols: 15, floorCount: 5 };
 		const limits = {};
 		expect(parseReviewOptions([], defaults, limits, 0xffffffff).policy).toBe(
@@ -27,6 +27,14 @@ describe("Explicit adventure review policies", () => {
 				0xffffffff,
 			).policy,
 		).toBe("spell-aware");
+		expect(
+			parseReviewOptions(
+				["--policy", "tactical-aware"],
+				defaults,
+				limits,
+				0xffffffff,
+			).policy,
+		).toBe("tactical-aware");
 		expect(() =>
 			parseReviewOptions(["--policy", "unknown"], defaults, limits, 0xffffffff),
 		).toThrow(/policy/);

@@ -268,7 +268,7 @@ All 1,425 frontend tests, Biome, TypeScript checks and the production build pass
 
 ## Next epic: Distinct enemy tactics
 
-[Epic #146](https://github.com/danielgebhardt/larn-remake/issues/146) is underway on `codex/enemy-tactics`. Stories #147–152 implement instance-owned intent, save format v2 with validated v1 migration, controlled archer shots, the brute’s fixed-tile response opportunity, tactical visuals/Help with fog-safe threat markers, seeded floor-appropriate mixed populations within existing caps, and save/replay plus complete-adventure integration coverage. The save/replay story is pending developer review. Story #153 remains planned and requires authorization before implementation. See [the story review guide](docs/enemy-tactics-review.md). The readiness cleanup above is merged; its turn and protected-arrival contracts are reused.
+[Epic #146](https://github.com/danielgebhardt/larn-remake/issues/146) is underway on `codex/enemy-tactics`. Stories #147–153 implement instance-owned intent, save format v2 with validated v1 migration, controlled archer shots, the brute’s fixed-tile response opportunity, tactical visuals/Help with fog-safe threat markers, seeded floor-appropriate mixed populations within existing caps, save/replay plus complete-adventure integration coverage, and matched tactical diagnostics with a measured blocked-pursuit optimization. Implementation is ready for developer review and human playtest; acceptance and merge remain pending. Balance values remain unchanged. See [final playtest results and recommendations](docs/enemy-tactics-playtest.md). See [the story review guide](docs/enemy-tactics-review.md). The readiness cleanup above is merged; its turn and protected-arrival contracts are reused.
 
 | Order | Story | Outcome |
 | --- | --- | --- |
@@ -280,7 +280,7 @@ All 1,425 frontend tests, Biome, TypeScript checks and the production build pass
 | 6 | [#152](https://github.com/danielgebhardt/larn-remake/issues/152) | Resume/replay, malformed intent, ended-run and complete-adventure regressions. |
 | 7 | [#153](https://github.com/danielgebhardt/larn-remake/issues/153) | Matched diagnostics, human checkpoint and measured performance/balance review. |
 
-Archers appear on floors 2–20, brutes on 4–20, each with relative spawn weight 1. The brute aims at a fixed tile, so moving away can avoid its prepared blow; it does not silently follow the player. Inactive floors pause intent, and save/load retains it. Actors still take at most one action per committed turn. Start with existing population caps and 30-turn mana recovery, then review tuning explicitly. Creature projectile interception, retreat AI, generalized abilities, statuses, speed/initiative and respawns remain deferred.
+Archers appear on floors 2–20, brutes on 4–20, each with relative spawn weight 1. The brute aims at a fixed tile, so moving away can avoid its prepared blow; it does not silently follow the player. Inactive floors pause intent, and save/load retains it. Actors still take at most one action per committed turn. Existing population caps and 30-turn mana recovery are retained. The recorded review recommends a separate decision on early level-cap pacing and redundant equipment after human play, rather than tuning several systems together. Creature projectile interception, retreat AI, generalized abilities, statuses, speed/initiative and respawns remain deferred.
 
 ## Local save/resume and persistence
 

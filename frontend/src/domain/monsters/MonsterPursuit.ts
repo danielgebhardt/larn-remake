@@ -49,6 +49,21 @@ export const selectPursuitStep = (
 		)
 			blocked.add(coordinateKey(actor.coordinate));
 	}
+	// Every pursuit path must end beside the player. If those tiles are all
+	// blocked, avoid searching the entire floor for a destination that cannot exist.
+	if (
+		!offsets.some((offset) => {
+			const goal = {
+				row: run.playerCoordinate.row + offset.row,
+				col: run.playerCoordinate.col + offset.col,
+			};
+			return (
+				terrain[goal.row]?.[goal.col] === FLOOR &&
+				!blocked.has(coordinateKey(goal))
+			);
+		})
+	)
+		return undefined;
 	const visited = new Set([coordinateKey(monster.coordinate)]);
 	const queue: { coordinate: Coordinate; firstStep?: Coordinate }[] = [
 		{ coordinate: monster.coordinate },

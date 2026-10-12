@@ -39,6 +39,16 @@ describe("Explicit adventure review policies", () => {
 			parseReviewOptions(["--policy", "unknown"], defaults, limits, 0xffffffff),
 		).toThrow(/policy/);
 	});
+	it("accepts a diagnostic mana interval and rejects invalid experiments", () => {
+		const defaults = { rows: 60, cols: 60, floorCount: 20 };
+		expect(
+			parseReviewOptions(["--mana-recovery", "50"], defaults, {}, 0xffffffff)
+				.manaRecoveryInterval,
+		).toBe(50);
+		expect(() =>
+			parseReviewOptions(["--mana-recovery", "0"], defaults, {}, 0xffffffff),
+		).toThrow(/mana-recovery/);
+	});
 	it("ignores redundant equipment on the current tile and routes toward useful loot", () => {
 		const initial = quiet();
 		const redundant = {

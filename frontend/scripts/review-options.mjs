@@ -4,6 +4,7 @@ export const REVIEW_USAGE = `Usage: node scripts/review-adventure.mjs [seeds...]
   --floors N                    Dungeon depth, 5–20 (character cap 20)
   --max-actions N               Action budget per seed (default 500)
   --policy NAME                 baseline (default), spell-aware or tactical-aware
+  --mana-recovery N             Experimental turns per +1 mana (diagnostic process only)
   --summary-only                Print aggregate results only
   --help                        Show this usage
 Defaults: seeds 0, 1, 123, 987; 60×60; 20 floors.
@@ -53,7 +54,9 @@ export function parseReviewOptions(args, defaults, limits, maxSeed) {
 				limits[field].max,
 				arg,
 			);
-		} else if (arg === "--max-actions")
+		} else if (arg === "--mana-recovery")
+			options.manaRecoveryInterval = integer(args[++i], 1, 1000, arg);
+		else if (arg === "--max-actions")
 			options.maxActions = integer(args[++i], 1, Number.MAX_SAFE_INTEGER, arg);
 		else if (arg === "--seed-start")
 			seedStart = integer(args[++i], 0, maxSeed, arg);

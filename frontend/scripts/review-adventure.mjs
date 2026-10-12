@@ -14,7 +14,29 @@ const sumCounts = (records) =>
 			sum[key] = (sum[key] ?? 0) + value;
 		return sum;
 	}, {});
+let options;
 const server = await createServer({
+	plugins: [
+		{
+			name: "diagnostic-mana-interval",
+			transform(code, id) {
+				if (
+					!options?.manaRecoveryInterval ||
+					!id.endsWith("/src/domain/game/Mana.ts")
+				)
+					return;
+				const pattern = /export const MANA_RECOVERY_INTERVAL = \d+;/;
+				if (!pattern.test(code))
+					throw new Error(
+						"Cannot apply diagnostic mana interval: rule declaration changed.",
+					);
+				return code.replace(
+					pattern,
+					`export const MANA_RECOVERY_INTERVAL = ${options.manaRecoveryInterval};`,
+				);
+			},
+		},
+	],
 	configFile: false,
 	server: { middlewareMode: true, hmr: false, ws: false },
 	optimizeDeps: { noDiscovery: true, entries: [] },
@@ -25,6 +47,15 @@ try {
 		await server.ssrLoadModule("/src/domain/dungeon/DungeonRun.ts");
 	const { DEFAULT_RUN_CONFIGURATION, CONFIGURATION_LIMITS } =
 		await server.ssrLoadModule("/src/domain/dungeon/RunConfiguration.ts");
+	const { MAX_SEED } = await server.ssrLoadModule(
+		"/src/domain/dungeon/Seed.ts",
+	);
+	options = parseReviewOptions(
+		process.argv.slice(2),
+		DEFAULT_RUN_CONFIGURATION,
+		CONFIGURATION_LIMITS,
+		MAX_SEED,
+	);
 	const { createGameState } = await server.ssrLoadModule(
 		"/src/domain/game/GameState.ts",
 	);
@@ -39,9 +70,6 @@ try {
 	);
 	const { levelForExperience } = await server.ssrLoadModule(
 		"/src/domain/game/Progression.ts",
-	);
-	const { MAX_SEED } = await server.ssrLoadModule(
-		"/src/domain/dungeon/Seed.ts",
 	);
 	const { deriveAttributes } = await server.ssrLoadModule(
 		"/src/domain/game/Attributes.ts",
@@ -58,14 +86,8 @@ try {
 	const { chooseTacticalAwareAction } = await server.ssrLoadModule(
 		"/scripts/review-tactics.mjs",
 	);
-	const { maximumMana } = await server.ssrLoadModule(
+	const { maximumMana, MANA_RECOVERY_INTERVAL } = await server.ssrLoadModule(
 		"/src/domain/game/Mana.ts",
-	);
-	const options = parseReviewOptions(
-		process.argv.slice(2),
-		DEFAULT_RUN_CONFIGURATION,
-		CONFIGURATION_LIMITS,
-		MAX_SEED,
 	);
 	if (options.help) {
 		console.log(REVIEW_USAGE);
@@ -260,6 +282,7 @@ try {
 				maximumMana: maximumMana(state.progression, state.equipment),
 				knownSpells: state.knownSpells,
 				configuration,
+				manaRecoveryInterval: MANA_RECOVERY_INTERVAL,
 				maxActions: options.maxActions,
 				attributes: deriveAttributes(state.progression),
 				seed,
@@ -296,6 +319,7 @@ try {
 			JSON.stringify({
 				...summarizeReviews(results, configuration, options.maxActions),
 				policy: options.policy,
+				manaRecoveryInterval: MANA_RECOVERY_INTERVAL,
 				...summarizeReviewMetrics(results),
 				casts: sumCounts(results.map((result) => result.casts)),
 				potionUses: sumCounts(results.map((result) => result.potionUses)),

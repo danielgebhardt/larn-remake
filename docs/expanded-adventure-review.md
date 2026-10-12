@@ -275,3 +275,17 @@ Verified at 1280×720 in the browser: the default Character panel's content and 
 Implemented before #197/#198 so their measurements include the new content. Unknown books are useful even with a full bag; rings use the compatible slot selected by the shared comparison. Recovery includes all catalog recovery potions and antidotes, with equipment-aware mana capacity. Acquired damage spells are scored using capped expected damage per mana, elemental traits, known conditions and useful life drain; area spells score their actual wall-aware footprint. Estimates never inspect hidden combat rolls. Tactical runs walk outward across consecutive responses to announced blasts and respect closed-door terrain for sight and escape.
 
 The walker visits conservative finite discoveries when no monster is visible, without repeatedly touching spent objects or taking optional throne/fountain gambles. Counters include every cast/potion kind, mixed gear tradeoffs, poison/spell/area/environment damage and discoveries. Existing outcomes still distinguish death, action budget and routing failure. Five focused tests failed before implementation and now pass, with an additional multi-response blast test. Repeated matched 60×60×20 seeds use the actual empty starting bag. The policy remains omniscient and does not optimize pure control/buff/reposition spells, so survival rates require human review.
+
+## #197 — Recovery pressure review
+
+Compared matched seeds 0–4 at 60×60×20 with the expanded tactical policy, empty starting bag, 30,000-action budget and recovery intervals 20/30/50. The diagnostic-only `--mana-recovery N` option transforms the rule inside its isolated Vite SSR process; it does not edit source, change browser gameplay or persist a setting. Output records the effective interval and rejects invalid experiments.
+
+| Turns per +1 mana | Wins / deaths | Mean deepest floor | Mean committed turns | Total casts | Total potions |
+| --- | --- | --- | --- | --- | --- |
+| 20 | 0 / 5 | 15.6 | 9,422 | 1,127 | 329 |
+| 30 | 0 / 5 | 14.2 | 8,622 | 859 | 312 |
+| 50 | 0 / 5 | 13.4 | 8,736 | 651 | 294 |
+
+Before/after gameplay values remain **30 turns per mana, Magic Missile 3 mana, Heal 4 mana**. Slower regeneration gives less spell counterplay without evidence it is needed; faster recovery helps but is insufficient for this imperfect diagnostic policy. A five-seed sample, omniscient routing, greedy damage-spell choices and unoptimized control/buff use do not establish human difficulty. Retain the current values pending human playtests rather than tuning to an automated policy. Larger health/mana potions and antidotes from #196 now make recovery decisions depth-dependent.
+
+Reproduction: from `frontend`, run `node scripts/review-adventure.mjs --seed-start 0 --seed-count 5 --rows 60 --cols 60 --floors 20 --policy tactical-aware --max-actions 30000 --mana-recovery 30` and repeat with 20 or 50.

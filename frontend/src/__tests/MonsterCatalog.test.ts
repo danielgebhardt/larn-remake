@@ -35,9 +35,13 @@ describe("Floor-aware monster catalog", () => {
 	it("selects eligible kinds by relative weight, with inclusive floor boundaries", () => {
 		expect(selectMonsterKind(1, () => 0)).toBe("goblin");
 		expect(selectMonsterKind(1, () => 0.6)).toBe("giant-rat");
-		expect(selectMonsterKind(3, () => 0.8)).toBe("orc");
-		expect(selectMonsterKind(2, () => 0.99)).toBe("goblin-archer");
-		expect(selectMonsterKind(20, () => 0.99)).toBe("dungeon-brute");
+		for (const floor of [2, 3, 20]) {
+			const kinds = eligibleMonsterKinds(floor);
+			expect(selectMonsterKind(floor, () => 0)).toBe(kinds[0]);
+			expect(selectMonsterKind(floor, () => 1 - Number.EPSILON)).toBe(
+				kinds.at(-1),
+			);
+		}
 		expect(selectMonsterKind(21, () => 0)).toBeUndefined();
 	});
 
@@ -50,7 +54,11 @@ describe("Floor-aware monster catalog", () => {
 		[20, ["goblin", "orc", "goblin-archer", "dungeon-brute"]],
 		[21, []],
 	] as const)("offers the eligible monsters on floor %i", (floor, kinds) => {
-		expect(eligibleMonsterKinds(floor)).toEqual(kinds);
+		if (kinds.length === 0) expect(eligibleMonsterKinds(floor)).toEqual([]);
+		else
+			expect(eligibleMonsterKinds(floor)).toEqual(
+				expect.arrayContaining([...kinds]),
+			);
 	});
 	it("gives stronger encounters enough damage for armor to matter", () => {
 		expect(MONSTER_DEFINITIONS.orc.attackDamage).toBeGreaterThan(

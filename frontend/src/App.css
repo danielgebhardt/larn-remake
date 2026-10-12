@@ -19,6 +19,7 @@
 	--color-monster-orc: var(--monster-orc);
 	--color-monster-archer: var(--monster-archer);
 	--color-monster-brute: var(--monster-brute);
+	--color-monster-undead: var(--monster-undead);
 	--color-map-threat: var(--map-threat);
 	--color-item-cure: var(--item-cure);
 	--color-item-gear: var(--item-gear);
@@ -113,6 +114,7 @@
 	--monster-orc: #be123c;
 	--monster-archer: #0e7490;
 	--monster-brute: #4338ca;
+	--monster-undead: #475569;
 	--map-threat: #b91c1c;
 	--item-gear: #a16207;
 	--item-cure: #1d4ed8;
@@ -165,6 +167,7 @@
 	--monster-orc: #fda4af;
 	--monster-archer: #67e8f9;
 	--monster-brute: #a5b4fc;
+	--monster-undead: #cbd5e1;
 	--map-threat: #fb7185;
 	--item-gear: #fbbf24;
 	--item-cure: #93c5fd;

@@ -48,6 +48,8 @@ export const resolveMonsterPhase = (
 	for (const monster of active) {
 		if (player.health <= 0) break;
 		if (monsterSkipsAction(state, monster)) continue;
+		const interval = MONSTER_DEFINITIONS[monster.kind].actionInterval ?? 1;
+		if (state.turn % interval !== 0) continue;
 		if (hasMonsterEffect(state, monster, "afraid")) {
 			const coordinate = hasMonsterEffect(state, monster, "rooted")
 				? undefined

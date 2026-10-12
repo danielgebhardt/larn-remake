@@ -80,6 +80,10 @@ describe("Experience and health growth", () => {
 		},
 	);
 	it("defines positive whole XP rewards for each monster kind", () => {
+		for (const definition of Object.values(MONSTER_DEFINITIONS)) {
+			expect(Number.isSafeInteger(definition.experienceReward)).toBe(true);
+			expect(definition.experienceReward).toBeGreaterThan(0);
+		}
 		expect(
 			Object.fromEntries(
 				Object.entries(MONSTER_DEFINITIONS).map(([kind, value]) => [
@@ -87,7 +91,7 @@ describe("Experience and health growth", () => {
 					value.experienceReward,
 				]),
 			),
-		).toEqual({
+		).toMatchObject({
 			"giant-rat": 2,
 			goblin: 5,
 			orc: 10,

@@ -33,14 +33,23 @@ export type ActivityEvent = { turn: number } & (
 	  }
 	| { type: "spell-repositioned"; spell: SpellKind; monster?: MonsterKind }
 	| { type: "spell-healed"; spell: SpellKind; recovered: number }
-	| { type: "player-hit"; monster: MonsterKind; damage: number }
-	| { type: "monster-hit"; monster: MonsterKind; damage: number }
-	| { type: "monster-shot-hit"; monster: MonsterKind; damage: number }
-	| { type: "monster-shot-missed"; monster: MonsterKind }
-	| { type: "monster-prepared"; monster: MonsterKind; target: Coordinate }
-	| { type: "monster-heavy-hit"; monster: MonsterKind; damage: number }
 	| {
-			type: "monster-heavy-missed" | "monster-heavy-avoided";
+			type:
+				| "player-hit"
+				| "monster-hit"
+				| "monster-shot-hit"
+				| "monster-heavy-hit";
+			monster: MonsterKind;
+			damage: number;
+	  }
+	| { type: "monster-prepared"; monster: MonsterKind; target: Coordinate }
+	| {
+			type:
+				| "monster-heavy-missed"
+				| "monster-heavy-avoided"
+				| "monster-shot-missed"
+				| "player-missed"
+				| "monster-missed";
 			monster: MonsterKind;
 	  }
 	| { type: "monster-died"; monster: MonsterKind }
@@ -51,7 +60,6 @@ export type ActivityEvent = { turn: number } & (
 			attribute: "Strength" | "Dexterity" | "Intelligence";
 			value: number;
 	  }
-	| { type: "player-missed" | "monster-missed"; monster: MonsterKind }
 	| { type: "player-died" }
 	| { type: "quest-completed" }
 	| { type: "entrance-reminder"; goalFloor: number }

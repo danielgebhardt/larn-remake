@@ -3,12 +3,7 @@ import type { Coordinate } from "../dungeon/DungeonTypes.ts";
 import { MAX_FLOORS } from "../dungeon/RunConfiguration";
 import type { ItemKind } from "../items/Item";
 
-export type MonsterKind =
-	| "goblin"
-	| "giant-rat"
-	| "orc"
-	| "goblin-archer"
-	| "dungeon-brute";
+export type MonsterKind = keyof typeof monsterCatalog;
 
 export type MonsterIntent =
 	| { type: "idle" }
@@ -39,6 +34,7 @@ export type MonsterDefinition = {
 	preparesAttack?: boolean;
 	// Disabled content can be exercised in encounters before seeded rollout.
 	spawnEnabled?: boolean;
+	actionInterval?: number;
 };
 export const validateMonsterDefinition = (
 	definition: MonsterDefinition,
@@ -56,8 +52,11 @@ export const validateMonsterDefinition = (
 		rangedAttackRange,
 		spawnEnabled,
 		preparesAttack,
+		actionInterval,
 	} = definition;
 	if (
+		(actionInterval !== undefined &&
+			(!Number.isSafeInteger(actionInterval) || actionInterval < 1)) ||
 		!Number.isSafeInteger(experienceReward) ||
 		experienceReward <= 0 ||
 		!Number.isFinite(dropChance) ||
@@ -89,7 +88,7 @@ export const validateMonsterDefinition = (
 			"Invalid monster stats, floor range, or spawn weight.",
 		);
 };
-export const MONSTER_DEFINITIONS: Record<MonsterKind, MonsterDefinition> = {
+const monsterCatalog = {
 	goblin: {
 		name: "goblin",
 		experienceReward: 5,
@@ -152,7 +151,71 @@ export const MONSTER_DEFINITIONS: Record<MonsterKind, MonsterDefinition> = {
 		dropChance: 0.7,
 		lootPreferences: { "chain-armor": 2, "iron-helmet": 2 },
 	},
-};
+	skeleton: {
+		name: "skeleton",
+		minFloor: 2,
+		maxFloor: 8,
+		maxHealth: 8,
+		attackDamage: 4,
+		experienceReward: 8,
+		detectionRadius: 6,
+		spawnWeight: 2,
+		dropChance: 0.45,
+		lootPreferences: {},
+	},
+	zombie: {
+		name: "zombie",
+		minFloor: 3,
+		maxFloor: 10,
+		maxHealth: 12,
+		attackDamage: 5,
+		experienceReward: 10,
+		detectionRadius: 5,
+		spawnWeight: 2,
+		dropChance: 0.45,
+		lootPreferences: {},
+		actionInterval: 2,
+	},
+	wolf: {
+		name: "wolf",
+		minFloor: 2,
+		maxFloor: 9,
+		maxHealth: 9,
+		attackDamage: 4,
+		experienceReward: 8,
+		detectionRadius: 8,
+		spawnWeight: 1,
+		dropChance: 0.45,
+		lootPreferences: {},
+	},
+	"kobold-slinger": {
+		name: "kobold slinger",
+		minFloor: 3,
+		maxFloor: 10,
+		maxHealth: 7,
+		attackDamage: 3,
+		experienceReward: 8,
+		detectionRadius: 7,
+		spawnWeight: 1,
+		dropChance: 0.45,
+		lootPreferences: {},
+		rangedAttackRange: 4,
+	},
+	spider: {
+		name: "giant spider",
+		minFloor: 3,
+		maxFloor: 12,
+		maxHealth: 8,
+		attackDamage: 3,
+		experienceReward: 8,
+		detectionRadius: 6,
+		spawnWeight: 1,
+		dropChance: 0.45,
+		lootPreferences: {},
+	},
+} satisfies Record<string, MonsterDefinition>;
+export const MONSTER_DEFINITIONS: Record<MonsterKind, MonsterDefinition> =
+	monsterCatalog;
 for (const definition of Object.values(MONSTER_DEFINITIONS))
 	validateMonsterDefinition(definition);
 export const eligibleMonsterKinds = (floor: number): MonsterKind[] =>

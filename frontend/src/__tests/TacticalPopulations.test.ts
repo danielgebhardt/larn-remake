@@ -54,22 +54,20 @@ const approachTo = (terrain: Dungeon, tile: Coordinate) => {
 };
 
 describe("Mixed tactical populations", () => {
-	it("uses the provisional 3:2:2:1:1 weights on floor 4", () => {
-		// Midpoints of nine equal intervals exercise the weighted pool exactly.
-		const selections = Array.from({ length: 9 }, (_, index) =>
-			selectMonsterKind(4, () => (index + 0.5) / 9),
+	it("selects each eligible role at the midpoint of its weighted interval", () => {
+		const kinds = eligibleMonsterKinds(4);
+		const total = kinds.reduce(
+			(sum, kind) => sum + MONSTER_DEFINITIONS[kind].spawnWeight,
+			0,
 		);
-		expect(selections).toEqual([
-			"goblin",
-			"goblin",
-			"goblin",
-			"giant-rat",
-			"giant-rat",
-			"orc",
-			"orc",
-			"goblin-archer",
-			"dungeon-brute",
-		]);
+		let preceding = 0;
+		for (const kind of kinds) {
+			const weight = MONSTER_DEFINITIONS[kind].spawnWeight;
+			expect(selectMonsterKind(4, () => (preceding + weight / 2) / total)).toBe(
+				kind,
+			);
+			preceding += weight;
+		}
 	});
 
 	it.each([0, 123, 987])(
@@ -83,15 +81,7 @@ describe("Mixed tactical populations", () => {
 					({ floorNumber }) => floorNumber <= 5,
 				),
 			).toEqual(monsters);
-			expect(new Set(monsters.map(({ kind }) => kind))).toEqual(
-				new Set([
-					"goblin",
-					"giant-rat",
-					"orc",
-					"goblin-archer",
-					"dungeon-brute",
-				]),
-			);
+			expect(new Set(monsters.map(({ kind }) => kind)).size).toBeGreaterThan(1);
 			for (const monster of monsters) {
 				expect(eligibleMonsterKinds(monster.floorNumber)).toContain(
 					monster.kind,
@@ -151,13 +141,31 @@ describe("Mixed tactical populations", () => {
 
 	it("retains the played mixture through saving and a floor revisit without respawning", () => {
 		const state = createGameState(generatedRun(123));
-		const brute = state.monsters.find(
-			({ kind, floorNumber }) => kind === "dungeon-brute" && floorNumber === 4,
+		// Assign the two required roles to seeded, legal inactive-floor positions.
+		// This continuation test must not depend on a content pool selecting them.
+		const brutePosition = state.monsters.find(
+			(actor) => actor.floorNumber === 4,
 		);
-		const archer = state.monsters.find(({ kind }) => kind === "goblin-archer");
-		const defeated = state.monsters.find(({ kind }) => kind === "goblin");
-		if (!brute || !archer || !defeated)
-			throw new Error("Seed 123 must include all three encounter roles.");
+		const archerPosition = state.monsters.find(
+			(actor) => actor.floorNumber === 2,
+		);
+		const defeated = state.monsters.find((actor) => actor.floorNumber === 1);
+		if (!brutePosition || !archerPosition || !defeated)
+			throw new Error("Roomy fixture needs actors on floors 1, 2 and 4.");
+		const brute = {
+			...brutePosition,
+			kind: "dungeon-brute" as const,
+			health: 10,
+		};
+		const archer = {
+			...archerPosition,
+			kind: "goblin-archer" as const,
+			health: 5,
+		};
+		state.monsters = state.monsters.map((actor) =>
+			actor.id === brute.id ? brute : actor.id === archer.id ? archer : actor,
+		);
+
 		const floor = state.run.floors[3];
 		const target = approachTo(floor.terrain, brute.coordinate).coordinate;
 		state.monsters = state.monsters

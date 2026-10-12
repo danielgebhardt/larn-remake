@@ -11,6 +11,24 @@ import {
 import { MONSTER_DEFINITIONS } from "../../domain/monsters/Monster";
 import { orthogonalDistance } from "../../domain/monsters/MonsterLocations";
 
+const eligibleTargets = (
+	state: GameState,
+	visible: VisibilityGrid | undefined,
+	spell: SpellKind,
+) =>
+	state.monsters
+		.filter(
+			(monster) =>
+				isSpellTarget(state, monster, SPELL_DEFINITIONS[spell]) &&
+				(!visible || visible[monster.coordinate.row]?.[monster.coordinate.col]),
+		)
+		.sort(
+			(a, b) =>
+				orthogonalDistance(a.coordinate, state.run.playerCoordinate) -
+					orthogonalDistance(b.coordinate, state.run.playerCoordinate) ||
+				a.id.localeCompare(b.id),
+		);
+
 export const useSpellTargeting = (
 	state: GameState,
 	visible: VisibilityGrid | undefined,
@@ -24,22 +42,10 @@ export const useSpellTargeting = (
 		id: string;
 		terrain: GameState["run"]["floors"][number]["terrain"];
 	} | null>(null);
+	const selectedSpell = targeting?.spell;
 	const targets = useMemo(
-		() =>
-			state.monsters
-				.filter(
-					(monster) =>
-						isSpellTarget(state, monster) &&
-						(!visible ||
-							visible[monster.coordinate.row]?.[monster.coordinate.col]),
-				)
-				.sort(
-					(a, b) =>
-						orthogonalDistance(a.coordinate, state.run.playerCoordinate) -
-							orthogonalDistance(b.coordinate, state.run.playerCoordinate) ||
-						a.id.localeCompare(b.id),
-				),
-		[state, visible],
+		() => (selectedSpell ? eligibleTargets(state, visible, selectedSpell) : []),
+		[state, visible, selectedSpell],
 	);
 	const terrain = state.run.floors[state.run.activeFloor - 1].terrain;
 	useEffect(() => {
@@ -78,12 +84,13 @@ export const useSpellTargeting = (
 			focusMap();
 			return;
 		}
-		if (!targets.length) {
+		const candidates = eligibleTargets(state, visible, spell);
+		if (!candidates.length) {
 			onError("No visible target within range and clear line of sight.");
 			return;
 		}
 		onError("");
-		setTargeting({ spell, id: targets[0].id, terrain });
+		setTargeting({ spell, id: candidates[0].id, terrain });
 		focusMap();
 	};
 	const castTarget = (id: string) => {
@@ -136,8 +143,9 @@ export const useSpellTargeting = (
 		handleKey,
 		targeting,
 		targetIds: targeting ? targets.map((target) => target.id) : undefined,
-		description: selected
-			? `Magic Missile: ${MONSTER_DEFINITIONS[selected.kind].name} at row ${selected.coordinate.row}, column ${selected.coordinate.col}. Arrows or WASD cast straight in a direction; Enter or click casts at the highlighted target. Escape or Z cancels.`
-			: null,
+		description:
+			selected && targeting
+				? `${SPELL_DEFINITIONS[targeting.spell].name}: ${MONSTER_DEFINITIONS[selected.kind].name} at row ${selected.coordinate.row}, column ${selected.coordinate.col}. Arrows or WASD cast straight in a direction; Enter or click casts at the highlighted target. Escape or Z cancels.`
+				: null,
 	};
 };

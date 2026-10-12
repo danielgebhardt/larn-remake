@@ -8,6 +8,7 @@ import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import type { DungeonRun } from "../domain/dungeon/DungeonRun";
 import * as GameState from "../domain/game/GameState";
+import { SPELL_DEFINITIONS } from "../domain/game/Spells";
 import Home from "../Home";
 import { ThemeProvider } from "../settings/ThemeProvider";
 import {
@@ -64,6 +65,21 @@ const createOpenEncounter = (): DungeonRun => ({
 });
 afterEach(resetHomeTestState);
 describe("Spell targeting controls", () => {
+	it("uses the selected spell's catalog name in its targeting description", async () => {
+		const definition = SPELL_DEFINITIONS["magic-missile"];
+		const originalName = definition.name;
+		Reflect.set(definition, "name", "Renamed bolt");
+		try {
+			const { user } = setup();
+			await user.keyboard("z");
+			expect(screen.getByLabelText("Spell targeting")).toHaveTextContent(
+				"Renamed bolt:",
+			);
+		} finally {
+			Reflect.set(definition, "name", originalName);
+		}
+	});
+
 	it("shows known spells and mana, previews nearest target and casts with Enter without moving", async () => {
 		const { user } = setup();
 		expect(screen.getByLabelText("Player mana")).toHaveTextContent(

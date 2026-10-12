@@ -62,7 +62,7 @@ export function chooseSpellAwareAction(state, route) {
 		const targets = active
 			.filter(
 				(monster) =>
-					isSpellTarget(state, monster) &&
+					isSpellTarget(state, monster, SPELL_DEFINITIONS["magic-missile"]) &&
 					visible[monster.coordinate.row]?.[monster.coordinate.col],
 			)
 			.sort(

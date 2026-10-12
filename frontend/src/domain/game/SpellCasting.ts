@@ -8,20 +8,26 @@ import type { GameState } from "./GameState";
 import { damageMonster } from "./MonsterDamage";
 import {
 	SPELL_DEFINITIONS,
+	type SpellDefinition,
 	type SpellKind,
 	spellKnowledgeError,
 	spellPotency,
 } from "./Spells";
 
 export type CastAction = { type: "cast"; spell: SpellKind; targetId?: string };
-export const isSpellTarget = (state: GameState, monster: Monster): boolean => {
+export const isSpellTarget = (
+	state: GameState,
+	monster: Monster,
+	definition: SpellDefinition,
+): boolean => {
+	if (definition.mode !== "targeted") return false;
 	const terrain = state.run.floors[state.run.activeFloor - 1].terrain;
 	return (
 		monster.health > 0 &&
 		monster.floorNumber === state.run.activeFloor &&
 		terrain[monster.coordinate.row]?.[monster.coordinate.col] === FLOOR &&
 		orthogonalDistance(state.run.playerCoordinate, monster.coordinate) <=
-			SPELL_DEFINITIONS["magic-missile"].range &&
+			definition.range &&
 		hasLineOfSight(terrain, state.run.playerCoordinate, monster.coordinate)
 	);
 };
@@ -38,11 +44,12 @@ export const castSpell = (
 		return {
 			error: `Not enough mana for ${definition.name}. You need ${definition.cost}.`,
 		};
-	if (definition.mode === "self") {
+	const potency = spellPotency(state.progression, definition);
+	if (potency.effect === "heal") {
 		if (state.player.health >= state.player.maxHealth)
 			return { error: "You are already at full health." };
 		const recovered = Math.min(
-			spellPotency(state.progression).healing,
+			potency.healing,
 			state.player.maxHealth - state.player.health,
 		);
 		const turn = state.turn;
@@ -60,12 +67,11 @@ export const castSpell = (
 	const target = state.monsters.find(
 		(monster) => monster.id === action.targetId,
 	);
-	if (!target || !isSpellTarget(state, target))
+	if (!target || !isSpellTarget(state, target, definition))
 		return {
 			error:
 				"Choose a living monster within range and clear line of sight on this floor.",
 		};
-	const potency = spellPotency(state.progression);
 	const damage = rolls({
 		seed: state.run.seed,
 		floorNumber: state.run.activeFloor,

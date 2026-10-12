@@ -17,7 +17,6 @@ const SpellsView = ({
 	mana: number;
 	progression: Progression;
 }) => {
-	const potency = spellPotency(progression);
 	return (
 		<div className="grid content-start gap-4 p-4">
 			<div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border bg-muted/20 p-3">
@@ -30,6 +29,7 @@ const SpellsView = ({
 			<div className="grid gap-4 sm:grid-cols-2">
 				{knownSpells.map((spell) => {
 					const definition = SPELL_DEFINITIONS[spell];
+					const potency = spellPotency(progression, definition);
 					const Icon = SPELL_ICONS[spell];
 					return (
 						<section
@@ -45,7 +45,7 @@ const SpellsView = ({
 								{definition.name}
 							</h3>
 							<p className="font-medium tabular-nums">
-								{definition.mode === "self"
+								{potency.effect === "heal"
 									? `Heal up to ${potency.healing} health · ${definition.cost} mana`
 									: `Damage ${potency.minimumDamage}–${potency.maximumDamage} · ${definition.cost} mana`}
 							</p>

@@ -5,6 +5,7 @@ import {
 	coordinateKey,
 	orthogonalDistance,
 } from "../monsters/MonsterLocations";
+import { navigationRun } from "../objects/NavigationTerrain";
 import type { AttackRollSource } from "./CombatRandomness";
 import type { GameState } from "./GameState";
 import { damageMonster } from "./MonsterDamage";
@@ -54,7 +55,7 @@ export const castAreaSpell = (
 		return { error: "Invalid area spell." };
 	const area = new Set(
 		spellArea(
-			state.run.floors[state.run.activeFloor - 1].terrain,
+			navigationRun(state).floors[state.run.activeFloor - 1].terrain,
 			center,
 			definition.radius,
 		).map(coordinateKey),

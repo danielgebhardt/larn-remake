@@ -19,6 +19,7 @@ import {
 	monsterSkipsAction,
 	refreshPlayerEffect,
 } from "../game/TimedEffects";
+import { navigationRun } from "../objects/NavigationTerrain";
 import { chooseEnemySpell } from "./EnemyCasting";
 import { MONSTER_DEFINITIONS } from "./Monster";
 import { resolveMonsterArea } from "./MonsterAreaAttack";
@@ -32,6 +33,7 @@ export const resolveMonsterPhase = (
 	rollSource: AttackRollSource = createAttackRolls,
 ): GameState => {
 	if (state.quest.victory) return state;
+	const navigation = navigationRun(state);
 	let player = state.player;
 	let monsters = state.monsters;
 	let effects = state.effects;
@@ -85,14 +87,18 @@ export const resolveMonsterPhase = (
 		if (hasMonsterEffect(state, monster, "afraid")) {
 			const coordinate = hasMonsterEffect(state, monster, "rooted")
 				? undefined
-				: selectRetreatStep(state.run, monster, monsters);
+				: selectRetreatStep(navigation, monster, monsters);
 			if (coordinate)
 				monsters = monsters.map((actor) =>
 					actor.id === monster.id ? { ...actor, coordinate } : actor,
 				);
 			continue;
 		}
-		const area = resolveMonsterArea(state, monster, rollSource);
+		const area = resolveMonsterArea(
+			{ ...state, run: navigation },
+			monster,
+			rollSource,
+		);
 		if (area) {
 			monsters = monsters.map((actor) =>
 				actor.id === monster.id ? area.monster : actor,
@@ -138,7 +144,7 @@ export const resolveMonsterPhase = (
 				continue;
 			}
 		} else {
-			if (!detectsPlayer(state.run, monster)) continue;
+			if (!detectsPlayer(navigation, monster)) continue;
 			if (definition.preparesAttack && distance === 1) {
 				const target = { ...state.run.playerCoordinate };
 				monsters = monsters.map((actor) =>
@@ -199,7 +205,7 @@ export const resolveMonsterPhase = (
 		if (distance !== 1 && !shooting) {
 			const coordinate = hasMonsterEffect(state, monster, "rooted")
 				? undefined
-				: selectPursuitStep(state.run, monster, monsters);
+				: selectPursuitStep(navigation, monster, monsters);
 			if (coordinate)
 				monsters = monsters.map((actor) =>
 					actor.id === monster.id ? { ...actor, coordinate } : actor,

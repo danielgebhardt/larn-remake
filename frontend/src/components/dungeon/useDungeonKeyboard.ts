@@ -9,6 +9,7 @@ export type DungeonKeyboardOptions = {
 	onMoveRequested: (direction: MovementDirection) => void;
 	onWaitRequested?: () => void;
 	onPickupRequested?: () => void;
+	onInteractRequested?: () => void;
 	onCharacterRequested?: () => void;
 	onPotionRequested?: (slot: HotbarSlot) => void;
 	onSpellSlotRequested?: (slot: SpellSlot) => void;
@@ -24,6 +25,7 @@ export const useDungeonKeyboard = ({
 	onMoveRequested,
 	onWaitRequested,
 	onPickupRequested,
+	onInteractRequested,
 	onCharacterRequested,
 	onPotionRequested,
 	onSpellRequested,
@@ -61,7 +63,7 @@ export const useDungeonKeyboard = ({
 						"3",
 						"4",
 					].includes(key) ||
-					["z", "h", "g", "w", "a", "s", "d"].includes(key.toLowerCase());
+					["z", "h", "g", "e", "w", "a", "s", "d"].includes(key.toLowerCase());
 				if (!handled) return;
 				if (
 					event.target instanceof HTMLElement &&
@@ -140,6 +142,21 @@ export const useDungeonKeyboard = ({
 				return;
 			}
 
+			if (event.key.toLowerCase() === "e") {
+				if (
+					!onInteractRequested ||
+					event.repeat ||
+					event.ctrlKey ||
+					event.metaKey ||
+					event.altKey ||
+					(event.target instanceof HTMLElement &&
+						event.target.closest(FOCUSED_CONTROLS))
+				)
+					return;
+				event.preventDefault();
+				onInteractRequested();
+				return;
+			}
 			switch (event.key) {
 				case "g":
 				case "G":
@@ -201,6 +218,7 @@ export const useDungeonKeyboard = ({
 		onMoveRequested,
 		onWaitRequested,
 		onPickupRequested,
+		onInteractRequested,
 		onCharacterRequested,
 		onPotionRequested,
 		onSpellRequested,

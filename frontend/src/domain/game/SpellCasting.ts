@@ -2,6 +2,7 @@ import { FLOOR } from "../dungeon/Tiles";
 import { hasLineOfSight } from "../dungeon/Visibility";
 import type { Monster } from "../monsters/Monster";
 import { orthogonalDistance } from "../monsters/MonsterLocations";
+import { navigationRun } from "../objects/NavigationTerrain";
 import { appendActivityEvents } from "./ActivityHistory";
 import { castAreaSpell } from "./AreaSpells";
 import type { AttackRollSource } from "./CombatRandomness";
@@ -24,7 +25,8 @@ export const isSpellTarget = (
 	definition: SpellDefinition,
 ): boolean => {
 	if (definition.mode !== "targeted") return false;
-	const terrain = state.run.floors[state.run.activeFloor - 1].terrain;
+	const terrain =
+		navigationRun(state).floors[state.run.activeFloor - 1].terrain;
 	return (
 		monster.health > 0 &&
 		monster.floorNumber === state.run.activeFloor &&

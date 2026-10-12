@@ -8,7 +8,7 @@ import {
 	Map as MapIcon,
 	Shield,
 } from "lucide-react";
-import type { ReactNode } from "react";
+import type { ReactNode, RefObject } from "react";
 import {
 	SheetContent,
 	SheetDescription,
@@ -52,11 +52,16 @@ const movementControls = [
 const DungeonHelp = ({
 	monsters,
 	visible,
+	finalFocus,
 }: {
 	monsters?: readonly Monster[];
 	visible?: VisibilityGrid;
+	finalFocus?: RefObject<HTMLElement | null>;
 }) => (
-	<SheetContent className="overflow-y-auto data-[side=right]:w-full">
+	<SheetContent
+		finalFocus={finalFocus}
+		className="overflow-y-auto data-[side=right]:w-full"
+	>
 		<SheetHeader>
 			<SheetTitle>Help / Controls</SheetTitle>
 			<SheetDescription>
@@ -94,6 +99,10 @@ const DungeonHelp = ({
 					<li className="flex items-center justify-between gap-3 py-3">
 						<span>Wait one turn</span>
 						<Keycap>Space</Keycap>
+					</li>
+					<li className="flex items-center justify-between gap-3 py-3">
+						<span>Interact with a nearby object</span>
+						<Keycap>E</Keycap>
 					</li>
 					<li className="flex items-center justify-between gap-3 py-3">
 						<span>Pick up an item</span>
@@ -178,6 +187,13 @@ const DungeonHelp = ({
 					<li>
 						<span className="font-medium text-foreground">Stairs.</span> Enter a
 						stair tile to change floors automatically.
+					</li>
+					<li>
+						<span className="font-medium text-foreground">Doors.</span> Bump a
+						closed door to open it, or use E to toggle a door within one step.
+						Opening takes a turn without entering. Occupied doors cannot close.
+						Closed doors block sight, spells and pursuit; monsters do not open
+						them yet.
 					</li>
 					<li>
 						<span className="font-medium text-foreground">Quest.</span> Recover

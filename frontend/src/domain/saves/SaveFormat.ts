@@ -8,14 +8,15 @@ import type {
 } from "../dungeon/RunConfiguration";
 import type { GameState } from "../game/GameState";
 import { levelForExperience } from "../game/Progression";
-import type { SaveDocumentV8 } from "./SaveDocumentV8";
+import { navigationRun } from "../objects/NavigationTerrain";
+import type { SaveDocumentV9 } from "./SaveDocumentV9";
 import { validateSaveDocument } from "./SaveValidation";
 
-export const SAVE_FORMAT_VERSION = 8;
+export const SAVE_FORMAT_VERSION = 9;
 // Bound imported input before parsing. A maximum-size snapshot is measured in the review.
 export const MAX_SAVE_BYTES = 4 * 1024 * 1024;
 
-export type SaveDocument = SaveDocumentV8;
+export type SaveDocument = SaveDocumentV9;
 export type RestoredAdventure = {
 	state: GameState;
 	exploration: ExplorationState;
@@ -39,6 +40,15 @@ export const createSaveDocument = (
 	fog: { ...fog },
 	state: {
 		turn: state.turn,
+		objects: state.objects.map(
+			({ id, kind, floorNumber, coordinate, activated }) => ({
+				id,
+				kind,
+				floorNumber,
+				coordinate: { ...coordinate },
+				activated,
+			}),
+		),
 		mana: state.mana,
 		knownSpells: state.knownSpells,
 		spellHotbar: state.spellHotbar,
@@ -141,12 +151,12 @@ export const restoreSave = (document: SaveDocument): RestoredAdventure => {
 			rows.map((row) => [...row].map((cell) => cell === "1")),
 		]),
 	);
-	const initial = updateExploration(state.run, document.fog.radius);
+	const initial = updateExploration(navigationRun(state), document.fog.radius);
 	return {
 		state,
 		configuration: document.configuration,
 		fog: document.fog,
-		exploration: updateExploration(state.run, document.fog.radius, {
+		exploration: updateExploration(navigationRun(state), document.fog.radius, {
 			...initial,
 			// Force current sight to be recomputed while retaining every floor's memory.
 			origin: { row: -1, col: -1 },

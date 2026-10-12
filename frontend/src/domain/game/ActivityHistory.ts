@@ -67,7 +67,12 @@ export type ActivityEvent = { turn: number } & (
 			element: AreaElement;
 			damage: number;
 	  }
-	| { type: "monster-area-avoided"; monster: MonsterKind; element: AreaElement }
+	| {
+			type: "monster-area-avoided" | "monster-area-blocked";
+			monster: MonsterKind;
+			element: AreaElement;
+	  }
+	| { type: "door-changed"; opened: boolean }
 	| { type: "spell-healed"; spell: SpellKind; recovered: number }
 	| {
 			type:

@@ -62,8 +62,12 @@ export const formatActivityEvent = (event: ActivityEvent): string => {
 			return `${prefix}The ${MONSTER_DEFINITIONS[event.monster].name} prepares a ${event.element} blast. Leave the marked area within ${event.remaining} turns.`;
 		case "monster-area-hit":
 			return `${prefix}The ${MONSTER_DEFINITIONS[event.monster].name}'s ${event.element} blast hits you for ${event.damage} damage.`;
+		case "monster-area-blocked":
+			return `${prefix}The ${MONSTER_DEFINITIONS[event.monster].name}’s ${event.element} blast is blocked by a wall or closed door.`;
 		case "monster-area-avoided":
 			return `${prefix}You escape the ${MONSTER_DEFINITIONS[event.monster].name}'s ${event.element} blast.`;
+		case "door-changed":
+			return `${prefix}You ${event.opened ? "open" : "close"} the door.`;
 		case "spell-healed":
 			return `${prefix}${SPELL_DEFINITIONS[event.spell].name} restores ${event.recovered} health.`;
 		case "spell-hit":

@@ -40,6 +40,7 @@ import {
 import { BAG_CAPACITY } from "./domain/items/Bag";
 import { itemsAtPlayer } from "./domain/items/FloorItems";
 import type { HotbarSlot } from "./domain/items/PotionHotbar";
+import { navigationRun } from "./domain/objects/NavigationTerrain";
 import {
 	createSaveDocument,
 	type RestoredAdventure,
@@ -88,9 +89,13 @@ const Home = ({
 				actionError: "",
 			};
 		const run = createRun(initialSeed ?? 0, initialConfiguration);
+		const state = createGameState(run);
 		return {
-			state: createGameState(run),
-			exploration: updateExploration(run, fogConfiguration.radius),
+			state,
+			exploration: updateExploration(
+				navigationRun(state),
+				fogConfiguration.radius,
+			),
 			actionError: "",
 		};
 	});
@@ -130,7 +135,14 @@ const Home = ({
 			setPickupOpen(false);
 	}, [pickupOpen, currentItems.length, player.health]);
 
-	const activeFloor = run.floors[run.activeFloor - 1];
+	const activeFloor = navigationRun(game.state).floors[run.activeFloor - 1];
+	const activeObjects = useMemo(
+		() =>
+			game.state.objects.filter(
+				(object) => object.floorNumber === run.activeFloor,
+			),
+		[game.state.objects, run.activeFloor],
+	);
 	const activeMonsters = useMemo(
 		() =>
 			game.state.monsters.filter(
@@ -160,9 +172,13 @@ const Home = ({
 			setSettingsOpen(true);
 			return false;
 		}
+		const nextState = createGameState(nextRun);
 		setGame({
-			state: createGameState(nextRun),
-			exploration: updateExploration(nextRun, fogConfiguration.radius),
+			state: nextState,
+			exploration: updateExploration(
+				navigationRun(nextState),
+				fogConfiguration.radius,
+			),
 			actionError: "",
 		});
 		setPickupOpen(false);
@@ -229,7 +245,7 @@ const Home = ({
 				actionError: "",
 				exploration: result.turnAdvanced
 					? updateExploration(
-							result.state.run,
+							navigationRun(result.state),
 							fogConfiguration.radius,
 							current.exploration,
 						)
@@ -265,7 +281,7 @@ const Home = ({
 		setGame((current) => ({
 			...current,
 			exploration: updateExploration(
-				current.state.run,
+				navigationRun(current.state),
 				radius,
 				current.exploration,
 			),
@@ -414,6 +430,7 @@ const Home = ({
 							Help
 						</SheetTrigger>
 						<DungeonHelp
+							finalFocus={mapRef}
 							monsters={activeMonsters}
 							visible={
 								fogConfiguration.enabled ? exploration.visible : undefined
@@ -511,6 +528,12 @@ const Home = ({
 							handleActionRequested({ type: "move", direction })
 						}
 						onWaitRequested={() => handleActionRequested({ type: "wait" })}
+						dungeonObjects={activeObjects}
+						onInteractRequested={
+							gameplayEnabled
+								? () => handleActionRequested({ type: "interact" })
+								: undefined
+						}
 						onPickupRequested={handlePickupRequested}
 						onPotionRequested={handlePotionRequested}
 						onCharacterRequested={

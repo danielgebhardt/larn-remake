@@ -8,6 +8,8 @@ import { createPotionHotbar, type PotionHotbar } from "../items/PotionHotbar";
 import { spawnRunSpellbooks } from "../items/SpellbookPlacement";
 import type { Monster } from "../monsters/Monster.ts";
 import { spawnRunMonsters } from "../monsters/MonsterPlacement.ts";
+import type { DungeonObject } from "../objects/DungeonObject";
+import { spawnRunObjects } from "../objects/ObjectPlacement";
 import {
 	type ActivityHistory,
 	createActivityHistory,
@@ -23,6 +25,7 @@ import type { TimedEffect } from "./TimedEffects";
 
 export type GameState = {
 	run: DungeonRun;
+	objects: readonly DungeonObject[];
 	turn: number;
 	mana: number;
 	knownSpells: readonly SpellKind[];
@@ -47,8 +50,10 @@ export const createGameState = (run: DungeonRun): GameState => {
 		...ordinaryLoot,
 		...spawnRunQuestItems(run, monsters, ordinaryLoot),
 	];
+	const floorItems = [...loot, ...spawnRunSpellbooks(run, monsters, loot)];
 	return {
 		run,
+		objects: spawnRunObjects(run, monsters, floorItems),
 		turn: 0,
 		knownSpells: createKnownSpells(),
 		spellHotbar: createSpellHotbar(createKnownSpells()),
@@ -61,7 +66,7 @@ export const createGameState = (run: DungeonRun): GameState => {
 		equipment: createStartingEquipment(),
 		bag: createStartingBag(),
 		potionHotbar: createPotionHotbar(),
-		floorItems: [...loot, ...spawnRunSpellbooks(run, monsters, loot)],
+		floorItems,
 		monsters,
 		activityHistory: createActivityHistory(),
 	};

@@ -270,7 +270,7 @@ export const ascendDungeonRun = (run: DungeonRun): DungeonTransitionResult => {
 
 export type MovementDirection = "up" | "down" | "left" | "right";
 
-const MOVEMENT_OFFSETS: Record<MovementDirection, Coordinate> = {
+export const MOVEMENT_OFFSETS: Record<MovementDirection, Coordinate> = {
 	up: { row: -1, col: 0 },
 	down: { row: 1, col: 0 },
 	left: { row: 0, col: -1 },

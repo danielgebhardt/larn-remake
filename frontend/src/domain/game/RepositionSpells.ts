@@ -9,6 +9,7 @@ import {
 	orthogonalDistance,
 	protectedFloorLocations,
 } from "../monsters/MonsterLocations";
+import { navigationRun } from "../objects/NavigationTerrain";
 import { appendActivityEvents } from "./ActivityHistory";
 import type { GameState } from "./GameState";
 import type { SpellKind } from "./Spells";
@@ -31,7 +32,8 @@ export const repositionSpell = (
 	for (const monster of state.monsters)
 		if (monster.floorNumber === state.run.activeFloor && monster.health > 0)
 			protectedTiles.add(coordinateKey(monster.coordinate));
-	const terrain = state.run.floors[state.run.activeFloor - 1].terrain;
+	const terrain =
+		navigationRun(state).floors[state.run.activeFloor - 1].terrain;
 	const candidates: Coordinate[] = [];
 	for (let row = 0; row < terrain.length; row++)
 		for (let col = 0; col < terrain[row].length; col++) {

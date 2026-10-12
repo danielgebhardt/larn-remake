@@ -177,3 +177,11 @@ Goblins stop at floor 5, orcs/archers at 10, and brutes at 12, leaving overlappi
 Help includes deduplicated currently visible creatures, useful damage/health profiles, cadence, poison, regeneration, spells, area timing and defenses/weaknesses. Hidden/inactive actors are not disclosed. This is a free guide for visible types, not a persisted research mechanic. Generic help examples keep small icon wrappers, and targeting instructions clarify that Z selects Magic Missile while other spells use their assigned keys.
 
 Depth policy tests failed first, then passed; component and Home regressions ensure fog filtering and turn-free inspection. Browser opened Help and showed the visible salamander’s defenses, damage and two-response warning while turn three stayed unchanged.
+
+## #186 — Persistent doors and a shared interaction path
+
+Up to two independently seeded doors occupy suitable straight passages per floor, away from protected starts, stairs, actors and loot. Bumping a closed door opens it without moving; E toggles a reachable door. Each successful interaction consumes one ordinary turn. Occupied doors cannot close, and monsters cannot open them in this initial implementation.
+
+Closed doors block walking, pursuit, visibility, spell targeting and area effects through one derived navigation view. Original generated terrain stays intact; unchanged rows/floors retain their references. Closing a door can interrupt a pending blast if it blocks the caster’s sight. Object icons respect visible/remembered/unknown fog states. Help explains E and returns focus to the dungeon on dismissal so shortcuts work immediately.
+
+Save format v9 stores stable object identities, coordinates and open state; older played adventures migrate with no retroactively spawned doors. Tests cover bump/interaction turns, occupancy, targeting/pursuit, fog, queued blasts, deterministic safe placement and save continuation. All 210 frontend files / 1,724 tests pass. Browser import followed by E twice showed open/closed icons and two corresponding activity entries.

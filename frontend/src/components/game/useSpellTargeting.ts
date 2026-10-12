@@ -11,6 +11,7 @@ import {
 } from "../../domain/game/Spells";
 import { MONSTER_DEFINITIONS } from "../../domain/monsters/Monster";
 import { orthogonalDistance } from "../../domain/monsters/MonsterLocations";
+import { navigationRun } from "../../domain/objects/NavigationTerrain";
 
 const eligibleTargets = (
 	state: GameState,
@@ -48,7 +49,8 @@ export const useSpellTargeting = (
 		() => (selectedSpell ? eligibleTargets(state, visible, selectedSpell) : []),
 		[state, visible, selectedSpell],
 	);
-	const terrain = state.run.floors[state.run.activeFloor - 1].terrain;
+	const terrain =
+		navigationRun(state).floors[state.run.activeFloor - 1].terrain;
 	useEffect(() => {
 		if (
 			targeting &&

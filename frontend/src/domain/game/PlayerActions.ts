@@ -1,4 +1,5 @@
 import {
+	MOVEMENT_OFFSETS,
 	type MovementDirection,
 	moveDungeonRun,
 } from "../dungeon/DungeonRun.ts";
@@ -22,6 +23,11 @@ import {
 } from "../items/PotionHotbar";
 import type { Monster } from "../monsters/Monster.ts";
 import { resolveMonsterPhase } from "../monsters/MonsterTurns";
+import { navigationRun } from "../objects/NavigationTerrain";
+import {
+	type InteractAction,
+	interactObject,
+} from "../objects/ObjectInteraction";
 import { type ActivityEvent, appendActivityEvents } from "./ActivityHistory.ts";
 import { type AttackRollSource, createAttackRolls } from "./CombatRandomness";
 import { deriveCombatStats } from "./CombatStats";
@@ -41,8 +47,8 @@ import {
 	type SpellAssignmentAction,
 } from "./SpellHotbar";
 import { advanceTimedEffects } from "./TimedEffects";
-
 export type PlayerAction =
+	| InteractAction
 	| { type: "move"; direction: MovementDirection }
 	| { type: "wait" }
 	| CastAction
@@ -154,6 +160,7 @@ const resolvePlayerEffect = (
 	rollSource: AttackRollSource,
 ): GameState | { error: string } | undefined => {
 	const turn = state.turn;
+	if (action.type === "interact") return interactObject(state, action);
 	if (action.type === "cast") {
 		const cast = castSpell(state, action, rollSource);
 		return "error" in cast ? cast : cast.state;
@@ -217,8 +224,29 @@ const resolvePlayerEffect = (
 	if (action.type === "wait") return state;
 	// Movement applies one transition; occupied destinations attack from the
 	// original position. Spawn and pursuit keep stair arrivals unoccupied.
-	const run = moveDungeonRun(state.run, action.direction);
-	if (run === state.run) return undefined;
+	const offset = MOVEMENT_OFFSETS[action.direction];
+	const destination = {
+		row: state.run.playerCoordinate.row + offset.row,
+		col: state.run.playerCoordinate.col + offset.col,
+	};
+	const door = state.objects.find(
+		(object) =>
+			object.kind === "door" &&
+			!object.activated &&
+			object.floorNumber === state.run.activeFloor &&
+			object.coordinate.row === destination.row &&
+			object.coordinate.col === destination.col,
+	);
+	if (door)
+		return interactObject(state, { type: "interact", objectId: door.id });
+	const navigation = navigationRun(state);
+	const moved = moveDungeonRun(navigation, action.direction);
+	if (moved === navigation) return undefined;
+	const run = {
+		...state.run,
+		activeFloor: moved.activeFloor,
+		playerCoordinate: moved.playerCoordinate,
+	};
 	const monster = state.monsters.find(
 		(monster) =>
 			monster.floorNumber === state.run.activeFloor &&
@@ -287,6 +315,7 @@ const resolveAttack = (
 	rollSource: AttackRollSource,
 ): GameState => {
 	const turn = state.turn;
+
 	const outcome = resolveMeleeAttack(
 		attackProfile(
 			deriveCombatStats(state.equipment, state.progression, state.effects)

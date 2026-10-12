@@ -12,6 +12,7 @@ import type { VisibilityGrid } from "../../domain/dungeon/Visibility.ts";
 import { spellArea as areaFootprint } from "../../domain/game/AreaSpells";
 import type { FloorItem } from "../../domain/items/FloorItems";
 import type { Monster } from "../../domain/monsters/Monster.ts";
+import type { DungeonObject } from "../../domain/objects/DungeonObject";
 import DungeonRow from "./DungeonRow.tsx";
 import { getScrollOffset } from "./MapScroll.ts";
 import {
@@ -34,9 +35,11 @@ type DungeonLayoutProps = DungeonKeyboardOptions & {
 	explored?: VisibilityGrid;
 	monsters?: readonly Monster[];
 	floorItems?: readonly FloorItem[];
+	dungeonObjects?: readonly DungeonObject[];
 };
 
 const NO_MONSTERS: readonly Monster[] = [];
+const NO_OBJECTS: readonly DungeonObject[] = [];
 const NO_ITEMS: readonly FloorItem[] = [];
 
 const DungeonLayout = ({
@@ -48,6 +51,7 @@ const DungeonLayout = ({
 	onMoveRequested,
 	onWaitRequested,
 	onPickupRequested,
+	onInteractRequested,
 	onCharacterRequested,
 	onPotionRequested,
 	onSpellRequested,
@@ -63,6 +67,7 @@ const DungeonLayout = ({
 	explored,
 	monsters = NO_MONSTERS,
 	floorItems = NO_ITEMS,
+	dungeonObjects = NO_OBJECTS,
 }: DungeonLayoutProps) => {
 	const spellRows = useMemo(() => {
 		const rows = new Map<number, number[]>();
@@ -110,6 +115,15 @@ const DungeonLayout = ({
 			);
 		return { heavy: sorted(heavy), area: sorted(area) };
 	}, [monsters, visible, dungeon, playerPosition.row, playerPosition.col]);
+	const objectRows = useMemo(() => {
+		const rows = new Map<number, DungeonObject[]>();
+		for (const object of dungeonObjects) {
+			const row = rows.get(object.coordinate.row) ?? [];
+			row.push(object);
+			rows.set(object.coordinate.row, row);
+		}
+		return rows;
+	}, [dungeonObjects]);
 	const itemRows = useMemo(() => {
 		const rows = new Map<number, FloorItem[]>();
 		for (const item of floorItems) {
@@ -186,6 +200,7 @@ const DungeonLayout = ({
 		onMoveRequested,
 		onWaitRequested,
 		onPickupRequested,
+		onInteractRequested,
 		onCharacterRequested,
 		onPotionRequested,
 		onSpellRequested,
@@ -214,6 +229,7 @@ const DungeonLayout = ({
 							rowIndex={rowIndex}
 							monsters={monsterRows.get(rowIndex)}
 							floorItems={itemRows.get(rowIndex)}
+							dungeonObjects={objectRows.get(rowIndex)}
 							threatColumns={threatRows.heavy.get(rowIndex)}
 							areaThreatColumns={threatRows.area.get(rowIndex)}
 							spellColumns={spellRows.get(rowIndex)}

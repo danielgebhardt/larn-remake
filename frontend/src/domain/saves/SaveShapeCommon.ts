@@ -148,10 +148,15 @@ const eventFields = {
 		element: oneOf(["fire", "cold"]),
 		damage: natural,
 	},
+	"monster-area-blocked": {
+		monster: monsterKind,
+		element: oneOf(["fire", "cold"]),
+	},
 	"monster-area-avoided": {
 		monster: monsterKind,
 		element: oneOf(["fire", "cold"]),
 	},
+	"door-changed": { opened: boolean },
 	"spell-healed": { spell: spellKind, recovered: natural },
 	"player-hit": { monster: monsterKind, damage: natural },
 	"monster-hit": { monster: monsterKind, damage: natural },

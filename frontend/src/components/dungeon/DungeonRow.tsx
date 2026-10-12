@@ -9,9 +9,14 @@ import {
 import type { FloorItem } from "../../domain/items/FloorItems";
 import { ITEM_DEFINITIONS, type ItemKind } from "../../domain/items/Item";
 import type { Monster, MonsterKind } from "../../domain/monsters/Monster.ts";
+import {
+	type DungeonObject,
+	objectLabel,
+} from "../../domain/objects/DungeonObject";
 import ItemIcon from "../items/ItemIcon";
 import MonsterIcon from "../monsters/MonsterIcon.tsx";
 import { MONSTER_VISUALS } from "../monsters/MonsterVisuals.ts";
+import DungeonObjectIcon from "../objects/DungeonObjectIcon";
 import TileIcon from "./TileIcon.tsx";
 import { TILE_BACKGROUNDS, TILE_LABELS } from "./TileVisuals.ts";
 
@@ -27,6 +32,7 @@ const DungeonCell = memo(function DungeonCell({
 	playerRef,
 	monsterKind,
 	itemKind,
+	dungeonObject,
 	itemCount = 0,
 	monsterId,
 	targetable,
@@ -43,6 +49,7 @@ const DungeonCell = memo(function DungeonCell({
 	playerRef?: PlayerRef;
 	monsterKind?: MonsterKind;
 	itemKind?: ItemKind;
+	dungeonObject?: DungeonObject;
 	itemCount?: number;
 	monsterId?: string;
 	targetable?: boolean;
@@ -54,11 +61,15 @@ const DungeonCell = memo(function DungeonCell({
 }) {
 	const description = monsterKind
 		? MONSTER_VISUALS[monsterKind].label
-		: itemKind
-			? `${ITEM_DEFINITIONS[itemKind].name}${itemCount > 1 ? ` and ${itemCount - 1} more item${itemCount > 2 ? "s" : ""}` : ""}`
-			: tile === undefined
-				? "undiscovered"
-				: TILE_LABELS[tile];
+		: dungeonObject?.kind === "door"
+			? objectLabel(dungeonObject)
+			: itemKind
+				? `${ITEM_DEFINITIONS[itemKind].name}${itemCount > 1 ? ` and ${itemCount - 1} more item${itemCount > 2 ? "s" : ""}` : ""}`
+				: dungeonObject
+					? objectLabel(dungeonObject)
+					: tile === undefined
+						? "undiscovered"
+						: TILE_LABELS[tile];
 	const label =
 		visibility === "remembered" ? `remembered ${description}` : description;
 	const background =
@@ -97,8 +108,12 @@ const DungeonCell = memo(function DungeonCell({
 				) : (
 					<MonsterIcon kind={monsterKind} />
 				)
+			) : dungeonObject?.kind === "door" ? (
+				<DungeonObjectIcon object={dungeonObject} />
 			) : itemKind ? (
 				<ItemIcon kind={itemKind} />
+			) : dungeonObject ? (
+				<DungeonObjectIcon object={dungeonObject} />
 			) : (
 				tile !== undefined && <TileIcon tile={tile} />
 			)}
@@ -137,6 +152,7 @@ const DungeonRow = memo(
 		downStairColumn,
 		monsters,
 		floorItems,
+		dungeonObjects,
 		playerRef,
 		targetIds,
 		selectedTargetId,
@@ -155,6 +171,7 @@ const DungeonRow = memo(
 		downStairColumn?: number;
 		monsters?: readonly Monster[];
 		floorItems?: readonly FloorItem[];
+		dungeonObjects?: readonly DungeonObject[];
 		playerRef: PlayerRef;
 		targetIds?: readonly string[];
 		selectedTargetId?: string;
@@ -223,6 +240,16 @@ const DungeonRow = memo(
 							}
 							selectedTarget={monster?.id === selectedTargetId}
 							onTargetRequested={onTargetRequested}
+							dungeonObject={
+								visibility !== "unknown" &&
+								tile !== PLAYER &&
+								tile !== STAIRS_UP &&
+								tile !== STAIRS_DOWN
+									? dungeonObjects?.find(
+											(object) => object.coordinate.col === columnIndex,
+										)
+									: undefined
+							}
 							itemKind={items?.[0]?.item.kind}
 							itemCount={items?.length}
 							monsterKind={
@@ -249,6 +276,11 @@ const DungeonRow = memo(
 			(next.areaThreatColumns?.length ?? 0) &&
 		(previous.areaThreatColumns ?? []).every(
 			(column, index) => column === next.areaThreatColumns?.[index],
+		) &&
+		(previous.dungeonObjects?.length ?? 0) ===
+			(next.dungeonObjects?.length ?? 0) &&
+		(previous.dungeonObjects ?? []).every(
+			(object, index) => object === next.dungeonObjects?.[index],
 		) &&
 		previous.targetIds === next.targetIds &&
 		previous.selectedTargetId === next.selectedTargetId &&

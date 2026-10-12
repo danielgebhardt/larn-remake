@@ -88,7 +88,6 @@ describe("Home Help menu", () => {
 		"dismisses with %s and restores focus without consuming a turn",
 		async (method) => {
 			const user = renderHelpRun();
-			const trigger = screen.getByRole("button", { name: "Help" });
 			const before = readDungeonCells();
 			const panel = await openHelp(user);
 			if (method === "Escape") await user.keyboard("{Escape}");
@@ -97,7 +96,9 @@ describe("Home Help menu", () => {
 			await waitFor(() =>
 				expect(screen.queryByRole("dialog")).not.toBeInTheDocument(),
 			);
-			expect(trigger).toHaveFocus();
+			expect(
+				screen.getByLabelText("Dungeon map", { exact: true }),
+			).toHaveFocus();
 			expect(screen.getByLabelText("Turn count")).toHaveTextContent("Turn 0");
 			expect(readDungeonCells()).toEqual(before);
 		},
@@ -118,6 +119,7 @@ describe("Home Help menu", () => {
 		await waitFor(() =>
 			expect(screen.queryByRole("dialog")).not.toBeInTheDocument(),
 		);
+		screen.getByRole("button", { name: "Help" }).focus();
 		await user.keyboard(" ");
 		expect(
 			await screen.findByRole("dialog", { name: "Help / Controls" }),

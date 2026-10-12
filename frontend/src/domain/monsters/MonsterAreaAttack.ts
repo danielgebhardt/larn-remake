@@ -1,3 +1,4 @@
+import { hasLineOfSight } from "../dungeon/Visibility";
 import type { ActivityEvent } from "../game/ActivityHistory";
 import { spellArea } from "../game/AreaSpells";
 import type { AttackRollSource } from "../game/CombatRandomness";
@@ -25,6 +26,24 @@ export const resolveMonsterArea = (
 				events: [],
 			};
 		const finished = { ...monster, intent: { type: "idle" as const } };
+		if (
+			!hasLineOfSight(
+				state.run.floors[state.run.activeFloor - 1].terrain,
+				monster.coordinate,
+				intent.target,
+			)
+		)
+			return {
+				monster: finished,
+				events: [
+					{
+						type: "monster-area-blocked",
+						monster: monster.kind,
+						element: intent.element,
+						turn: state.turn,
+					},
+				],
+			};
 		const tiles = spellArea(
 			state.run.floors[state.run.activeFloor - 1].terrain,
 			intent.target,

@@ -23,6 +23,7 @@ import type { SaveDocumentV5 } from "./SaveDocumentV5";
 import type { SaveDocumentV6 } from "./SaveDocumentV6";
 import type { SaveDocumentV7 } from "./SaveDocumentV7";
 import type { SaveDocumentV8 } from "./SaveDocumentV8";
+import type { SaveDocumentV9 } from "./SaveDocumentV9";
 
 export const isConsistentSave = (
 	document:
@@ -33,7 +34,8 @@ export const isConsistentSave = (
 		| SaveDocumentV5
 		| SaveDocumentV6
 		| SaveDocumentV7
-		| SaveDocumentV8,
+		| SaveDocumentV8
+		| SaveDocumentV9,
 ): boolean => {
 	const { state, configuration: config } = document;
 	const { run, quest } = state;
@@ -151,6 +153,44 @@ export const isConsistentSave = (
 			)
 		)
 			return false;
+	}
+	if ("objects" in document.state) {
+		const objects = document.state.objects;
+		if (
+			!unique(objects.map((object) => object.id)) ||
+			!unique(
+				objects.map(
+					(object) =>
+						`${object.floorNumber}:${object.coordinate.row}:${object.coordinate.col}`,
+				),
+			)
+		)
+			return false;
+		for (const object of objects) {
+			if (
+				!object.id.startsWith(
+					`floor:${object.floorNumber}:object:${object.kind}:`,
+				) ||
+				!walkable(object.floorNumber, object.coordinate) ||
+				protectedFloorLocations(run, object.floorNumber).some((tile) =>
+					same(tile, object.coordinate),
+				) ||
+				(object.floorNumber === 1 && same(object.coordinate, quest.entrance))
+			)
+				return false;
+			if (
+				object.kind === "door" &&
+				!object.activated &&
+				((object.floorNumber === run.activeFloor &&
+					same(object.coordinate, run.playerCoordinate)) ||
+					state.monsters.some(
+						(actor) =>
+							actor.floorNumber === object.floorNumber &&
+							same(actor.coordinate, object.coordinate),
+					))
+			)
+				return false;
+		}
 	}
 	const allItems = [
 		...state.bag.items,

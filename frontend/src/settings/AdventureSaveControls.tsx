@@ -16,7 +16,7 @@ const AdventureSaveControls = ({
 	createSnapshot,
 	onRestore,
 }: {
-	createSnapshot: () => SaveDocument;
+	createSnapshot?: () => SaveDocument;
 	onRestore: (document: SaveDocument) => void;
 }) => {
 	const [slot, setSlot] = useState(readLocalSave);
@@ -33,6 +33,7 @@ const AdventureSaveControls = ({
 	const [importing, setImporting] = useState(false);
 	useEffect(() => () => fileRead.current?.abort(), []);
 	const exportFile = () => {
+		if (!createSnapshot) return;
 		try {
 			const result = exportAdventureFile(createSnapshot());
 			setFeedback(result.ok ? "Save file download started." : result.error);
@@ -55,6 +56,7 @@ const AdventureSaveControls = ({
 
 	const saved = slot.ok ? slot.value : null;
 	const requestSave = (button: HTMLButtonElement) => {
+		if (!createSnapshot) return;
 		restoring.current = false;
 		initiatorRef.current = button;
 		setSlot(readLocalSave());
@@ -100,8 +102,9 @@ const AdventureSaveControls = ({
 		<section aria-label="Adventure saves" className="grid gap-3 border-t pt-4">
 			<h3 className="font-medium">Save and load</h3>
 			<p className="text-xs text-muted-foreground">
-				One manual save in this browser. Saving replaces this slot; loading
-				replaces your current adventure.
+				{createSnapshot
+					? "One manual save in this browser. Saving replaces this slot; loading replaces your current adventure."
+					: "Resume an adventure saved in this browser or import a backup. Begin an adventure before saving or exporting."}
 			</p>
 			<div className="rounded-lg border bg-muted/20 p-3 text-xs">
 				{saved ? (
@@ -121,7 +124,7 @@ const AdventureSaveControls = ({
 			<div className="grid grid-cols-2 gap-2">
 				<Button
 					variant="outline"
-					disabled={importing}
+					disabled={!createSnapshot || importing}
 					onClick={(event) => requestSave(event.currentTarget)}
 				>
 					<Save aria-hidden="true" />
@@ -137,7 +140,11 @@ const AdventureSaveControls = ({
 				</Button>
 			</div>
 			<div className="grid grid-cols-2 gap-2">
-				<Button variant="outline" disabled={importing} onClick={exportFile}>
+				<Button
+					variant="outline"
+					disabled={!createSnapshot || importing}
+					onClick={exportFile}
+				>
 					<Download aria-hidden="true" />
 					Export file
 				</Button>
@@ -200,7 +207,9 @@ const AdventureSaveControls = ({
 						</Dialog.Title>
 						<Dialog.Description className="mt-2 text-sm text-muted-foreground">
 							{pending?.kind === "load"
-								? "Your current progress will be replaced by this saved adventure."
+								? createSnapshot
+									? "Your current progress will be replaced by this saved adventure."
+									: "Resume this saved adventure from where you left off."
 								: saved
 									? "Your previous saved adventure will be replaced."
 									: slot.ok

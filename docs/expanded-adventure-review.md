@@ -13,3 +13,9 @@ Ten new regression cases first reproduced the missing map focus and movement thr
 App now owns the not-started state. The opening dialog tells the cure-and-return story; Home is not mounted, terrain is not generated and gameplay cannot consume turns before Begin. Begin selects a full-range random seed, mounts Home and focuses the map. Keeping the opening outside GameState avoids inventing an unplayed placeholder save. Domain/page tests can still mount Home directly with controlled runs.
 
 Two behavior tests first failed against the old startup, then passed. Browser inspected the opening layout and verified Begin arrives on floor one, turn zero, with map focus. Six epics and 41 scoped stories (the approved 40 plus the initial focus bug) are recorded in GitHub and the local plan. Level progression is scheduled before spell/content expansion.
+
+## #157 — Start or resume
+
+The opening offers the existing Save/Load sheet. Saving/exporting are disabled without an active adventure, while confirmed local loading and validated file import remain available. Successful restoration mounts Home from the restored aggregate, configuration and discovery instead of generating terrain. Cancellation and corrupt saves leave the opening and local slot untouched.
+
+Three regression tests first failed without startup Save/Load, then passed. Browser resumed the existing seed-zero save at turn one with Dungeon map focus; the stored slot was not changed. Shared controls retain active-adventure confirmation behavior and now describe startup loading accurately.

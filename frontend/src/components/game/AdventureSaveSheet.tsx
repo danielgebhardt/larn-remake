@@ -13,7 +13,7 @@ const AdventureSaveSheet = ({
 	onRestore,
 	finalFocus,
 }: {
-	createSnapshot: () => SaveDocument;
+	createSnapshot?: () => SaveDocument;
 	onRestore: (document: SaveDocument) => void;
 	finalFocus?: RefObject<HTMLElement | null>;
 }) => {

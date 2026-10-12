@@ -1,9 +1,19 @@
 import { Dialog } from "@base-ui/react/dialog";
 import { ScrollText, Shield } from "lucide-react";
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
+import { Sheet, SheetTrigger } from "@/components/ui/sheet";
+import type { SaveDocument } from "../../domain/saves/SaveFormat";
+import AdventureSaveSheet from "./AdventureSaveSheet";
 
-const AdventureOpening = ({ onBegin }: { onBegin: () => void }) => {
+const AdventureOpening = ({
+	onBegin,
+	onRestore,
+}: {
+	onBegin: () => void;
+	onRestore: (document: SaveDocument) => void;
+}) => {
+	const [saveOpen, setSaveOpen] = useState(false);
 	const title = useRef<HTMLHeadingElement>(null);
 	return (
 		<div className="flex min-h-dvh items-center justify-center bg-muted/30 p-6">
@@ -24,7 +34,7 @@ const AdventureOpening = ({ onBegin }: { onBegin: () => void }) => {
 						<Dialog.Title
 							ref={title}
 							tabIndex={-1}
-							className="text-2xl font-semibold"
+							className="text-2xl font-semibold outline-none"
 						>
 							A journey for the cure
 						</Dialog.Title>
@@ -48,6 +58,14 @@ const AdventureOpening = ({ onBegin }: { onBegin: () => void }) => {
 						<Button className="w-full" onClick={onBegin}>
 							Begin Adventure
 						</Button>
+						<Sheet open={saveOpen} onOpenChange={setSaveOpen}>
+							<SheetTrigger
+								render={<Button variant="outline" className="mt-2 w-full" />}
+							>
+								Save/Load
+							</SheetTrigger>
+							<AdventureSaveSheet onRestore={onRestore} />
+						</Sheet>
 						<p className="mt-3 text-center text-xs text-muted-foreground">
 							A new seed. A new journey.
 						</p>

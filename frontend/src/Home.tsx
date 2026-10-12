@@ -41,6 +41,7 @@ import { itemsAtPlayer } from "./domain/items/FloorItems";
 import type { HotbarSlot } from "./domain/items/PotionHotbar";
 import {
 	createSaveDocument,
+	type RestoredAdventure,
 	restoreSave,
 	type SaveDocument,
 } from "./domain/saves/SaveFormat";
@@ -65,16 +66,24 @@ const createRun = (
 type HomeProps = {
 	initialFogConfiguration?: FogConfiguration;
 	initialSeed?: number;
+	initialAdventure?: RestoredAdventure;
 };
 
 const Home = ({
 	initialFogConfiguration = DEFAULT_FOG_CONFIGURATION,
 	initialSeed,
+	initialAdventure,
 }: HomeProps) => {
 	const [fogConfiguration, setFogConfiguration] = useState(
-		initialFogConfiguration,
+		initialAdventure?.fog ?? initialFogConfiguration,
 	);
 	const [game, setGame] = useState(() => {
+		if (initialAdventure)
+			return {
+				state: initialAdventure.state,
+				exploration: initialAdventure.exploration,
+				actionError: "",
+			};
 		const run = createRun(initialSeed ?? 0, DEFAULT_RUN_CONFIGURATION);
 		return {
 			state: createGameState(run),
@@ -89,9 +98,13 @@ const Home = ({
 	const victoryOpen = victory !== null && dismissedVictory !== victory;
 	const canPlay = player.health > 0 && victory === null;
 	const { exploration } = game;
-	const [configuration, setConfiguration] = useState(DEFAULT_RUN_CONFIGURATION);
+	const [configuration, setConfiguration] = useState(
+		initialAdventure?.configuration ?? DEFAULT_RUN_CONFIGURATION,
+	);
 	const [configDraft, setConfigDraft] = useState(() =>
-		configurationDraft(DEFAULT_RUN_CONFIGURATION),
+		configurationDraft(
+			initialAdventure?.configuration ?? DEFAULT_RUN_CONFIGURATION,
+		),
 	);
 	const [configErrors, setConfigErrors] = useState<ConfigurationErrors>({});
 	const [generationError, setGenerationError] = useState<string | null>(null);
@@ -106,9 +119,9 @@ const Home = ({
 	const [pickupOpen, setPickupOpen] = useState(false);
 	const mapRef = useRef<HTMLElement>(null);
 	useEffect(() => {
-		if (initialSeed !== undefined)
+		if (initialSeed !== undefined || initialAdventure)
 			mapRef.current?.focus({ preventScroll: true });
-	}, [initialSeed]);
+	}, [initialSeed, initialAdventure]);
 	const currentItems = itemsAtPlayer(game.state);
 	// Empty loot or death ends selection; later movement must not reopen it.
 	useEffect(() => {

@@ -84,6 +84,7 @@ describe("Complete adventure save format", () => {
 		if (!target) throw new Error("Fixture needs an adjacent floor tile");
 		document.state.monsters = [
 			{
+				intent: { type: "idle" as const },
 				id: "1:1",
 				kind: "goblin",
 				floorNumber: 1,
@@ -123,7 +124,7 @@ describe("Complete adventure save format", () => {
 		[
 			"unsupported version",
 			(d: ReturnType<typeof savedAdventure>) => {
-				d.version = 2 as 1;
+				d.version = 3 as 2;
 			},
 		],
 		[

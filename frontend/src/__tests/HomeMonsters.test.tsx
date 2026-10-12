@@ -44,6 +44,7 @@ const encounterRun = (): DungeonRun => ({
 	],
 });
 const goblin: Monster = {
+	intent: { type: "idle" as const },
 	id: "1:1",
 	kind: "goblin",
 	floorNumber: 1,

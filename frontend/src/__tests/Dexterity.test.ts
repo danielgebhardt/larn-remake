@@ -93,6 +93,7 @@ describe("Earned Dexterity and melee accuracy", () => {
 			player: { health: 6, maxHealth: 10 },
 			monsters: [
 				{
+					intent: { type: "idle" as const },
 					id: "1:1",
 					kind: "goblin" as const,
 					floorNumber: 1,
@@ -100,6 +101,7 @@ describe("Earned Dexterity and melee accuracy", () => {
 					health: 1,
 				},
 				{
+					intent: { type: "idle" as const },
 					id: "1:2",
 					kind: "orc" as const,
 					floorNumber: 1,

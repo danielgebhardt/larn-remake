@@ -15,6 +15,7 @@ describe("Saved actors preserve safe stair arrivals", () => {
 		if (!link) throw new Error("Fixture requires the named stair");
 		document.state.monsters = [
 			{
+				intent: { type: "idle" as const },
 				id: `${floor}:1`,
 				kind: "goblin",
 				floorNumber: floor,
@@ -33,6 +34,7 @@ describe("Saved actors preserve safe stair arrivals", () => {
 		if (!down) throw new Error("Fixture requires a down stair");
 		document.state.monsters = [
 			{
+				intent: { type: "idle" as const },
 				id: "2:1",
 				kind: "goblin",
 				floorNumber: down.destinationFloor,
@@ -66,6 +68,7 @@ describe("Saved actors preserve safe stair arrivals", () => {
 		document.state.run.playerCoordinate = up.coordinate;
 		document.state.monsters = [
 			{
+				intent: { type: "idle" as const },
 				id: "2:1",
 				kind: "goblin",
 				floorNumber: 2,

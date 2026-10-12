@@ -87,6 +87,7 @@ describe("Complete cure-and-return adventures", () => {
 			...fresh,
 			monsters: [
 				{
+					intent: { type: "idle" as const },
 					id: "first-orc",
 					kind: "orc",
 					floorNumber: 1,

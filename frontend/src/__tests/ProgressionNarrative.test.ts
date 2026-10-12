@@ -14,6 +14,7 @@ describe("Progression activity narrative", () => {
 			run: { ...initial.run, playerCoordinate: { row: 1, col: 2 } },
 			monsters: [
 				{
+					intent: { type: "idle" as const },
 					id: "1:1",
 					kind: "orc" as const,
 					floorNumber: 1,
@@ -21,6 +22,7 @@ describe("Progression activity narrative", () => {
 					health: 1,
 				},
 				{
+					intent: { type: "idle" as const },
 					id: "1:2",
 					kind: "goblin" as const,
 					floorNumber: 1,

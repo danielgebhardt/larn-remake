@@ -76,6 +76,7 @@ describe("Mana recovery on committed turns", () => {
 			progression: { experience: 29 },
 			monsters: [
 				{
+					intent: { type: "idle" as const },
 					id: "1:1",
 					kind: "giant-rat" as const,
 					floorNumber: 1,
@@ -138,6 +139,7 @@ describe("Mana recovery on committed turns", () => {
 				player: { health: 1, maxHealth: 10 },
 				monsters: [
 					{
+						intent: { type: "idle" as const },
 						id: "1:1",
 						kind: "goblin",
 						floorNumber: 1,

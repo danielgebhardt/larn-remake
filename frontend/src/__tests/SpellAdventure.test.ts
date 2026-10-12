@@ -69,6 +69,7 @@ describe("Spellcasting through a complete adventure", () => {
 			potionHotbar: ["healing-potion", null, null, null],
 			monsters: [
 				{
+					intent: { type: "idle" as const },
 					id: "1:1",
 					kind: "orc",
 					floorNumber: 1,
@@ -76,6 +77,7 @@ describe("Spellcasting through a complete adventure", () => {
 					health: 1,
 				},
 				{
+					intent: { type: "idle" as const },
 					id: "1:2",
 					kind: "goblin",
 					floorNumber: 1,
@@ -179,6 +181,7 @@ describe("Spellcasting through a complete adventure", () => {
 			player: { health: 3, maxHealth: 10 },
 			monsters: [
 				{
+					intent: { type: "idle" as const },
 					id: "1:1",
 					kind: "orc" as const,
 					floorNumber: 1,

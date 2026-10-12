@@ -29,6 +29,7 @@ const setup = (
 		...create(run),
 		monsters: [
 			{
+				intent: { type: "idle" as const },
 				id: "1:1",
 				kind: "goblin",
 				floorNumber: 1,
@@ -36,6 +37,7 @@ const setup = (
 				health: 9,
 			},
 			{
+				intent: { type: "idle" as const },
 				id: "1:2",
 				kind: "giant-rat",
 				floorNumber: 1,
@@ -181,6 +183,7 @@ describe("Spell targeting controls", () => {
 				{
 					monsters: [
 						{
+							intent: { type: "idle" as const },
 							id: "1:1",
 							kind: "goblin",
 							floorNumber: 1,
@@ -222,6 +225,7 @@ describe("Spell targeting controls", () => {
 			{
 				monsters: [
 					{
+						intent: { type: "idle" as const },
 						id: "1:1",
 						kind: "giant-rat",
 						floorNumber: 1,
@@ -229,6 +233,7 @@ describe("Spell targeting controls", () => {
 						health: 9,
 					},
 					{
+						intent: { type: "idle" as const },
 						id: "1:2",
 						kind: "goblin",
 						floorNumber: 1,
@@ -281,6 +286,7 @@ describe("Spell targeting controls", () => {
 		const run = createCorridorEncounter();
 		stubDungeonRun(run, [
 			{
+				intent: { type: "idle" as const },
 				id: "1:1",
 				kind: "goblin",
 				floorNumber: 1,

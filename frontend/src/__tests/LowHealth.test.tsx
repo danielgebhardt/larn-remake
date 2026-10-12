@@ -68,6 +68,7 @@ describe("Low-health feedback", () => {
 			potionHotbar: ["healing-potion", null, null, null],
 			monsters: [
 				{
+					intent: { type: "idle" as const },
 					id: "1:1",
 					kind: "goblin",
 					floorNumber: 1,

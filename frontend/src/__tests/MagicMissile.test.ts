@@ -9,6 +9,7 @@ const encounter = (): GameState => ({
 	...createGameState(createCorridorEncounter()),
 	monsters: [
 		{
+			intent: { type: "idle" as const },
 			id: "1:1",
 			kind: "goblin",
 			floorNumber: 1,
@@ -55,6 +56,7 @@ describe("Magic Missile turns", () => {
 			monsters: [
 				...initial.monsters,
 				{
+					intent: { type: "idle" as const },
 					id: "1:2",
 					kind: "giant-rat" as const,
 					floorNumber: 1,
@@ -83,6 +85,7 @@ describe("Magic Missile turns", () => {
 			monsters: [
 				{ ...initial.monsters[0], health: 1 },
 				{
+					intent: { type: "idle" as const },
 					id: "1:2",
 					kind: "giant-rat" as const,
 					floorNumber: 1,

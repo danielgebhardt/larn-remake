@@ -47,6 +47,7 @@ describe("Selected spell rules", () => {
 		({ col, eligible }) => {
 			const state = createGameState(createCorridorEncounter());
 			const target = {
+				intent: { type: "idle" as const },
 				id: "1:1",
 				kind: "goblin" as const,
 				floorNumber: 1,
@@ -59,6 +60,7 @@ describe("Selected spell rules", () => {
 	it("does not offer monster targets for a self-healing profile", () => {
 		const state = createGameState(createCorridorEncounter());
 		const target = {
+			intent: { type: "idle" as const },
 			id: "1:1",
 			kind: "goblin" as const,
 			floorNumber: 1,

@@ -94,6 +94,7 @@ describe("G pickup from gameplay", () => {
 			const user = renderPickupRun([potion], {
 				monsters: [
 					{
+						intent: { type: "idle" as const },
 						id: "1:1",
 						kind: "goblin",
 						floorNumber: 1,
@@ -343,6 +344,7 @@ describe("G pickup from gameplay", () => {
 			player: { health: 1, maxHealth: 10 },
 			monsters: [
 				{
+					intent: { type: "idle" as const },
 					id: "1:1",
 					kind: "goblin",
 					floorNumber: 1,

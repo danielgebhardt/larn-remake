@@ -9,6 +9,7 @@ import {
 import { createTestDungeonFloor } from "./testhelpers";
 
 const goblin = (index: number, col: number, health = 4): Monster => ({
+	intent: { type: "idle" as const },
 	id: `1:${index}`,
 	kind: "goblin",
 	floorNumber: 1,

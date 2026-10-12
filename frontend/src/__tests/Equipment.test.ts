@@ -15,6 +15,7 @@ import { createThreeFloorTraversalRun } from "./testhelpers";
 describe("Starting equipment", () => {
 	it("retains starting gear and the original starting damage during combat", () => {
 		const goblin: Monster = {
+			intent: { type: "idle" as const },
 			id: "1:1",
 			kind: "goblin",
 			floorNumber: 1,

@@ -19,6 +19,7 @@ const injuredGame = (health = 3) => ({
 });
 const drink = { type: "consume", itemId: potion.id } as const;
 const adjacentGoblin = {
+	intent: { type: "idle" as const },
 	id: "1:1",
 	kind: "goblin",
 	floorNumber: 1,

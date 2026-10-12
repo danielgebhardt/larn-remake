@@ -256,7 +256,7 @@ Likely later priorities:
 
 ## Readiness cleanup before tactical enemies
 
-Completed and reviewed on `codex/turn-ownership-cleanup`; pending developer merge:
+Completed, reviewed and merged into main from `codex/turn-ownership-cleanup`:
 
 - `26cd7c9`: PlayerActions owns committed turns; effect helpers share that turn context.
 - `5863a15`: imported/stored monsters must respect protected stairs and arrival tiles.
@@ -268,7 +268,7 @@ All 1,425 frontend tests, Biome, TypeScript checks and the production build pass
 
 ## Next epic: Distinct enemy tactics
 
-[Epic #146](https://github.com/danielgebhardt/larn-remake/issues/146) and stories #147–153 are in Backlog. The reviewed readiness cleanup above prepares the turn and save boundaries. Merge that branch before starting #147; persistent intent and its versioned save migration are still outstanding. No refactors or new enemy mechanics are authorized merely by creating these issues.
+[Epic #146](https://github.com/danielgebhardt/larn-remake/issues/146) is underway on `codex/enemy-tactics`. Story #147 implements instance-owned intent and save format v2 with validated v1 migration; developer review is pending. Stories #148–153 remain planned and require authorization before implementation. See [the story review guide](docs/enemy-tactics-review.md). The readiness cleanup above is merged; its turn and protected-arrival contracts are reused.
 
 | Order | Story | Outcome |
 | --- | --- | --- |
@@ -286,7 +286,7 @@ Proposed archers appear on floors 2–20, brutes on 4–20. The brute aims at a 
 
 Manual local-save epic #143 and stories #138–142 are merged into main. The dedicated Save/Load sheet provides one localStorage slot with explicit confirmation for both Save and Load, and file export/import without an extra confirmation. The versioned format stores full floor snapshots, played state, configuration/fog and discovery; loading validates before replacing progress, preserves deterministic continuation within the current rules, and retains dead/won status. No startup auto-load or autosave. See `docs/local-save-review.md` for commit order and maximum-size measurements.
 
-Future work, only when useful: multiple named slots, measured autosave, IndexedDB if synchronous writes become noticeable, and explicit version migrations. Export/import already supports backups and manual cross-device transfer. Browser storage is tied to an origin/profile; seed-only reconstruction is not a substitute for played state. Keep storage separate from snapshot rules so a later adapter can reuse the format and validation.
+Save format v2 adds monster intent; valid v1 snapshots migrate to idle actors without regenerating content. Future work, only when useful: multiple named slots, measured autosave, IndexedDB if synchronous writes become noticeable, and further explicit version migrations. Export/import already supports backups and manual cross-device transfer. Browser storage is tied to an origin/profile; seed-only reconstruction is not a substitute for played state. Keep storage separate from snapshot rules so a later adapter can reuse the format and validation.
 
 Backend saves, accounts, authentication, sessions and automatic cross-device synchronization wait for a demonstrated need.
 

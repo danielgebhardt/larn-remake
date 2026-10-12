@@ -27,6 +27,7 @@ const encounter = (): GameState => ({
 	floorItems: [], // Loot arrival messages are covered separately.
 	monsters: [
 		{
+			intent: { type: "idle" as const },
 			id: "1:1",
 			kind: "goblin",
 			floorNumber: 1,

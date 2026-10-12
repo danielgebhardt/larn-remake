@@ -16,6 +16,7 @@ describe("Retained experience across exploration", () => {
 			run: { ...initial.run, playerCoordinate: { row: 1, col: 9 } },
 			monsters: [
 				{
+					intent: { type: "idle" as const },
 					id: "1:1",
 					kind: "goblin" as const,
 					floorNumber: 1,
@@ -23,6 +24,7 @@ describe("Retained experience across exploration", () => {
 					health: 1,
 				},
 				{
+					intent: { type: "idle" as const },
 					id: "2:1",
 					kind: "goblin" as const,
 					floorNumber: 2,
@@ -64,6 +66,7 @@ describe("Retained experience across exploration", () => {
 			activityHistory: history,
 			monsters: [
 				{
+					intent: { type: "idle" as const },
 					id: "1:1",
 					kind: "orc" as const,
 					floorNumber: 1,

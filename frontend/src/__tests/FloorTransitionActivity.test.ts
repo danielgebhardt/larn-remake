@@ -60,6 +60,7 @@ describe("Floor transition activity", () => {
 			],
 			monsters: [
 				{
+					intent: { type: "idle" as const },
 					id: "2:1",
 					kind: "goblin",
 					floorNumber: 2,

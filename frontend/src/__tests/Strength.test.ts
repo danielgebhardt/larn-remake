@@ -55,6 +55,7 @@ describe("Earned Strength", () => {
 			player: { health: 10, maxHealth: 12 },
 			monsters: [
 				{
+					intent: { type: "idle" as const },
 					id: "1:1",
 					kind: "giant-rat",
 					floorNumber: 1,
@@ -62,6 +63,7 @@ describe("Earned Strength", () => {
 					health: 1,
 				},
 				{
+					intent: { type: "idle" as const },
 					id: "1:2",
 					kind: "goblin",
 					floorNumber: 1,

@@ -12,6 +12,7 @@ const encounter = (kind: MonsterKind = "goblin"): GameState => ({
 	...createGameState(createCorridorEncounter()),
 	monsters: [
 		{
+			intent: { type: "idle" as const },
 			id: "1:1",
 			kind,
 			floorNumber: 1,
@@ -65,6 +66,7 @@ describe("Experience from confirmed player kills", () => {
 					coordinate: { row: 1, col: 3 },
 				})),
 				{
+					intent: { type: "idle" as const },
 					id: "1:2",
 					kind: "orc",
 					floorNumber: 1,

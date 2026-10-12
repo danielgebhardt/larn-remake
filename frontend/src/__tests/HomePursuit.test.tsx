@@ -37,6 +37,7 @@ describe("Pursuit on the play screen", () => {
 				},
 				[
 					{
+						intent: { type: "idle" as const },
 						id: "1:1",
 						kind: "goblin",
 						floorNumber: 1,

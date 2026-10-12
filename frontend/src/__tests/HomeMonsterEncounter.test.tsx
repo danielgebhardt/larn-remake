@@ -71,6 +71,7 @@ describe("Complete monster encounters on screen", () => {
 			},
 			[
 				{
+					intent: { type: "idle" as const },
 					id: "1:1",
 					kind: "goblin",
 					floorNumber: 1,
@@ -78,6 +79,7 @@ describe("Complete monster encounters on screen", () => {
 					health: 4,
 				},
 				{
+					intent: { type: "idle" as const },
 					id: "1:2",
 					kind: "goblin",
 					floorNumber: 1,
@@ -85,6 +87,7 @@ describe("Complete monster encounters on screen", () => {
 					health: 4,
 				},
 				{
+					intent: { type: "idle" as const },
 					id: "1:3",
 					kind: "goblin",
 					floorNumber: 1,

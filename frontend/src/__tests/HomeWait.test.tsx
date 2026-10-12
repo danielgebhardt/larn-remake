@@ -19,6 +19,7 @@ const renderWaitingRun = (monster = true) => {
 		monster
 			? [
 					{
+						intent: { type: "idle" as const },
 						id: "1:1",
 						kind: "goblin",
 						floorNumber: 1,

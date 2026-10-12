@@ -80,6 +80,7 @@ describe("Arriving at floor items", () => {
 				...state,
 				monsters: [
 					{
+						intent: { type: "idle" as const },
 						id: "1:1",
 						kind: "goblin",
 						floorNumber: 1,
@@ -119,6 +120,7 @@ describe("Arriving at floor items", () => {
 			...game(),
 			monsters: [
 				{
+					intent: { type: "idle" as const },
 					id: "1:1",
 					kind: "goblin" as const,
 					floorNumber: 1,

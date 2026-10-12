@@ -136,6 +136,7 @@ describe("Seeded floor loot", () => {
 		expect(
 			spawnRunItems(run, [
 				{
+					intent: { type: "idle" as const },
 					id: "1:1",
 					kind: "goblin",
 					floorNumber: 1,

@@ -17,10 +17,10 @@ const loadVersionOne = () => {
 };
 
 describe("Version-1 save compatibility", () => {
-	it("loads a captured old file and writes the same played data", () => {
+	it("loads a captured old file and writes the same migrated played data", () => {
 		const { document, adventure } = loadVersionOne();
 		expect(document).toMatchObject({
-			version: 1,
+			version: 2,
 			state: { turn: 3, run: { seed: 123, activeFloor: 1 } },
 		});
 		const written = createSaveDocument(
@@ -35,7 +35,7 @@ describe("Version-1 save compatibility", () => {
 			value: document,
 		});
 	});
-	it("does not implicitly add new top-level game state to version 1", () => {
+	it("does not implicitly add new top-level game state to the current format", () => {
 		const { document, adventure } = loadVersionOne();
 		const extendedState = { ...adventure.state, uiSelectedItem: "bag:sword" };
 		const written = createSaveDocument(
@@ -47,7 +47,7 @@ describe("Version-1 save compatibility", () => {
 		);
 		expect(written.state).not.toHaveProperty("uiSelectedItem");
 	});
-	it("does not implicitly add new monster state to version 1", () => {
+	it("does not implicitly add new monster state to the current format", () => {
 		const { adventure } = loadVersionOne();
 		const extendedState = {
 			...adventure.state,
@@ -67,7 +67,7 @@ describe("Version-1 save compatibility", () => {
 	});
 	it("distinguishes unsupported versions, missing fields and inconsistent resources", () => {
 		const { document } = loadVersionOne();
-		expect(parseSave(JSON.stringify({ ...document, version: 2 }))).toEqual({
+		expect(parseSave(JSON.stringify({ ...document, version: 3 }))).toEqual({
 			ok: false,
 			error: "This save uses an unsupported format version.",
 		});

@@ -52,6 +52,7 @@ describe("Chest and head equipment", () => {
 			),
 			monsters: [
 				{
+					intent: { type: "idle" as const },
 					id: "1:1",
 					kind: "orc" as const,
 					floorNumber: 1,

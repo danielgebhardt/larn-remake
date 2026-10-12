@@ -1,11 +1,12 @@
 // @vitest-environment node
 import { describe, expect, it, vi } from "vitest";
-import { serializeSave } from "../domain/saves/SaveFormat";
+import { parseSave, serializeSave } from "../domain/saves/SaveFormat";
 import {
 	LOCAL_SAVE_KEY,
 	readLocalSave,
 	writeLocalSave,
 } from "../persistence/LocalAdventureSave";
+import versionOneFile from "./fixtures/adventure-v1.json?raw";
 import { savedAdventure } from "./SaveTestHelpers";
 
 const memoryStorage = () => {
@@ -18,6 +19,34 @@ const memoryStorage = () => {
 	};
 };
 describe("One local adventure save slot", () => {
+	it("reads a legacy slot as v2 without rewriting the original until Save", () => {
+		const storage = memoryStorage();
+		storage.setItem(LOCAL_SAVE_KEY, versionOneFile);
+		const set = vi.spyOn(storage, "setItem");
+		const loaded = readLocalSave(() => storage);
+		expect(loaded).toEqual(parseSave(versionOneFile));
+		if (!loaded.ok || !loaded.value) throw new Error("Legacy slot must load");
+		expect(loaded.value.version).toBe(2);
+		expect(set).not.toHaveBeenCalled();
+		expect(storage.getItem(LOCAL_SAVE_KEY)).toBe(versionOneFile);
+
+		writeLocalSave(loaded.value, () => storage);
+		expect(storage.getItem(LOCAL_SAVE_KEY)).toBe(serializeSave(loaded.value));
+	});
+
+	it("rejects malformed intent without replacing a valid local save", () => {
+		const storage = memoryStorage();
+		const previous = savedAdventure();
+		writeLocalSave(previous, () => storage);
+		const set = vi.spyOn(storage, "setItem");
+		const invalid = structuredClone(previous);
+		Reflect.deleteProperty(invalid.state.monsters[0], "intent");
+
+		expect(writeLocalSave(invalid, () => storage).ok).toBe(false);
+		expect(set).not.toHaveBeenCalled();
+		expect(readLocalSave(() => storage)).toEqual({ ok: true, value: previous });
+	});
+
 	it("distinguishes an empty slot and replaces it with one validated snapshot", () => {
 		const storage = memoryStorage();
 		expect(readLocalSave(() => storage)).toEqual({ ok: true, value: null });
@@ -52,7 +81,7 @@ describe("One local adventure save slot", () => {
 		writeLocalSave(previous, () => storage);
 		const set = vi.spyOn(storage, "setItem");
 		expect(
-			writeLocalSave({ ...previous, version: 99 as 1 }, () => storage).ok,
+			writeLocalSave({ ...previous, version: 99 as 2 }, () => storage).ok,
 		).toBe(false);
 		expect(set).not.toHaveBeenCalled();
 		expect(readLocalSave(() => storage)).toEqual({ ok: true, value: previous });

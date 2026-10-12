@@ -34,13 +34,13 @@ The format version is independent of storage. Unknown versions are rejected, not
 
 ## Follow-up save boundary cleanup
 
-Reviewed on `codex/turn-ownership-cleanup`, pending developer merge:
+Reviewed and merged into main from `codex/turn-ownership-cleanup`:
 
 - `5863a15` rejects monsters on protected stair/arrival tiles using the same location rule as gameplay.
 - `6dae4f5` defines the v1 saved-state aggregate and monster fields explicitly in `SaveDocumentV1.ts`, with the writer selecting those fields. Runtime shapes are checked in `SaveShapeV1.ts`, semantic rules in `SaveConsistency.ts`, and format-version dispatch in `SaveValidation.ts`.
 - A literal `adventure-v1.json` fixture is retained independently of the current writer. Tests verify restore/continuation and prevent incidental state/monster properties from entering v1 output.
 
-The current format remains **version 1**; no migration was needed for these boundary changes. Balance/catalog compatibility checks still use the running game’s rules and may reject older snapshots after tuning. Required persistent monster intent will introduce a deliberate format version and v1 migration in #147. Deterministic continuation is guaranteed within identical rules, not across balance changes.
+The boundary cleanup kept **version 1**; no migration was needed at that point. Story #147 subsequently adds **version 2** with instance intent and validated v1-to-idle migration on `codex/enemy-tactics`, pending developer review. Local reads do not rewrite legacy slot bytes; the next confirmed save writes v2. See [the tactics review guide](enemy-tactics-review.md). Balance/catalog compatibility checks still use the running game’s rules and may reject older snapshots after tuning. Deterministic continuation is guaranteed within identical rules, not across balance changes.
 
 ## Maximum-size measurement
 

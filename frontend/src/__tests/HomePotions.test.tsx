@@ -24,6 +24,7 @@ const renderPotionRun = (health: number, withMonster = false) => {
 		monsters: withMonster
 			? [
 					{
+						intent: { type: "idle" as const },
 						id: "1:1",
 						kind: "goblin",
 						floorNumber: 1,

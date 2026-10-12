@@ -38,6 +38,7 @@ describe("Cure-and-return objective", () => {
 			...createGameState(createCorridorEncounter()),
 			monsters: [
 				{
+					intent: { type: "idle" as const },
 					id: "1:1",
 					kind: "goblin" as const,
 					floorNumber: 1,

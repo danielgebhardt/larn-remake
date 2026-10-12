@@ -58,6 +58,7 @@ describe("Mana potions", () => {
 			progression: { experience: 100 },
 			monsters: [
 				{
+					intent: { type: "idle" as const },
 					id: "1:1",
 					kind: "orc" as const,
 					floorNumber: 1,
@@ -150,6 +151,7 @@ describe("Mana potions", () => {
 		).toEqual(items);
 		const drops = Array.from({ length: 40 }, (_, seed) =>
 			createMonsterDrop(seed, {
+				intent: { type: "idle" as const },
 				id: "1:1",
 				kind: "goblin",
 				health: 0,

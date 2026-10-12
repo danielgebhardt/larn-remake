@@ -156,6 +156,7 @@ describe("Gear action turns", () => {
 							: before.equipment,
 					monsters: [
 						{
+							intent: { type: "idle" as const },
 							id: "1:1",
 							kind: "goblin" as const,
 							floorNumber: 1,
@@ -182,6 +183,7 @@ describe("Gear action turns", () => {
 	it("does not activate stairs or wake inactive-floor monsters while changing gear", () => {
 		const before = game();
 		const inactive = {
+			intent: { type: "idle" as const },
 			id: "2:1",
 			kind: "goblin" as const,
 			floorNumber: 2,
@@ -207,6 +209,7 @@ describe("Gear action turns", () => {
 			...game(),
 			monsters: [
 				{
+					intent: { type: "idle" as const },
 					id: "1:1",
 					kind: "goblin" as const,
 					floorNumber: 1,
@@ -241,6 +244,7 @@ describe("Gear action turns", () => {
 			...game(),
 			monsters: [
 				{
+					intent: { type: "idle" as const },
 					id: "1:1",
 					kind: "goblin" as const,
 					floorNumber: 1,
@@ -264,6 +268,7 @@ describe("Gear action turns", () => {
 			player: { health: 1, maxHealth: 10 },
 			monsters: [
 				{
+					intent: { type: "idle" as const },
 					id: "1:1",
 					kind: "goblin" as const,
 					floorNumber: 1,

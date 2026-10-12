@@ -26,6 +26,7 @@ describe("Waiting for a turn", () => {
 			...createGameState(createCorridorEncounter()),
 			monsters: [
 				{
+					intent: { type: "idle" as const },
 					id: "1:1",
 					kind: "goblin" as const,
 					floorNumber: 1,
@@ -56,6 +57,7 @@ describe("Waiting for a turn", () => {
 			...createGameState(run),
 			monsters: [
 				{
+					intent: { type: "idle" as const },
 					id: "2:1",
 					kind: "goblin" as const,
 					floorNumber: 2,
@@ -76,6 +78,7 @@ describe("Waiting for a turn", () => {
 			player: { health: 1, maxHealth: 10 },
 			monsters: [
 				{
+					intent: { type: "idle" as const },
 					id: "1:1",
 					kind: "goblin" as const,
 					floorNumber: 1,

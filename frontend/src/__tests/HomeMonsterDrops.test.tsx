@@ -13,6 +13,7 @@ describe("Monster loot on screen", () => {
 	it("reveals a bump-kill drop in current sight and lets the player collect it", async () => {
 		const run = { ...createCorridorEncounter(), seed: 1 };
 		const monster = {
+			intent: { type: "idle" as const },
 			id: "1:1",
 			kind: "goblin" as const,
 			floorNumber: 1,

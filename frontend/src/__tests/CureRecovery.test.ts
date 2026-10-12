@@ -20,6 +20,7 @@ const ready = (): GameState => ({
 	],
 	monsters: [
 		{
+			intent: { type: "idle" as const },
 			id: "3:1",
 			kind: "goblin",
 			floorNumber: 3,

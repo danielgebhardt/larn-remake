@@ -5,6 +5,10 @@ import type { ItemKind } from "../items/Item";
 
 export type MonsterKind = "goblin" | "giant-rat" | "orc";
 
+export type MonsterIntent =
+	| { type: "idle" }
+	| { type: "preparing-attack"; target: Coordinate };
+
 export type Monster = {
 	// Stable identity: floorNumber:spawnIndex (index starts at 1).
 	id: string;
@@ -12,6 +16,7 @@ export type Monster = {
 	floorNumber: number;
 	coordinate: Coordinate;
 	health: number;
+	intent: MonsterIntent;
 };
 
 export type MonsterDefinition = {

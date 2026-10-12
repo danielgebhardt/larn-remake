@@ -11,6 +11,7 @@ describe("Visible hit and miss feedback", () => {
 	it("announces both misses in order without inventing damage", async () => {
 		const stubs = stubDungeonRun(createCorridorEncounter(), [
 			{
+				intent: { type: "idle" as const },
 				id: "1:1",
 				kind: "goblin",
 				floorNumber: 1,
@@ -45,6 +46,7 @@ describe("Visible hit and miss feedback", () => {
 		async (outcome) => {
 			const stubs = stubDungeonRun(createCorridorEncounter(), [
 				{
+					intent: { type: "idle" as const },
 					id: "1:1",
 					kind: "goblin",
 					floorNumber: 1,

@@ -24,6 +24,7 @@ const game = (): GameState => ({
 	floorItems: [],
 	monsters: [
 		{
+			intent: { type: "idle" as const },
 			id: "1:1",
 			kind: "goblin",
 			floorNumber: 1,
@@ -31,6 +32,7 @@ const game = (): GameState => ({
 			health: 1,
 		},
 		{
+			intent: { type: "idle" as const },
 			id: "1:2",
 			kind: "giant-rat",
 			floorNumber: 1,

@@ -4,10 +4,16 @@ import { DEFAULT_PLAYER_MAX_HEALTH } from "../game/PlayerStats";
 import { HEALTH_PER_LEVEL, levelForExperience } from "../game/Progression";
 import { type EquipmentSlot, equipmentSlotFor } from "../items/Equipment";
 import { MONSTER_DEFINITIONS } from "../monsters/Monster";
-import { protectedFloorLocations } from "../monsters/MonsterLocations";
+import {
+	orthogonalDistance,
+	protectedFloorLocations,
+} from "../monsters/MonsterLocations";
 import type { SaveDocumentV1 } from "./SaveDocumentV1";
+import type { SaveDocumentV2 } from "./SaveDocumentV2";
 
-export const isConsistentSave = (document: SaveDocumentV1): boolean => {
+export const isConsistentSave = (
+	document: SaveDocumentV1 | SaveDocumentV2,
+): boolean => {
 	const { state, configuration: config } = document;
 	const { run, quest } = state;
 	const floorAt = (number: number) => run.floors[number - 1];
@@ -128,6 +134,16 @@ export const isConsistentSave = (document: SaveDocumentV1): boolean => {
 					entry.floorNumber === run.activeFloor &&
 					same(entry.coordinate, run.playerCoordinate)
 				),
+		)
+	)
+		return false;
+	if (
+		document.version === 2 &&
+		!document.state.monsters.every(
+			(monster) =>
+				monster.intent.type === "idle" ||
+				(walkable(monster.floorNumber, monster.intent.target) &&
+					orthogonalDistance(monster.coordinate, monster.intent.target) === 1),
 		)
 	)
 		return false;

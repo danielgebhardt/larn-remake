@@ -57,6 +57,7 @@ describe("Earned Intelligence and mana", () => {
 			progression: { experience: 29 },
 			monsters: [
 				{
+					intent: { type: "idle" as const },
 					id: "rat",
 					kind: "giant-rat" as const,
 					health: 1,

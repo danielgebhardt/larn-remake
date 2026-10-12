@@ -5,6 +5,7 @@ import { serializeSave } from "../domain/saves/SaveFormat";
 import Home from "../Home";
 import { LOCAL_SAVE_KEY } from "../persistence/LocalAdventureSave";
 import { ThemeProvider } from "../settings/ThemeProvider";
+import versionOneFile from "./fixtures/adventure-v1.json?raw";
 import {
 	closeSaveSheet,
 	openSaveSheet,
@@ -25,30 +26,37 @@ afterEach(() => {
 	vi.unstubAllGlobals();
 });
 describe("Save file controls in Save/Load", () => {
-	it("imports directly after choosing a valid file, leaving the local slot untouched", async () => {
-		const previous = serializeSave(savedAdventure());
-		localStorage.setItem(LOCAL_SAVE_KEY, previous);
-		const user = setup();
-		await openSaveSheet(user);
-		await user.upload(
-			screen.getByLabelText("Import adventure file"),
-			new File([previous], "save.json", { type: "application/json" }),
-		);
-		await waitFor(() =>
+	it.each(["current", "legacy"])(
+		"imports a %s file directly, leaving the local slot untouched",
+		async (format) => {
+			const previous = serializeSave(savedAdventure());
+			localStorage.setItem(LOCAL_SAVE_KEY, previous);
+			const user = setup();
+			await openSaveSheet(user);
+			await user.upload(
+				screen.getByLabelText("Import adventure file"),
+				new File(
+					[format === "legacy" ? versionOneFile : previous],
+					"save.json",
+					{ type: "application/json" },
+				),
+			);
+			await waitFor(() =>
+				expect(
+					screen.queryByRole("dialog", { name: "Save/Load" }),
+				).not.toBeInTheDocument(),
+			);
+			expect(screen.getByLabelText("Turn count")).toHaveTextContent("Turn 3");
 			expect(
-				screen.queryByRole("dialog", { name: "Save/Load" }),
-			).not.toBeInTheDocument(),
-		);
-		expect(screen.getByLabelText("Turn count")).toHaveTextContent("Turn 3");
-		expect(
-			screen.queryByRole("button", { name: "Confirm load" }),
-		).not.toBeInTheDocument();
-		expect(localStorage.getItem(LOCAL_SAVE_KEY)).toBe(previous);
-		await openSettings(user);
-		expect(screen.getByLabelText("Current dungeon seed")).toHaveTextContent(
-			"123",
-		);
-	});
+				screen.queryByRole("button", { name: "Confirm load" }),
+			).not.toBeInTheDocument();
+			expect(localStorage.getItem(LOCAL_SAVE_KEY)).toBe(previous);
+			await openSettings(user);
+			expect(screen.getByLabelText("Current dungeon seed")).toHaveTextContent(
+				"123",
+			);
+		},
+	);
 	it("restores pickup and healing shortcuts after importing without clicking the map", async () => {
 		const user = setup();
 		await openSaveSheet(user);

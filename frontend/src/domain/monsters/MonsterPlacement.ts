@@ -84,6 +84,7 @@ export const spawnRunMonsters = (
 				floorNumber: floor.floorNumber,
 				coordinate,
 				health: MONSTER_DEFINITIONS[kind].maxHealth,
+				intent: { type: "idle" },
 			});
 		}
 	}

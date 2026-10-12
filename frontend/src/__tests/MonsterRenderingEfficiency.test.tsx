@@ -21,6 +21,7 @@ describe("Monster rendering efficiency", () => {
 		);
 		const monsters: Monster[] = [
 			{
+				intent: { type: "idle" as const },
 				id: "1:1",
 				kind: "goblin",
 				floorNumber: 1,
@@ -28,6 +29,7 @@ describe("Monster rendering efficiency", () => {
 				health: 4,
 			},
 			{
+				intent: { type: "idle" as const },
 				id: "1:2",
 				kind: "goblin",
 				floorNumber: 1,

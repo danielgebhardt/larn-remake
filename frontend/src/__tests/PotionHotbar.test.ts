@@ -30,6 +30,7 @@ describe("Potion hotbar assignments", () => {
 			...game(),
 			monsters: [
 				{
+					intent: { type: "idle" as const },
 					id: "1:1",
 					kind: "goblin" as const,
 					floorNumber: 1,
@@ -170,6 +171,7 @@ describe("Using assigned potions", () => {
 			...assigned(),
 			monsters: [
 				{
+					intent: { type: "idle" as const },
 					id: "1:1",
 					kind: "goblin" as const,
 					floorNumber: 1,

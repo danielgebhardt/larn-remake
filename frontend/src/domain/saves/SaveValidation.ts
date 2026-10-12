@@ -24,6 +24,7 @@ import {
 } from "../items/Equipment";
 import { ITEM_DEFINITIONS } from "../items/Item";
 import { MONSTER_DEFINITIONS } from "../monsters/Monster";
+import { protectedFloorLocations } from "../monsters/MonsterLocations";
 import type { SaveDocument, SaveResult } from "./SaveFormat";
 
 // Small runtime schemas keep untrusted JSON out of the typed game model.
@@ -344,6 +345,13 @@ const consistent = (document: SaveDocument): boolean => {
 			: cures.length !== 1 || cures[0].floorNumber !== quest.goalFloor
 	)
 		return false;
+	// Imported actors must preserve the same safe arrivals as live pursuit.
+	const protectedLocations = new Map(
+		run.floors.map((floor) => [
+			floor.floorNumber,
+			protectedFloorLocations(run, floor.floorNumber),
+		]),
+	);
 	if (
 		!unique(state.monsters.map((entry) => entry.id)) ||
 		!unique(
@@ -357,6 +365,9 @@ const consistent = (document: SaveDocument): boolean => {
 				/^\d+:[1-9]\d*$/.test(entry.id) &&
 				Number(entry.id.split(":")[0]) === entry.floorNumber &&
 				walkable(entry.floorNumber, entry.coordinate) &&
+				!protectedLocations
+					.get(entry.floorNumber)
+					?.some((location) => same(location, entry.coordinate)) &&
 				entry.health <= MONSTER_DEFINITIONS[entry.kind].maxHealth &&
 				!(
 					entry.floorNumber === run.activeFloor &&

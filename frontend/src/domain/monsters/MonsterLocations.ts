@@ -1,5 +1,9 @@
 import { NoDistinctStairLocationError } from "../dungeon/DungeonLocations";
-import { type DungeonRun, selectFloorDownStair } from "../dungeon/DungeonRun";
+import {
+	type DungeonFloor,
+	type DungeonRun,
+	selectFloorDownStair,
+} from "../dungeon/DungeonRun";
 import type { Coordinate } from "../dungeon/DungeonTypes";
 
 export const coordinateKey = ({ row, col }: Coordinate): string =>
@@ -9,7 +13,7 @@ export const orthogonalDistance = (a: Coordinate, b: Coordinate): number =>
 
 // Arrivals are read from links too, even if a fixture does not use reciprocal stairs.
 export const protectedFloorLocations = (
-	run: DungeonRun,
+	run: { floors: readonly Pick<DungeonFloor, "upStair" | "downStair">[] },
 	floorNumber: number,
 ): Coordinate[] => {
 	const floor = run.floors[floorNumber - 1];

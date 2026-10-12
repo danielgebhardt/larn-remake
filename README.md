@@ -463,3 +463,5 @@ Visible nearby dungeon objects show their controls and live/spent state below th
 Rare safe-room discoveries include **sealed reliquaries** (floor 8+) and **abandoned spell archives** (floor 3+), each with a 12% per-floor chance. Reliquaries trade a confirmed 3-damage wound for a special ring. Archives release an unknown eligible book from the run’s selected spell pool, or a mana potion. Both are one-use; rewards remain on the floor for G pickup. They use existing rooms and leave dungeon terrain unchanged.
 
 Death opens a game-over summary with the final run values and last recorded damage. Choose **New Adventure**, **Replay this seed**, or **Inspect run**; Escape also inspects without restarting. After inspection, the ended run remains available for Character, activity and save/export review. Loading a dead save shows its summary once again.
+
+Living players below **50% of maximum health** receive a red HP value, low-health badge and a muted red adventure-container background. Exactly half health does not warn. Recovery or capacity changes update the warning immediately; death uses the game-over dialog.

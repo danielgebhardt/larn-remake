@@ -477,7 +477,8 @@ const Home = ({
 			<main className="flex min-h-0 min-w-0 flex-1 p-4 sm:p-6">
 				<section
 					aria-label="Adventure"
-					className={`flex min-h-0 min-w-0 flex-1 flex-col rounded-lg border bg-card p-3 sm:p-4 ${isLowHealth(player) ? "border-destructive/60 ring-1 ring-destructive/20" : "border-border"}`}
+					data-low-health={isLowHealth(player)}
+					className="flex min-h-0 min-w-0 flex-1 flex-col rounded-lg border border-border bg-card p-3 sm:p-4"
 				>
 					<div className="flex shrink-0 flex-wrap items-center justify-center gap-x-5 gap-y-2 pb-3">
 						<PotionHotbarView

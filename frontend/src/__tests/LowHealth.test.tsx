@@ -14,7 +14,7 @@ import Home from "./TestHome";
 afterEach(resetHomeTestState);
 
 describe("Low-health feedback", () => {
-	it.each([1, 5])("warns at %i HP even with a larger maximum", (health) => {
+	it.each([1, 5, 8])("warns at %i HP even with a larger maximum", (health) => {
 		render(
 			<HealthDisplay
 				player={{ health, maxHealth: 18 }}
@@ -28,7 +28,7 @@ describe("Low-health feedback", () => {
 			within(output).getByText(String(health), { exact: true }),
 		).toHaveClass("text-destructive");
 	});
-	it.each([0, 6, 18])(
+	it.each([0, 9, 18])(
 		"does not show the living-player warning at %i HP",
 		(health) => {
 			render(
@@ -43,7 +43,7 @@ describe("Low-health feedback", () => {
 	it("updates the number and warning when health grows above the threshold", () => {
 		const { rerender } = render(
 			<HealthDisplay
-				player={{ health: 5, maxHealth: 10 }}
+				player={{ health: 4, maxHealth: 10 }}
 				label="Player health"
 			/>,
 		);
@@ -63,7 +63,7 @@ describe("Low-health feedback", () => {
 		const create = GameState.createGameState;
 		vi.spyOn(GameState, "createGameState").mockImplementationOnce((run) => ({
 			...create(run),
-			player: { health: 6, maxHealth: 10 },
+			player: { health: 5, maxHealth: 10 },
 			bag: { items: [{ id: "potion", kind: "healing-potion" }] },
 			potionHotbar: ["healing-potion", null, null, null],
 			monsters: [
@@ -82,10 +82,11 @@ describe("Low-health feedback", () => {
 		expect(screen.queryByText("Low health")).not.toBeInTheDocument();
 		await user.keyboard("d");
 		expect(screen.getByLabelText("Player health")).toHaveTextContent(
-			"Health 5 / 10",
+			"Health 4 / 10",
 		);
-		expect(screen.getByRole("region", { name: "Adventure" })).toHaveClass(
-			"border-destructive/60",
+		expect(screen.getByRole("region", { name: "Adventure" })).toHaveAttribute(
+			"data-low-health",
+			"true",
 		);
 		await user.keyboard("dc");
 		expect(screen.getByLabelText("Character health")).toHaveTextContent(
@@ -93,11 +94,12 @@ describe("Low-health feedback", () => {
 		);
 		await user.keyboard("c1");
 		expect(screen.getByLabelText("Player health")).toHaveTextContent(
-			"Health 10 / 10",
+			"Health 9 / 10",
 		);
 		expect(screen.queryByText("Low health")).not.toBeInTheDocument();
-		expect(screen.getByRole("region", { name: "Adventure" })).not.toHaveClass(
-			"border-destructive/60",
+		expect(screen.getByRole("region", { name: "Adventure" })).toHaveAttribute(
+			"data-low-health",
+			"false",
 		);
 	});
 	it("clears a low-health run when starting a new dungeon", async () => {
@@ -105,7 +107,7 @@ describe("Low-health feedback", () => {
 		const create = GameState.createGameState;
 		vi.spyOn(GameState, "createGameState").mockImplementationOnce((run) => ({
 			...create(run),
-			player: { health: 5, maxHealth: 10 },
+			player: { health: 4, maxHealth: 10 },
 			monsters: [],
 		}));
 		renderHome(<Home />);
@@ -119,4 +121,21 @@ describe("Low-health feedback", () => {
 		);
 		expect(screen.getByLabelText("Turn count")).toHaveTextContent("Turn 0");
 	});
+});
+
+it("does not warn at exactly half health but follows capacity changes", () => {
+	const { rerender } = render(
+		<HealthDisplay
+			label="Player health"
+			player={{ health: 5, maxHealth: 10 }}
+		/>,
+	);
+	expect(screen.queryByText("Low health")).not.toBeInTheDocument();
+	rerender(
+		<HealthDisplay
+			label="Player health"
+			player={{ health: 5, maxHealth: 12 }}
+		/>,
+	);
+	expect(screen.getByText("Low health")).toBeVisible();
 });

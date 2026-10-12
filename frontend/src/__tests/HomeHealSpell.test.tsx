@@ -15,7 +15,7 @@ const setup = () => {
 	const create = GameState.createGameState;
 	vi.spyOn(GameState, "createGameState").mockImplementationOnce((run) => ({
 		...create(run),
-		player: { health: 5, maxHealth: 10 },
+		player: { health: 4, maxHealth: 10 },
 	}));
 	renderHome(<Home />);
 	screen.getByLabelText("Dungeon map", { exact: true }).focus();
@@ -34,7 +34,7 @@ describe("Heal activation", () => {
 			else
 				await user.click(screen.getByRole("button", { name: "Heal, 4 mana" }));
 			expect(screen.getByLabelText("Player health")).toHaveTextContent(
-				"Health 9 / 10",
+				"Health 8 / 10",
 			);
 			expect(screen.getByLabelText("Player health")).not.toHaveTextContent(
 				"Low health",
@@ -56,7 +56,7 @@ describe("Heal activation", () => {
 		const dialog = await screen.findByRole("dialog", { name: "Character" });
 		await user.keyboard("h");
 		expect(within(dialog).getByLabelText("Character health")).toHaveTextContent(
-			"Health 5 / 10",
+			"Health 4 / 10",
 		);
 		expect(screen.getByLabelText("Turn count")).toHaveTextContent("Turn 0");
 	});

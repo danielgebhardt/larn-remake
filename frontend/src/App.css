@@ -194,3 +194,7 @@
 [data-visibility="remembered"] svg {
 	opacity: var(--remembered-icon-opacity);
 }
+
+[data-low-health="true"] {
+	background-color: color-mix(in oklab, var(--destructive) 20%, var(--card));
+}

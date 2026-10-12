@@ -3,6 +3,7 @@ import {
 	Coins,
 	DoorClosed,
 	DoorOpen,
+	Droplets,
 	type LucideIcon,
 	TriangleAlert,
 } from "lucide-react";
@@ -16,6 +17,7 @@ const icons: Record<DungeonObjectKind, LucideIcon> = {
 	gold: Coins,
 	chest: Archive,
 	trap: TriangleAlert,
+	fountain: Droplets,
 };
 const DungeonObjectIcon = ({ object }: { object: DungeonObject }) => {
 	const Icon =

@@ -18,6 +18,7 @@ import SpellHotbarView from "./components/game/SpellHotbarView";
 import { useSpellTargeting } from "./components/game/useSpellTargeting";
 import VictoryDialog from "./components/game/VictoryDialog";
 import VisibleEffects from "./components/game/VisibleEffects";
+import ObjectChoiceDialog from "./components/objects/ObjectChoiceDialog";
 import {
 	connectDungeonFloors,
 	type DungeonRun,
@@ -40,7 +41,10 @@ import {
 import { BAG_CAPACITY } from "./domain/items/Bag";
 import { itemsAtPlayer } from "./domain/items/FloorItems";
 import type { HotbarSlot } from "./domain/items/PotionHotbar";
+import type { DungeonObject } from "./domain/objects/DungeonObject";
 import { navigationRun } from "./domain/objects/NavigationTerrain";
+import { objectChoices } from "./domain/objects/ObjectChoices";
+import { nearbyInteractionObject } from "./domain/objects/ObjectInteraction";
 import {
 	createSaveDocument,
 	type RestoredAdventure,
@@ -122,6 +126,8 @@ const Home = ({
 	const [helpOpen, setHelpOpen] = useState(false);
 	const [characterOpen, setCharacterOpen] = useState(false);
 	const [characterOpenedFromMap, setCharacterOpenedFromMap] = useState(false);
+	const [interactionObject, setInteractionObject] =
+		useState<DungeonObject | null>(null);
 	const [pickupOpen, setPickupOpen] = useState(false);
 	const mapRef = useRef<HTMLElement>(null);
 	useEffect(() => {
@@ -184,6 +190,7 @@ const Home = ({
 			actionError: "",
 		});
 		setPickupOpen(false);
+		setInteractionObject(null);
 		setConfiguration(nextConfiguration);
 		setConfigDraft(configurationDraft(nextConfiguration));
 		setConfigErrors({});
@@ -209,6 +216,7 @@ const Home = ({
 			actionError: "",
 		});
 		setPickupOpen(false);
+		setInteractionObject(null);
 		setCharacterOpen(false);
 		setHelpOpen(false);
 		setRestoreMapFocus(true);
@@ -256,7 +264,13 @@ const Home = ({
 		});
 	};
 
+	const handleInteractRequested = () => {
+		const object = nearbyInteractionObject(game.state);
+		if (object && objectChoices(object).length) setInteractionObject(object);
+		else handleActionRequested({ type: "interact" });
+	};
 	const mapInputAvailable =
+		interactionObject === null &&
 		!settingsOpen &&
 		!saveOpen &&
 		!helpOpen &&
@@ -534,9 +548,7 @@ const Home = ({
 						onWaitRequested={() => handleActionRequested({ type: "wait" })}
 						dungeonObjects={activeObjects}
 						onInteractRequested={
-							gameplayEnabled
-								? () => handleActionRequested({ type: "interact" })
-								: undefined
+							gameplayEnabled ? handleInteractRequested : undefined
 						}
 						onPickupRequested={handlePickupRequested}
 						onPotionRequested={handlePotionRequested}
@@ -562,6 +574,12 @@ const Home = ({
 					<ActivityLog history={game.state.activityHistory} />
 				</section>
 			</main>
+			<ObjectChoiceDialog
+				object={interactionObject}
+				onClose={() => setInteractionObject(null)}
+				onChoose={handleActionRequested}
+				mapRef={mapRef}
+			/>
 			<VictoryDialog
 				summary={victory}
 				open={victoryOpen}

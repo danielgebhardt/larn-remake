@@ -95,6 +95,8 @@ const victory = object({
 });
 
 const eventFields = {
+	"fountain-restored": { health: natural, mana: natural },
+	"fountain-poisoned": { damage: integer(1, 3) },
 	"trap-disarmed": {},
 	"trap-sprung": { damage: integer(1, 6) },
 	"chest-opened": { item: itemKind },

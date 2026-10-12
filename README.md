@@ -451,3 +451,5 @@ Gold is tracked separately from bag capacity. Walk onto coin caches to collect t
 Treasure chests can appear in safe room tiles. Press **E** within reach to open one for a turn. Its seeded, depth-appropriate reward remains on the floor even with a full bag. Walk onto the reward and press **G** to collect it. An opened chest cannot pay again, including after loading.
 
 Visible traps (floor 2+) show red warning icons. Crossing springs one for 2–6 damage within the movement turn. **E** attempts disarm: starting chance 55%, increasing 5% per Dexterity modifier up to 95%. Failure springs it. Both outcomes spend the trap permanently; protected stairs and starts never contain one.
+
+Ancient fountains (floor 2+) offer a safe sip or risky draw. **E** opens a choice dialog; **1/2** select and **Escape** cancels without a turn. Safe sip recovers up to 3 health/2 mana. Risky draw has a 60% chance to recover up to 8 health/6 mana; otherwise it deals 3 damage and poisons for three phases. A chosen draw uses one turn and empties the fountain.

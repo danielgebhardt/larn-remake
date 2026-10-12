@@ -197,7 +197,10 @@ const DungeonHelp = ({
 						G pickup. Walking onto coins collects gold. Traps are visible: avoid
 						them, cross for 2–6 damage, or use E to attempt disarm for one turn.
 						Base disarm chance is 55%, +5% per Dexterity modifier (maximum 95%);
-						failure springs the trap. Spent traps cannot hurt again.
+						failure springs the trap. Spent traps cannot hurt again. Fountains
+						offer a safe sip or a stronger risky draw. E opens their choices;
+						number keys choose and Escape cancels for free. Each chosen draw
+						empties the fountain.
 					</li>
 					<li>
 						<span className="font-medium text-foreground">Quest.</span> Recover

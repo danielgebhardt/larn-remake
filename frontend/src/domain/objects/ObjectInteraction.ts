@@ -1,19 +1,25 @@
 import { appendActivityEvents } from "../game/ActivityHistory";
 import type { GameState } from "../game/GameState";
 import { orthogonalDistance } from "../monsters/MonsterLocations";
+import { drawFountain } from "./DungeonFountains";
 import { disarmTrap } from "./DungeonTraps";
-import { collectGoldAtPlayer } from "./Gold";
 import { openChest } from "./TreasureChests";
-export type InteractAction = { type: "interact"; objectId?: string };
-export const interactObject = (
+export type ObjectChoice = "sip" | "draw";
+export type InteractAction = {
+	type: "interact";
+	objectId?: string;
+	choice?: ObjectChoice;
+};
+export const nearbyInteractionObject = (
 	state: GameState,
-	action: InteractAction,
-): GameState | { error: string } => {
+	objectId?: string,
+) => {
 	const nearby = state.objects.filter(
 		(object) =>
 			object.floorNumber === state.run.activeFloor &&
 			orthogonalDistance(object.coordinate, state.run.playerCoordinate) <= 1 &&
-			!(object.kind === "gold" && object.activated),
+			object.kind !== "gold" &&
+			(object.kind === "door" || !object.activated),
 	);
 	const player = state.run.playerCoordinate;
 	const order = (coordinate: { row: number; col: number }) =>
@@ -26,17 +32,23 @@ export const interactObject = (
 					: coordinate.row > player.row
 						? 3
 						: 4;
-	const object = action.objectId
-		? nearby.find((object) => object.id === action.objectId)
+	const object = objectId
+		? nearby.find((object) => object.id === objectId)
 		: [...nearby].sort((a, b) => order(a.coordinate) - order(b.coordinate))[0];
+	return object;
+};
+export const interactObject = (
+	state: GameState,
+	action: InteractAction,
+): GameState | { error: string } => {
+	const object = nearbyInteractionObject(state, action.objectId);
+	const player = state.run.playerCoordinate;
 	if (!object) return { error: "No object within reach." };
+	if (object.kind === "fountain")
+		return drawFountain(state, object, action.choice);
 	if (object.kind === "trap") return disarmTrap(state, object);
 	if (object.kind === "chest") return openChest(state, object);
-	if (object.kind === "gold")
-		return orthogonalDistance(object.coordinate, player) === 0 &&
-			!object.activated
-			? collectGoldAtPlayer(state)
-			: { error: "Walk onto the coins to collect them." };
+
 	if (
 		object.activated &&
 		(orthogonalDistance(object.coordinate, player) === 0 ||

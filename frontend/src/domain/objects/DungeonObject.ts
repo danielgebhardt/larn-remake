@@ -10,6 +10,16 @@ export const OBJECT_DEFINITIONS = {
 		chance: 1,
 		placement: "passage",
 	},
+	fountain: {
+		name: "Ancient fountain",
+		freshLabel: "ancient fountain",
+		usedLabel: "dry fountain",
+		minFloor: 2,
+		maxFloor: 20,
+		maxPerFloor: 1,
+		chance: 0.45,
+		placement: "room",
+	},
 	trap: {
 		name: "Visible trap",
 		freshLabel: "visible trap",

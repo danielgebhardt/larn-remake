@@ -8,6 +8,10 @@ import { MONSTER_DEFINITIONS } from "../../domain/monsters/Monster";
 export const formatActivityEvent = (event: ActivityEvent): string => {
 	const prefix = `Turn ${event.turn} — `;
 	switch (event.type) {
+		case "fountain-restored":
+			return `${prefix}The fountain restores ${event.health} health and ${event.mana} mana. It runs dry.`;
+		case "fountain-poisoned":
+			return `${prefix}The risky draw deals ${event.damage} damage. The fountain runs dry.`;
 		case "trap-disarmed":
 			return `${prefix}You disarm the trap.`;
 		case "trap-sprung":

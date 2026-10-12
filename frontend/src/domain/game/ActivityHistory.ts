@@ -9,6 +9,8 @@ import type { SpellKind } from "./Spells";
 import type { EffectKind } from "./TimedEffects";
 
 export type ActivityEvent = { turn: number } & (
+	| { type: "fountain-restored"; health: number; mana: number }
+	| { type: "fountain-poisoned"; damage: number }
 	| { type: "trap-disarmed" }
 	| { type: "trap-sprung"; damage: number }
 	| { type: "chest-opened"; item: ItemKind }

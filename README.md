@@ -465,3 +465,5 @@ Rare safe-room discoveries include **sealed reliquaries** (floor 8+) and **aband
 Death opens a game-over summary with the final run values and last recorded damage. Choose **New Adventure**, **Replay this seed**, or **Inspect run**; Escape also inspects without restarting. After inspection, the ended run remains available for Character, activity and save/export review. Loading a dead save shows its summary once again.
 
 Living players below **50% of maximum health** receive a red HP value, low-health badge and a muted red adventure-container background. Exactly half health does not warn. Recovery or capacity changes update the warning immediately; death uses the game-over dialog.
+
+Identified utility potions include Antidote (floor 2+, removes current poison), Greater healing potion (floor 8+, up to 15 HP), and Greater mana potion (floor 8+, up to 12 mana). They share normal pickup, bag, hotbar and one-turn drinking rules. A potion with no useful effect remains in the bag and spends no turn. Antidote does not grant immunity to a subsequent attack.

@@ -1,0 +1,141 @@
+// @vitest-environment node
+
+import { describe, expect, it } from "vitest";
+import { createGameState } from "../domain/game/GameState";
+import { resolvePlayerAction } from "../domain/game/PlayerActions";
+import { createBag } from "../domain/items/Bag";
+import type { ItemKind } from "../domain/items/Item";
+import { eligibleLootKinds } from "../domain/items/Item";
+import {
+	createSaveDocument,
+	parseSave,
+	restoreSave,
+	serializeSave,
+} from "../domain/saves/SaveFormat";
+import { createCorridorEncounter } from "./MonsterEncounterTestHelpers";
+import { savedAdventure } from "./SaveTestHelpers";
+
+const carrying = (kind: ItemKind) => ({
+	...createGameState(createCorridorEncounter()),
+	monsters: [],
+	bag: createBag([{ id: "drink", kind }]),
+});
+const drink = { type: "consume", itemId: "drink" } as const;
+
+describe("Utility potions", () => {
+	it("removes player poison before its tick while preserving other effects", () => {
+		const before = {
+			...carrying("antidote"),
+			effects: [
+				{
+					actorId: "player",
+					floorNumber: null,
+					kind: "poisoned",
+					remaining: 3,
+				},
+				{
+					actorId: "player",
+					floorNumber: null,
+					kind: "protected",
+					remaining: 3,
+				},
+			] as const,
+		};
+		const result = resolvePlayerAction(before, drink);
+		expect(result.turnAdvanced).toBe(true);
+		expect(result.state.turn).toBe(1);
+		expect(result.state.player.health).toBe(10);
+		expect(result.state.effects).toEqual([
+			{ actorId: "player", floorNumber: null, kind: "protected", remaining: 2 },
+		]);
+		expect(result.state.bag.items).toEqual([]);
+		expect(result.state.activityHistory.entries[0].event).toEqual({
+			type: "item-cleansed",
+			item: "antidote",
+			turn: 1,
+		});
+		expect(before.effects[0].remaining).toBe(3);
+	});
+	it("keeps an antidote and the turn when the player is not poisoned", () => {
+		const before = carrying("antidote");
+		const result = resolvePlayerAction(before, drink);
+		expect(result.state).toBe(before);
+		expect(result.turnAdvanced).toBe(false);
+		expect(result.error).toMatch(/not poisoned/i);
+	});
+	it.each([
+		{
+			kind: "greater-healing-potion",
+			health: 1,
+			mana: 0,
+			expectedHealth: 10,
+			expectedMana: 0,
+		},
+		{
+			kind: "greater-mana-potion",
+			health: 10,
+			mana: 0,
+			expectedHealth: 10,
+			expectedMana: 10,
+		},
+	] as const)(
+		"caps $kind recovery at capacity",
+		({ kind, health, mana, expectedHealth, expectedMana }) => {
+			const before = {
+				...carrying(kind),
+				player: { health, maxHealth: 10 },
+				mana,
+			};
+			const result = resolvePlayerAction(before, drink);
+			expect(result.turnAdvanced).toBe(true);
+			expect(result.state.player.health).toBe(expectedHealth);
+			expect(result.state.mana).toBe(expectedMana);
+			expect(result.state.bag.items).toEqual([]);
+		},
+	);
+	it("uses depth bands for stronger supplies and antidotes", () => {
+		expect(eligibleLootKinds(1, "found")).not.toContain("antidote");
+		expect(eligibleLootKinds(2, "drop")).toContain("antidote");
+		expect(eligibleLootKinds(7, "found")).not.toContain(
+			"greater-healing-potion",
+		);
+		expect(eligibleLootKinds(8, "found")).toContain("greater-healing-potion");
+		expect(eligibleLootKinds(20, "drop")).toContain("greater-mana-potion");
+	});
+	it("retains new potions, shortcuts and the cleansing log in a save", () => {
+		const document = savedAdventure();
+		const adventure = restoreSave(document);
+		adventure.state = {
+			...adventure.state,
+			monsters: [],
+			player: { health: 10, maxHealth: 10 },
+			bag: createBag([
+				{ id: "drink", kind: "antidote" },
+				{ id: "greater", kind: "greater-mana-potion" },
+			]),
+			potionHotbar: ["antidote", "greater-mana-potion", null, null],
+			effects: [
+				{
+					actorId: "player",
+					floorNumber: null,
+					kind: "poisoned",
+					remaining: 3,
+				},
+			],
+		};
+		adventure.state = resolvePlayerAction(adventure.state, drink).state;
+		const parsed = parseSave(
+			serializeSave(
+				createSaveDocument(
+					adventure.state,
+					adventure.exploration,
+					adventure.configuration,
+					adventure.fog,
+				),
+			),
+		);
+		expect(parsed.ok).toBe(true);
+		if (!parsed.ok) throw new Error(parsed.error);
+		expect(restoreSave(parsed.value).state).toEqual(adventure.state);
+	});
+});

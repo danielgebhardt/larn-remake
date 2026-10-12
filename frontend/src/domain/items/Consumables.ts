@@ -5,20 +5,28 @@ import { type Bag, createBag } from "./Bag";
 import { ITEM_DEFINITIONS, type ItemKind } from "./Item";
 
 export type ConsumeAction = { type: "consume"; itemId: string };
-export type ConsumptionEvent = {
-	type: "item-consumed";
-	item: ItemKind;
-	recovered: number;
-};
+export type ConsumptionEvent =
+	| { type: "item-cleansed"; item: ItemKind }
+	| {
+			type: "item-consumed";
+			item: ItemKind;
+			recovered: number;
+	  };
 
 export const consumeItem = (
 	state: Pick<
 		GameState,
-		"player" | "mana" | "progression" | "bag" | "equipment"
+		"player" | "mana" | "progression" | "bag" | "equipment" | "effects"
 	>,
 	action: ConsumeAction,
 ):
-	| { player: PlayerStats; mana: number; bag: Bag; event: ConsumptionEvent }
+	| {
+			player: PlayerStats;
+			mana: number;
+			bag: Bag;
+			effects: GameState["effects"];
+			event: ConsumptionEvent;
+	  }
 	| { error: string } => {
 	const { player, bag, mana } = state;
 	const selected = bag.items.find((item) => item.id === action.itemId);
@@ -28,6 +36,21 @@ export const consumeItem = (
 		return { error: "That item cannot be consumed." };
 	if (player.health <= 0)
 		return { error: "You cannot drink a potion after death." };
+	if ("cleanses" in definition) {
+		const effects = state.effects.filter(
+			(effect) =>
+				effect.actorId !== "player" || effect.kind !== definition.cleanses,
+		);
+		if (effects.length === state.effects.length)
+			return { error: "You are not poisoned." };
+		return {
+			player,
+			mana,
+			effects,
+			bag: createBag(bag.items.filter((item) => item.id !== selected.id)),
+			event: { type: "item-cleansed", item: selected.kind },
+		};
+	}
 	const { resource, amount } = definition.recovery;
 	const current = resource === "health" ? player.health : mana;
 	const maximum =
@@ -39,6 +62,7 @@ export const consumeItem = (
 	const recovered = Math.min(amount, maximum - current);
 
 	return {
+		effects: state.effects,
 		player:
 			resource === "health"
 				? { ...player, health: player.health + recovered }

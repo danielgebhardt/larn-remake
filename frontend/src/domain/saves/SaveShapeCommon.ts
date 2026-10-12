@@ -210,6 +210,7 @@ const eventFields = {
 	"item-unequipped": { item: itemKind, slot, replaced: optional(itemKind) },
 	"item-picked-up": { item: itemKind },
 	"item-dropped": { item: itemKind },
+	"item-cleansed": { item: itemKind },
 	"item-consumed": { item: itemKind, recovered: natural },
 	"monster-loot": { monster: monsterKind, item: itemKind },
 	"items-seen": { items: array(itemKind, 1) },

@@ -253,3 +253,9 @@ Threshold tests now cover higher capacities, the exact half boundary, capacity c
 New adventures and seed replays keep the equipped short sword and wooden shield but start with all 20 bag slots available. This removes the compulsory immediate iron-sword upgrade. Existing save data keeps its actual carried items, with a captured version-1 save asserting that explicitly.
 
 Transfer and item-inspection tests now supply spare gear explicitly through a small fixture. Empty-start pickup tests assert slot 1 and restart tests assert an empty bag; no change to equipment bonuses, potion assignment or spell knowledge. The save-continuation diagnostic test explicitly supplies a carried upgrade to exercise its victorious continuation scenario. New diagnostic runs use the actual empty starting bag and need a fresh balance baseline in #197/#198.
+
+## #196 — Antidote and stronger supplies
+
+Antidote removes only the player's existing poison before the ordinary monster/effect phase. Other conditions remain; fresh monster poison is possible during retaliation. Unpoisoned use fails for free, and death remains guarded by the shared action boundary. Greater health/mana potions restore up to 15/12 respectively, capped at actual capacity, and appear from floor 8. Antidote starts on floor 2, providing counterplay to poisonous creatures without adding immunity or permanent stat growth.
+
+All three use the existing weighted loot, identified item details, keyboard hotbar and finite-copy ownership rules. Cleansing gets its own validated activity event. Existing v10 save structure is sufficient: catalog-backed item/hotbar validation recognizes the new kinds, with a save round-trip test for the cleansing history and remaining supplies. Browser import verified the descriptions, shortcut 1 consumption, retained health and one-turn cleansing log.

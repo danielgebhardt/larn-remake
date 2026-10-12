@@ -184,6 +184,7 @@ const resolvePlayerEffect = (
 			player: consumed.player,
 			mana: consumed.mana,
 			bag: consumed.bag,
+			effects: consumed.effects,
 			activityHistory: appendActivityEvents(state.activityHistory, [
 				{ ...consumed.event, turn },
 			]),

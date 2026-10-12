@@ -18,7 +18,6 @@ import {
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetTrigger } from "@/components/ui/sheet";
 import DungeonHelp from "@/settings/DungeonHelp.tsx";
-import APICheck from "./APICheck.tsx";
 import DungeonLayout from "./components/dungeon/DungeonLayout.tsx";
 import ActivityLog from "./components/game/ActivityLog.tsx";
 import AdventureSaveSheet from "./components/game/AdventureSaveSheet";
@@ -706,10 +705,6 @@ const Home = ({
 				onAction={handleActionRequested}
 				mapRef={mapRef}
 			/>
-			<footer className="flex shrink-0 flex-wrap items-center gap-x-2 gap-y-1 border-t border-border px-4 py-2 text-xs text-muted-foreground sm:px-6">
-				<span>Server:</span>
-				<APICheck />
-			</footer>
 		</div>
 	);
 };

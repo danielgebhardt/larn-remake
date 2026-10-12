@@ -90,7 +90,7 @@ Then start the frontend from the repository root:
 pnpm frontend:dev
 ```
 
-Vite serves the frontend and proxies `/initial` requests to the backend at `http://localhost:8080`.
+The game runs entirely in the browser and does not call the backend or display a server-status footer. Java is not required to play. The development proxy for `/initial` remains available at `http://localhost:8080` for future backend integration; the standalone `APICheck` component is not mounted by the game.
 
 ## Starting equipment
 

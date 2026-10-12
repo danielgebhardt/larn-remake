@@ -1,12 +1,10 @@
 import { act, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { HttpResponse, http } from "msw";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import * as DungeonGeneration from "../domain/dungeon/DungeonGeneration.ts";
 import { selectPlayerStart } from "../domain/dungeon/DungeonLocations.ts";
 import * as DungeonRun from "../domain/dungeon/DungeonRun.ts";
 import { FLOOR, WALL } from "../domain/dungeon/Tiles.ts";
-import { server } from "../mocks/server.ts";
 import {
 	renderHome as render,
 	resetHomeTestState,
@@ -21,24 +19,21 @@ import {
 afterEach(resetHomeTestState);
 
 describe("Home rendering and movement", () => {
-	it("keeps a failed server check in the footer while dungeon exploration works", async () => {
-		server.use(
-			http.get("/initial", () => new HttpResponse(null, { status: 500 })),
-		);
-		const run = createThreeFloorTraversalRun();
-		stubDungeonRun(run);
+	it("explores without a backend request or server-status footer", async () => {
+		const fetch = vi
+			.spyOn(globalThis, "fetch")
+			.mockResolvedValue(new Response("Hello World!"));
+		stubDungeonRun(createThreeFloorTraversalRun());
 		const user = userEvent.setup();
 		render(<Home />);
 
-		const footer = screen.getByRole("contentinfo");
-		expect(await within(footer).findByRole("alert")).toHaveTextContent(
-			"Failed to load from server",
-		);
-		expect(
-			within(screen.getByRole("main")).queryByRole("alert"),
-		).not.toBeInTheDocument();
 		await user.keyboard("{ArrowRight}");
 		expect(screen.getByRole("heading", { name: "Floor 2 of 3" })).toBeVisible();
+		expect(fetch).not.toHaveBeenCalled();
+		expect(screen.queryByRole("contentinfo")).not.toBeInTheDocument();
+		expect(
+			screen.queryByText("Failed to load from server"),
+		).not.toBeInTheDocument();
 	});
 
 	it("groups the title, current depth, and New Dungeon action in the header", () => {

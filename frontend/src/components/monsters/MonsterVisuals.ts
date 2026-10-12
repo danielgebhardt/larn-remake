@@ -4,11 +4,16 @@ import { MONSTER_DEFINITIONS } from "../../domain/monsters/Monster";
 import type { MonsterKind } from "../../domain/monsters/Monster.ts";
 import BruteIcon from "./BruteIcon";
 import CultistIcon from "./CultistIcon";
+import FrostGiantIcon from "./FrostGiantIcon";
 import GoblinArcherIcon from "./GoblinArcherIcon";
 import GoblinIcon from "./GoblinIcon.tsx";
 import GolemIcon from "./GolemIcon";
 import KoboldSlingerIcon from "./KoboldSlingerIcon";
+import NecromancerIcon from "./NecromancerIcon";
+import SalamanderIcon from "./SalamanderIcon";
 import SpiderIcon from "./SpiderIcon";
+import WardenIcon from "./WardenIcon";
+import WyvernIcon from "./WyvernIcon";
 
 export const MONSTER_VISUALS: Record<
 	MonsterKind,
@@ -92,5 +97,30 @@ export const MONSTER_VISUALS: Record<
 		icon: Ghost,
 		color: "text-monster-rat",
 		label: MONSTER_DEFINITIONS.wraith.name,
+	},
+	wyvern: {
+		icon: WyvernIcon,
+		color: "text-goblin",
+		label: MONSTER_DEFINITIONS.wyvern.name,
+	},
+	salamander: {
+		icon: SalamanderIcon,
+		color: "text-monster-orc",
+		label: MONSTER_DEFINITIONS.salamander.name,
+	},
+	"frost-giant": {
+		icon: FrostGiantIcon,
+		color: "text-monster-archer",
+		label: MONSTER_DEFINITIONS["frost-giant"].name,
+	},
+	necromancer: {
+		icon: NecromancerIcon,
+		color: "text-monster-undead",
+		label: MONSTER_DEFINITIONS.necromancer.name,
+	},
+	"demon-warden": {
+		icon: WardenIcon,
+		color: "text-monster-brute",
+		label: MONSTER_DEFINITIONS["demon-warden"].name,
 	},
 };

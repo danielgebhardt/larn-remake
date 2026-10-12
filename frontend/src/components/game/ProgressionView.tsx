@@ -91,10 +91,6 @@ const ProgressionView = ({
 					<Sword aria-hidden="true" className="size-4 text-primary" />
 					Strength {attributes.strength}
 				</output>
-				<p className="text-xs text-muted-foreground">
-					+{attributes.strengthModifier} melee damage · grows at odd levels from
-					3
-				</p>
 			</div>
 			<div className="grid gap-1 border-t pt-2">
 				<output
@@ -104,10 +100,6 @@ const ProgressionView = ({
 					<Zap aria-hidden="true" className="size-4 text-primary" />
 					Dexterity {attributes.dexterity}
 				</output>
-				<p className="text-xs text-muted-foreground">
-					+{attributes.dexterityModifier * 5} points to hit / evade chance ·
-					grows at even levels
-				</p>
 			</div>
 			<div className="grid gap-1 border-t pt-2">
 				<output
@@ -123,16 +115,29 @@ const ProgressionView = ({
 					progression={progression}
 					label="Character mana"
 				/>
-				<p className="text-xs text-muted-foreground">
-					+{attributes.intelligenceModifier} spell damage / healing · +
-					{attributes.intelligenceModifier * 2} mana capacity · grows at odd
-					levels from 3
-				</p>
 			</div>
-			<p className="border-t pt-2 text-xs leading-relaxed text-muted-foreground">
-				+{HEALTH_PER_LEVEL} current / maximum HP per level · cap{" "}
-				{MAX_PLAYER_LEVEL}.
-			</p>
+			<details className="border-t pt-2 text-xs text-muted-foreground">
+				<summary className="cursor-pointer">Stat bonuses and growth</summary>
+				<div className="grid gap-2 pt-2">
+					<p className="text-xs text-muted-foreground">
+						+{attributes.strengthModifier} melee damage · grows at odd levels
+						from 3
+					</p>
+					<p className="text-xs text-muted-foreground">
+						+{attributes.dexterityModifier * 5} points to hit / evade chance ·
+						grows at even levels
+					</p>
+					<p className="text-xs text-muted-foreground">
+						+{attributes.intelligenceModifier} spell damage / healing · +
+						{attributes.intelligenceModifier * 2} mana capacity · grows at odd
+						levels from 3
+					</p>
+					<p className="border-t pt-2 text-xs leading-relaxed text-muted-foreground">
+						+{HEALTH_PER_LEVEL} current / maximum HP per level · cap{" "}
+						{MAX_PLAYER_LEVEL}.
+					</p>
+				</div>
+			</details>
 		</section>
 	);
 };

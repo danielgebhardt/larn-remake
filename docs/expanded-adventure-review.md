@@ -263,3 +263,9 @@ All three use the existing weighted loot, identified item details, keyboard hotb
 ## #207 — Earlier camera following
 
 The existing scroll calculation now receives a five-tile margin instead of one tile. It already caps that margin at half the usable viewport and clamps to map bounds, so small maps and narrow viewports remain supported. Following still responds to accepted player position changes, floor replacement and resize, without moving keyboard focus or the outer page. A viewport test first demonstrated the missing early-follow behavior, then passed along with narrow-viewport, manual-scroll and resize coverage.
+
+## #206 — Compact Character tab
+
+The desktop bag now has seven tiles per row (three rows for twenty slots), and the dialog uses the available width with a wider bag column. Equipment slots and spacing are smaller; potion assignments remain directly below equipment. Combat explanations and stat-growth details are expandable, keeping current values and all four potion shortcuts visible. Empty ground inventory and bag prompts avoid redundant vertical space. Narrow displays retain four bag columns and stacked sections; longer item details and expanded explanations can still scroll intentionally.
+
+Verified at 1280×720 in the browser: the default Character panel's content and viewport heights are both 522px, with stats, equipment, bag, quest pouch and potion shortcuts visible without scrolling. Existing interaction tests cover the controls; the combat-rules test now opens its disclosure before asserting the explanation.

@@ -93,11 +93,18 @@ const CharacterStats = ({
 					</output>
 				</div>
 			</div>
-			<p className="text-xs leading-relaxed text-muted-foreground">
-				Attack shows damage before armor. Armor reduces landed damage; hits deal
-				at least 1 damage. Misses deal none. Evasion avoids hits; armor reduces
-				damage.
-			</p>
+			<details className="text-xs leading-relaxed text-muted-foreground">
+				<summary className="cursor-pointer">Combat rules</summary>
+				<p>
+					Attack shows damage before armor. Armor reduces landed damage; hits
+					deal at least 1 damage. Misses deal none. Evasion avoids hits; armor
+					reduces damage.
+				</p>
+				<p>
+					Inspecting is free. Successful equipment changes, pickups, drops and
+					potion use cost one turn; monsters act afterward.
+				</p>
+			</details>
 		</section>
 	);
 };

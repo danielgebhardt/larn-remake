@@ -22,7 +22,7 @@ const PotionAssignments = ({
 }) => {
 	const headingRef = useRef<HTMLHeadingElement>(null);
 	return (
-		<section aria-labelledby="potion-shortcuts-title" className="grid gap-2">
+		<section aria-labelledby="potion-shortcuts-title" className="grid gap-1">
 			<h3
 				id="potion-shortcuts-title"
 				ref={headingRef}
@@ -32,9 +32,9 @@ const PotionAssignments = ({
 				Potion shortcuts
 			</h3>
 			<p className="text-xs text-muted-foreground">
-				Select a potion in your bag to assign it. Assigning is free.
+				Select a carried potion to assign it for free.
 			</p>
-			<div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+			<div className="grid grid-cols-2 gap-2 sm:grid-cols-4 lg:grid-cols-2 xl:grid-cols-4">
 				{HOTBAR_SLOTS.map((slot) => {
 					const { kind, count } = hotbarSlotContents(
 						{ bag, potionHotbar },
@@ -43,7 +43,7 @@ const PotionAssignments = ({
 					return (
 						<div
 							key={slot}
-							className="grid content-start gap-1 rounded-lg border bg-muted/20 p-2"
+							className="grid content-start gap-1 rounded-lg border bg-muted/20 p-1.5"
 						>
 							<p className="text-xs font-medium text-muted-foreground">
 								Slot {slot}

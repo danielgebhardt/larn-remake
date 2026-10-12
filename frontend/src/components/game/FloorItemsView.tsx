@@ -9,10 +9,12 @@ const FloorItemsView = ({
 	alive,
 	onAction,
 	numbered = false,
+	compactEmpty = false,
 }: {
 	items: readonly FloorItem[];
 	alive: boolean;
 	numbered?: boolean;
+	compactEmpty?: boolean;
 	onAction: (action: FloorItemAction) => void;
 }) => {
 	const heading = useRef<HTMLHeadingElement>(null);
@@ -22,7 +24,9 @@ const FloorItemsView = ({
 				ref={heading}
 				tabIndex={-1}
 				id="ground-items-title"
-				className="font-medium outline-none"
+				className={
+					compactEmpty && !items.length ? "sr-only" : "font-medium outline-none"
+				}
 			>
 				On your tile
 			</h3>

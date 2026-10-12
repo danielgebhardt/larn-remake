@@ -63,7 +63,7 @@ const EquipmentView = ({
 									selectedId === equipment[key]?.id && selectedId !== null
 								}
 								onClick={() => onSelect(key)}
-								className="grid h-auto min-h-14 w-full justify-items-center gap-1 whitespace-normal p-1 text-center aria-pressed:border-primary aria-pressed:bg-primary/10"
+								className="grid h-auto min-h-12 w-full justify-items-center gap-1 whitespace-normal p-1 text-center aria-pressed:border-primary aria-pressed:bg-primary/10"
 							>
 								{equipment[key] ? (
 									<>
@@ -91,7 +91,7 @@ const EquipmentView = ({
 					stroke="currentColor"
 					strokeWidth="3"
 					strokeLinejoin="round"
-					className="col-start-2 row-start-2 h-16 w-full text-muted-foreground/50"
+					className="col-start-2 row-start-2 h-12 w-full text-muted-foreground/50"
 				>
 					<circle cx="60" cy="24" r="17" />
 					<path d="M45 50H75L95 62L110 119L96 123L80 82V132L87 202H69L60 152L51 202H33L40 132V82L24 123L10 119L25 62Z" />

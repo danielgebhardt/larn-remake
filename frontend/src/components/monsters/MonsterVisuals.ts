@@ -1,8 +1,9 @@
-import { BowArrow, Rat, Skull } from "lucide-react";
+import { Rat, Skull } from "lucide-react";
 import type { ComponentType, SVGProps } from "react";
 import { MONSTER_DEFINITIONS } from "../../domain/monsters/Monster";
 import type { MonsterKind } from "../../domain/monsters/Monster.ts";
 import BruteIcon from "./BruteIcon";
+import GoblinArcherIcon from "./GoblinArcherIcon";
 import GoblinIcon from "./GoblinIcon.tsx";
 
 export const MONSTER_VISUALS: Record<
@@ -19,7 +20,7 @@ export const MONSTER_VISUALS: Record<
 		label: MONSTER_DEFINITIONS.goblin.name,
 	},
 	"goblin-archer": {
-		icon: BowArrow,
+		icon: GoblinArcherIcon,
 		color: "text-monster-archer",
 		label: MONSTER_DEFINITIONS["goblin-archer"].name,
 	},

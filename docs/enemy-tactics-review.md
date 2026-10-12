@@ -50,7 +50,7 @@ The focused suite covers preparation without rolls, sequential phases, fixed-tar
 
 ## #150: Readable tactical enemies and visible threats
 
-Archers use Lucide's bow-and-arrow SVG in cyan; brutes use a custom broad-shouldered, square-jawed SVG in indigo. Both have separate light/dark tokens within the monster palette, rather than loot colors. The catalog remains the single source of monster labels. No spawn flag or gameplay rule changes in this story.
+Archers use a custom goblin-face-and-bow SVG in cyan; brutes use a custom broad-shouldered, square-jawed SVG in indigo. Both have separate light/dark tokens within the monster palette, rather than loot colors. The catalog remains the single source of monster labels. No spawn flag or gameplay rule changes in this story.
 
 The map derives a sparse set of threatened columns per row from living prepared actors. Both the source monster and its fixed target must be currently visible; the player tile follows the map's existing always-visible rule. Hidden/remembered sources never reveal a warning on a visible target, and hidden/remembered targets never reveal a warning from a visible source. Fog-off treats valid floor tiles as visible. Overlapping threats share one marker; dead or cleared intent removes it.
 

@@ -85,7 +85,7 @@ describe("Character shortcut", () => {
 		fireEvent.keyDown(window, { key: "i", ...modifiers });
 		expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
 	});
-	it.each(["Settings", "Help"])(
+	it.each(["Settings", "Help", "Save/Load"])(
 		"ignores I/C while %s is open",
 		async (menu) => {
 			const { user } = setup();

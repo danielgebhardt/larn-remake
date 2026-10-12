@@ -1,7 +1,7 @@
 import { createEvent, fireEvent, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { type ComponentProps, useState } from "react";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import DungeonLayout from "../components/dungeon/DungeonLayout.tsx";
 import {
 	type DungeonRun,
@@ -69,6 +69,63 @@ const TestDungeonLayout = ({
 };
 
 describe("Dungeon keyboard input", () => {
+	it("uses the latest movement callback exactly once after rerendering", () => {
+		const originalMove = vi.fn();
+		const currentMove = vi.fn();
+		const props = {
+			dungeon: openDungeon,
+			playerPosition: { row: 1, col: 1 },
+		};
+		const { rerender } = render(
+			<DungeonLayout {...props} onMoveRequested={originalMove} />,
+		);
+
+		rerender(<DungeonLayout {...props} onMoveRequested={currentMove} />);
+		fireEvent.keyDown(window, { key: "ArrowRight" });
+
+		expect(originalMove).not.toHaveBeenCalled();
+		expect(currentMove).toHaveBeenCalledExactlyOnceWith("right");
+	});
+
+	it("stops gameplay when disabled but keeps Character inspection available", () => {
+		const move = vi.fn();
+		const pickup = vi.fn();
+		const inspect = vi.fn();
+		const props = {
+			dungeon: openDungeon,
+			playerPosition: { row: 1, col: 1 },
+			onMoveRequested: move,
+			onPickupRequested: pickup,
+			onCharacterRequested: inspect,
+		};
+		const { rerender } = render(<DungeonLayout {...props} />);
+
+		rerender(<DungeonLayout {...props} movementEnabled={false} />);
+		fireEvent.keyDown(window, { key: "ArrowRight" });
+		fireEvent.keyDown(window, { key: "g" });
+		fireEvent.keyDown(window, { key: "i" });
+
+		expect(move).not.toHaveBeenCalled();
+		expect(pickup).not.toHaveBeenCalled();
+		expect(inspect).toHaveBeenCalledTimes(1);
+	});
+
+	it("stops listening for movement after the map unmounts", () => {
+		const move = vi.fn();
+		const { unmount } = render(
+			<DungeonLayout
+				dungeon={openDungeon}
+				playerPosition={{ row: 1, col: 1 }}
+				onMoveRequested={move}
+			/>,
+		);
+
+		unmount();
+		fireEvent.keyDown(window, { key: "ArrowRight" });
+
+		expect(move).not.toHaveBeenCalled();
+	});
+
 	it.each(movementKeys)(
 		"prevents the default action of $key while moving the player",
 		({ key, row, col }) => {

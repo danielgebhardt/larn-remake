@@ -6,35 +6,27 @@ import {
 	useMemo,
 	useRef,
 } from "react";
-import type { MovementDirection } from "../../domain/dungeon/DungeonRun.ts";
 import type { Coordinate, Dungeon } from "../../domain/dungeon/DungeonTypes.ts";
 import type { VisibilityGrid } from "../../domain/dungeon/Visibility.ts";
-import type { SpellKind } from "../../domain/game/Spells";
 import type { FloorItem } from "../../domain/items/FloorItems";
-import { HOTBAR_SLOTS, type HotbarSlot } from "../../domain/items/PotionHotbar";
 import type { Monster } from "../../domain/monsters/Monster.ts";
-import { isCharacterShortcut } from "../game/CharacterShortcut";
 import DungeonRow from "./DungeonRow.tsx";
 import { getScrollOffset } from "./MapScroll.ts";
+import {
+	type DungeonKeyboardOptions,
+	useDungeonKeyboard,
+} from "./useDungeonKeyboard";
 
-type DungeonLayoutProps = {
+type DungeonLayoutProps = DungeonKeyboardOptions & {
 	dungeon: Dungeon;
 	playerPosition: Coordinate;
 	downStair?: Coordinate;
 	upStair?: Coordinate;
 	entrance?: Coordinate;
-	onSpellRequested?: (spell: SpellKind) => void;
-	onTargetingKey?: (key: string) => void;
 	targetIds?: readonly string[];
 	selectedTargetId?: string;
 	onTargetRequested?: (id: string) => void;
-	onMoveRequested: (direction: MovementDirection) => void;
-	onWaitRequested?: () => void;
-	onPickupRequested?: () => void;
-	onCharacterRequested?: () => void;
-	onPotionRequested?: (slot: HotbarSlot) => void;
 	mapRef?: RefObject<HTMLElement | null>;
-	movementEnabled?: boolean;
 	visible?: VisibilityGrid;
 	explored?: VisibilityGrid;
 	monsters?: readonly Monster[];
@@ -43,8 +35,6 @@ type DungeonLayoutProps = {
 
 const NO_MONSTERS: readonly Monster[] = [];
 const NO_ITEMS: readonly FloorItem[] = [];
-const FOCUSED_CONTROLS =
-	'button, a[href], select, input, [role="button"], [role="checkbox"], [role="switch"], [role="combobox"], [role="slider"]';
 
 const DungeonLayout = ({
 	dungeon,
@@ -141,158 +131,7 @@ const DungeonLayout = ({
 		return () => observer.disconnect();
 	}, [followPlayer, viewportRef]);
 
-	useEffect(() => {
-		if (!movementEnabled && !onCharacterRequested) return;
-		const handleKeyDown = (event: KeyboardEvent) => {
-			if (
-				event.target instanceof HTMLInputElement ||
-				event.target instanceof HTMLTextAreaElement ||
-				(event.target instanceof HTMLElement &&
-					(event.target.isContentEditable ||
-						event.target.closest('[role="log"]')))
-			) {
-				return;
-			}
-
-			if (onTargetingKey && movementEnabled) {
-				if (event.ctrlKey || event.metaKey || event.altKey) return;
-				const key = event.key;
-				const handled =
-					[
-						"ArrowUp",
-						"ArrowDown",
-						"ArrowLeft",
-						"ArrowRight",
-						"Enter",
-						"Escape",
-						" ",
-						"1",
-						"2",
-						"3",
-						"4",
-					].includes(key) ||
-					["z", "h", "g", "w", "a", "s", "d"].includes(key.toLowerCase());
-				if (!handled) return;
-				if (
-					event.target instanceof HTMLElement &&
-					event.target.closest(FOCUSED_CONTROLS) &&
-					!event.target.closest('button[aria-label^="Target "]') &&
-					key !== "Escape" &&
-					key.toLowerCase() !== "z"
-				)
-					return;
-				event.preventDefault();
-				if (!event.repeat) onTargetingKey(key);
-				return;
-			}
-			if (movementEnabled && ["z", "h"].includes(event.key.toLowerCase())) {
-				if (
-					!onSpellRequested ||
-					event.repeat ||
-					event.ctrlKey ||
-					event.metaKey ||
-					event.altKey ||
-					(event.target instanceof HTMLElement &&
-						event.target.closest(FOCUSED_CONTROLS))
-				)
-					return;
-				event.preventDefault();
-				onSpellRequested(
-					event.key.toLowerCase() === "h" ? "heal" : "magic-missile",
-				);
-				return;
-			}
-			if (isCharacterShortcut(event.key)) {
-				if (
-					!onCharacterRequested ||
-					event.ctrlKey ||
-					event.metaKey ||
-					event.altKey ||
-					(event.target instanceof HTMLElement &&
-						event.target.closest(FOCUSED_CONTROLS))
-				)
-					return;
-				event.preventDefault();
-				if (!event.repeat) onCharacterRequested();
-				return;
-			}
-			if (!movementEnabled) return;
-			const potionSlot = HOTBAR_SLOTS.find(
-				(slot) => event.key === String(slot),
-			);
-			if (potionSlot) {
-				if (
-					!onPotionRequested ||
-					event.ctrlKey ||
-					event.metaKey ||
-					event.altKey ||
-					(event.target instanceof HTMLElement &&
-						event.target.closest(FOCUSED_CONTROLS))
-				)
-					return;
-				event.preventDefault();
-				if (!event.repeat) onPotionRequested(potionSlot);
-				return;
-			}
-
-			switch (event.key) {
-				case "g":
-				case "G":
-					if (
-						!onPickupRequested ||
-						event.ctrlKey ||
-						event.metaKey ||
-						event.altKey ||
-						(event.target instanceof HTMLElement &&
-							event.target.closest(FOCUSED_CONTROLS))
-					)
-						return;
-					event.preventDefault();
-					if (!event.repeat) onPickupRequested();
-					break;
-				case " ":
-					// Space belongs to focused controls and log scrolling first.
-					if (
-						!onWaitRequested ||
-						(event.target instanceof HTMLElement &&
-							event.target.closest(FOCUSED_CONTROLS))
-					)
-						return;
-					event.preventDefault();
-					if (!event.repeat) onWaitRequested();
-					break;
-				case "ArrowUp":
-				case "w":
-					event.preventDefault();
-					onMoveRequested("up");
-					break;
-
-				case "ArrowDown":
-				case "s":
-					event.preventDefault();
-					onMoveRequested("down");
-					break;
-
-				case "ArrowLeft":
-				case "a":
-					event.preventDefault();
-					onMoveRequested("left");
-					break;
-
-				case "ArrowRight":
-				case "d":
-					event.preventDefault();
-					onMoveRequested("right");
-					break;
-			}
-		};
-
-		window.addEventListener("keydown", handleKeyDown);
-
-		return () => {
-			window.removeEventListener("keydown", handleKeyDown);
-		};
-	}, [
+	useDungeonKeyboard({
 		onMoveRequested,
 		onWaitRequested,
 		onPickupRequested,
@@ -301,7 +140,7 @@ const DungeonLayout = ({
 		onSpellRequested,
 		onTargetingKey,
 		movementEnabled,
-	]);
+	});
 
 	return (
 		<section

@@ -216,14 +216,14 @@ const Home = ({
 		});
 	};
 
-	const gameplayEnabled =
+	const mapInputAvailable =
 		!settingsOpen &&
 		!saveOpen &&
 		!helpOpen &&
 		!characterOpen &&
 		!pickupOpen &&
-		!victoryOpen &&
-		canPlay;
+		!victoryOpen;
+	const gameplayEnabled = mapInputAvailable && canPlay;
 	const spells = useSpellTargeting(
 		game.state,
 		fogConfiguration.enabled ? exploration.visible : undefined,
@@ -461,26 +461,14 @@ const Home = ({
 						onPickupRequested={handlePickupRequested}
 						onPotionRequested={handlePotionRequested}
 						onCharacterRequested={
-							!settingsOpen &&
-							!saveOpen &&
-							!helpOpen &&
-							!characterOpen &&
-							!pickupOpen &&
-							!victoryOpen
+							mapInputAvailable
 								? () => {
 										setCharacterOpenedFromMap(true);
 										setCharacterOpen(true);
 									}
 								: undefined
 						}
-						movementEnabled={
-							!settingsOpen &&
-							!saveOpen &&
-							!helpOpen &&
-							!characterOpen &&
-							!pickupOpen &&
-							canPlay
-						}
+						movementEnabled={gameplayEnabled}
 					/>
 					{game.actionError && (
 						<p

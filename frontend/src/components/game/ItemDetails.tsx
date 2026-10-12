@@ -76,6 +76,13 @@ const ItemDetails = ({
 									.join(" · ")
 							: `Armor ${details.armor}`}
 			</p>
+			{"stats" in details && details.type !== "ring" && (
+				<p className="text-xs font-medium">
+					{Object.entries(details.stats)
+						.map(([stat, bonus]) => `+${bonus} ${stat}`)
+						.join(" · ")}
+				</p>
+			)}
 			{comparison && <EquipmentComparisonView comparison={comparison} />}
 			<div className="flex flex-wrap gap-2">
 				{equippedSlot ? (

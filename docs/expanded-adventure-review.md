@@ -111,3 +111,9 @@ Equipping capacity never heals or refills mana. Removing/swapping clamps current
 Steel sword (+3 attack, floors 4–10), battle axe (+4, 8–15), runeblade (+6, 12–20) and star-forged blade (+8, 16–20) join found and dropped loot. All remain main-hand melee weapons; no ranged weapon mechanics are implied. They reuse item identity, bag swaps, turn charging, saved catalog validation and existing seeded melee rolls. Sword/axe variants make the icons readable without changing map tile size.
 
 Eight behavior cases failed before adding the catalog: both loot sources honor inclusive depth bands, equipping replaces the starting sword for one turn, and the next real bump attack uses the new damage. These are initial equipment values, with obsolete early-loot eligibility and final deep-run balance handled by later stories.
+
+## #174 — Deeper armor and a caster tradeoff
+
+Iron/tower shields give 2/3 armor (floors 4–11/10–20); plate/dragon chest armor and steel/runic helmets give 3/4 (8–16/14–20). Found/drop bands remain inclusive. Distinct shield, layered armor and crown icons reuse the existing item color family. Scholar robe (floors 7–16) gives only 1 armor but +2 Intelligence, exercising a meaningful equipment tradeoff through the shared derived-stat path.
+
+Seven tests failed before content addition, then passed: eligible sources/depth bands, the correct equipped slot, turn charging, total armor/incoming mitigation, and robe Intelligence. Item details show non-ring attribute bonuses as well as armor. Browser equipped battle axe (Attack 4–6) and scholar robe (Armor 2, Intelligence 12), each advancing one turn. #175 expands the comparison beyond the still-simple armor-only badge.

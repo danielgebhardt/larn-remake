@@ -8,6 +8,7 @@ import {
 } from "../../domain/game/Progression";
 import type { TimedEffect } from "../../domain/game/TimedEffects";
 import type { Equipment } from "../../domain/items/Equipment";
+import { equipmentBonuses } from "../../domain/items/EquipmentBonuses";
 
 import ManaDisplay from "./ManaDisplay";
 
@@ -33,11 +34,14 @@ const ProgressionView = ({
 				<Sparkles aria-hidden="true" className="size-4 text-primary" />
 				Progression
 			</h3>
-			{equipment && (equipment.leftRing || equipment.rightRing) && (
-				<p className="text-xs text-primary">
-					Attributes and capacity include equipped ring bonuses.
-				</p>
-			)}
+			{equipment &&
+				Object.values(equipmentBonuses(equipment)).some(
+					(bonus) => bonus > 0,
+				) && (
+					<p className="text-xs text-primary">
+						Attributes and capacity include equipped gear bonuses.
+					</p>
+				)}
 			<div className="flex flex-wrap items-baseline justify-between gap-2">
 				<output
 					aria-label="Character level"

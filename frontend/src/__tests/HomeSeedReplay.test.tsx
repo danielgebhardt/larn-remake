@@ -58,7 +58,7 @@ describe("Home seed replay", () => {
 		await user.type(input, "123");
 		await user.click(screen.getByRole("button", { name: "Start from seed" }));
 		await waitForSettingsClosed();
-		expect(screen.getByRole("button", { name: "Settings" })).toHaveFocus();
+		expect(screen.getByLabelText("Dungeon map", { exact: true })).toHaveFocus();
 		expect(generate).toHaveBeenCalledTimes(2);
 		expect(generate).toHaveBeenLastCalledWith(123, 5, DEFAULT_DUNGEON_CONFIG);
 		expect(screen.getByRole("heading", { name: "Floor 1 of 3" })).toBeVisible();

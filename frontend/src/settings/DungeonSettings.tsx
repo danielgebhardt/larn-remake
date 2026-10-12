@@ -1,7 +1,7 @@
 import { Toggle } from "@base-ui/react/toggle";
 import { ToggleGroup } from "@base-ui/react/toggle-group";
 import { Monitor, Moon, Sun } from "lucide-react";
-import { type SubmitEvent, useRef } from "react";
+import { type RefObject, type SubmitEvent, useRef } from "react";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -25,6 +25,7 @@ import type {
 import { useTheme } from "./ThemeProvider.tsx";
 
 type DungeonSettingsProps = {
+	finalFocus?: RefObject<HTMLElement | null>;
 	fogConfiguration: FogConfiguration;
 	onFogEnabledChange: (enabled: boolean) => void;
 	onFogRadiusApply: (radius: number) => void;
@@ -41,6 +42,7 @@ type DungeonSettingsProps = {
 };
 
 const DungeonSettings = ({
+	finalFocus,
 	fogConfiguration,
 	onFogEnabledChange,
 	onFogRadiusApply,
@@ -60,6 +62,7 @@ const DungeonSettings = ({
 	return (
 		<SheetContent
 			initialFocus={inputRef}
+			finalFocus={finalFocus}
 			className="overflow-y-auto data-[side=right]:w-full"
 		>
 			<SheetHeader>

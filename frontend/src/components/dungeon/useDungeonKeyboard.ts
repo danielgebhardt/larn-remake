@@ -104,6 +104,15 @@ export const useDungeonKeyboard = ({
 				return;
 			}
 			if (!movementEnabled) return;
+			// Focused controls own their keys, including arrows and movement letters.
+			if (
+				event.ctrlKey ||
+				event.metaKey ||
+				event.altKey ||
+				(event.target instanceof HTMLElement &&
+					event.target.closest(FOCUSED_CONTROLS))
+			)
+				return;
 			const potionSlot = HOTBAR_SLOTS.find(
 				(slot) => event.key === String(slot),
 			);

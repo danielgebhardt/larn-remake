@@ -94,7 +94,7 @@ describe("Home settings and appearance", () => {
 		await waitFor(() =>
 			expect(screen.queryByRole("dialog")).not.toBeInTheDocument(),
 		);
-		expect(trigger).toHaveFocus();
+		expect(screen.getByLabelText("Dungeon map", { exact: true })).toHaveFocus();
 		expect(generate).toHaveBeenCalledTimes(1);
 		await user.click(trigger);
 		await user.click(
@@ -106,7 +106,7 @@ describe("Home settings and appearance", () => {
 		await waitFor(() =>
 			expect(screen.queryByRole("dialog")).not.toBeInTheDocument(),
 		);
-		expect(trigger).toHaveFocus();
+		expect(screen.getByLabelText("Dungeon map", { exact: true })).toHaveFocus();
 		expect(generate).toHaveBeenCalledTimes(1);
 	});
 

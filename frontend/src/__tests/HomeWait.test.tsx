@@ -66,7 +66,9 @@ describe("Waiting on the play screen", () => {
 		await user.keyboard(" ");
 		expect(screen.getByLabelText("Turn count")).toHaveTextContent("Turn 0");
 		await closeSettings(user);
-		// Closing the sheet restores focus to its button; Space should open it normally.
+		// Dismissal returns to gameplay; explicitly focusing the toolbar still gives Space to its button.
+		expect(screen.getByLabelText("Dungeon map", { exact: true })).toHaveFocus();
+		screen.getByRole("button", { name: "Settings" }).focus();
 		expect(screen.getByRole("button", { name: "Settings" })).toHaveFocus();
 		await user.keyboard(" ");
 		expect(screen.getByRole("dialog", { name: "Settings" })).toBeVisible();

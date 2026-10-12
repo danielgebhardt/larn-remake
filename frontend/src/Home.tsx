@@ -341,12 +341,19 @@ const Home = ({
 					</Sheet>
 				}
 				settingsAction={
-					<Sheet open={settingsOpen} onOpenChange={setSettingsOpen}>
+					<Sheet
+						open={settingsOpen}
+						onOpenChange={setSettingsOpen}
+						onOpenChangeComplete={(open) => {
+							if (!open) mapRef.current?.focus({ preventScroll: true });
+						}}
+					>
 						<SheetTrigger render={<Button type="button" variant="outline" />}>
 							<Settings aria-hidden="true" focusable="false" />
 							Settings
 						</SheetTrigger>
 						<DungeonSettings
+							finalFocus={mapRef}
 							fogConfiguration={fogConfiguration}
 							onFogEnabledChange={(enabled) =>
 								setFogConfiguration((current) => ({ ...current, enabled }))

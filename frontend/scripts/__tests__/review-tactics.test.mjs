@@ -39,6 +39,30 @@ const archerEncounter = () => {
 	};
 };
 describe("Tactical-aware diagnostic decisions", () => {
+	it("walks outward on consecutive turns to leave an announced blast", () => {
+		const state = preparingBrute();
+		state.monsters = state.monsters.map((actor) => ({
+			...actor,
+			kind: "salamander",
+			intent: {
+				type: "preparing-area",
+				target: { ...state.run.playerCoordinate },
+				radius: 1,
+				element: "fire",
+				remaining: 2,
+			},
+		}));
+		expect(choose(state)).toEqual({ type: "move", direction: "up" });
+		const moved = {
+			...state,
+			run: { ...state.run, playerCoordinate: { row: 3, col: 4 } },
+			monsters: state.monsters.map((actor) => ({
+				...actor,
+				intent: { ...actor.intent, remaining: 1 },
+			})),
+		};
+		expect(choose(moved)).toEqual({ type: "move", direction: "up" });
+	});
 	it("takes recovery after one sheltering step instead of repeatedly moving between cover tiles", () => {
 		const state = {
 			...archerEncounter(),

@@ -129,11 +129,13 @@ describe("Diagnostic combat and equipment counters", () => {
 			better: 1,
 			same: 1,
 			lower: 0,
+			tradeoff: 0,
 		});
 		expect(metrics.equipmentReview.pickedUp).toEqual({
 			better: 0,
 			same: 0,
 			lower: 0,
+			tradeoff: 0,
 		});
 	});
 	it("aggregates tactical counts and actual initial mixtures across runs", () => {

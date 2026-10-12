@@ -1,9 +1,11 @@
 // One-step threat assessment for diagnostics, not a player AI or gameplay rule.
+
 import { DEFAULT_FOG_CONFIGURATION } from "../src/domain/dungeon/RunConfiguration";
 import {
 	calculateVisibility,
 	hasLineOfSight,
 } from "../src/domain/dungeon/Visibility";
+import { spellArea } from "../src/domain/game/AreaSpells";
 import { deriveCombatStats } from "../src/domain/game/CombatStats";
 import { isSpellTarget } from "../src/domain/game/SpellCasting";
 import { SPELL_DEFINITIONS, spellPotency } from "../src/domain/game/Spells";
@@ -12,6 +14,7 @@ import {
 	coordinateKey,
 	orthogonalDistance,
 } from "../src/domain/monsters/MonsterLocations";
+import { navigationRun } from "../src/domain/objects/NavigationTerrain";
 import { chooseSpellAwareAction } from "./review-policy.mjs";
 import { createRoutes } from "./review-routing.mjs";
 
@@ -24,7 +27,7 @@ const steps = [
 // Memory belongs only to this diagnostic run; it never enters GameState or saves.
 export function chooseTacticalAwareAction(state, route, memory = {}) {
 	const base = chooseSpellAwareAction(state, route);
-	const floor = state.run.floors[state.run.activeFloor - 1];
+	const floor = navigationRun(state).floors[state.run.activeFloor - 1];
 	const position = state.run.playerCoordinate;
 	const sight = calculateVisibility(
 		floor.terrain,
@@ -45,13 +48,59 @@ export function chooseTacticalAwareAction(state, route, memory = {}) {
 			.filter(Boolean)
 			.map(coordinateKey),
 	);
+	const areas = seen.filter((actor) => actor.intent.type === "preparing-area");
+	const inArea = (actor, point) =>
+		spellArea(floor.terrain, actor.intent.target, actor.intent.radius).some(
+			(tile) => coordinateKey(tile) === coordinateKey(point),
+		);
+	const danger = areas.filter((actor) => inArea(actor, position));
+	if (danger.length) {
+		const candidates = steps
+			.map(([direction, dr, dc]) => ({
+				direction,
+				coordinate: { row: position.row + dr, col: position.col + dc },
+			}))
+			.filter(
+				({ coordinate }) =>
+					floor.terrain[coordinate.row]?.[coordinate.col] === "." &&
+					!occupied.has(coordinateKey(coordinate)) &&
+					!stairs.has(coordinateKey(coordinate)),
+			)
+			.map((exit) => ({
+				...exit,
+				unsafe: areas.filter((actor) => inArea(actor, exit.coordinate)).length,
+				distance: Math.min(
+					...danger.map((actor) =>
+						orthogonalDistance(actor.intent.target, exit.coordinate),
+					),
+				),
+			}))
+			.filter(
+				(exit) =>
+					exit.distance >
+					Math.min(
+						...danger.map((actor) =>
+							orthogonalDistance(actor.intent.target, position),
+						),
+					),
+			)
+			.sort((a, b) => a.unsafe - b.unsafe || b.distance - a.distance);
+		if (candidates[0]) {
+			memory.dodgeSteps = (memory.dodgeSteps ?? 0) + 1;
+			return { type: "move", direction: candidates[0].direction };
+		}
+	}
 	const threats = seen.filter(
 		(actor) => actor.intent.type === "preparing-attack",
 	);
 	const aimedHere = threats.filter(
 		(actor) => orthogonalDistance(actor.intent.target, position) === 0,
 	);
-	const { armor } = deriveCombatStats(state.equipment, state.progression);
+	const { armor } = deriveCombatStats(
+		state.equipment,
+		state.progression,
+		state.effects,
+	);
 	const potentialDamage = (point) =>
 		seen.reduce((total, actor) => {
 			const definition = MONSTER_DEFINITIONS[actor.kind];
@@ -148,9 +197,13 @@ export function chooseTacticalAwareAction(state, route, memory = {}) {
 			memory.coverSteps = (memory.coverSteps ?? 0) + 1;
 			return { type: "move", direction: cover.direction };
 		}
-		if (base?.type === "cast" && base.spell === "magic-missile") {
+		if (
+			base?.type === "cast" &&
+			SPELL_DEFINITIONS[base.spell].mode === "targeted" &&
+			SPELL_DEFINITIONS[base.spell].effect === "damage"
+		) {
 			const target = shooting.find((actor) =>
-				isSpellTarget(state, actor, missile),
+				isSpellTarget(state, actor, SPELL_DEFINITIONS[base.spell]),
 			);
 			if (target) return { ...base, targetId: target.id };
 		}

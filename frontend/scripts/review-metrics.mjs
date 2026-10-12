@@ -5,8 +5,15 @@ const incoming = new Set([
 	"monster-hit",
 	"monster-shot-hit",
 	"monster-heavy-hit",
+	"monster-spell-hit",
+	"monster-area-hit",
+	"player-condition-hit",
+	"trap-sprung",
+	"throne-wound",
+	"fountain-poisoned",
+	"discovery-opened",
 ]);
-const outgoing = new Set(["player-hit", "spell-hit"]);
+const outgoing = new Set(["player-hit", "spell-hit", "condition-hit"]);
 export const createReviewMetrics = () => ({
 	combat: Object.fromEntries(
 		[
@@ -21,14 +28,21 @@ export const createReviewMetrics = () => ({
 			"monster-heavy-hit",
 			"monster-heavy-missed",
 			"monster-heavy-avoided",
+			"monster-spell-hit",
+			"monster-area-hit",
+			"monster-area-avoided",
+			"monster-area-prepared",
+			"player-condition-hit",
+			"condition-hit",
 		].map((type) => [type, 0]),
 	),
 	damage: { received: 0, dealt: 0, receivedByKind: {} },
 	killsByKind: {},
+	discoveries: {},
 	levelUps: [],
 	equipmentReview: {
-		observed: { better: 0, same: 0, lower: 0 },
-		pickedUp: { better: 0, same: 0, lower: 0 },
+		observed: { better: 0, same: 0, lower: 0, tradeoff: 0 },
+		pickedUp: { better: 0, same: 0, lower: 0, tradeoff: 0 },
 		upgrades: 0,
 	},
 });
@@ -51,10 +65,23 @@ export const recordReviewTurn = (metrics, before, action, after) => {
 		// Event damage includes overkill, matching the game's established log contract.
 		if (incoming.has(event.type)) {
 			metrics.damage.received += event.damage;
-			metrics.damage.receivedByKind[event.monster] =
-				(metrics.damage.receivedByKind[event.monster] ?? 0) + event.damage;
+			metrics.damage.receivedByKind[event.monster ?? "environment"] =
+				(metrics.damage.receivedByKind[event.monster ?? "environment"] ?? 0) +
+				event.damage;
 		}
 		if (outgoing.has(event.type)) metrics.damage.dealt += event.damage;
+		if (
+			[
+				"chest-opened",
+				"discovery-opened",
+				"shrine-offered",
+				"fountain-restored",
+				"gold-collected",
+				"item-cleansed",
+			].includes(event.type)
+		)
+			metrics.discoveries[event.type] =
+				(metrics.discoveries[event.type] ?? 0) + 1;
 		if (event.type === "level-gained")
 			metrics.levelUps.push({
 				level: event.level,
@@ -62,8 +89,8 @@ export const recordReviewTurn = (metrics, before, action, after) => {
 				turn: event.turn,
 			});
 		if (event.type === "monster-died")
-			metrics.killsByKind[event.monster] =
-				(metrics.killsByKind[event.monster] ?? 0) + 1;
+			metrics.killsByKind[event.monster ?? "environment"] =
+				(metrics.killsByKind[event.monster ?? "environment"] ?? 0) + 1;
 	}
 	if (action.type === "equip" && after.equipment !== before.equipment) {
 		const item = before.bag.items.find((item) => item.id === action.itemId);
@@ -89,6 +116,7 @@ export const summarizeReviewMetrics = (results) => {
 	for (const {
 		combat,
 		damage,
+		discoveries,
 		killsByKind,
 		equipmentReview,
 		initial,
@@ -96,6 +124,8 @@ export const summarizeReviewMetrics = (results) => {
 		levelUps,
 		seed,
 	} of results) {
+		for (const [kind, count] of Object.entries(discoveries ?? {}))
+			totals.discoveries[kind] = (totals.discoveries[kind] ?? 0) + count;
 		for (const [type, count] of Object.entries(combat))
 			totals.combat[type] += count;
 		totals.damage.received += damage.received;
@@ -106,7 +136,7 @@ export const summarizeReviewMetrics = (results) => {
 		for (const [kind, count] of Object.entries(killsByKind))
 			totals.killsByKind[kind] = (totals.killsByKind[kind] ?? 0) + count;
 		for (const category of ["observed", "pickedUp"])
-			for (const label of ["better", "same", "lower"])
+			for (const label of ["better", "same", "lower", "tradeoff"])
 				totals.equipmentReview[category][label] +=
 					equipmentReview[category][label];
 		totals.equipmentReview.upgrades += equipmentReview.upgrades;

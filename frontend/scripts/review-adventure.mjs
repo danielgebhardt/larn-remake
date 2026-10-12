@@ -8,6 +8,12 @@ import {
 } from "./review-options.mjs";
 import { createRoutes } from "./review-routing.mjs";
 
+const sumCounts = (records) =>
+	records.reduce((sum, record) => {
+		for (const [key, value] of Object.entries(record))
+			sum[key] = (sum[key] ?? 0) + value;
+		return sum;
+	}, {});
 const server = await createServer({
 	configFile: false,
 	server: { middlewareMode: true, hmr: false, ws: false },
@@ -93,8 +99,8 @@ try {
 			const observedEquipment = new Set();
 			const tacticalMemory = {};
 			let potions = 0;
-			const potionUses = { "healing-potion": 0, "mana-potion": 0 };
-			const casts = { "magic-missile": 0, heal: 0 };
+			const potionUses = {};
+			const casts = {};
 			const visited = new Set([1]);
 			const checkpoints = [];
 			const actions = [];
@@ -222,11 +228,12 @@ try {
 					);
 				recordReviewTurn(metrics, state, action, result.state);
 				state = result.state;
-				if (consumed && Object.hasOwn(potionUses, consumed.kind)) {
-					potionUses[consumed.kind]++;
+				if (consumed) {
+					potionUses[consumed.kind] = (potionUses[consumed.kind] ?? 0) + 1;
 					potions++;
 				}
-				if (action.type === "cast") casts[action.spell]++;
+				if (action.type === "cast")
+					casts[action.spell] = (casts[action.spell] ?? 0) + 1;
 
 				kills += before - state.monsters.length;
 
@@ -240,7 +247,7 @@ try {
 						health: state.player.health,
 						maxHealth: state.player.maxHealth,
 						mana: state.mana,
-						maximumMana: maximumMana(state.progression),
+						maximumMana: maximumMana(state.progression, state.equipment),
 					});
 			}
 			if (state.quest.victory) reason = "won";
@@ -250,7 +257,7 @@ try {
 				casts,
 				potionUses,
 				mana: state.mana,
-				maximumMana: maximumMana(state.progression),
+				maximumMana: maximumMana(state.progression, state.equipment),
 				knownSpells: state.knownSpells,
 				configuration,
 				maxActions: options.maxActions,
@@ -290,21 +297,8 @@ try {
 				...summarizeReviews(results, configuration, options.maxActions),
 				policy: options.policy,
 				...summarizeReviewMetrics(results),
-				casts: Object.fromEntries(
-					["magic-missile", "heal"].map((spell) => [
-						spell,
-						results.reduce((total, result) => total + result.casts[spell], 0),
-					]),
-				),
-				potionUses: Object.fromEntries(
-					["healing-potion", "mana-potion"].map((kind) => [
-						kind,
-						results.reduce(
-							(total, result) => total + result.potionUses[kind],
-							0,
-						),
-					]),
-				),
+				casts: sumCounts(results.map((result) => result.casts)),
+				potionUses: sumCounts(results.map((result) => result.potionUses)),
 			}),
 		);
 	}

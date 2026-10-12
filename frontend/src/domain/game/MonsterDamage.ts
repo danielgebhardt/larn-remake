@@ -9,17 +9,24 @@ import {
 import type { GameState } from "./GameState";
 import { growManaCapacity } from "./Mana";
 import { gainExperience, HEALTH_PER_LEVEL } from "./Progression";
+import type { SpellKind } from "./Spells";
+
+type DamageSource =
+	| { type: "player-hit" }
+	| { type: "spell-hit"; spell: SpellKind };
 
 // Melee and spells share one confirmed damage/kill reward path.
 export const damageMonster = (
 	state: GameState,
 	monster: Monster,
 	damage: number,
-	event: ActivityEvent,
+	source: DamageSource,
 ): GameState => {
-	const turn = state.turn + 1;
+	const turn = state.turn;
 	const health = Math.max(0, monster.health - damage);
-	const events: ActivityEvent[] = [event];
+	const events: ActivityEvent[] = [
+		{ ...source, monster: monster.kind, damage, turn },
+	];
 	if (health === 0)
 		events.push({ type: "monster-died", turn, monster: monster.kind });
 	let floorItems = state.floorItems;
@@ -82,7 +89,6 @@ export const damageMonster = (
 			: state.monsters.filter((actor) => actor.id !== monster.id);
 	return {
 		...state,
-		turn,
 		monsters,
 		monstersDefeated: state.monstersDefeated + (health === 0 ? 1 : 0),
 		player,

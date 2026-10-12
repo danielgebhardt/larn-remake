@@ -25,6 +25,7 @@ export const isSpellTarget = (state: GameState, monster: Monster): boolean => {
 		hasLineOfSight(terrain, state.run.playerCoordinate, monster.coordinate)
 	);
 };
+// Apply spell effects on the turn already committed by action resolution.
 export const castSpell = (
 	state: GameState,
 	action: CastAction,
@@ -44,11 +45,10 @@ export const castSpell = (
 			spellPotency(state.progression).healing,
 			state.player.maxHealth - state.player.health,
 		);
-		const turn = state.turn + 1;
+		const turn = state.turn;
 		return {
 			state: {
 				...state,
-				turn,
 				mana: state.mana - definition.cost,
 				player: { ...state.player, health: state.player.health + recovered },
 				activityHistory: appendActivityEvents(state.activityHistory, [
@@ -69,7 +69,7 @@ export const castSpell = (
 	const damage = rolls({
 		seed: state.run.seed,
 		floorNumber: state.run.activeFloor,
-		turn: state.turn + 1,
+		turn: state.turn,
 		attackerId: `player:spell:${action.spell}`,
 		targetId: target.id,
 	}).damage(potency.minimumDamage, potency.maximumDamage);
@@ -81,9 +81,6 @@ export const castSpell = (
 			{
 				type: "spell-hit",
 				spell: action.spell,
-				monster: target.kind,
-				damage,
-				turn: state.turn + 1,
 			},
 		),
 	};

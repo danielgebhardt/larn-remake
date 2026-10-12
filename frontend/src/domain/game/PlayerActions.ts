@@ -79,8 +79,6 @@ export const resolvePlayerAction = (
 			turnAdvanced: false,
 		};
 	}
-	const monsterPhase = (next: GameState) =>
-		recoverManaAfterTurn(resolveMonsterPhase(next, rollSource));
 	if (state.player.health <= 0)
 		return {
 			state,
@@ -89,12 +87,6 @@ export const resolvePlayerAction = (
 				? { error: "You cannot cast after death." }
 				: {}),
 		};
-	if (action.type === "cast") {
-		const cast = castSpell(state, action, rollSource);
-		if ("error" in cast)
-			return { state, turnAdvanced: false, error: cast.error };
-		return { state: monsterPhase(cast.state), turnAdvanced: true };
-	}
 	if (action.type === "use-hotbar") {
 		if (!HOTBAR_SLOTS.includes(action.slot))
 			return {
@@ -121,83 +113,85 @@ export const resolvePlayerAction = (
 			rollSource,
 		);
 	}
+	// Effects receive the committed turn; only this boundary advances it.
+	const committed = { ...state, turn: state.turn + 1 };
+	const result = resolvePlayerEffect(committed, action, rollSource);
+	if (!result) return { state, turnAdvanced: false };
+	if ("error" in result)
+		return { state, turnAdvanced: false, error: result.error };
+	return {
+		state: result.quest.victory
+			? result
+			: recoverManaAfterTurn(resolveMonsterPhase(result, rollSource)),
+		turnAdvanced: true,
+	};
+};
+
+// Free assignments and hotbar aliases are handled before committing a turn.
+const resolvePlayerEffect = (
+	state: GameState,
+	action: Exclude<PlayerAction, HotbarAction>,
+	rollSource: AttackRollSource,
+): GameState | { error: string } | undefined => {
+	const turn = state.turn;
+	if (action.type === "cast") {
+		const cast = castSpell(state, action, rollSource);
+		return "error" in cast ? cast : cast.state;
+	}
 	if (action.type === "consume") {
 		const consumed = consumeItem(state, action);
-		if ("error" in consumed)
-			return { state, turnAdvanced: false, error: consumed.error };
-		const turn = state.turn + 1;
+		if ("error" in consumed) return consumed;
 		return {
-			state: monsterPhase({
-				...state,
-				player: consumed.player,
-				mana: consumed.mana,
-				bag: consumed.bag,
-				turn,
-				activityHistory: appendActivityEvents(state.activityHistory, [
-					{ ...consumed.event, turn },
-				]),
-			}),
-			turnAdvanced: true,
+			...state,
+			player: consumed.player,
+			mana: consumed.mana,
+			bag: consumed.bag,
+			activityHistory: appendActivityEvents(state.activityHistory, [
+				{ ...consumed.event, turn },
+			]),
 		};
 	}
 	if (action.type === "pickup" || action.type === "drop") {
 		const transfer = transferFloorItem(state, action);
-		if ("error" in transfer)
-			return { state, turnAdvanced: false, error: transfer.error };
-		const turn = state.turn + 1;
+		if ("error" in transfer) return transfer;
 		return {
-			state: monsterPhase({
-				...state,
-				bag: transfer.bag,
-				quest:
-					action.type === "pickup" && transfer.event.item === "cure"
-						? { ...state.quest, cureRecovered: true }
-						: state.quest,
-				floorItems: transfer.floorItems,
-				potionHotbar:
-					action.type === "pickup"
-						? assignPickedUpPotion(
-								state.potionHotbar,
-								state.bag,
-								transfer.event.item,
-							)
-						: state.potionHotbar,
-				turn,
-				activityHistory: appendActivityEvents(state.activityHistory, [
-					{ ...transfer.event, turn },
-				]),
-			}),
-			turnAdvanced: true,
+			...state,
+			bag: transfer.bag,
+			quest:
+				action.type === "pickup" && transfer.event.item === "cure"
+					? { ...state.quest, cureRecovered: true }
+					: state.quest,
+			floorItems: transfer.floorItems,
+			potionHotbar:
+				action.type === "pickup"
+					? assignPickedUpPotion(
+							state.potionHotbar,
+							state.bag,
+							transfer.event.item,
+						)
+					: state.potionHotbar,
+			activityHistory: appendActivityEvents(state.activityHistory, [
+				{ ...transfer.event, turn },
+			]),
 		};
 	}
 	if (action.type === "equip" || action.type === "unequip") {
 		const change = changeEquipment(state.equipment, state.bag, action);
-		if ("error" in change)
-			return { state, turnAdvanced: false, error: change.error };
-		const turn = state.turn + 1;
+		if ("error" in change) return change;
 		return {
-			state: monsterPhase({
-				...state,
-				equipment: change.equipment,
-				bag: change.bag,
-				turn,
-				activityHistory: appendActivityEvents(state.activityHistory, [
-					{ ...change.event, turn },
-				]),
-			}),
-			turnAdvanced: true,
+			...state,
+			equipment: change.equipment,
+			bag: change.bag,
+			activityHistory: appendActivityEvents(state.activityHistory, [
+				{ ...change.event, turn },
+			]),
 		};
 	}
-	if (action.type === "wait")
-		return {
-			state: monsterPhase({ ...state, turn: state.turn + 1 }),
-			turnAdvanced: true,
-		};
-	// Movement validates collision and applies at most one stair transition.
-	// An occupied destination resolves combat from the original position instead.
-	// Spawn placement excludes stairs and their arrival tiles.
+	if (action.type === "wait") return state;
+	// Movement applies one transition; occupied destinations attack from the
+	// original position. Spawn and pursuit keep stair arrivals unoccupied.
 	const run = moveDungeonRun(state.run, action.direction);
-	if (run === state.run) return { state, turnAdvanced: false };
+	if (run === state.run) return undefined;
 	const monster = state.monsters.find(
 		(monster) =>
 			monster.floorNumber === state.run.activeFloor &&
@@ -206,18 +200,9 @@ export const resolvePlayerAction = (
 			monster.coordinate.row === run.playerCoordinate.row &&
 			monster.coordinate.col === run.playerCoordinate.col,
 	);
-	const playerResult = monster
+	return monster
 		? resolveAttack(state, monster, rollSource)
-		: announceArrival(
-				{ ...state, run, turn: state.turn + 1 },
-				state.run.activeFloor,
-			);
-	return {
-		state: playerResult.quest.victory
-			? playerResult
-			: monsterPhase(playerResult),
-		turnAdvanced: true,
-	};
+		: announceArrival({ ...state, run }, state.run.activeFloor);
 };
 
 const announceArrival = (state: GameState, fromFloor: number): GameState => {
@@ -274,7 +259,7 @@ const resolveAttack = (
 	monster: Monster,
 	rollSource: AttackRollSource,
 ): GameState => {
-	const turn = state.turn + 1;
+	const turn = state.turn;
 	const outcome = resolveMeleeAttack(
 		attackProfile(
 			deriveCombatStats(state.equipment, state.progression).attack,
@@ -291,15 +276,9 @@ const resolveAttack = (
 	if (!outcome.hit)
 		return {
 			...state,
-			turn,
 			activityHistory: appendActivityEvents(state.activityHistory, [
 				{ type: "player-missed", turn, monster: monster.kind },
 			]),
 		};
-	return damageMonster(state, monster, outcome.damage, {
-		type: "player-hit",
-		turn,
-		monster: monster.kind,
-		damage: outcome.damage,
-	});
+	return damageMonster(state, monster, outcome.damage, { type: "player-hit" });
 };

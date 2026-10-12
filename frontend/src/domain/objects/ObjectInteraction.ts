@@ -2,10 +2,11 @@ import { appendActivityEvents } from "../game/ActivityHistory";
 import type { GameState } from "../game/GameState";
 import { orthogonalDistance } from "../monsters/MonsterLocations";
 import { drawFountain } from "./DungeonFountains";
+import { offerAtShrine } from "./DungeonShrines";
 import { resolveThroneChoice } from "./DungeonThrones";
 import { disarmTrap } from "./DungeonTraps";
 import { openChest } from "./TreasureChests";
-export type ObjectChoice = "sip" | "draw" | "leave" | "sit" | "pry";
+export type ObjectChoice = "sip" | "draw" | "leave" | "sit" | "pry" | "offer";
 export type InteractAction = {
 	type: "interact";
 	objectId?: string;
@@ -46,6 +47,8 @@ export const interactObject = (
 	const player = state.run.playerCoordinate;
 	if (!object) return { error: "No object within reach." };
 	if (action.choice === "leave") return { error: "You leave it untouched." };
+	if (object.kind === "shrine")
+		return offerAtShrine(state, object, action.choice);
 	if (object.kind === "throne")
 		return resolveThroneChoice(state, object, action.choice);
 	if (object.kind === "fountain")

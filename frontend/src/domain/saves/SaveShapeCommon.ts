@@ -95,6 +95,7 @@ const victory = object({
 });
 
 const eventFields = {
+	"shrine-offered": { gold: integer(1, 110) },
 	"throne-used": {
 		outcome: oneOf([
 			"blessing",

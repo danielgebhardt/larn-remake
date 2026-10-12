@@ -8,6 +8,8 @@ import { MONSTER_DEFINITIONS } from "../../domain/monsters/Monster";
 export const formatActivityEvent = (event: ActivityEvent): string => {
 	const prefix = `Turn ${event.turn} — `;
 	switch (event.type) {
+		case "shrine-offered":
+			return `${prefix}You offer ${event.gold} gold at the shrine of insight. Its blessing is spent.`;
 		case "throne-wound":
 			return `${prefix}The throne wounds you for ${event.damage} damage.`;
 		case "throne-used":

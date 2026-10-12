@@ -10,6 +10,16 @@ export const OBJECT_DEFINITIONS = {
 		chance: 1,
 		placement: "passage",
 	},
+	shrine: {
+		name: "Shrine of insight",
+		freshLabel: "shrine of insight",
+		usedLabel: "spent shrine",
+		minFloor: 3,
+		maxFloor: 20,
+		maxPerFloor: 1,
+		chance: 0.3,
+		placement: "room",
+	},
 	throne: {
 		name: "Forgotten throne",
 		freshLabel: "forgotten throne",

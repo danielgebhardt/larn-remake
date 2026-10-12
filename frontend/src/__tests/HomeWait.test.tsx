@@ -5,6 +5,7 @@ import * as GameState from "../domain/game/GameState";
 import { ThemeProvider } from "../settings/ThemeProvider";
 import {
 	closeSettings,
+	inspectEndedRun,
 	openSettings,
 	readDungeonCells,
 	resetHomeTestState,
@@ -89,6 +90,7 @@ describe("Waiting on the play screen", () => {
 		}));
 		const user = renderWaitingRun();
 		await user.keyboard("  ");
+		await inspectEndedRun(user);
 		expect(screen.getByRole("alert")).toHaveTextContent("You died.");
 		expect(screen.getByLabelText("Player health")).toHaveTextContent(
 			"Health 0 / 10",

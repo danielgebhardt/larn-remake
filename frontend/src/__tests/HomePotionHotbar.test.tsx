@@ -6,6 +6,7 @@ import { createBag } from "../domain/items/Bag";
 import { HOTBAR_SLOTS, type HotbarSlot } from "../domain/items/PotionHotbar";
 import { resolvePlayerActionWithHits as resolvePlayerAction } from "./ControlledCombatTestHelpers";
 import {
+	inspectEndedRun,
 	renderHome as render,
 	resetHomeTestState,
 	stubDungeonRun,
@@ -134,6 +135,7 @@ describe("Potion hotbar gameplay", () => {
 	);
 	it("disables activation after death", async () => {
 		const user = setup(1, 0);
+		await inspectEndedRun(user);
 		await user.keyboard("1");
 		expect(
 			screen.getByRole("button", {

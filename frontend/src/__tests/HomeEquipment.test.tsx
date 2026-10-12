@@ -5,6 +5,7 @@ import * as GameState from "../domain/game/GameState";
 import { createBag } from "../domain/items/Bag";
 import { renderEncounter } from "./HomeEncounterTestHelpers";
 import {
+	inspectEndedRun,
 	renderHome as render,
 	resetHomeTestState,
 	stubDungeonRun,
@@ -120,9 +121,11 @@ describe("Changing gear in Character", () => {
 	});
 	it("shows fatal retaliation and disables gear changes while still allowing inspection", async () => {
 		const { user } = renderEncounter(1);
-		const panel = await openCharacter(user);
+		let panel = await openCharacter(user);
 		await user.click(panel.getByRole("button", { name: "Iron sword, slot 1" }));
 		await user.click(panel.getByRole("button", { name: "Equip in main hand" }));
+		await inspectEndedRun(user);
+		panel = await openCharacter(user);
 		expect(panel.getByRole("alert")).toHaveTextContent("You died.");
 		expect(panel.getByLabelText("Character health")).toHaveTextContent(
 			"Health 0 / 10",

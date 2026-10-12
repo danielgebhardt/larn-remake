@@ -6,6 +6,7 @@ import * as MonsterPlacement from "../domain/monsters/MonsterPlacement";
 import { ThemeProvider } from "../settings/ThemeProvider";
 import {
 	closeSettings,
+	inspectEndedRun,
 	openSettings,
 	readDungeonCells,
 	resetHomeTestState,
@@ -102,6 +103,7 @@ describe("Complete monster encounters on screen", () => {
 		});
 		const initialMap = readDungeonCells();
 		await user.keyboard("d");
+		await inspectEndedRun(user);
 		expect(screen.getByRole("alert")).toHaveTextContent("You died.");
 		expect(screen.getByLabelText("Player health")).toHaveTextContent(
 			"Health 0 / 10",

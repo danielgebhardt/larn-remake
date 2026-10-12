@@ -461,3 +461,5 @@ Shrines of insight (floor 3+) exchange **10 + 5 × floor gold** for **20 + 4 × 
 Visible nearby dungeon objects show their controls and live/spent state below the map. Entering an object tile adds a description to the activity log. Opened chests remain as faded crossed-chest markers; their remaining loot is on the floor for G pickup. Inspecting a spent object explains its state without taking a turn.
 
 Rare safe-room discoveries include **sealed reliquaries** (floor 8+) and **abandoned spell archives** (floor 3+), each with a 12% per-floor chance. Reliquaries trade a confirmed 3-damage wound for a special ring. Archives release an unknown eligible book from the run’s selected spell pool, or a mana potion. Both are one-use; rewards remain on the floor for G pickup. They use existing rooms and leave dungeon terrain unchanged.
+
+Death opens a game-over summary with the final run values and last recorded damage. Choose **New Adventure**, **Replay this seed**, or **Inspect run**; Escape also inspects without restarting. After inspection, the ended run remains available for Character, activity and save/export review. Loading a dead save shows its summary once again.

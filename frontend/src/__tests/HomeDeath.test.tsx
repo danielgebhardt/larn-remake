@@ -1,6 +1,7 @@
 import { screen, within } from "@testing-library/react";
 import { afterEach, describe, expect, it } from "vitest";
 import { renderEncounter } from "./HomeEncounterTestHelpers.tsx";
+import { inspectEndedRun } from "./HomeTestHelpers";
 import {
 	closeSettings,
 	openSettings,
@@ -34,6 +35,7 @@ describe("Ending a run on player death", () => {
 		const { user } = renderEncounter(1);
 		const initialMap = readDungeonCells();
 		await user.keyboard("d");
+		await inspectEndedRun(user);
 		expectEndedRun();
 		expect(readDungeonCells()).toEqual(initialMap);
 		await user.keyboard("wasd{ArrowUp}{ArrowDown}{ArrowLeft}{ArrowRight}");
@@ -48,6 +50,7 @@ describe("Ending a run on player death", () => {
 			const initialMap = readDungeonCells();
 			await user.keyboard("s"); // Discover the lower row before dying.
 			await user.keyboard("wd");
+			await inspectEndedRun(user);
 			expect(screen.getByRole("alert")).toHaveTextContent(deathMessage);
 			if (restart === "new dungeon") {
 				await user.click(screen.getByRole("button", { name: "New Dungeon" }));
@@ -77,6 +80,7 @@ describe("Ending a run on player death", () => {
 		async (failure) => {
 			const { user, generate } = renderEncounter(1);
 			await user.keyboard("d");
+			await inspectEndedRun(user);
 			const endedMap = readDungeonCells();
 			const seedInput = await openSettings(user);
 			if (failure === "invalid seed") {

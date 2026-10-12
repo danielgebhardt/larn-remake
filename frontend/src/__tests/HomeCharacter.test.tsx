@@ -5,6 +5,7 @@ import * as GameState from "../domain/game/GameState";
 import { createBag } from "../domain/items/Bag";
 import { createEquipment } from "../domain/items/Equipment";
 import {
+	inspectEndedRun,
 	readDungeonCells,
 	renderHome as render,
 	resetHomeTestState,
@@ -190,6 +191,7 @@ describe("Character sheet", () => {
 				player: { health: 0, maxHealth: 10 },
 			}));
 			const user = renderCharacterRun();
+			await inspectEndedRun(user);
 			const before = within(await openCharacter(user));
 			expect(before.getByText("Main hand empty")).toBeVisible();
 			expect(before.getByText("Off hand empty")).toBeVisible();

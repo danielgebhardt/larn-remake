@@ -5,6 +5,7 @@ import * as GameState from "../domain/game/GameState";
 import { createBag } from "../domain/items/Bag";
 import type { FloorItem } from "../domain/items/FloorItems";
 import {
+	inspectEndedRun,
 	renderHome as render,
 	resetHomeTestState,
 	stubDungeonRun,
@@ -360,6 +361,7 @@ describe("G pickup from gameplay", () => {
 		await user.click(
 			panel.getByRole("button", { name: "Pick up Healing potion, item 1" }),
 		);
+		await inspectEndedRun(user);
 		await waitFor(() =>
 			expect(screen.queryByRole("dialog")).not.toBeInTheDocument(),
 		);
@@ -375,8 +377,11 @@ describe("G pickup from gameplay", () => {
 			screen.getByRole("button", { name: "Pick up Wooden shield, item 1" }),
 		).toBeDisabled();
 	});
-	it("does not pick up after death", () => {
-		renderPickupRun([potion], { player: { health: 0, maxHealth: 10 } });
+	it("does not pick up after death", async () => {
+		const user = renderPickupRun([potion], {
+			player: { health: 0, maxHealth: 10 },
+		});
+		await inspectEndedRun(user);
 		fireEvent.keyDown(window, { key: "g" });
 		expect(screen.getByLabelText("Turn count")).toHaveTextContent("Turn 0");
 		expect(screen.queryByRole("dialog")).not.toBeInTheDocument();

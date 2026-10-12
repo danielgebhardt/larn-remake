@@ -3,6 +3,7 @@ import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import * as GameState from "../domain/game/GameState";
 import {
+	inspectEndedRun,
 	renderHome as render,
 	resetHomeTestState,
 	stubDungeonRun,
@@ -67,6 +68,7 @@ describe("Character shortcut", () => {
 			player: { health: 0, maxHealth: 10 },
 		}));
 		const { user } = setup();
+		await inspectEndedRun(user);
 		await user.keyboard("i");
 		expect(
 			await screen.findByRole("dialog", { name: "Character" }),

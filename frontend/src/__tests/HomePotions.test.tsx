@@ -4,6 +4,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import * as GameState from "../domain/game/GameState";
 import { createBag } from "../domain/items/Bag";
 import {
+	inspectEndedRun,
 	renderHome as render,
 	resetHomeTestState,
 	stubDungeonRun,
@@ -108,6 +109,7 @@ describe("Healing potions in Character", () => {
 	});
 	it("allows inspection after death but disables drinking and dropping", async () => {
 		const user = renderPotionRun(0);
+		await inspectEndedRun(user);
 		const panel = await selectPotion(user);
 		expect(panel.getByRole("button", { name: "Drink potion" })).toBeDisabled();
 		expect(panel.getByRole("button", { name: "Drop item" })).toBeDisabled();

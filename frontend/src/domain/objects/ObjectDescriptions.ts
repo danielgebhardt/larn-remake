@@ -62,6 +62,7 @@ export const announceObjectArrival = (
 	before: GameState,
 	after: GameState,
 ): GameState => {
+	if (after.player.health <= 0) return after;
 	if (
 		before.run.activeFloor === after.run.activeFloor &&
 		before.run.playerCoordinate.row === after.run.playerCoordinate.row &&

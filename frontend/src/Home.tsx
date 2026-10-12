@@ -9,6 +9,7 @@ import DungeonLayout from "./components/dungeon/DungeonLayout.tsx";
 import ActivityLog from "./components/game/ActivityLog.tsx";
 import AdventureSaveSheet from "./components/game/AdventureSaveSheet";
 import CharacterDialog from "./components/game/CharacterDialog.tsx";
+import GameOverDialog from "./components/game/GameOverDialog";
 import { isLowHealth } from "./components/game/HealthDisplay";
 import PickupDialog from "./components/game/PickupDialog";
 import PlayerStatus from "./components/game/PlayerStatus.tsx";
@@ -107,6 +108,8 @@ const Home = ({
 	const { run, turn, player } = game.state;
 	const [dismissedVictory, setDismissedVictory] =
 		useState<VictorySummary | null>(null);
+	const [dismissedDeath, setDismissedDeath] = useState(false);
+	const deathOpen = player.health === 0 && !dismissedDeath;
 	const victory = game.state.quest.victory;
 	const victoryOpen = victory !== null && dismissedVictory !== victory;
 	const canPlay = player.health > 0 && victory === null;
@@ -132,9 +135,18 @@ const Home = ({
 	const [pickupOpen, setPickupOpen] = useState(false);
 	const mapRef = useRef<HTMLElement>(null);
 	useEffect(() => {
-		if (initialSeed !== undefined || initialAdventure)
+		if (initialSeed !== undefined || initialAdventure?.state.player.health)
 			mapRef.current?.focus({ preventScroll: true });
 	}, [initialSeed, initialAdventure]);
+	useEffect(() => {
+		if (!deathOpen) return;
+		setCharacterOpen(false);
+		setPickupOpen(false);
+		setInteractionObject(null);
+		setSettingsOpen(false);
+		setSaveOpen(false);
+		setHelpOpen(false);
+	}, [deathOpen]);
 	const currentItems = itemsAtPlayer(game.state);
 	// Empty loot or death ends selection; later movement must not reopen it.
 	useEffect(() => {
@@ -191,6 +203,7 @@ const Home = ({
 			actionError: "",
 		});
 		setPickupOpen(false);
+		setDismissedDeath(false);
 		setInteractionObject(null);
 		setConfiguration(nextConfiguration);
 		setConfigDraft(configurationDraft(nextConfiguration));
@@ -217,6 +230,7 @@ const Home = ({
 			actionError: "",
 		});
 		setPickupOpen(false);
+		setDismissedDeath(false);
 		setInteractionObject(null);
 		setCharacterOpen(false);
 		setHelpOpen(false);
@@ -272,6 +286,7 @@ const Home = ({
 		else handleActionRequested({ type: "interact" });
 	};
 	const mapInputAvailable =
+		!deathOpen &&
 		interactionObject === null &&
 		!settingsOpen &&
 		!saveOpen &&
@@ -377,7 +392,7 @@ const Home = ({
 							if (open) setRestoreMapFocus(false);
 						}}
 						onOpenChangeComplete={(open) => {
-							if (!open && restoreMapFocus && !victoryOpen)
+							if (!open && restoreMapFocus && !victoryOpen && !deathOpen)
 								mapRef.current?.focus({ preventScroll: true });
 						}}
 					>
@@ -580,6 +595,17 @@ const Home = ({
 					<ActivityLog history={game.state.activityHistory} />
 				</section>
 			</main>
+			<GameOverDialog
+				state={game.state}
+				open={deathOpen}
+				onDismiss={() => setDismissedDeath(true)}
+				onNewDungeon={handleNewDungeon}
+				onReplay={() => {
+					if (startRun(run.seed, configuration))
+						mapRef.current?.focus({ preventScroll: true });
+				}}
+				mapRef={mapRef}
+			/>
 			<ObjectChoiceDialog
 				object={interactionObject}
 				onClose={() => setInteractionObject(null)}

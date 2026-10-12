@@ -1,4 +1,9 @@
-import { render as renderUI, screen, waitFor } from "@testing-library/react";
+import {
+	render as renderUI,
+	screen,
+	waitFor,
+	within,
+} from "@testing-library/react";
 import type userEvent from "@testing-library/user-event";
 import { type ComponentProps, cloneElement, type ReactElement } from "react";
 import { expect, vi } from "vitest";
@@ -153,3 +158,13 @@ export const stubDungeonRun = (
 	generate: vi.spyOn(DungeonRun, "generateDungeonRun").mockReturnValue(run),
 	connect: vi.spyOn(DungeonRun, "connectDungeonFloors").mockReturnValue(run),
 });
+
+export const inspectEndedRun = async (
+	user: ReturnType<typeof userEvent.setup>,
+) => {
+	const dialog = await screen.findByRole("dialog", { name: "You died" });
+	await user.click(within(dialog).getByRole("button", { name: "Inspect run" }));
+	await waitFor(() =>
+		expect(screen.getByLabelText("Dungeon map", { exact: true })).toHaveFocus(),
+	);
+};

@@ -6,7 +6,9 @@ import {
 	DoorClosed,
 	DoorOpen,
 	Droplets,
+	Gem,
 	Landmark,
+	LibraryBig,
 	type LucideIcon,
 	TriangleAlert,
 } from "lucide-react";
@@ -17,6 +19,8 @@ import type {
 
 const icons: Record<DungeonObjectKind, LucideIcon> = {
 	door: DoorClosed,
+	reliquary: Gem,
+	archive: LibraryBig,
 	gold: Coins,
 	chest: Archive,
 	trap: TriangleAlert,

@@ -1,5 +1,6 @@
 import { MAX_FLOORS } from "../dungeon/RunConfiguration";
 export type ItemDefinition = {
+	specialFindOnly?: boolean;
 	name: string;
 	type:
 		| "potion"
@@ -25,6 +26,20 @@ export type ItemDefinition = {
 	dropWeight: number;
 };
 export const ITEM_DEFINITIONS = {
+	"relic-band": {
+		specialFindOnly: true,
+		name: "Band of the forgotten",
+		type: "ring",
+		attackBonus: 0,
+		armor: 0,
+		stats: { strength: 2, dexterity: 2, intelligence: 2, mana: 2 },
+		description:
+			"A rare sealed relic. Adds 2 Strength, Dexterity, Intelligence and mana capacity in either ring slot; capacity gains do not refill mana.",
+		minFloor: 8,
+		maxFloor: 20,
+		foundWeight: 0,
+		dropWeight: 0,
+	},
 	"copper-ring": {
 		name: "Copper ring",
 		type: "ring",
@@ -615,7 +630,8 @@ export const validateItemDefinition = (definition: ItemDefinition): void => {
 		![foundWeight, dropWeight].every(
 			(weight) => Number.isFinite(weight) && weight >= 0,
 		) ||
-		(!["quest", "spellbook"].includes(definition.type) &&
+		(!definition.specialFindOnly &&
+			!["quest", "spellbook"].includes(definition.type) &&
 			foundWeight + dropWeight === 0) ||
 		!Number.isInteger(armor) ||
 		armor < 0 ||

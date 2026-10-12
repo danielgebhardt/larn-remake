@@ -23,6 +23,7 @@ const isBookKind = (kind: ItemKind): kind is BookKind =>
 	ITEM_DEFINITIONS[kind].type === "spellbook";
 const icons: Record<Exclude<ItemKind, BookKind>, LucideIcon> = {
 	cure: Gem,
+	"relic-band": Gem,
 	"copper-ring": Circle,
 	"ring-strength": Circle,
 	"ring-dexterity": Circle,

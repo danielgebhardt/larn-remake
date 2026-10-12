@@ -7,6 +7,15 @@ import {
 } from "./DungeonObject";
 
 const hints: Record<DungeonObjectKind, { fresh: string; spent: string }> = {
+	reliquary: {
+		fresh: "Press E to review the seal’s 3-damage cost and rare ring reward.",
+		spent: "Seal broken; any remaining reward is on the floor for G pickup.",
+	},
+	archive: {
+		fresh: "Press E to search for a spellbook or mana supply.",
+		spent:
+			"Already searched; any remaining reward is on the floor for G pickup.",
+	},
 	door: {
 		fresh: "Bump to open, or press E within reach. Enemies cannot open doors.",
 		spent:

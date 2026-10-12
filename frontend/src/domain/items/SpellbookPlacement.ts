@@ -5,11 +5,7 @@ import type { FloorItem } from "./FloorItems";
 import { ITEM_DEFINITIONS, type ItemKind } from "./Item";
 import { availableItemLocations } from "./ItemPlacement";
 
-export const spawnRunSpellbooks = (
-	run: DungeonRun,
-	monsters: readonly Monster[],
-	occupied: readonly FloorItem[],
-): readonly FloorItem[] => {
+export const selectedRunSpellbooks = (run: DungeonRun): readonly ItemKind[] => {
 	const pool = (Object.keys(ITEM_DEFINITIONS) as ItemKind[]).filter((kind) => {
 		const definition = ITEM_DEFINITIONS[kind];
 		return (
@@ -24,9 +20,21 @@ export const spawnRunSpellbooks = (
 		hashStringToUint32(`${run.seed}:spellbooks:count`),
 	);
 	const count = Math.min(pool.length, 5 + Math.floor(countRandom() * 6));
-	const books: FloorItem[] = [];
+	const selected: ItemKind[] = [];
 	for (let index = 0; index < count; index++) {
 		const [kind] = pool.splice(Math.floor(choose() * pool.length), 1);
+		selected.push(kind);
+	}
+	return selected;
+};
+
+export const spawnRunSpellbooks = (
+	run: DungeonRun,
+	monsters: readonly Monster[],
+	occupied: readonly FloorItem[],
+): readonly FloorItem[] => {
+	const books: FloorItem[] = [];
+	for (const kind of selectedRunSpellbooks(run)) {
 		const definition = ITEM_DEFINITIONS[kind];
 		const floorRandom = createSeededRandom(
 			hashStringToUint32(`${run.seed}:spellbook:${kind}:floor`),

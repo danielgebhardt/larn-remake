@@ -6,8 +6,17 @@ import { offerAtShrine } from "./DungeonShrines";
 import { resolveThroneChoice } from "./DungeonThrones";
 import { disarmTrap } from "./DungeonTraps";
 import { describeObject } from "./ObjectDescriptions";
+import { openDiscovery } from "./RareDiscoveries";
 import { openChest } from "./TreasureChests";
-export type ObjectChoice = "sip" | "draw" | "leave" | "sit" | "pry" | "offer";
+export type ObjectChoice =
+	| "sip"
+	| "draw"
+	| "leave"
+	| "sit"
+	| "pry"
+	| "offer"
+	| "unseal"
+	| "read";
 export type InteractAction = {
 	type: "interact";
 	objectId?: string;
@@ -54,6 +63,8 @@ export const interactObject = (
 	if (object.kind !== "door" && object.activated)
 		return { error: describeObject(object) };
 	if (action.choice === "leave") return { error: "You leave it untouched." };
+	if (object.kind === "reliquary" || object.kind === "archive")
+		return openDiscovery(state, object, action.choice);
 	if (object.kind === "shrine")
 		return offerAtShrine(state, object, action.choice);
 	if (object.kind === "throne")

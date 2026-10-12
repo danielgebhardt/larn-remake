@@ -4,11 +4,14 @@ import { EFFECT_DEFINITIONS } from "../../domain/game/TimedEffects";
 import { EQUIPMENT_SLOT_LABELS } from "../../domain/items/Equipment";
 import { ITEM_DEFINITIONS } from "../../domain/items/Item";
 import { MONSTER_DEFINITIONS } from "../../domain/monsters/Monster";
+import { OBJECT_DEFINITIONS } from "../../domain/objects/DungeonObject";
 import { describeObject } from "../../domain/objects/ObjectDescriptions";
 
 export const formatActivityEvent = (event: ActivityEvent): string => {
 	const prefix = `Turn ${event.turn} — `;
 	switch (event.type) {
+		case "discovery-opened":
+			return `${prefix}You open the ${OBJECT_DEFINITIONS[event.kind].name}.${event.damage ? ` The seal deals ${event.damage} damage.` : ""} ${ITEM_DEFINITIONS[event.item].name} remains on the floor for G pickup.`;
 		case "object-seen":
 			return `${prefix}${describeObject(event)}`;
 		case "shrine-offered":

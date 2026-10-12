@@ -70,6 +70,26 @@ export const OBJECT_DEFINITIONS = {
 		chance: 1,
 		placement: "room",
 	},
+	reliquary: {
+		name: "Sealed reliquary",
+		freshLabel: "sealed reliquary",
+		usedLabel: "opened reliquary",
+		minFloor: 8,
+		maxFloor: 20,
+		maxPerFloor: 1,
+		chance: 0.12,
+		placement: "room",
+	},
+	archive: {
+		name: "Abandoned spell archive",
+		freshLabel: "abandoned spell archive",
+		usedLabel: "searched archive",
+		minFloor: 3,
+		maxFloor: 20,
+		maxPerFloor: 1,
+		chance: 0.12,
+		placement: "room",
+	},
 } as const;
 export type DungeonObjectKind = keyof typeof OBJECT_DEFINITIONS;
 export type DungeonObject = Readonly<{

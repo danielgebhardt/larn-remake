@@ -10,6 +10,12 @@ import type { EffectKind } from "./TimedEffects";
 
 export type ActivityEvent = { turn: number } & (
 	| {
+			type: "discovery-opened";
+			kind: import("../objects/DungeonObject").DungeonObjectKind;
+			item: ItemKind;
+			damage: number;
+	  }
+	| {
 			type: "object-seen";
 			kind: import("../objects/DungeonObject").DungeonObjectKind;
 			activated: boolean;

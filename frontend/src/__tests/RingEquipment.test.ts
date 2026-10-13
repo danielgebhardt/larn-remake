@@ -38,9 +38,7 @@ it("swaps a ring with a full bag, but rejects unequipping until there is room", 
 	const replacement = { ...ring, id: "ring:2" };
 	const bag = createBag(
 		Array.from({ length: BAG_CAPACITY }, (_, i) =>
-			i === 0
-				? replacement
-				: { id: `potion:${i}`, kind: "healing-potion" as const },
+			i === 0 ? replacement : { id: `gear:${i}`, kind: "short-sword" as const },
 		),
 	);
 	const swapped = changeEquipment(equipped, bag, {

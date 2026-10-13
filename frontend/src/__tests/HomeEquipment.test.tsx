@@ -70,7 +70,7 @@ describe("Changing gear in Character", () => {
 		expect(panel.getByLabelText("Character attack")).toHaveTextContent(
 			"Attack 1–2",
 		);
-		expect(panel.getByLabelText("Bag capacity")).toHaveTextContent("1 / 20");
+		expect(panel.getByLabelText("Bag capacity")).toHaveTextContent("1 / 27");
 		expect(panel.getByRole("heading", { name: "Equipment" })).toHaveFocus();
 		expect(
 			panel.getByRole("status", { name: "Character activity" }),
@@ -84,7 +84,7 @@ describe("Changing gear in Character", () => {
 		expect(panel.getByLabelText("Character attack")).toHaveTextContent(
 			"Attack 1–3",
 		);
-		expect(panel.getByLabelText("Bag capacity")).toHaveTextContent("0 / 20");
+		expect(panel.getByLabelText("Bag capacity")).toHaveTextContent("0 / 27");
 		expect(screen.getByLabelText("Turn count")).toHaveTextContent("Turn 2");
 	});
 	it("explains a full-bag rejection without changing values or the turn", async () => {
@@ -92,7 +92,7 @@ describe("Changing gear in Character", () => {
 		vi.spyOn(GameState, "createGameState").mockImplementationOnce((run) => ({
 			...create(run),
 			bag: createBag(
-				Array.from({ length: 20 }, (_, index) => ({
+				Array.from({ length: 27 }, (_, index) => ({
 					id: `sword:${index}`,
 					kind: "short-sword",
 				})),
@@ -110,7 +110,7 @@ describe("Changing gear in Character", () => {
 		expect(panel.getByLabelText("Character attack")).toHaveTextContent(
 			"Attack 1–3",
 		);
-		expect(panel.getByLabelText("Bag capacity")).toHaveTextContent("20 / 20");
+		expect(panel.getByLabelText("Bag capacity")).toHaveTextContent("27 / 27");
 		expect(screen.getByLabelText("Turn count")).toHaveTextContent("Turn 0");
 		await user.click(
 			panel.getByRole("button", { name: "Short sword, slot 1" }),

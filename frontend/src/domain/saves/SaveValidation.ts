@@ -16,6 +16,8 @@ import { isSaveDocumentV8 } from "./SaveShapeV8";
 import { isSaveDocumentV9 } from "./SaveShapeV9";
 import { isSaveDocumentV10 } from "./SaveShapeV10";
 
+import { isSaveDocumentV11 } from "./SaveShapeV11";
+
 const inconsistent = {
 	ok: false,
 	error: "This save contains inconsistent adventure data.",
@@ -28,7 +30,7 @@ export const validateSaveDocument = (
 		data !== null &&
 		!Array.isArray(data) &&
 		(!("version" in data) ||
-			![1, 2, 3, 4, 5, 6, 7, 8, 9, 10].includes(data.version as number))
+			![1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11].includes(data.version as number))
 	)
 		return {
 			ok: false,
@@ -53,7 +55,8 @@ export const validateSaveDocument = (
 			isSaveDocumentV7(data) ||
 			isSaveDocumentV8(data) ||
 			isSaveDocumentV9(data) ||
-			isSaveDocumentV10(data)
+			isSaveDocumentV10(data) ||
+			isSaveDocumentV11(data)
 		)
 	)
 		return {

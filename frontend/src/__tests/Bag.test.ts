@@ -22,9 +22,9 @@ const swords = (count: number): ItemInstance[] =>
 describe("Bag capacity and ownership", () => {
 	it("starts empty when no items are supplied", () => {
 		expect(createBag().items).toEqual([]);
-		expect(BAG_CAPACITY).toBe(20);
+		expect(BAG_CAPACITY).toBe(27);
 	});
-	it.each([2, 20])(
+	it.each([2, 27])(
 		"holds %i distinct item copies, including copies of the same kind",
 		(count) => {
 			const items = swords(count);
@@ -33,8 +33,8 @@ describe("Bag capacity and ownership", () => {
 			expect(new Set(bag.items.map((item) => item.id)).size).toBe(count);
 		},
 	);
-	it("rejects more than twenty items", () => {
-		expect(() => createBag(swords(21))).toThrow(/20/);
+	it("rejects more than twenty-seven occupied slots", () => {
+		expect(() => createBag(swords(28))).toThrow(/27/);
 	});
 	it("rejects duplicate ownership of the same item identity", () => {
 		const item = swords(1)[0];

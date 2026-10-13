@@ -34,7 +34,7 @@ describe("Protected cure recovery", () => {
 		const before = {
 			...ready(),
 			bag: createBag(
-				Array.from({ length: 20 }, (_, i) => ({
+				Array.from({ length: 27 }, (_, i) => ({
 					id: `potion:${i}`,
 					kind: "healing-potion" as const,
 				})),

@@ -53,8 +53,9 @@ import {
 	type PlayerAction,
 	resolvePlayerAction,
 } from "./domain/game/PlayerActions.ts";
-import { BAG_CAPACITY } from "./domain/items/Bag";
+import { canAddToBag } from "./domain/items/Bag";
 import { itemsAtPlayer } from "./domain/items/FloorItems";
+import { ITEM_DEFINITIONS } from "./domain/items/Item";
 import type { HotbarSlot } from "./domain/items/PotionHotbar";
 import type { DungeonObject } from "./domain/objects/DungeonObject";
 import { navigationRun } from "./domain/objects/NavigationTerrain";
@@ -377,7 +378,12 @@ const Home = ({
 			}));
 		} else if (
 			currentItems.length === 1 ||
-			game.state.bag.items.length >= BAG_CAPACITY
+			currentItems.every(
+				({ item }) =>
+					ITEM_DEFINITIONS[item.kind].type !== "spellbook" &&
+					item.kind !== "cure" &&
+					!canAddToBag(game.state.bag, item),
+			)
 		) {
 			handleActionRequested({
 				type: "pickup",

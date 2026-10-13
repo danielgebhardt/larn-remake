@@ -39,7 +39,7 @@ describe("Character bag", () => {
 	it("shows carried spares and used/available capacity separately from equipment", async () => {
 		const { panel, bagView } = await openBag();
 		expect(bagView.getByLabelText("Bag capacity")).toHaveTextContent(
-			"2 / 20 slots used · 18 available",
+			"2 / 27 slots used · 25 available",
 		);
 		expect(
 			bagView.getByRole("button", { name: "Iron sword, slot 1" }),
@@ -95,26 +95,26 @@ describe("Character bag", () => {
 		expect(screen.getByLabelText("Turn count")).toHaveTextContent("Turn 0");
 		expect(screen.getByLabelText("row1col1 - player")).toBeInTheDocument();
 	});
-	it("shows an explicit empty state and all twenty slots available", async () => {
+	it("shows an explicit empty state and all twenty-seven slots available", async () => {
 		const { bagView } = await openBag(createBag());
 		expect(bagView.getByText("Your bag is empty.")).toBeVisible();
 		expect(bagView.getByLabelText("Bag capacity")).toHaveTextContent(
-			"0 / 20 slots used · 20 available",
+			"0 / 27 slots used · 27 available",
 		);
 		expect(bagView.queryByRole("button")).not.toBeInTheDocument();
 	});
 	it("shows a full bag without counting equipped gear against capacity", async () => {
 		const bag = createBag(
-			Array.from({ length: 20 }, (_, index) => ({
+			Array.from({ length: 27 }, (_, index) => ({
 				id: `sword:${index}`,
 				kind: "short-sword",
 			})),
 		);
 		const { bagView } = await openBag(bag);
 		expect(bagView.getByLabelText("Bag capacity")).toHaveTextContent(
-			"20 / 20 slots used · 0 available",
+			"27 / 27 slots used · 0 available",
 		);
-		expect(bagView.getAllByRole("button")).toHaveLength(20);
+		expect(bagView.getAllByRole("button")).toHaveLength(27);
 	});
 	it("lets identical item kinds be inspected individually", async () => {
 		const bag = createBag([

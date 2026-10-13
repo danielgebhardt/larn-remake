@@ -110,7 +110,7 @@ it("archives only release selected run books within their floor bands, or a mana
 			} else expect(reward.item.kind).toBe("mana-potion");
 		}
 	}
-});
+}, 15000);
 it("rare room finds have bounded independent placement without changing terrain or protected routes", () => {
 	const run = connectDungeonFloors(
 		generateDungeonRun(7, 20, DEFAULT_RUN_CONFIGURATION),

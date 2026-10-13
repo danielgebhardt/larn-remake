@@ -75,7 +75,7 @@ describe("Assigning potion shortcuts in Character", () => {
 		expect(
 			summary.getByLabelText("Potion slot 4 assignment"),
 		).toHaveTextContent("Empty");
-		expect(panel.getByLabelText("Bag capacity")).toHaveTextContent("2 / 20");
+		expect(panel.getByLabelText("Bag capacity")).toHaveTextContent("1 / 27");
 		expect(panel.getByLabelText("Character health")).toHaveTextContent(
 			"Health 7 / 10",
 		);

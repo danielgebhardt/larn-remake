@@ -2,6 +2,7 @@ import { screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import * as GameState from "../domain/game/GameState";
+import { createBag } from "../domain/items/Bag";
 import { bagWithSpareGear } from "./CarriedGearTestHelpers";
 import {
 	renderHome as render,
@@ -11,11 +12,11 @@ import {
 import { createCorridorEncounter } from "./MonsterEncounterTestHelpers";
 import Home from "./TestHome";
 
-const setup = async () => {
+const setup = async (bag = bagWithSpareGear()) => {
 	const create = GameState.createGameState;
 	vi.spyOn(GameState, "createGameState").mockImplementationOnce((run) => ({
 		...create(run),
-		bag: bagWithSpareGear(),
+		bag,
 	}));
 	stubDungeonRun(createCorridorEncounter());
 	render(<Home />);
@@ -28,13 +29,36 @@ const setup = async () => {
 };
 afterEach(resetHomeTestState);
 describe("Visual bag and shared item details", () => {
-	it("shows all 20 slots with occupied item buttons and non-interactive empty slots", async () => {
+	it("shows all 27 slots with occupied item buttons and non-interactive empty slots", async () => {
 		const { panel } = await setup();
 		const bag = within(panel.getByRole("region", { name: "Bag" }));
-		expect(bag.getAllByRole("listitem")).toHaveLength(20);
+		expect(bag.getAllByRole("listitem")).toHaveLength(27);
 		expect(bag.getAllByRole("button")).toHaveLength(2);
 		expect(bag.getByLabelText("Empty bag slot 3")).toBeVisible();
-		expect(bag.getByLabelText("Empty bag slot 20")).toBeVisible();
+		expect(bag.getByLabelText("Empty bag slot 27")).toBeVisible();
+	});
+	it("shows two bottles in one slot and keeps the remaining bottle after dropping one", async () => {
+		const { user, panel } = await setup(
+			createBag([
+				{ id: "heal:1", kind: "healing-potion" },
+				{ id: "heal:2", kind: "healing-potion" },
+			]),
+		);
+		const bag = within(panel.getByRole("region", { name: "Bag" }));
+		expect(bag.getByLabelText("Bag capacity")).toHaveTextContent(
+			"1 / 27 slots used",
+		);
+		const stack = bag.getByRole("button", { name: "Healing potion, slot 1" });
+		expect(stack).toHaveAccessibleDescription("2 carried");
+		expect(bag.getAllByRole("button")).toHaveLength(1);
+		await user.click(stack);
+		await user.click(panel.getByRole("button", { name: "Drop item" }));
+		expect(
+			bag.getByRole("button", { name: "Healing potion, slot 1" }),
+		).toBeVisible();
+		expect(bag.getByLabelText("Bag capacity")).toHaveTextContent(
+			"1 / 27 slots used",
+		);
 	});
 	it("uses one details area and only one selection across bag and equipped gear", async () => {
 		const { user, panel } = await setup();

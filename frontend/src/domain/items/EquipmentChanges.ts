@@ -1,4 +1,4 @@
-import { BAG_CAPACITY, type Bag, createBag } from "./Bag";
+import { type Bag, canAddToBag, createBag } from "./Bag";
 import {
 	EQUIPMENT_SLOT_LABELS,
 	type Equipment,
@@ -32,7 +32,7 @@ export const changeEquipment = (
 	const label = EQUIPMENT_SLOT_LABELS[action.slot];
 	if (action.type === "unequip") {
 		if (!current) return { error: `${label} is already empty.` };
-		if (bag.items.length >= BAG_CAPACITY)
+		if (!canAddToBag(bag, current))
 			return { error: "Your bag is full. Make room before unequipping gear." };
 		if (bag.items.some((item) => item.id === current.id))
 			return { error: "That item is already in your bag." };

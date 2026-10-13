@@ -38,7 +38,7 @@ describe("Generated loot on the play screen", () => {
 				name: `Pick up ${ITEM_DEFINITIONS[target.item.kind].name}, item 1`,
 			}),
 		);
-		expect(screen.getByLabelText("Bag capacity")).toHaveTextContent("1 / 20");
+		expect(screen.getByLabelText("Bag capacity")).toHaveTextContent("1 / 27");
 		await user.keyboard("{Escape}");
 		await waitFor(() =>
 			expect(screen.queryByRole("dialog")).not.toBeInTheDocument(),

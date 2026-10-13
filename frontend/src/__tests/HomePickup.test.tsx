@@ -281,7 +281,7 @@ describe("G pickup from gameplay", () => {
 				scenario === "full bag"
 					? {
 							bag: createBag(
-								Array.from({ length: 20 }, (_, index) => ({
+								Array.from({ length: 27 }, (_, index) => ({
 									id: `bag:${index}`,
 									kind: "iron-sword",
 								})),
@@ -305,7 +305,7 @@ describe("G pickup from gameplay", () => {
 	it("keeps the chooser and item when the first pickup fills the bag", async () => {
 		const user = renderPickupRun([potion, shield], {
 			bag: createBag(
-				Array.from({ length: 19 }, (_, index) => ({
+				Array.from({ length: 26 }, (_, index) => ({
 					id: `bag:${index}`,
 					kind: "iron-sword",
 				})),

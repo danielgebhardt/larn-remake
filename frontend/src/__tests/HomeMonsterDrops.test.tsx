@@ -40,6 +40,6 @@ describe("Monster loot on screen", () => {
 			screen.getByRole("button", { name: `Pick up ${name}, item 1` }),
 		);
 		expect(screen.getByText("No items on this tile.")).toBeVisible();
-		expect(screen.getByLabelText("Bag capacity")).toHaveTextContent("1 / 20");
+		expect(screen.getByLabelText("Bag capacity")).toHaveTextContent("1 / 27");
 	});
 });

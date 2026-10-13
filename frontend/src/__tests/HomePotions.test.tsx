@@ -67,7 +67,7 @@ describe("Healing potions in Character", () => {
 		expect(panel.getByLabelText("Character health")).toHaveTextContent(
 			"Health 9 / 10",
 		);
-		expect(panel.getByLabelText("Bag capacity")).toHaveTextContent("1 / 20");
+		expect(panel.getByLabelText("Bag capacity")).toHaveTextContent("1 / 27");
 		const feedback = panel.getByRole("status", { name: "Character activity" });
 		expect(feedback).toHaveTextContent("Turn 1");
 		expect(feedback.textContent).toMatch(
@@ -102,7 +102,7 @@ describe("Healing potions in Character", () => {
 		expect(panel.getByRole("alert")).toHaveTextContent(
 			"already at full health",
 		);
-		expect(panel.getByLabelText("Bag capacity")).toHaveTextContent("2 / 20");
+		expect(panel.getByLabelText("Bag capacity")).toHaveTextContent("1 / 27");
 		expect(
 			panel.getByRole("status", { name: "Character activity" }),
 		).toHaveTextContent("Turn 0");

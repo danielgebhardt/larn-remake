@@ -42,7 +42,7 @@ it("opening with a full bag retains loot until a slot becomes available", () => 
 		bag: {
 			items: Array.from({ length: BAG_CAPACITY }, (_, index) => ({
 				id: `carried:${index}`,
-				kind: "healing-potion" as const,
+				kind: "short-sword" as const,
 			})),
 		},
 	};

@@ -62,7 +62,7 @@ describe("Floor item transfers", () => {
 		const before = {
 			...state(),
 			bag: createBag(
-				Array.from({ length: 20 }, (_, index) => ({
+				Array.from({ length: 27 }, (_, index) => ({
 					id: `spare:${index}`,
 					kind: "short-sword",
 				})),

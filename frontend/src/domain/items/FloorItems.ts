@@ -1,7 +1,7 @@
 import type { Coordinate } from "../dungeon/DungeonTypes";
 import type { GameState } from "../game/GameState";
 import type { SpellKind } from "../game/Spells";
-import { BAG_CAPACITY, type Bag, createBag } from "./Bag";
+import { type Bag, canAddToBag, createBag } from "./Bag";
 import { ITEM_DEFINITIONS, type ItemInstance, type ItemKind } from "./Item";
 
 export type FloorItem = Readonly<{
@@ -64,7 +64,7 @@ export const transferFloorItem = (
 				event: { type: "item-picked-up", item: "cure" },
 			};
 		}
-		if (state.bag.items.length >= BAG_CAPACITY)
+		if (!canAddToBag(state.bag, found.item))
 			return {
 				error: "Your bag is full. Make room before picking up an item.",
 			};

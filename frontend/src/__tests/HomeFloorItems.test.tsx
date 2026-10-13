@@ -28,7 +28,7 @@ describe("Picking up and dropping from Character", () => {
 		);
 		await user.click(panel.getByRole("button", { name: "Iron sword, slot 1" }));
 		await user.click(panel.getByRole("button", { name: "Drop item" }));
-		expect(panel.getByLabelText("Bag capacity")).toHaveTextContent("1 / 20");
+		expect(panel.getByLabelText("Bag capacity")).toHaveTextContent("1 / 27");
 		expect(
 			panel.getByRole("button", { name: "Pick up Iron sword, item 1" }),
 		).toBeVisible();
@@ -38,7 +38,7 @@ describe("Picking up and dropping from Character", () => {
 		await user.click(
 			panel.getByRole("button", { name: "Pick up Iron sword, item 1" }),
 		);
-		expect(panel.getByLabelText("Bag capacity")).toHaveTextContent("2 / 20");
+		expect(panel.getByLabelText("Bag capacity")).toHaveTextContent("2 / 27");
 		expect(panel.getByText("No items on this tile.")).toBeVisible();
 		expect(screen.getByLabelText("Turn count")).toHaveTextContent("Turn 2");
 	});

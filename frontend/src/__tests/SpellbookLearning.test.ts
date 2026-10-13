@@ -44,7 +44,7 @@ it("can learn while the bag is full, but leaves duplicate or distant books untou
 	const state = {
 		...initial,
 		bag: {
-			items: Array.from({ length: 20 }, (_, i) => ({
+			items: Array.from({ length: 27 }, (_, i) => ({
 				id: `bag:${i}`,
 				kind: "healing-potion" as const,
 			})),

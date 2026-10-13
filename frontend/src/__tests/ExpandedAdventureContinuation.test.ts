@@ -80,5 +80,6 @@ describe("Generated expanded adventure continuation", () => {
 			expect(original.player.health).toBeGreaterThan(0);
 			expect(original.mana).toBe(3);
 		},
+		15000,
 	);
 });

@@ -58,7 +58,7 @@ describe("Gear transfers", () => {
 		const before = {
 			...game(),
 			bag: createBag(
-				Array.from({ length: 20 }, (_, index) => ({
+				Array.from({ length: 27 }, (_, index) => ({
 					id: `sword:${index}`,
 					kind: "iron-sword",
 				})),
@@ -70,7 +70,7 @@ describe("Gear transfers", () => {
 			slot: "mainHand",
 		});
 		expect(result.turnAdvanced).toBe(true);
-		expect(result.state.bag.items).toHaveLength(20);
+		expect(result.state.bag.items).toHaveLength(27);
 		expect(ownership(result.state)).toEqual(ownership(before));
 	});
 	it("equips an empty slot and removes the item from the bag", () => {
@@ -102,7 +102,7 @@ describe("Gear transfers", () => {
 		const before = {
 			...game(),
 			bag: createBag(
-				Array.from({ length: 20 }, (_, index) => ({
+				Array.from({ length: 27 }, (_, index) => ({
 					id: `sword:${index}`,
 					kind: "iron-sword",
 				})),

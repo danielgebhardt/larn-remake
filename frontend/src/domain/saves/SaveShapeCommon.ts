@@ -11,7 +11,7 @@ import { DAMAGE_ELEMENTS } from "../game/DamageElements";
 import { MAX_PLAYER_LEVEL } from "../game/Progression";
 import { SPELL_DEFINITIONS } from "../game/Spells";
 import { EFFECT_DEFINITIONS } from "../game/TimedEffects";
-import { BAG_CAPACITY } from "../items/Bag";
+import { MAX_BAG_ITEMS } from "../items/Bag";
 import { EQUIPMENT_SLOT_LABELS } from "../items/Equipment";
 import { ITEM_DEFINITIONS } from "../items/Item";
 import { MONSTER_DEFINITIONS } from "../monsters/Monster";
@@ -292,7 +292,7 @@ const documentShape = object({
 			chest: nullable(item),
 			head: nullable(item),
 		}),
-		bag: object({ items: array(item, 0, BAG_CAPACITY) }),
+		bag: object({ items: array(item, 0, 20) }),
 		potionHotbar: array(
 			nullable(
 				oneOf(
@@ -344,3 +344,7 @@ export const hasSaveAdventureShape = (
 ): value is Omit<SaveDocumentV1, "version"> => documentShape(value);
 
 export const isSavedCoordinate = (value: unknown): boolean => coordinate(value);
+
+// Current bags retain individual bottle identities while occupying grouped slots.
+export const hasStackedBagShape = (value: unknown): boolean =>
+	object({ items: array(item, 0, MAX_BAG_ITEMS) })(value);

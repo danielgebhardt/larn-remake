@@ -38,3 +38,7 @@ A pure per-floor generator uses independent `seed:floor:escape:index` and `escap
 ## #241 — One-time return-floor activation
 
 Committed stair ascent activates an eligible floor immediately before its ordinary monster phase. The saved marker is recorded even when no space is available; revisits, waiting and descent never trigger another wave. Survivors and terrain retain their existing identities. Death and completed victory prevent activation, including a direct arrival at the entrance. Generated-map tests cover added actors, repeated activation after clearing, non-activation boundaries and the actual one-turn movement path. Existing complete tiny adventures and victory tests pass with zero suitable extra spawn space.
+
+## #242 — Stronger bounded escape pursuit
+
+During a live cure-carrier escape, all surviving and newly added actors gain two tiles of detection radius, eighteen eligible phases of last-seen memory, and four search phases. Closed doors/walls still block sight, three blocked phases still end a chase, and inactive floors/condition skips retain their pauses. These values are centralized beside ordinary pursuit. Area preparation receives the same detection policy; attack ranges, damage, XP and loot are unchanged. Focused tests compare ordinary versus escape detection, wall/inactive-floor safety and finite searching.

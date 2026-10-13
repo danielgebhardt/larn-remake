@@ -6,10 +6,12 @@ import type { GameState } from "../game/GameState";
 import { MONSTER_DEFINITIONS, type Monster } from "./Monster";
 import { orthogonalDistance } from "./MonsterLocations";
 import { detectsPlayer } from "./MonsterPursuit";
+import { PURSUIT_RULES, type PursuitRules } from "./PursuitRules";
 export const resolveMonsterArea = (
 	state: GameState,
 	monster: Monster,
 	rolls: AttackRollSource,
+	rules: Readonly<PursuitRules> = PURSUIT_RULES,
 ):
 	| { monster: Monster; events: ActivityEvent[]; damage?: number }
 	| undefined => {
@@ -88,7 +90,7 @@ export const resolveMonsterArea = (
 	}
 	if (
 		monster.intent.type !== "idle" ||
-		!detectsPlayer(state.run, monster) ||
+		!detectsPlayer(state.run, monster, rules) ||
 		orthogonalDistance(monster.coordinate, state.run.playerCoordinate) >
 			profile.range
 	)

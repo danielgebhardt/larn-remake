@@ -27,7 +27,7 @@ import { advanceUnseenPursuit } from "./MonsterAwareness";
 import { orthogonalDistance } from "./MonsterLocations";
 import { detectsPlayer, selectPursuitStep } from "./MonsterPursuit";
 import { selectRetreatStep } from "./MonsterRetreat";
-import { PURSUIT_RULES } from "./PursuitRules";
+import { pursuitRulesFor } from "./PursuitRules";
 
 // The player phase has already chosen the active floor and turn number.
 export const resolveMonsterPhase = (
@@ -36,6 +36,7 @@ export const resolveMonsterPhase = (
 ): GameState => {
 	if (state.quest.victory) return state;
 	const navigation = navigationRun(state);
+	const pursuitRules = pursuitRulesFor(state);
 	let player = state.player;
 	let monsters = state.monsters;
 	let effects = state.effects;
@@ -96,7 +97,7 @@ export const resolveMonsterPhase = (
 				);
 			continue;
 		}
-		const detected = detectsPlayer(navigation, monster);
+		const detected = detectsPlayer(navigation, monster, pursuitRules);
 		if (detected) {
 			const target = state.run.playerCoordinate;
 			const remembered = monster.awareness;
@@ -104,7 +105,7 @@ export const resolveMonsterPhase = (
 				remembered?.type !== "pursuing" ||
 				remembered.target.row !== target.row ||
 				remembered.target.col !== target.col ||
-				remembered.remaining !== PURSUIT_RULES.memoryPhases ||
+				remembered.remaining !== pursuitRules.memoryPhases ||
 				remembered.blocked !== 0
 			) {
 				monster = {
@@ -112,7 +113,7 @@ export const resolveMonsterPhase = (
 					awareness: {
 						type: "pursuing",
 						target: { ...target },
-						remaining: PURSUIT_RULES.memoryPhases,
+						remaining: pursuitRules.memoryPhases,
 						blocked: 0,
 					},
 				};
@@ -126,7 +127,7 @@ export const resolveMonsterPhase = (
 				navigation,
 				monster,
 				monsters,
-				PURSUIT_RULES,
+				pursuitRules,
 				hasMonsterEffect(state, monster, "rooted"),
 			);
 			if (next !== monster)
@@ -139,6 +140,7 @@ export const resolveMonsterPhase = (
 			{ ...state, run: navigation },
 			monster,
 			rollSource,
+			pursuitRules,
 		);
 		if (area) {
 			monsters = monsters.map((actor) =>

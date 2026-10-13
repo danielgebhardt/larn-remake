@@ -7,6 +7,12 @@ import {
 } from "./DungeonObject";
 
 const hints: Record<DungeonObjectKind, { fresh: string; spent: string }> = {
+	"elite-door": {
+		fresh:
+			"Optional elite chamber. Press E to review the danger before opening. Enemies cannot open this gate.",
+		spent:
+			"Press E within reach to close an unoccupied gate. Its chamber remains optional.",
+	},
 	reliquary: {
 		fresh: "Press E to review the seal’s 3-damage cost and rare ring reward.",
 		spent: "Seal broken; any remaining reward is on the floor for G pickup.",

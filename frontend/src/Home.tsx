@@ -63,7 +63,7 @@ import {
 	visibleAwarenessEvents,
 	visibleThreatHistory,
 } from "./domain/monsters/VisibleAwareness";
-import type { DungeonObject } from "./domain/objects/DungeonObject";
+import { type DungeonObject, isDoor } from "./domain/objects/DungeonObject";
 import { navigationRun } from "./domain/objects/NavigationTerrain";
 import { objectChoices } from "./domain/objects/ObjectChoices";
 import { nearbyInteractionObjects } from "./domain/objects/ObjectInteraction";
@@ -350,7 +350,7 @@ const Home = ({
 				exploration.visible[object.coordinate.row]?.[object.coordinate.col],
 		);
 		const usable = nearby.filter(
-			(object) => object.kind === "door" || !object.activated,
+			(object) => isDoor(object) || !object.activated,
 		);
 		const selected = usable[0] ?? nearby[0];
 		if (usable.length > 1) setInteractionTargets(usable);

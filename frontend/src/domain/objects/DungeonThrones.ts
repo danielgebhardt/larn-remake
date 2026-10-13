@@ -6,6 +6,8 @@ import type { GameState } from "../game/GameState";
 import { maximumMana } from "../game/Mana";
 import { applyPlayerEffect } from "../game/TimedEffects";
 import { availableItemLocations } from "../items/ItemPlacement";
+import { coordinateKey } from "../monsters/MonsterLocations";
+import { sealedEliteTiles } from "../objects/OptionalEliteRooms";
 import type { DungeonObject } from "./DungeonObject";
 import { objectDamage, spendObject } from "./ObjectEffects";
 import type { ObjectChoice } from "./ObjectInteraction";
@@ -77,12 +79,13 @@ export const resolveThroneChoice = (
 	} else {
 		outcome = "relocation";
 		const floor = state.run.floors[state.run.activeFloor - 1];
+		const sealed = sealedEliteTiles(floor, state.objects);
 		const candidates = availableItemLocations(
 			state.run,
 			floor,
 			state.monsters,
 			[...state.floorItems, ...state.objects],
-		);
+		).filter((point) => !sealed.has(coordinateKey(point)));
 		if (candidates.length)
 			next = {
 				...next,

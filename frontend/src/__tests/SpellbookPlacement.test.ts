@@ -30,7 +30,12 @@ it("places each selected book once within its floor band without changing ordina
 		state.floorItems.filter(
 			(entry) => !books.includes(entry) && entry.item.kind !== "cure",
 		),
-	).toEqual(spawnRunItems(run, state.monsters));
+	).toEqual(
+		spawnRunItems(
+			run,
+			state.monsters.filter((actor) => actor.kind !== "iron-champion"),
+		),
+	);
 	expect(eligibleLootKinds(1, "found")).not.toContain("book-ember-bolt");
 	for (const entry of books) {
 		const definition = ITEM_DEFINITIONS[entry.item.kind];

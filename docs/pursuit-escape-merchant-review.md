@@ -91,3 +91,11 @@ The phase owner now fetches each actor’s latest state before its scheduled act
 The iron champion is a stronger charger (32 health, base attack 8, XP 24) with arcane resistance and cold weakness. It uses existing charge/interruption/resistance mechanics and is excluded from ordinary/escape spawning. A custom crowned face and Help/Catalog traits identify the encounter. Optional placement follows in #250.
 
 Its guaranteed seeded equipment drop uses an independent elite-reward namespace and existing floor-eligible drop weights, favoring gear introduced in the latter half of the current depth. It does not inspect the player’s equipment or guarantee an upgrade. Normal drops remain unchanged. Tests cover floor 8/12/20 eligibility and determinism, elemental behavior, exclusion from ordinary spawning, one reward after death, repeated-death rejection and saved ownership. No new per-run reward state or save version was required.
+
+## #250 — Optional chambers behind skull-marked gates
+
+Eligible empty side rooms on floors 8–20 have a seeded 20% opportunity, with at most one chamber per floor. A room qualifies only when it has exactly one external entrance and blocking that entrance leaves all stairs, arrivals and the cure connected outside. Existing monsters, loot, objects and terrain are preserved. No suitable room means no encounter.
+
+The gate uses a colored door with a skull and an explicit accessible label. Closed gates block movement, sight and enemy navigation. Opening requires an explicit domain choice; the next story exposes its warning/confirmation UI. Actual gate and champion ownership use the existing save schema. Imports reject gates that fail the optional-room proof. Random relocation and escape reinforcements exclude sealed chambers so they cannot force participation.
+
+Validation: geometry tests cover alternate entrances and required objectives; generated 10/60/100×20-floor maps verify deterministic placement, navigation, return-spawn exclusion and save continuation. Ordinary generated population remains unchanged.

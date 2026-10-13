@@ -10,6 +10,7 @@ import type { Monster } from "../monsters/Monster.ts";
 import { spawnRunMonsters } from "../monsters/MonsterPlacement.ts";
 import type { DungeonObject } from "../objects/DungeonObject";
 import { spawnRunObjects } from "../objects/ObjectPlacement";
+import { addOptionalEliteRooms } from "../objects/OptionalEliteRooms";
 import {
 	type ActivityHistory,
 	createActivityHistory,
@@ -53,10 +54,16 @@ export const createGameState = (run: DungeonRun): GameState => {
 		...spawnRunQuestItems(run, monsters, ordinaryLoot),
 	];
 	const floorItems = [...loot, ...spawnRunSpellbooks(run, monsters, loot)];
+	const encounters = addOptionalEliteRooms({
+		run,
+		monsters,
+		floorItems,
+		objects: spawnRunObjects(run, monsters, floorItems),
+	});
 	return {
 		run,
 		escape: null,
-		objects: spawnRunObjects(run, monsters, floorItems),
+		objects: encounters.objects,
 		gold: 0,
 		turn: 0,
 		knownSpells: createKnownSpells(),
@@ -71,7 +78,7 @@ export const createGameState = (run: DungeonRun): GameState => {
 		bag: createStartingBag(),
 		potionHotbar: createPotionHotbar(),
 		floorItems,
-		monsters,
+		monsters: encounters.monsters,
 		activityHistory: createActivityHistory(),
 	};
 };

@@ -10,6 +10,7 @@ import {
 	Landmark,
 	LibraryBig,
 	type LucideIcon,
+	Skull,
 	TriangleAlert,
 } from "lucide-react";
 import type {
@@ -17,7 +18,7 @@ import type {
 	DungeonObjectKind,
 } from "../../domain/objects/DungeonObject";
 
-const icons: Record<DungeonObjectKind, LucideIcon> = {
+const icons: Record<Exclude<DungeonObjectKind, "elite-door">, LucideIcon> = {
 	door: DoorClosed,
 	reliquary: Gem,
 	archive: LibraryBig,
@@ -29,6 +30,18 @@ const icons: Record<DungeonObjectKind, LucideIcon> = {
 	shrine: Landmark,
 };
 const DungeonObjectIcon = ({ object }: { object: DungeonObject }) => {
+	if (object.kind === "elite-door") {
+		const Gate = object.activated ? DoorOpen : DoorClosed;
+		return (
+			<span className="relative block size-full text-map-threat">
+				<Gate aria-hidden="true" className="size-full" />
+				<Skull
+					aria-hidden="true"
+					className="absolute left-1/4 top-1/4 size-1/2"
+				/>
+			</span>
+		);
+	}
 	const Icon =
 		object.kind === "door" && object.activated
 			? DoorOpen

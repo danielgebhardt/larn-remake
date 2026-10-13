@@ -11,6 +11,7 @@ import { ITEM_DEFINITIONS, type ItemKind } from "../../domain/items/Item";
 import type { Monster, MonsterKind } from "../../domain/monsters/Monster.ts";
 import {
 	type DungeonObject,
+	isDoor,
 	objectLabel,
 } from "../../domain/objects/DungeonObject";
 import ItemIcon from "../items/ItemIcon";
@@ -66,10 +67,10 @@ const DungeonCell = memo(function DungeonCell({
 		itemKind !== undefined &&
 		itemCount > 1 &&
 		!monsterKind &&
-		dungeonObject?.kind !== "door";
+		!(dungeonObject && isDoor(dungeonObject));
 	const description = monsterKind
 		? MONSTER_VISUALS[monsterKind].label
-		: dungeonObject?.kind === "door"
+		: dungeonObject && isDoor(dungeonObject)
 			? objectLabel(dungeonObject)
 			: itemKind
 				? `${ITEM_DEFINITIONS[itemKind].name}${itemCount > 1 ? ` and ${itemCount - 1} more item${itemCount > 2 ? "s" : ""}` : ""}`
@@ -120,7 +121,7 @@ const DungeonCell = memo(function DungeonCell({
 				) : (
 					<MonsterIcon kind={monsterKind} />
 				)
-			) : dungeonObject?.kind === "door" ? (
+			) : dungeonObject && isDoor(dungeonObject) ? (
 				<DungeonObjectIcon object={dungeonObject} />
 			) : itemKind ? (
 				showsPile ? (

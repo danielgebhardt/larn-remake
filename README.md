@@ -518,3 +518,5 @@ Alarm sentries (floors 3–20) stay at their posts. They prepare one alarm, then
 ### Optional iron champion
 
 The iron champion is reserved for optional floor-8–20 encounters. It has 32 health, prepares straight charges, resists arcane damage and is weak to cold. Its seeded reward is guaranteed eligible equipment, favoring recently introduced tiers without considering the player’s current loadout. Normal monster generation excludes it. Defeat/reward ownership uses the shared kill path and persists without resampling on reload.
+
+Optional elite chambers may appear from floor 8. A skull-marked gate seals a single-entry side room; stairs, the cure and required routes remain outside. Unsuitable or occupied rooms are skipped. The champion and its guaranteed depth-appropriate equipment reward are saved as actual run content.

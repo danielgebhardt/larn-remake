@@ -1,5 +1,15 @@
 import type { Coordinate } from "../dungeon/DungeonTypes";
 export const OBJECT_DEFINITIONS = {
+	"elite-door": {
+		name: "Elite chamber gate",
+		freshLabel: "closed skull-marked elite gate",
+		usedLabel: "open skull-marked elite gate",
+		minFloor: 8,
+		maxFloor: 20,
+		maxPerFloor: 1,
+		chance: 0.2,
+		placement: "elite-room",
+	},
 	door: {
 		name: "Door",
 		freshLabel: "closed door",
@@ -105,3 +115,6 @@ export const objectLabel = (
 	object.activated
 		? OBJECT_DEFINITIONS[object.kind].usedLabel
 		: OBJECT_DEFINITIONS[object.kind].freshLabel;
+
+export const isDoor = (object: Pick<DungeonObject, "kind">): boolean =>
+	object.kind === "door" || object.kind === "elite-door";

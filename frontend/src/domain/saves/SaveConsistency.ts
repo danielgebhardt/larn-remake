@@ -16,6 +16,8 @@ import {
 	orthogonalDistance,
 	protectedFloorLocations,
 } from "../monsters/MonsterLocations";
+import { isDoor } from "../objects/DungeonObject";
+import { findOptionalEliteRooms } from "../objects/OptionalEliteRooms";
 import type { SaveDocumentV1 } from "./SaveDocumentV1";
 import type { SaveDocumentV2 } from "./SaveDocumentV2";
 import type { SaveDocumentV3 } from "./SaveDocumentV3";
@@ -186,6 +188,26 @@ export const isConsistentSave = (
 		)
 			return false;
 		for (const object of objects) {
+			if (object.kind === "elite-door") {
+				const floor = run.floors[object.floorNumber - 1];
+				const required = protectedFloorLocations(run, object.floorNumber);
+				required.push(
+					...state.floorItems
+						.filter(
+							(i) =>
+								i.floorNumber === object.floorNumber && i.item.kind === "cure",
+						)
+						.map((i) => i.coordinate),
+				);
+				if (
+					!floor ||
+					!findOptionalEliteRooms(
+						{ ...floor, terrain: floor.terrain.map((row) => row.split("")) },
+						required,
+					).some((chamber) => same(chamber.gate, object.coordinate))
+				)
+					return false;
+			}
 			if (
 				!object.id.startsWith(
 					`floor:${object.floorNumber}:object:${object.kind}:`,
@@ -198,7 +220,7 @@ export const isConsistentSave = (
 			)
 				return false;
 			if (
-				object.kind === "door" &&
+				isDoor(object) &&
 				!object.activated &&
 				((object.floorNumber === run.activeFloor &&
 					same(object.coordinate, run.playerCoordinate)) ||

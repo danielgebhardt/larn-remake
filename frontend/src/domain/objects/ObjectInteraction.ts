@@ -2,6 +2,7 @@ import { appendActivityEvents } from "../game/ActivityHistory";
 import type { GameState } from "../game/GameState";
 import { orthogonalDistance } from "../monsters/MonsterLocations";
 import { drawFountain } from "./DungeonFountains";
+import { isDoor } from "./DungeonObject";
 import { offerAtShrine } from "./DungeonShrines";
 import { resolveThroneChoice } from "./DungeonThrones";
 import { disarmTrap } from "./DungeonTraps";
@@ -16,7 +17,8 @@ export type ObjectChoice =
 	| "pry"
 	| "offer"
 	| "unseal"
-	| "read";
+	| "read"
+	| "open-elite";
 export type InteractAction = {
 	type: "interact";
 	objectId?: string;
@@ -42,8 +44,7 @@ export const nearbyInteractionObjects = (state: GameState) => {
 						: 4;
 	return [...nearby].sort(
 		(a, b) =>
-			Number(a.kind !== "door" && a.activated) -
-				Number(b.kind !== "door" && b.activated) ||
+			Number(!isDoor(a) && a.activated) - Number(!isDoor(b) && b.activated) ||
 			order(a.coordinate) - order(b.coordinate),
 	);
 };
@@ -61,9 +62,15 @@ export const interactObject = (
 	const object = nearbyInteractionObject(state, action.objectId);
 	const player = state.run.playerCoordinate;
 	if (!object) return { error: "No object within reach." };
-	if (object.kind !== "door" && object.activated)
+	if (!isDoor(object) && object.activated)
 		return { error: describeObject(object) };
 	if (action.choice === "leave") return { error: "You leave it untouched." };
+	if (
+		object.kind === "elite-door" &&
+		!object.activated &&
+		action.choice !== "open-elite"
+	)
+		return { error: "Review the elite chamber before opening its gate." };
 	if (object.kind === "reliquary" || object.kind === "archive")
 		return openDiscovery(state, object, action.choice);
 	if (object.kind === "shrine")

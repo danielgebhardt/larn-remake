@@ -37,7 +37,9 @@ describe("Generated expanded adventure continuation", () => {
 			const initial = makeState();
 			expect(makeState()).toEqual(initial);
 			expect(initial.run.floors).toHaveLength(20);
-			expect(initial.monsters).toHaveLength(240);
+			expect(
+				initial.monsters.filter((actor) => actor.kind !== "iron-champion"),
+			).toHaveLength(240);
 			expect(initial.bag.items).toEqual([]);
 			// An earned late-game character keeps this continuation check alive while
 			// real generated actors, discoveries and deterministic rolls remain intact.

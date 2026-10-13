@@ -1,6 +1,7 @@
 import type { Coordinate } from "../dungeon/DungeonTypes";
 import { createSeededRandom, hashStringToUint32 } from "../dungeon/Seed";
 import type { GameState } from "../game/GameState";
+import { sealedEliteTiles } from "../objects/OptionalEliteRooms";
 import {
 	MONSTER_DEFINITIONS,
 	type Monster,
@@ -46,6 +47,7 @@ export const generateEscapeEncounters = (
 			.filter((entry) => entry.floorNumber === floorNumber)
 			.map((entry) => coordinateKey(entry.coordinate)),
 	);
+	for (const key of sealedEliteTiles(floor, state.objects)) occupied.add(key);
 	const candidates: Coordinate[] = [];
 	for (const [row, tiles] of floor.terrain.entries())
 		for (const [col, tile] of tiles.entries()) {

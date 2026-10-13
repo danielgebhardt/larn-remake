@@ -46,7 +46,7 @@ describe("Combat on the play screen", () => {
 			expect(messages()).toEqual([
 				"Turn 1 — You hit the goblin for 2 damage.",
 				"Turn 1 — The goblin hits you for 1 damage.",
-				"Turn 1 — The goblin spots you and begins pursuit.",
+				"Turn 1 — The goblin begins pursuit.",
 			]);
 			await user.keyboard(key);
 			expect(screen.getByLabelText("row1col2 - floor")).toBeVisible();

@@ -46,7 +46,7 @@ describe("Waiting on the play screen", () => {
 			"Health 10 / 10",
 		);
 		expect(screen.getByRole("log")).toHaveTextContent(
-			"Turn 1 — The goblin spots you and begins pursuit.",
+			"Turn 1 — The goblin begins pursuit.",
 		);
 		await user.keyboard(" ");
 		expect(screen.getByLabelText("row1col1 - player")).toBeVisible();
@@ -60,7 +60,7 @@ describe("Waiting on the play screen", () => {
 				.getAllByRole("listitem")
 				.map((item) => item.textContent),
 		).toEqual([
-			"Turn 1 — The goblin spots you and begins pursuit.",
+			"Turn 1 — The goblin begins pursuit.",
 			"Turn 2 — The goblin hits you for 1 damage.",
 		]);
 	});

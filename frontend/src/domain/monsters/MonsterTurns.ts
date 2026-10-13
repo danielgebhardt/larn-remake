@@ -20,6 +20,7 @@ import {
 	refreshPlayerEffect,
 } from "../game/TimedEffects";
 import { navigationRun } from "../objects/NavigationTerrain";
+import { alertNearbyMonsters } from "./AlarmAlerts";
 import { chooseEnemySpell } from "./EnemyCasting";
 import { MONSTER_DEFINITIONS } from "./Monster";
 import { resolveMonsterAlarm } from "./MonsterAlarm";
@@ -61,7 +62,8 @@ export const resolveMonsterPhase = (
 		)
 		.sort((a, b) => Number(a.id.split(":")[1]) - Number(b.id.split(":")[1]));
 	for (const snapshot of active) {
-		let monster = snapshot;
+		let monster =
+			monsters.find((actor) => actor.id === snapshot.id) ?? snapshot;
 		if (player.health <= 0) break;
 		const profile = MONSTER_DEFINITIONS[monster.kind];
 		if (
@@ -146,6 +148,16 @@ export const resolveMonsterPhase = (
 				actor.id === monster.id ? alarm.monster : actor,
 			);
 			events.push(...alarm.events);
+			const signal = alarm.events.find(
+				(event) => event.type === "monster-alarm-sounded",
+			);
+			if (signal?.type === "monster-alarm-sounded")
+				monsters = alertNearbyMonsters(
+					{ ...state, run: navigation },
+					alarm.monster,
+					monsters,
+					signal.target,
+				);
 			continue;
 		}
 

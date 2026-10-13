@@ -25,7 +25,7 @@ export const monsterTraits = (kind: MonsterKind): readonly string[] => {
 		);
 	if (definition.alarmRadius)
 		traits.push(
-			"Stays at its post. Prepares one alarm before sounding it on the next active phase. Kill, Sleep or Fear interrupts preparation; rooting does not silence it.",
+			"Alerts up to six nearby creatures within clear wall/door sight using your last seen position. Stays at its post. Prepares one alarm before sounding it on the next active phase. Kill, Sleep or Fear interrupts preparation; rooting does not silence it.",
 		);
 	if (definition.chargeRange)
 		traits.push(

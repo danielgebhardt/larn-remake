@@ -66,7 +66,7 @@ describe("Pursuit on the play screen", () => {
 			);
 			if (!fog.enabled || fog.radius === 20)
 				expect(screen.getByRole("log")).toHaveTextContent(
-					"Turn 1 — The goblin spots you and begins pursuit.",
+					"Turn 1 — The goblin begins pursuit.",
 				);
 			else
 				expect(screen.getByRole("log")).toHaveTextContent("No activity yet.");

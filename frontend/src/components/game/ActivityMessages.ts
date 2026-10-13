@@ -21,7 +21,7 @@ export const formatActivityEvent = (event: ActivityEvent): string => {
 		case "monster-alarm-prepared":
 			return `${prefix}The ${MONSTER_DEFINITIONS[event.monster].name} raises its alarm. Stop it before its next action!`;
 		case "monster-alarm-sounded":
-			return `${prefix}The ${MONSTER_DEFINITIONS[event.monster].name} sounds its alarm.`;
+			return `${prefix}The ${MONSTER_DEFINITIONS[event.monster].name} sounds its alarm. Nearby creatures may investigate your last seen position.`;
 		case "escape-started":
 			return `${prefix}The cure awakens the dungeon. You are hunted: return to the entrance on floor 1.`;
 		case "monster-awareness-changed": {
@@ -30,9 +30,7 @@ export const formatActivityEvent = (event: ActivityEvent): string => {
 			if (event.awareness === "searching")
 				message = "searches its last known position.";
 			if (event.awareness === "pursuing")
-				message = definition.stationary
-					? "spots you and becomes alert."
-					: "spots you and begins pursuit.";
+				message = definition.stationary ? "becomes alert." : "begins pursuit.";
 			return `${prefix}The ${definition.name} ${message}`;
 		}
 		case "discovery-opened":

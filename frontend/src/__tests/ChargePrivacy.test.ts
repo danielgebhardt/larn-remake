@@ -7,13 +7,17 @@ import {
 import { visibleThreatHistory } from "../domain/monsters/VisibleAwareness";
 
 describe("Charge log visibility", () => {
-	it("keeps old messages while excluding a hidden new preparation", () => {
+	it.each([
+		"monster-charge-prepared",
+		"monster-alarm-prepared",
+		"monster-alarm-sounded",
+	] as const)("keeps old messages while excluding hidden %s", (type) => {
 		const old = appendActivityEvents(createActivityHistory(), [
 			{ type: "floor-changed", fromFloor: 2, toFloor: 1, turn: 1 },
 		]);
 		const updated = appendActivityEvents(old, [
 			{
-				type: "monster-charge-prepared",
+				type,
 				actorId: "1:1",
 				monster: "horned-charger",
 				target: { row: 0, col: 1 },

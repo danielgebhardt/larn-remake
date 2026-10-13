@@ -484,3 +484,7 @@ Press E beside an open door to close it for one turn. A player or monster in the
 The header's **Catalog** button opens a searchable developer sheet with every monster, spell, item, terrain icon and live/spent object variant. Cards use the actual domain/visual registries, show 24px and 48px SVG previews, and include stats, floor bands and effect descriptions. It reveals undiscovered content for visual review, pauses dungeon shortcuts and spends no turns. Set `APP_FEATURES.developerCatalog` to `false` in `frontend/src/settings/FeatureFlags.ts` to hide the entry point. This is a UI visibility flag, not account authorization. Catalog content loads in a separate chunk.
 
 Save format v11 supports 27 grouped bag slots while retaining individual item identities. Valid v1–v10 saves keep every carried item; their historical 20-copy limit remains validated. Imported bags are also bounded to 10,000 physical copies and the existing 4MiB file limit.
+
+### Layout diagnostics
+
+From `frontend`, run `node scripts/review-layout.mjs 0 1 123 987 2215353587 --summary-only` for reproducible travel/connectivity measurements. Omit `--summary-only` for per-floor records. The tool reports stair/room distances, planned corridor lengths, actual bottleneck tiles and unreachable floor tiles; it does not simulate human exploration or combat. See `docs/release-polish-review.md` for the matched baseline.

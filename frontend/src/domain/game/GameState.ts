@@ -6,6 +6,10 @@ import type { FloorItem } from "../items/FloorItems";
 import { spawnRunItems } from "../items/ItemPlacement";
 import { createPotionHotbar, type PotionHotbar } from "../items/PotionHotbar";
 import { spawnRunSpellbooks } from "../items/SpellbookPlacement";
+import {
+	createMerchantStock,
+	type MerchantStock,
+} from "../merchant/MerchantRules";
 import type { Monster } from "../monsters/Monster.ts";
 import { spawnRunMonsters } from "../monsters/MonsterPlacement.ts";
 import type { DungeonObject } from "../objects/DungeonObject";
@@ -25,6 +29,7 @@ import { createKnownSpells, type SpellKind } from "./Spells";
 import type { TimedEffect } from "./TimedEffects";
 
 export type GameState = {
+	merchantStock: MerchantStock;
 	escape: EscapeState | null;
 	run: DungeonRun;
 	objects: readonly DungeonObject[];
@@ -63,6 +68,7 @@ export const createGameState = (run: DungeonRun): GameState => {
 	return {
 		run,
 		escape: null,
+		merchantStock: createMerchantStock(),
 		objects: encounters.objects,
 		gold: 0,
 		turn: 0,

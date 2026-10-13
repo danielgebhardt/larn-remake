@@ -105,3 +105,11 @@ Validation: geometry tests cover alternate entrances and required objectives; ge
 E inspects a closed elite gate using the existing numbered object dialog. It explains the champion's health, fixed charge/recovery, arcane resistance/cold weakness and guaranteed equipment reward. Opening is explicit; movement bumps cannot open it. Inspection/Escape use no turn, while opening runs one ordinary monster phase. Once opened, E can close an unoccupied gate, and reopening requires the same deliberate choice. Escape pressure cannot open gates automatically.
 
 Validation: Home tests exercise cancel, blocked movement shortcuts, number selection, mouse selection and map focus restoration; domain tests verify sealed actors, a committed opening response and exact save/resume continuation. Browser review used a generated floor-eight gate, not a hand-carved demonstration map.
+
+## #257 — Shared stock and prices
+
+`MerchantRules` defines ten physical bottles each of healing/mana/greater healing/greater mana per adventure, with prices 150/200/450/600 gold. Clearing all four lines costs 14,000 gold, deliberately more than the roughly 6,231-gold human alpha run. Equipment has nominal tier-based resale values (20–60 gold); bottles, books and quest items have no sale value. No buyback or gear purchasing is introduced.
+
+GameState owns stock once per adventure; visits do not own inventories. Save v17 explicitly persists actual remaining counts. Validated older saves initialize shared stock exactly once during migration, without changing their existing gold or item ownership. Trades and placement follow in subsequent stories.
+
+Validation: independent initial stock, prices, complete catalog sale eligibility, spent-stock roundtrip, legacy migration and malformed counts; existing captured-save compatibility remains green.

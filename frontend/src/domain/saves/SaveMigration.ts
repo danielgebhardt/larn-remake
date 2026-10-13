@@ -1,6 +1,7 @@
 import { maximumMana } from "../game/Mana";
 import { HEALTH_PER_LEVEL, levelForExperience } from "../game/Progression";
 import { createSpellHotbar } from "../game/SpellHotbar";
+import { createMerchantStock } from "../merchant/MerchantRules";
 import type { SaveDocumentV1 } from "./SaveDocumentV1";
 import type { SaveDocumentV2 } from "./SaveDocumentV2";
 import type { SaveDocumentV3 } from "./SaveDocumentV3";
@@ -17,6 +18,7 @@ import type { SaveDocumentV13 } from "./SaveDocumentV13";
 import type { SaveDocumentV14 } from "./SaveDocumentV14";
 import type { SaveDocumentV15 } from "./SaveDocumentV15";
 import type { SaveDocumentV16 } from "./SaveDocumentV16";
+import type { SaveDocumentV17 } from "./SaveDocumentV17";
 
 // Only migrate a structurally and semantically valid v1 snapshot. Preserve
 // played data; legacy monsters have no prepared attack to carry forward.
@@ -215,7 +217,7 @@ export const migrateSaveV14 = (document: SaveDocumentV14): SaveDocumentV15 => ({
 	version: 15,
 });
 
-export const migratePlayedSave = (
+const migratePlayedSaveToV16 = (
 	document: Parameters<typeof migratePlayedSaveToV15>[0] | SaveDocumentV16,
 ): SaveDocumentV16 => {
 	if (document.version === 16) return document;
@@ -230,5 +232,17 @@ export const migratePlayedSave = (
 				alarmUsed: undefined,
 			})),
 		},
+	};
+};
+
+export const migratePlayedSave = (
+	document: Parameters<typeof migratePlayedSaveToV16>[0] | SaveDocumentV17,
+): SaveDocumentV17 => {
+	if (document.version === 17) return document;
+	const previous = migratePlayedSaveToV16(document);
+	return {
+		...previous,
+		version: 17,
+		state: { ...previous.state, merchantStock: createMerchantStock() },
 	};
 };

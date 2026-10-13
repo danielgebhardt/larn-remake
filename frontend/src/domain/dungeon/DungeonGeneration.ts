@@ -1,4 +1,5 @@
 import { type Corridor, connectPartitionRooms } from "./Corridor.ts";
+import { createRoomLoops } from "./CorridorLoops.ts";
 import type { Dungeon, GeneratedDungeon } from "./DungeonTypes.ts";
 import { makeRegion, recursivePartition } from "./Partitioning.ts";
 import { assignRoomsToPartition, getTerminalRooms, type Room } from "./Room.ts";
@@ -6,7 +7,7 @@ import {
 	DEFAULT_RUN_CONFIGURATION,
 	type DungeonConfig,
 } from "./RunConfiguration.ts";
-import { createSeededRandom } from "./Seed.ts";
+import { createSeededRandom, hashStringToUint32 } from "./Seed.ts";
 import { carveCorridors, carveRooms, makeDungeon } from "./Terrain.ts";
 
 export const generateDungeon = (
@@ -37,10 +38,18 @@ export const generateDungeon = (
 		corridors,
 	);
 
+	const loops =
+		seed === undefined
+			? []
+			: createRoomLoops(
+					carvedDungeon,
+					rooms,
+					createSeededRandom(hashStringToUint32(`${seed}:corridor-loops`)),
+				);
 	return {
-		terrain: carvedDungeon,
+		terrain: carveCorridors(carvedDungeon, loops),
 		partitions: partitionsWithRooms,
 		rooms,
-		corridors,
+		corridors: [...corridors, ...loops],
 	};
 };

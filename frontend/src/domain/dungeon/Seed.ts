@@ -21,3 +21,18 @@ export const createSeededRandom = (seed: number): (() => number) => {
 		return t;
 	};
 };
+
+export const hashStringToUint32 = (value: string): number => {
+	let hash = 1779033703 ^ value.length;
+
+	for (let i = 0; i < value.length; i++) {
+		hash = Math.imul(hash ^ value.charCodeAt(i), 3432918353);
+		hash = (hash << 13) | (hash >>> 19);
+	}
+
+	hash = Math.imul(hash ^ (hash >>> 16), 2246822507);
+	hash = Math.imul(hash ^ (hash >>> 13), 3266489909);
+	hash ^= hash >>> 16;
+
+	return hash >>> 0;
+};

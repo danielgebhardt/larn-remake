@@ -38,3 +38,14 @@ export const DEFAULT_FOG_CONFIGURATION: FogConfiguration = {
 	radius: 8,
 };
 export const FOG_RADIUS_LIMITS = { min: 1, max: 20 };
+
+// Internal generation rules; settings and saved configuration fields are unchanged.
+export const LOOP_CORRIDOR_RULES = {
+	maxLength: 18,
+	roomsPerLoop: 12,
+	maxPerFloor: 6,
+	minSavedSteps: 5,
+	minDetourRatio: 1.4,
+	nearestRooms: 3,
+	candidateJitter: 8,
+} as const;

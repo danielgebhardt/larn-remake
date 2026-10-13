@@ -13,3 +13,19 @@ The orange frame was the map's two-pixel amber focus-visible outline. Programmat
 Before loops, matched seeds 0, 1, 123, 987 and 2215353587 at 60×60×20 (100 floors): mean stair steps **66.18**, mean maximum room distance **129.08**, mean bottleneck tiles **181.46**, mean longest planned corridor **45.89**, unreachable tiles **0**.
 
 Run from frontend: `node scripts/review-layout.mjs 0 1 123 987 2215353587 --summary-only`. Omit summary-only for individual floor records; rows/cols/floors and seed batches use the existing validated review CLI conventions.
+
+## #229 — Bounded seeded corridor loops
+
+The original BSP connections still guarantee connectivity. An independent `floor-seed:corridor-loops` stream examines a bounded nearest-room candidate list and adds at most six short L-shaped shortcuts. A path must save at least five steps and bypass a meaningful detour; already-direct paths are skipped. Candidates/routes vary deterministically, without changing the room-generation stream. Generation rules live in RunConfiguration as internal values, with no new Settings or save fields. The generic hash implementation moves unchanged to Seed and is re-exported from DungeonRun to retain existing callers. Only new/replayed runs change terrain; played saves restore their actual carved geometry.
+
+Matched 60×60×20 results across the same five seeds / 100 floors:
+
+| Metric | Before | After |
+| --- | ---: | ---: |
+| Mean stair steps | 66.18 | 62.58 |
+| Mean maximum room travel | 129.08 | 125.81 |
+| Mean bottleneck tiles | 181.46 | 119.00 |
+| Mean longest planned corridor | 45.89 | 45.89 |
+| Unreachable tiles | 0 | 0 |
+
+Bottlenecks improve about 34.4%; stair travel improves about 5.4%. This adds alternate routes rather than promising a dramatic reduction in human run turns. A separate 100×100×20 batch (seeds 0,1,123; 60 floors) also has zero unreachable tiles. Tests first failed for the missing shortcut, then verified detour reduction, no mutation, no redundant/single-room loops, seeded reproducibility, bounded paths, original BSP connections and 10/60/100-map connectivity/borders.

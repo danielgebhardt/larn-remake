@@ -2,7 +2,7 @@ import { generateDungeon } from "./DungeonGeneration.ts";
 import { selectPlayerStart, selectStairLocation } from "./DungeonLocations.ts";
 import type { Coordinate, GeneratedDungeon } from "./DungeonTypes.ts";
 import type { DungeonConfig } from "./RunConfiguration.ts";
-import { createSeededRandom } from "./Seed.ts";
+import { createSeededRandom, hashStringToUint32 } from "./Seed.ts";
 import { FLOOR, WALL } from "./Tiles.ts";
 
 export type DungeonFloor = GeneratedDungeon & {
@@ -24,20 +24,7 @@ export type StairLink = {
 	arrivalCoordinate: Coordinate;
 };
 
-export const hashStringToUint32 = (value: string): number => {
-	let hash = 1779033703 ^ value.length;
-
-	for (let i = 0; i < value.length; i++) {
-		hash = Math.imul(hash ^ value.charCodeAt(i), 3432918353);
-		hash = (hash << 13) | (hash >>> 19);
-	}
-
-	hash = Math.imul(hash ^ (hash >>> 16), 2246822507);
-	hash = Math.imul(hash ^ (hash >>> 13), 3266489909);
-	hash ^= hash >>> 16;
-
-	return hash >>> 0;
-};
+export { hashStringToUint32 } from "./Seed.ts";
 
 export const deriveFloorSeed = (seed: number, floorNumber: number): number => {
 	if (!Number.isInteger(floorNumber) || floorNumber < 1) {

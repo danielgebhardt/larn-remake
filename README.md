@@ -488,3 +488,5 @@ Save format v11 supports 27 grouped bag slots while retaining individual item id
 ### Layout diagnostics
 
 From `frontend`, run `node scripts/review-layout.mjs 0 1 123 987 2215353587 --summary-only` for reproducible travel/connectivity measurements. Omit `--summary-only` for per-floor records. The tool reports stair/room distances, planned corridor lengths, actual bottleneck tiles and unreachable floor tiles; it does not simulate human exploration or combat. See `docs/release-polish-review.md` for the matched baseline.
+
+Seeded generation adds occasional bounded corridor loops between nearby rooms using an independent random stream. The original BSP connections remain; shortcuts reduce detours and provide alternate routes. Internal loop rules live in `RunConfiguration.ts`. New/replayed seed layouts intentionally change with this generation improvement; loaded played saves retain their actual terrain and stairs.

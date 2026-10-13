@@ -29,3 +29,7 @@ Matched 60×60×20 results across the same five seeds / 100 floors:
 | Unreachable tiles | 0 | 0 |
 
 Bottlenecks improve about 34.4%; stair travel improves about 5.4%. This adds alternate routes rather than promising a dramatic reduction in human run turns. A separate 100×100×20 batch (seeds 0,1,123; 60 floors) also has zero unreachable tiles. Tests first failed for the missing shortcut, then verified detour reduction, no mutation, no redundant/single-room loops, seeded reproducibility, bounded paths, original BSP connections and 10/60/100-map connectivity/borders.
+
+## #230 — Player status panel
+
+Health, Mana, Gold and Level now have labeled cards with small icons, readable numeric values and a shared header for turn count. Health and mana have visual reserve bars backed by native accessible meters. Low health highlights its card and retains the existing warning; death feedback remains visible. Hotbar controls and bindings are unchanged. The panel uses four columns on desktop and two on narrow screens. Focused resource/turn/low-health tests pass; browser checks at 1280×720 in both themes and 390×844 confirm readable wrapping. Tests cover current/maximum resources, updating values, low health and death. README describes the panel and removes a stale backend-footer statement.

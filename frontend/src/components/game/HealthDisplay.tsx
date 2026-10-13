@@ -8,13 +8,15 @@ const HealthDisplay = ({
 	player,
 	label,
 	className,
+	compact = false,
 }: {
 	player: PlayerStats;
 	label: string;
 	className?: string;
+	compact?: boolean;
 }) => (
 	<output aria-label={label} className={className}>
-		Health{" "}
+		<span className={compact ? "sr-only" : undefined}>Health </span>
 		<span
 			className={
 				isLowHealth(player) ? "font-semibold text-destructive" : undefined
@@ -24,7 +26,9 @@ const HealthDisplay = ({
 		</span>{" "}
 		/ {player.maxHealth}
 		{isLowHealth(player) && (
-			<span className="ml-2 inline-flex items-center gap-1 rounded-md bg-destructive/15 px-2 py-1 text-xs font-semibold text-destructive">
+			<span
+				className={`${compact ? "mt-1 flex" : "ml-2 inline-flex"} items-center gap-1 rounded-md bg-destructive/15 px-2 py-1 text-xs font-semibold text-destructive`}
+			>
 				<TriangleAlert aria-hidden="true" className="size-3.5" />
 				Low health
 			</span>

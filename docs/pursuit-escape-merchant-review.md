@@ -84,3 +84,10 @@ Save v16 persists preparation and `alarmUsed`, rejects malformed flags, already-
 A sounded alarm broadcasts its fixed last-seen tile to at most six living actors on the active floor, within eight cardinal steps and clear wall/closed-door sight of the source. Numeric identity ordering selects recipients deterministically. Independent current detection is never overwritten by stale alarm information. Alerts change only awareness: they do not spawn enemies, remove conditions, replace prepared intent, or grant a second phase action.
 
 The phase owner now fetches each actor’s latest state before its scheduled action, allowing a later recipient to use a just-received alert once. Earlier recipients retain the memory for next phase. Tests cover both orders, range/caps/storage-order determinism, fresh sight, closed doors and inactive floors. Private alarm messages remain filtered; pursuit messages say “begins pursuit” without incorrectly claiming direct sight after an alarm. Existing v16 awareness/one-shot persistence needs no new state or version.
+
+
+## #249 — Initial optional elite and reward
+
+The iron champion is a stronger charger (32 health, base attack 8, XP 24) with arcane resistance and cold weakness. It uses existing charge/interruption/resistance mechanics and is excluded from ordinary/escape spawning. A custom crowned face and Help/Catalog traits identify the encounter. Optional placement follows in #250.
+
+Its guaranteed seeded equipment drop uses an independent elite-reward namespace and existing floor-eligible drop weights, favoring gear introduced in the latter half of the current depth. It does not inspect the player’s equipment or guarantee an upgrade. Normal drops remain unchanged. Tests cover floor 8/12/20 eligibility and determinism, elemental behavior, exclusion from ordinary spawning, one reward after death, repeated-death rejection and saved ownership. No new per-run reward state or save version was required.

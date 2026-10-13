@@ -125,7 +125,7 @@ describe("Mixed tactical populations", () => {
 		}
 	});
 
-	it("gives every catalog kind a named visual and at least one eligible floor", () => {
+	it("gives every kind a named visual and respects its ordinary-spawn opt-out", () => {
 		const kinds = Object.keys(MONSTER_DEFINITIONS) as MonsterKind[];
 		expect(new Set(Object.keys(MONSTER_VISUALS))).toEqual(new Set(kinds));
 		for (const kind of kinds) {
@@ -135,7 +135,7 @@ describe("Mixed tactical populations", () => {
 				Array.from({ length: 20 }, (_, index) =>
 					eligibleMonsterKinds(index + 1),
 				).some((pool) => pool.includes(kind)),
-			).toBe(true);
+			).toBe(MONSTER_DEFINITIONS[kind].spawnEnabled !== false);
 		}
 	});
 

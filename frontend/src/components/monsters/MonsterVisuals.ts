@@ -3,6 +3,7 @@ import type { ComponentType, SVGProps } from "react";
 import { MONSTER_DEFINITIONS } from "../../domain/monsters/Monster";
 import type { MonsterKind } from "../../domain/monsters/Monster.ts";
 import BruteIcon from "./BruteIcon";
+import ChampionIcon from "./ChampionIcon";
 import ChargerIcon from "./ChargerIcon";
 import CultistIcon from "./CultistIcon";
 import FrostGiantIcon from "./FrostGiantIcon";
@@ -25,6 +26,11 @@ export const MONSTER_VISUALS: Record<
 		label: string;
 	}
 > = {
+	"iron-champion": {
+		icon: ChampionIcon,
+		color: "text-monster-brute",
+		label: MONSTER_DEFINITIONS["iron-champion"].name,
+	},
 	"alarm-sentry": {
 		icon: SentryIcon,
 		color: "text-monster-archer",

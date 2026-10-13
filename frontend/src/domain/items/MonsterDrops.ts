@@ -1,6 +1,7 @@
 import { hashStringToUint32 } from "../dungeon/DungeonRun";
 import { createSeededRandom } from "../dungeon/Seed";
 import { MONSTER_DEFINITIONS, type Monster } from "../monsters/Monster";
+import { selectEliteReward } from "./EliteRewards";
 import type { FloorItem } from "./FloorItems";
 import { selectLootKind } from "./Loot";
 
@@ -18,12 +19,15 @@ export const createMonsterDrop = (
 		);
 	const definition = MONSTER_DEFINITIONS[monster.kind];
 	if (random() >= definition.dropChance) return undefined;
-	const kind = selectLootKind(
-		monster.floorNumber,
-		"drop",
-		random,
-		definition.lootPreferences,
-	);
+	const kind =
+		monster.kind === "iron-champion"
+			? selectEliteReward(seed, monster)
+			: selectLootKind(
+					monster.floorNumber,
+					"drop",
+					random,
+					definition.lootPreferences,
+				);
 	if (!kind) return undefined;
 	return {
 		item: { id: `monster:${monster.id}:loot`, kind },

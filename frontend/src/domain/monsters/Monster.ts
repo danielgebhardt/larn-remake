@@ -185,6 +185,22 @@ export const validateMonsterDefinition = (
 		);
 };
 const monsterCatalog = {
+	"iron-champion": {
+		name: "iron champion",
+		minFloor: 8,
+		maxFloor: 20,
+		maxHealth: 32,
+		attackDamage: 8,
+		experienceReward: 24,
+		detectionRadius: 8,
+		spawnWeight: 1,
+		spawnEnabled: false,
+		dropChance: 1,
+		lootPreferences: {},
+		chargeRange: 4,
+		resists: ["arcane"],
+		weaknesses: ["cold"],
+	},
 	"alarm-sentry": {
 		name: "alarm sentry",
 		minFloor: 3,

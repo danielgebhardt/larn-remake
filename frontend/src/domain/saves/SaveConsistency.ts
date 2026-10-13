@@ -29,6 +29,7 @@ import type { SaveDocumentV10 } from "./SaveDocumentV10";
 import type { SaveDocumentV11 } from "./SaveDocumentV11";
 import type { SaveDocumentV12 } from "./SaveDocumentV12";
 import type { SaveDocumentV13 } from "./SaveDocumentV13";
+import type { SaveDocumentV14 } from "./SaveDocumentV14";
 
 export const isConsistentSave = (
 	document:
@@ -44,7 +45,8 @@ export const isConsistentSave = (
 		| SaveDocumentV10
 		| SaveDocumentV11
 		| SaveDocumentV12
-		| SaveDocumentV13,
+		| SaveDocumentV13
+		| SaveDocumentV14,
 ): boolean => {
 	const { state, configuration: config } = document;
 	const { run, quest } = state;

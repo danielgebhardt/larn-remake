@@ -45,12 +45,14 @@ describe("Protected cure recovery", () => {
 			itemId: "quest:cure",
 		}).state;
 		expect(picked.quest.cureRecovered).toBe(true);
+		expect(picked.escape).toEqual({ startedTurn: 1, activatedFloors: [] });
 		expect(picked.bag).toBe(before.bag);
 		expect(picked.floorItems).toEqual([]);
 		expect(picked.turn).toBe(1);
 		expect(picked.player.health).toBe(9);
 		expect(picked.activityHistory.entries.map((x) => x.event.type)).toEqual([
 			"item-picked-up",
+			"escape-started",
 			"monster-hit",
 		]);
 		expect(before.quest.cureRecovered).toBe(false);

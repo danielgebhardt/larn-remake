@@ -26,3 +26,7 @@ Help's visible creature guide groups instance awareness counts by kind: Unaware,
 ## #237 — Pursuit persistence and replay
 
 The save format was versioned alongside awareness in #234. This story completes integration coverage rather than adding a second representation of awareness. Generated 60×60 adventures exercise identical committed actions after save/load during pursuit and searching, a closed-door chase with a nearly exhausted blocked budget, inactive-floor pausing, and fresh seeded replay. Existing arrival/occupancy and legacy migration checks remain in the regression suite. The four added tests pass; the commit hook runs the full frontend suite and build.
+
+## #239 — Explicit hunted return phase
+
+Cure pickup now starts an escape snapshot (`startedTurn`, `activatedFloors`) and adds a prominent announcement on the same committed pickup turn. The protected pouch, normal monster retaliation, fatal pickup and entrance victory remain intact. Objective text identifies the hunted return. Save v14 writes this snapshot explicitly and validates cure ownership, chronology and unique eligible floor numbers. Captured v13 searching-actor data loads unchanged; older cure carriers enter escape with their current return floor exempted from new spawns, preventing a surprise population around a loaded player. Fresh adventures reset the snapshot. Focused cure/quest/save tests and typecheck passed; browser verified the announcement/objective (`/tmp/larn-escape-phase-review.png`). Return populations are deliberately added by the next two stories.

@@ -13,7 +13,9 @@ import { formatActivityEvent } from "./ActivityMessages";
 const ActivityMessage = ({ event }: { event: ActivityEvent }) => {
 	const text = formatActivityEvent(event);
 	const milestone =
-		event.type === "level-gained" || event.type === "quest-completed";
+		event.type === "level-gained" ||
+		event.type === "quest-completed" ||
+		event.type === "escape-started";
 	const danger = event.type === "player-died";
 	const growth = event.type === "attribute-gained";
 	if (event.type === "monster-prepared")

@@ -206,6 +206,10 @@ const resolvePlayerEffect = (
 				state.knownSpells,
 				transfer.knownSpells ?? state.knownSpells,
 			),
+			escape:
+				action.type === "pickup" && transfer.event.item === "cure"
+					? (state.escape ?? { startedTurn: turn, activatedFloors: [] })
+					: state.escape,
 			quest:
 				action.type === "pickup" && transfer.event.item === "cure"
 					? { ...state.quest, cureRecovered: true }
@@ -221,6 +225,11 @@ const resolvePlayerEffect = (
 					: state.potionHotbar,
 			activityHistory: appendActivityEvents(state.activityHistory, [
 				{ ...transfer.event, turn },
+				...(action.type === "pickup" &&
+				transfer.event.item === "cure" &&
+				!state.escape
+					? [{ type: "escape-started" as const, turn }]
+					: []),
 				...(transfer.equipEvent ? [{ ...transfer.equipEvent, turn }] : []),
 			]),
 		};

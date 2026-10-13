@@ -15,15 +15,16 @@ import {
 	createActivityHistory,
 } from "./ActivityHistory.ts";
 import { createQuest, type QuestState } from "./Adventure";
+import type { EscapeState } from "./Escape";
 import { maximumMana } from "./Mana";
 import { createPlayerStats, type PlayerStats } from "./PlayerStats.ts";
 import { createProgression, type Progression } from "./Progression";
-
 import { createSpellHotbar, type SpellHotbar } from "./SpellHotbar";
 import { createKnownSpells, type SpellKind } from "./Spells";
 import type { TimedEffect } from "./TimedEffects";
 
 export type GameState = {
+	escape: EscapeState | null;
 	run: DungeonRun;
 	objects: readonly DungeonObject[];
 	gold: number;
@@ -54,6 +55,7 @@ export const createGameState = (run: DungeonRun): GameState => {
 	const floorItems = [...loot, ...spawnRunSpellbooks(run, monsters, loot)];
 	return {
 		run,
+		escape: null,
 		objects: spawnRunObjects(run, monsters, floorItems),
 		gold: 0,
 		turn: 0,

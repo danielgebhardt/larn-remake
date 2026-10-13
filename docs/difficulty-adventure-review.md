@@ -31,3 +31,9 @@ App now prepares a complete adventure with the same session factory before trans
 Observed creature information derives scaled maximum health and physical/blast/spell damage ranges. The developer catalog identifies its Normal baseline. Save summaries include the active difficulty. Native controls support keyboard selection; active map focus and G feedback were verified in the browser after a Settings restart. The welcome and Settings layout fit the 1280×720 browser viewport.
 
 The four UI regressions failed first, then passed; focused opening/configuration/error/focus coverage passes 5 files / 50 tests. The standard full hook remains required for the story commit.
+
+## Welcome map sizes — #279
+
+The welcome form now offers dimension-only Small (20×20), Medium (40×40), and Large (60×60) presets. Large remains the default; floor count and difficulty are independent. A rectangular custom configuration is not mislabeled as a preset. The selected dimensions and floor count appear below the actions, and Settings retains custom sizing.
+
+Five behavioral tests failed before implementation and now pass, including native keyboard selection and the actual configuration passed into generation. Focused opening coverage passes 4 files / 14 tests. The dark welcome dialog fits a 1280×720 viewport without internal scrolling (684px client/scroll height).

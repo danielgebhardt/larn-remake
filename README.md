@@ -555,3 +555,5 @@ Difficulty is recorded in v20 run configuration. Valid v1–v19 saves migrate to
 Choose Easier (×0.75), Normal (×1), or Harder (×1.25) before beginning. Settings edits the next adventure; the active choice is fixed for the current run and shown in the player status panel. New Dungeon/replay reuse the last applied setting; loaded adventures retain their own difficulty.
 
 Enemy maximum health and direct damage round to the nearest integer with a minimum of 1. Physical melee/ranged/charge rolls scale before armor. Enemy spells and area attacks retain their existing armor bypass. Enemy healing/regeneration use scaled caps with unchanged recovery amounts. XP, loot, population, accuracy, defenses, ongoing conditions, environmental damage and player resources are unchanged. Help shows scaled creature values; the developer catalog explicitly shows Normal baseline definitions.
+
+The welcome dialog offers Small (20×20), Medium (40×40), and Large (60×60) map dimensions. Large is the default. These choices preserve difficulty and floor count; custom dimensions and floor count remain editable in Settings.

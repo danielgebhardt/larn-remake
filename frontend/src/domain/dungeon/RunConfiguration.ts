@@ -52,3 +52,10 @@ export const LOOP_CORRIDOR_RULES = {
 	nearestRooms: 3,
 	candidateJitter: 8,
 } as const;
+
+// Map dimensions only; floor count and difficulty remain independent choices.
+export const DUNGEON_SIZE_PRESETS = [
+	{ label: "Small", rows: 20, cols: 20 },
+	{ label: "Medium", rows: 40, cols: 40 },
+	{ label: "Large", rows: 60, cols: 60 },
+] as const;

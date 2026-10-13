@@ -10,17 +10,20 @@ import {
 import type { SaveDocument } from "../../domain/saves/SaveFormat";
 import AdventureSaveSheet from "./AdventureSaveSheet";
 import DifficultyChoice from "./DifficultyChoice";
+import DungeonSizeChoice from "./DungeonSizeChoice";
 
 const AdventureOpening = ({
 	onBegin,
 	onRestore,
 	startError,
+	initialConfiguration = DEFAULT_RUN_CONFIGURATION,
 }: {
 	onBegin: (configuration: RunConfiguration) => void;
 	startError?: string;
+	initialConfiguration?: RunConfiguration;
 	onRestore: (document: SaveDocument) => void;
 }) => {
-	const [configuration, setConfiguration] = useState(DEFAULT_RUN_CONFIGURATION);
+	const [configuration, setConfiguration] = useState(initialConfiguration);
 	const [saveOpen, setSaveOpen] = useState(false);
 	const title = useRef<HTMLHeadingElement>(null);
 	return (
@@ -30,11 +33,11 @@ const AdventureOpening = ({
 					<Dialog.Backdrop className="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs" />
 					<Dialog.Popup
 						initialFocus={title}
-						className="fixed top-1/2 left-1/2 z-50 w-[calc(100%-2rem)] max-w-xl max-h-[calc(100dvh-2rem)] -translate-x-1/2 -translate-y-1/2 overflow-y-auto rounded-xl border bg-popover p-6 text-popover-foreground shadow-xl sm:p-8"
+						className="fixed top-1/2 left-1/2 z-50 w-[calc(100%-2rem)] max-w-2xl max-h-[calc(100dvh-2rem)] -translate-x-1/2 -translate-y-1/2 overflow-y-auto rounded-xl border bg-popover p-6 text-popover-foreground shadow-xl sm:p-6"
 					>
 						<ScrollText
 							aria-hidden="true"
-							className="mb-4 size-9 text-primary"
+							className="mb-2 size-9 text-primary"
 						/>
 						<p className="mb-2 text-xs font-medium uppercase tracking-widest text-muted-foreground">
 							Larn Remake
@@ -52,7 +55,7 @@ const AdventureOpening = ({
 							recover it from the deepest floor, and return safely with the
 							cure.
 						</Dialog.Description>
-						<div className="my-6 flex gap-3 rounded-lg border bg-muted/30 p-4 text-sm">
+						<div className="my-3 flex gap-3 rounded-lg border bg-muted/30 p-4 text-sm">
 							<Shield
 								aria-hidden="true"
 								className="size-5 shrink-0 text-primary"
@@ -64,12 +67,18 @@ const AdventureOpening = ({
 							</p>
 						</div>
 						<form
-							className="grid gap-4"
+							className="grid gap-3"
 							onSubmit={(event) => {
 								event.preventDefault();
 								onBegin(configuration);
 							}}
 						>
+							<DungeonSizeChoice
+								configuration={configuration}
+								onChange={(size) =>
+									setConfiguration((current) => ({ ...current, ...size }))
+								}
+							/>
 							<DifficultyChoice
 								value={configuration.difficulty ?? 1}
 								onChange={(difficulty) =>
@@ -94,7 +103,10 @@ const AdventureOpening = ({
 							<AdventureSaveSheet onRestore={onRestore} />
 						</Sheet>
 						<p className="mt-3 text-center text-xs text-muted-foreground">
-							Recommended adventure: 60 × 60 tiles · 20 floors.
+							<output aria-label="Selected adventure size">
+								{configuration.rows} × {configuration.cols} tiles ·{" "}
+								{configuration.floorCount} floors
+							</output>
 						</p>
 					</Dialog.Popup>
 				</Dialog.Portal>

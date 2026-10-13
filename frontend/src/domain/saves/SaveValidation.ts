@@ -5,25 +5,7 @@ import {
 	migrateSaveV1,
 	migrateSaveV2,
 } from "./SaveMigration";
-import { isSaveDocumentV1 } from "./SaveShapeV1";
-import { isSaveDocumentV2 } from "./SaveShapeV2";
-import { isSaveDocumentV3 } from "./SaveShapeV3";
-import { isSaveDocumentV4 } from "./SaveShapeV4";
-import { isSaveDocumentV5 } from "./SaveShapeV5";
-import { isSaveDocumentV6 } from "./SaveShapeV6";
-import { isSaveDocumentV7 } from "./SaveShapeV7";
-import { isSaveDocumentV8 } from "./SaveShapeV8";
-import { isSaveDocumentV9 } from "./SaveShapeV9";
-import { isSaveDocumentV10 } from "./SaveShapeV10";
-import { isSaveDocumentV11 } from "./SaveShapeV11";
-import { isSaveDocumentV12 } from "./SaveShapeV12";
-import { isSaveDocumentV13 } from "./SaveShapeV13";
-import { isSaveDocumentV14 } from "./SaveShapeV14";
-import { isSaveDocumentV15 } from "./SaveShapeV15";
-import { isSaveDocumentV16 } from "./SaveShapeV16";
-import { isSaveDocumentV17 } from "./SaveShapeV17";
-import { isSaveDocumentV18 } from "./SaveShapeV18";
-import { isSaveDocumentV19 } from "./SaveShapeV19";
+import { hasSupportedSaveVersion, isSaveSourceDocument } from "./SaveSource";
 
 const inconsistent = {
 	ok: false,
@@ -36,52 +18,25 @@ export const validateSaveDocument = (
 		typeof data === "object" &&
 		data !== null &&
 		!Array.isArray(data) &&
-		(!("version" in data) ||
-			![
-				1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19,
-			].includes(data.version as number))
+		!hasSupportedSaveVersion(data)
 	)
 		return {
 			ok: false,
 			error: "This save uses an unsupported format version.",
 		};
-	if (isSaveDocumentV1(data) || isSaveDocumentV2(data)) {
-		if (!isConsistentSave(data)) return inconsistent;
-		const grown = migrateSaveV2(
-			data.version === 1 ? migrateSaveV1(data) : data,
-		);
-		const current = migratePlayedSave(grown);
-		return isConsistentSave(current)
-			? { ok: true, value: current }
-			: inconsistent;
-	}
-	if (
-		!(
-			isSaveDocumentV3(data) ||
-			isSaveDocumentV4(data) ||
-			isSaveDocumentV5(data) ||
-			isSaveDocumentV6(data) ||
-			isSaveDocumentV7(data) ||
-			isSaveDocumentV8(data) ||
-			isSaveDocumentV9(data) ||
-			isSaveDocumentV10(data) ||
-			isSaveDocumentV11(data) ||
-			isSaveDocumentV12(data) ||
-			isSaveDocumentV13(data) ||
-			isSaveDocumentV14(data) ||
-			isSaveDocumentV15(data) ||
-			isSaveDocumentV16(data) ||
-			isSaveDocumentV17(data) ||
-			isSaveDocumentV18(data) ||
-			isSaveDocumentV19(data)
-		)
-	)
+	if (!isSaveSourceDocument(data))
 		return {
 			ok: false,
 			error: "This save contains invalid or missing adventure data.",
 		};
+	// Source-version rules must pass before migration can normalize old fields.
 	if (!isConsistentSave(data)) return inconsistent;
-	const current = migratePlayedSave(data);
+	if (data.version === 19) return { ok: true, value: data };
+	const grown =
+		data.version === 1 || data.version === 2
+			? migrateSaveV2(data.version === 1 ? migrateSaveV1(data) : data)
+			: data;
+	const current = migratePlayedSave(grown);
 	return isConsistentSave(current)
 		? { ok: true, value: current }
 		: inconsistent;

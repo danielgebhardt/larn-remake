@@ -37,13 +37,13 @@ larn-remake/
 ├── frontend/                 # React + TypeScript application
 │   └── src/
 │       ├── App.tsx           # Application entry and theme provider
-│       ├── Home.tsx          # Play screen and run/settings state
+│       ├── Home.tsx          # Play screen, drafts, dialogs and focus
 │       ├── Header.tsx        # Floor display and toolbar
 │       ├── domain/dungeon/   # Pure generation, run state, seeds, and configuration
 │       ├── domain/game/      # Game state, player health, and action resolution
 │       ├── components/
 │       │   ├── dungeon/      # Map rendering, icons, legend, and scroll geometry
-│       │   ├── game/         # Player status display
+│       │   ├── game/         # Session coordination and gameplay dialogs
 │       │   └── ui/           # Shared shadcn controls
 │       ├── settings/         # Settings panel, draft parsing, and theme preference
 │       ├── __tests__/        # Frontend/domain tests and shared fixtures
@@ -53,6 +53,10 @@ larn-remake/
 ```
 
 Dungeon responsibilities are split into focused modules in `domain/dungeon`: `DungeonTypes.ts` defines shared shapes, `Tiles.ts` defines tile identifiers, `Terrain.ts` creates and carves grids, `DungeonGeneration.ts` coordinates generation, and `DungeonLocations.ts` selects player and stair positions. `Partitioning.ts`, `Room.ts`, and `Corridor.ts` implement the generation steps; `DungeonRun.ts` manages floors, movement validation, and stair transitions. `moveDungeonRun` accepts a direction, returns the unchanged run for blocked moves, and applies at most one stair transition after a successful move. Map components translate keyboard input into direction requests; Home applies those requests through the domain. Terrain grids and rows are readonly to preserve the references used by rendering memoization. The domain has no React or settings dependencies. The fixed dungeon and its starting coordinate live in `__tests__/testhelpers.ts`.
+
+`components/game/useAdventureSession.ts` owns game state, active configuration, fog and exploration together. New and loaded adventures replace this session atomically; Home retains settings drafts, dialog lifecycle and focus. Player actions continue through the domain resolver, with visible history and discovery projected by the session hook.
+
+`domain/saves/SaveSource.ts` dispatches supported source versions and derives their union from the same guard registry. `SaveValidation.ts` checks the source before migrating historical data, then checks the migrated result. Current v19 snapshots need one consistency pass. `SaveConsistency.ts` coordinates inventory ownership, resources, geometry, actors and history checks in separate modules. Historical shape guards, migration adapters and captured compatibility fixtures remain explicit.
 
 ## Prerequisites
 

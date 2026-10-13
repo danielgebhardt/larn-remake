@@ -19,3 +19,15 @@ Focused new/load/exploration/replay coverage: 4 files, 37 tests passing. Complet
 - [#279](https://github.com/danielgebhardt/larn-remake/issues/279): Small/Medium/Large start-dialog choices after or alongside difficulty #213. Exact fixed dimensions remain an implementation decision; the recommended balance baseline is 60×60×20.
 
 Merchant SVG/display polish follows these refactors and has not been changed here.
+
+## Save validation ownership — #276
+
+`SaveSource.ts` centralizes source-version dispatch and derives the supported document union from the guard registry. The original 19 shape guards and migration adapters are unchanged. Source-specific consistency checks run before historical migration, and the migrated result is checked afterward. An already-current v19 document skips migration and the duplicate consistency pass. Unsupported, malformed and inconsistent input keep their existing error messages. No format version bump is needed.
+
+`SaveConsistency.ts` now coordinates five bounded owners: inventory (slots, identity, merchant purchase ownership and cure), resources (health/mana, effects and assignments), geometry (floors/stairs/objects/discovery), actors (identity, position and intent) and history (chronology and victory summary). Small shared location/level helpers preserve the existing conventions. Inventory/equipment validation runs before resource calculations consult equipment bonuses. Check bodies and historical version differences are retained.
+
+The new dispatch/consistency test file has 106 readable cases: all source versions load without mutation and remain valid after migration, while excess mana, duplicated ownership, nonreciprocal stairs and future history are rejected before migration. Malformed inputs and unsupported numeric/string versions retain their distinct feedback. These synthetic shared-field cases complement captured legacy fixtures and feature-specific migration tests; they do not replace those fixtures.
+
+A matched local benchmark used the same seed-123 100×100×20 snapshot (1,536,439 bytes), one warm-up plus five timed parses: median 171.88 ms before, 93.01 ms afterward; maxima 177.53 and 95.37 ms. This is warm domain loading on this machine, not a cold browser performance claim. Further rewriting of layered shape guards is unnecessary for this bounded refactor.
+
+Session commit verification: 290 files / 2,036 tests, Biome and TypeScript/production build passed. Save story verification uses the same full commit hook.

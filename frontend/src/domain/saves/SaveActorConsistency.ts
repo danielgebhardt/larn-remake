@@ -1,0 +1,111 @@
+import { hasLineOfSight } from "../dungeon/Visibility";
+import { MONSTER_DEFINITIONS } from "../monsters/Monster";
+import {
+	orthogonalDistance,
+	protectedFloorLocations,
+} from "../monsters/MonsterLocations";
+import {
+	sameCoordinate,
+	savedLocations,
+	unique,
+} from "./SaveConsistencyHelpers";
+import type { SaveSourceDocument } from "./SaveSource";
+
+export const hasConsistentActors = (document: SaveSourceDocument): boolean => {
+	const { state } = document;
+	const { run } = state;
+	const { floorAt, walkable } = savedLocations(document);
+	// Imported actors must preserve the same safe arrivals as live pursuit.
+	const protectedLocations = new Map(
+		run.floors.map((floor) => [
+			floor.floorNumber,
+			protectedFloorLocations(run, floor.floorNumber),
+		]),
+	);
+	if (
+		!unique(state.monsters.map((entry) => entry.id)) ||
+		!unique(
+			state.monsters.map(
+				(entry) =>
+					`${entry.floorNumber}:${entry.coordinate.row}:${entry.coordinate.col}`,
+			),
+		) ||
+		!state.monsters.every(
+			(entry) =>
+				/^\d+:[1-9]\d*$/.test(entry.id) &&
+				Number(entry.id.split(":")[0]) === entry.floorNumber &&
+				walkable(entry.floorNumber, entry.coordinate) &&
+				!protectedLocations
+					.get(entry.floorNumber)
+					?.some((location) => sameCoordinate(location, entry.coordinate)) &&
+				entry.health <= MONSTER_DEFINITIONS[entry.kind].maxHealth &&
+				!(
+					"alarmUsed" in entry &&
+					entry.alarmUsed === true &&
+					!MONSTER_DEFINITIONS[entry.kind].alarmRadius
+				) &&
+				!(
+					entry.floorNumber === run.activeFloor &&
+					sameCoordinate(entry.coordinate, run.playerCoordinate)
+				),
+		)
+	)
+		return false;
+	if (
+		document.version !== 1 &&
+		!document.state.monsters.every(
+			(monster) =>
+				monster.intent.type === "idle" ||
+				(monster.intent.type === "preparing-alarm"
+					? !!MONSTER_DEFINITIONS[monster.kind].alarmRadius &&
+						!("alarmUsed" in monster && monster.alarmUsed === true) &&
+						walkable(monster.floorNumber, monster.intent.target) &&
+						orthogonalDistance(monster.coordinate, monster.intent.target) > 0 &&
+						Math.hypot(
+							monster.coordinate.row - monster.intent.target.row,
+							monster.coordinate.col - monster.intent.target.col,
+						) <=
+							MONSTER_DEFINITIONS[monster.kind].detectionRadius + 2
+					: monster.intent.type === "recovering-charge"
+						? !!MONSTER_DEFINITIONS[monster.kind].chargeRange
+						: monster.intent.type === "preparing-charge"
+							? !!MONSTER_DEFINITIONS[monster.kind].chargeRange &&
+								walkable(monster.floorNumber, monster.intent.target) &&
+								(monster.coordinate.row === monster.intent.target.row ||
+									monster.coordinate.col === monster.intent.target.col) &&
+								orthogonalDistance(monster.coordinate, monster.intent.target) >=
+									2 &&
+								orthogonalDistance(monster.coordinate, monster.intent.target) <=
+									(MONSTER_DEFINITIONS[monster.kind].chargeRange ?? 0)
+							: monster.intent.type === "preparing-area"
+								? (() => {
+										const profile =
+											MONSTER_DEFINITIONS[monster.kind].areaAttack;
+										const intent = monster.intent;
+										return (
+											!!profile &&
+											intent.radius === profile.radius &&
+											intent.element === profile.element &&
+											intent.remaining <= profile.radius + 1 &&
+											walkable(monster.floorNumber, intent.target) &&
+											orthogonalDistance(monster.coordinate, intent.target) <=
+												profile.range &&
+											hasLineOfSight(
+												floorAt(monster.floorNumber).terrain.map((row) => [
+													...row,
+												]),
+												monster.coordinate,
+												intent.target,
+											)
+										);
+									})()
+								: walkable(monster.floorNumber, monster.intent.target) &&
+									orthogonalDistance(
+										monster.coordinate,
+										monster.intent.target,
+									) === 1),
+		)
+	)
+		return false;
+	return true;
+};

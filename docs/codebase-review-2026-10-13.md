@@ -32,3 +32,7 @@ Content catalogs are large but explicit and typed. Splitting their definitions f
 - A 100×100×20 v19 snapshot was 1,536,439 UTF-8 bytes and parsed in a median 166.07 ms, maximum 171.19 ms across five warm samples. This is acceptable for occasional manual loading; it is not an autosave performance budget.
 - Both backend tests executed successfully with `./gradlew test --offline --rerun-tasks` (Java 21).
 - Browser checks covered legacy charge import, visible counterplay/Help, death recap, spell card/target details, v19 door opening followed by later movement, and dark/light guide readability. User save slots were not overwritten. Temporary browser fixtures remained separate from human playtests.
+
+## Accepted follow-up
+
+Session coordination #275 and save-validation ownership #276 are implemented under epic #274; see [the refactor review](session-save-maintainability-review.md). CI/browser smoke coverage #277 and measured startup/dialog splitting #278 remain Backlog. Fixed start-dialog size presets #279 follow difficulty #213. Historical guards and save format v19 are preserved.

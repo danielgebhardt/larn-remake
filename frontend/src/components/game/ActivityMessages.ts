@@ -10,6 +10,8 @@ import { describeObject } from "../../domain/objects/ObjectDescriptions";
 export const formatActivityEvent = (event: ActivityEvent): string => {
 	const prefix = `Turn ${event.turn} — `;
 	switch (event.type) {
+		case "monster-awareness-changed":
+			return `${prefix}The ${MONSTER_DEFINITIONS[event.monster].name} ${event.awareness === "pursuing" ? "spots you and begins pursuit." : event.awareness === "searching" ? "searches its last known position." : "gives up the search."}`;
 		case "discovery-opened":
 			return `${prefix}You open the ${OBJECT_DEFINITIONS[event.kind].name}.${event.damage ? ` The seal deals ${event.damage} damage.` : ""} ${ITEM_DEFINITIONS[event.item].name} remains on the floor for G pickup.`;
 		case "object-seen":

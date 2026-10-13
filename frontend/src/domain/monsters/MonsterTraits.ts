@@ -35,7 +35,9 @@ export const monsterTraits = (kind: MonsterKind): readonly string[] => {
 		);
 	if (definition.weaknesses?.length)
 		traits.push(`Weak to ${definition.weaknesses.join(", ")}: double damage.`);
-	if (!traits.length)
-		traits.push("Pursues in clear sight; moves or attacks once per turn.");
+	if (!traits.length) traits.push("Moves or attacks once per turn.");
+	traits.push(
+		"Remembers your last seen tile, searches briefly, then disengages. Walls and closed doors break sight.",
+	);
 	return traits;
 };

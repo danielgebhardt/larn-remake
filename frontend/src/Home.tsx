@@ -47,6 +47,7 @@ import {
 	type RunConfiguration,
 } from "./domain/dungeon/RunConfiguration.ts";
 import { MAX_SEED, parseSeedInput } from "./domain/dungeon/Seed.ts";
+import { appendActivityEvents } from "./domain/game/ActivityHistory";
 import type { VictorySummary } from "./domain/game/Adventure";
 import { createGameState } from "./domain/game/GameState.ts";
 import {
@@ -58,6 +59,7 @@ import { emptyEquipmentSlotFor } from "./domain/items/Equipment";
 import { itemsAtPlayer } from "./domain/items/FloorItems";
 import { ITEM_DEFINITIONS } from "./domain/items/Item";
 import type { HotbarSlot } from "./domain/items/PotionHotbar";
+import { visibleAwarenessEvents } from "./domain/monsters/VisibleAwareness";
 import type { DungeonObject } from "./domain/objects/DungeonObject";
 import { navigationRun } from "./domain/objects/NavigationTerrain";
 import { objectChoices } from "./domain/objects/ObjectChoices";
@@ -294,16 +296,37 @@ const Home = ({
 			if (result.error) return { ...current, actionError: result.error };
 			if (result.state === current.state && !current.actionError)
 				return current;
-			return {
-				state: result.state,
-				actionError: "",
-				exploration: result.turnAdvanced
-					? updateExploration(
-							navigationRun(result.state),
-							fogConfiguration.radius,
-							current.exploration,
+			const nextExploration = result.turnAdvanced
+				? updateExploration(
+						navigationRun(result.state),
+						fogConfiguration.radius,
+						current.exploration,
+					)
+				: current.exploration;
+			const events =
+				result.turnAdvanced &&
+				result.state.player.health > 0 &&
+				!result.state.quest.victory
+					? visibleAwarenessEvents(
+							current.state.monsters,
+							result.state.monsters,
+							result.state.run.activeFloor,
+							result.state.turn,
+							fogConfiguration.enabled ? nextExploration.visible : undefined,
 						)
-					: current.exploration,
+					: [];
+			return {
+				state: events.length
+					? {
+							...result.state,
+							activityHistory: appendActivityEvents(
+								result.state.activityHistory,
+								events,
+							),
+						}
+					: result.state,
+				actionError: "",
+				exploration: nextExploration,
 			};
 		});
 	};

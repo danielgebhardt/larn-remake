@@ -64,7 +64,12 @@ describe("Pursuit on the play screen", () => {
 			expect(screen.getByLabelText("Player health")).toHaveTextContent(
 				"Health 10 / 10",
 			);
-			expect(screen.getByRole("log")).toHaveTextContent("No activity yet.");
+			if (!fog.enabled || fog.radius === 20)
+				expect(screen.getByRole("log")).toHaveTextContent(
+					"Turn 1 — The goblin spots you and begins pursuit.",
+				);
+			else
+				expect(screen.getByRole("log")).toHaveTextContent("No activity yet.");
 			expect(
 				screen.queryByLabelText("row2col5 - goblin"),
 			).not.toBeInTheDocument();

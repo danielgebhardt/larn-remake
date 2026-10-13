@@ -143,6 +143,10 @@ const eventFields = {
 		condition: oneOf(Object.keys(EFFECT_DEFINITIONS)),
 		damage: natural,
 	},
+	"monster-awareness-changed": {
+		monster: monsterKind,
+		awareness: oneOf(["idle", "pursuing", "searching"]),
+	},
 	"monster-regenerated": { monster: monsterKind, recovered: natural },
 	"monster-spell-hit": {
 		monster: monsterKind,

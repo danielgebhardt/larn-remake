@@ -46,6 +46,7 @@ describe("Combat on the play screen", () => {
 			expect(messages()).toEqual([
 				"Turn 1 — You hit the goblin for 2 damage.",
 				"Turn 1 — The goblin hits you for 1 damage.",
+				"Turn 1 — The goblin spots you and begins pursuit.",
 			]);
 			await user.keyboard(key);
 			expect(screen.getByLabelText("row1col2 - floor")).toBeVisible();
@@ -63,14 +64,14 @@ describe("Combat on the play screen", () => {
 			await user.keyboard(key);
 			expect(screen.getByLabelText("row1col2 - player")).toBeVisible();
 			expect(screen.getByLabelText("Turn count")).toHaveTextContent("Turn 3");
-			expect(messages()).toHaveLength(6);
+			expect(messages()).toHaveLength(7);
 			// The defeated goblin must stay removed after leaving and returning.
 			await user.keyboard("sdda");
 			expect(
 				screen.getByRole("heading", { name: "Floor 1 of 2" }),
 			).toBeVisible();
 			expect(screen.queryByLabelText(/goblin/)).not.toBeInTheDocument();
-			expect(messages()).toHaveLength(8);
+			expect(messages()).toHaveLength(9);
 			expect(messages().slice(-2)).toEqual([
 				"Turn 5 — You descend to floor 2.",
 				"Turn 7 — You ascend to floor 1.",
@@ -95,7 +96,7 @@ describe("Combat on the play screen", () => {
 		expect(screen.getByLabelText("Player health")).toHaveTextContent(
 			"Health 8 / 10",
 		);
-		expect(messages()).toHaveLength(5);
+		expect(messages()).toHaveLength(6);
 		expect(messages().slice(-2)).toEqual([
 			"Turn 4 — You descend to floor 2.",
 			"Turn 6 — You ascend to floor 1.",

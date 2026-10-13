@@ -10,6 +10,11 @@ import type { EffectKind } from "./TimedEffects";
 
 export type ActivityEvent = { turn: number } & (
 	| {
+			type: "monster-awareness-changed";
+			monster: MonsterKind;
+			awareness: "idle" | "pursuing" | "searching";
+	  }
+	| {
 			type: "discovery-opened";
 			kind: import("../objects/DungeonObject").DungeonObjectKind;
 			item: ItemKind;

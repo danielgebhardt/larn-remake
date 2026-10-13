@@ -14,18 +14,13 @@ const ObservedCreatures = ({
 	monsters?: readonly Monster[];
 	visible?: VisibilityGrid;
 }) => {
-	const kinds = [
-		...new Set(
-			monsters
-				.filter(
-					(actor) =>
-						actor.health > 0 &&
-						(visible === undefined ||
-							visible[actor.coordinate.row]?.[actor.coordinate.col]),
-				)
-				.map((actor) => actor.kind),
-		),
-	].sort((a, b) =>
+	const observed = monsters.filter(
+		(actor) =>
+			actor.health > 0 &&
+			(visible === undefined ||
+				visible[actor.coordinate.row]?.[actor.coordinate.col]),
+	);
+	const kinds = [...new Set(observed.map((actor) => actor.kind))].sort((a, b) =>
 		MONSTER_DEFINITIONS[a].name.localeCompare(MONSTER_DEFINITIONS[b].name),
 	);
 	return (
@@ -58,6 +53,26 @@ const ObservedCreatures = ({
 									: definition.enemySpells
 										? "damage varies by spell"
 										: `melee damage ${Math.max(1, definition.attackDamage - 1)}–${definition.attackDamage + 1}`}
+							</p>
+							<p className="flex flex-wrap gap-x-3 text-xs text-muted-foreground">
+								{(
+									[
+										["idle", "Unaware"],
+										["pursuing", "Pursuing"],
+										["searching", "Searching"],
+									] as const
+								).map(([state, label]) => {
+									const count = observed.filter(
+										(actor) =>
+											actor.kind === kind &&
+											(actor.awareness?.type ?? "idle") === state,
+									).length;
+									return count ? (
+										<span key={state}>
+											{label}: {count}
+										</span>
+									) : null;
+								})}
 							</p>
 							<ul className="list-disc space-y-1 pl-4 text-xs">
 								{monsterTraits(kind).map((trait) => (

@@ -79,5 +79,8 @@ export const spellTargetDetails = (
 				`${EFFECT_DEFINITIONS[effect.kind].name}: ${effect.remaining} active phases remaining`,
 		);
 	if (conditions.length) parts.push(conditions.join(", "));
-	return parts.filter(Boolean).join(". ");
+	return parts
+		.filter(Boolean)
+		.map((part) => part.replace(/[. ]+$/, ""))
+		.join(". ");
 };

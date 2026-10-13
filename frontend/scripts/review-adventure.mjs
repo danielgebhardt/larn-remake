@@ -62,6 +62,12 @@ try {
 		CONFIGURATION_LIMITS,
 		MAX_SEED,
 	);
+	const { canReviewPickUp } = await server.ssrLoadModule(
+		"/scripts/review-inventory.mjs",
+	);
+	const { reviewRoutingFloor } = await server.ssrLoadModule(
+		"/scripts/review-terrain.mjs",
+	);
 	const { createGameState } = await server.ssrLoadModule(
 		"/src/domain/game/GameState.ts",
 	);
@@ -162,7 +168,7 @@ try {
 					reason = "died";
 					break;
 				}
-				const floor = state.run.floors[state.run.activeFloor - 1];
+				const floor = reviewRoutingFloor(state);
 				const position = state.run.playerCoordinate;
 				let routes;
 				const route = (target) => {
@@ -227,25 +233,23 @@ try {
 								Math.abs(monster.coordinate.col - position.col) ===
 							1,
 					);
-					const here = ground.find((entry) => same(entry.coordinate, position));
+					const here = ground.find(
+						(entry) =>
+							same(entry.coordinate, position) &&
+							canReviewPickUp(state, entry.item),
+					);
 					if (adjacent)
 						action = {
 							type: "move",
 							direction: route(adjacent.coordinate)?.[0],
 						};
-					else if (
-						here &&
-						(here.item.kind === "cure" || state.bag.items.length < 20)
-					)
-						action = { type: "pickup", itemId: here.item.id };
+					else if (here) action = { type: "pickup", itemId: here.item.id };
 					else {
 						const targets = [
 							...active.map((monster) => monster.coordinate),
-							...(state.bag.items.length < 20
-								? ground.map((entry) => entry.coordinate)
-								: ground
-										.filter((entry) => entry.item.kind === "cure")
-										.map((entry) => entry.coordinate)),
+							...ground
+								.filter((entry) => canReviewPickUp(state, entry.item))
+								.map((entry) => entry.coordinate),
 						];
 						const paths = targets
 							.map((target) => route(target))
@@ -295,7 +299,11 @@ try {
 						health: state.player.health,
 						maxHealth: state.player.maxHealth,
 						mana: state.mana,
-						maximumMana: maximumMana(state.progression, state.equipment),
+						maximumMana: maximumMana(
+							state.progression,
+							state.equipment,
+							state.effects,
+						),
 					});
 			}
 			if (state.quest.victory) reason = "won";
@@ -306,7 +314,11 @@ try {
 				casts,
 				potionUses,
 				mana: state.mana,
-				maximumMana: maximumMana(state.progression, state.equipment),
+				maximumMana: maximumMana(
+					state.progression,
+					state.equipment,
+					state.effects,
+				),
 				knownSpells: state.knownSpells,
 				configuration,
 				manaRecoveryInterval: MANA_RECOVERY_INTERVAL,

@@ -4,12 +4,13 @@ import { DEFAULT_FOG_CONFIGURATION } from "../src/domain/dungeon/RunConfiguratio
 import { calculateVisibility } from "../src/domain/dungeon/Visibility";
 import { maximumMana } from "../src/domain/game/Mana";
 import { SPELL_DEFINITIONS } from "../src/domain/game/Spells";
-import { BAG_CAPACITY } from "../src/domain/items/Bag";
+import { canAddToBag } from "../src/domain/items/Bag";
 import { compareEquipment } from "../src/domain/items/EquipmentComparison";
 import { ITEM_DEFINITIONS } from "../src/domain/items/Item";
 import { orthogonalDistance } from "../src/domain/monsters/MonsterLocations";
 import { shrineTerms } from "../src/domain/objects/DungeonShrines";
 import { navigationRun } from "../src/domain/objects/NavigationTerrain";
+import { canReviewPickUp } from "./review-inventory.mjs";
 import { chooseDamageSpell } from "./review-spells.mjs";
 
 export function chooseSpellAwareAction(state, route) {
@@ -46,7 +47,7 @@ export function chooseSpellAwareAction(state, route) {
 	if (
 		manaPotion &&
 		state.mana <=
-			maximumMana(state.progression, state.equipment) -
+			maximumMana(state.progression, state.equipment, state.effects) -
 				ITEM_DEFINITIONS[manaPotion.kind].recovery.amount
 	)
 		return { type: "consume", itemId: manaPotion.id };
@@ -87,15 +88,11 @@ export function chooseSpellAwareAction(state, route) {
 	const useful = state.floorItems.filter(
 		(entry) =>
 			entry.floorNumber === floor.floorNumber &&
+			canReviewPickUp(state, entry.item) &&
 			(entry.item.kind === "cure" ||
-				(ITEM_DEFINITIONS[entry.item.kind].type === "spellbook" &&
-					!state.knownSpells.includes(
-						ITEM_DEFINITIONS[entry.item.kind].teaches,
-					)) ||
-				(state.bag.items.length < BAG_CAPACITY &&
-					(ITEM_DEFINITIONS[entry.item.kind].type === "potion" ||
-						compareEquipment(entry.item, state.equipment)?.label ===
-							"Better"))),
+				ITEM_DEFINITIONS[entry.item.kind].type === "spellbook" ||
+				ITEM_DEFINITIONS[entry.item.kind].type === "potion" ||
+				compareEquipment(entry.item, state.equipment)?.label === "Better"),
 	);
 	const here = useful.find(
 		(entry) =>
@@ -113,13 +110,14 @@ export function chooseSpellAwareAction(state, route) {
 		if (
 			object.kind === "fountain" &&
 			(state.player.health < state.player.maxHealth ||
-				state.mana < maximumMana(state.progression, state.equipment))
+				state.mana <
+					maximumMana(state.progression, state.equipment, state.effects))
 		)
 			return "sip";
 		if (
 			object.kind === "reliquary" &&
 			state.player.health > 6 &&
-			state.bag.items.length < BAG_CAPACITY
+			canAddToBag(state.bag, { id: "review:relic", kind: "relic-band" })
 		)
 			return "unseal";
 		if (object.kind === "gold") return null;

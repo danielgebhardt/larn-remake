@@ -20,6 +20,7 @@ export function chooseDamageSpell(state, seen) {
 			state.progression,
 			definition,
 			state.equipment,
+			state.effects,
 		);
 		const targets =
 			definition.mode === "self"

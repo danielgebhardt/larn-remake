@@ -11,9 +11,8 @@ const server = await createServer({
 try {
 	const { generateDungeonRun, connectDungeonFloors } =
 		await server.ssrLoadModule("/src/domain/dungeon/DungeonRun.ts");
-	const { DEFAULT_RUN_CONFIGURATION } = await server.ssrLoadModule(
-		"/src/domain/dungeon/RunConfiguration.ts",
-	);
+	const { DEFAULT_RUN_CONFIGURATION, DEFAULT_FOG_CONFIGURATION } =
+		await server.ssrLoadModule("/src/domain/dungeon/RunConfiguration.ts");
 	const { createGameState } = await server.ssrLoadModule(
 		"/src/domain/game/GameState.ts",
 	);
@@ -132,10 +131,48 @@ try {
 		};
 		return measure(name, () => resolveMonsterPhase(state), monsters.length);
 	});
+	const doorState = {
+		...initial,
+		run,
+		turn: 1,
+		objects: [
+			{
+				id: "floor:10:object:door:1",
+				kind: "door",
+				floorNumber: 10,
+				coordinate: { row: 50, col: 51 },
+				activated: false,
+			},
+		],
+		monsters: [
+			{
+				id: "10:1",
+				kind: "orc",
+				floorNumber: 10,
+				coordinate: { row: 50, col: 52 },
+				health: 7,
+				intent: { type: "idle" },
+				awareness: {
+					type: "pursuing",
+					target: run.playerCoordinate,
+					remaining: 12,
+					blocked: 0,
+				},
+			},
+		],
+	};
+	results.push(
+		measure("remembered-door-opening", () => resolveMonsterPhase(doorState), 1),
+	);
 	results.push(
 		measure(
-			"visibility-radius-6",
-			() => calculateVisibility(terrain, run.playerCoordinate, 6),
+			`visibility-radius-${DEFAULT_FOG_CONFIGURATION.radius}`,
+			() =>
+				calculateVisibility(
+					terrain,
+					run.playerCoordinate,
+					DEFAULT_FOG_CONFIGURATION.radius,
+				),
 			0,
 		),
 	);

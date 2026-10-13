@@ -69,6 +69,16 @@ describe("Home Help menu", () => {
 		).toBeVisible();
 		expect(help.getByText("Close this sheet")).toBeVisible();
 	});
+	it("explains that only capable pursuers can spend an action opening ordinary doors", async () => {
+		const user = renderHelpRun();
+		const help = within(await openHelp(user));
+		expect(help.getByText(/Orcs, cultists and necromancers/)).toHaveTextContent(
+			/whole action.*elite gates/i,
+		);
+		expect(
+			help.queryByText(/monsters do not open them yet/),
+		).not.toBeInTheDocument();
+	});
 	it("explains earned attributes, the health benefit, and the level cap", async () => {
 		const user = renderHelpRun();
 		const help = within(await openHelp(user));

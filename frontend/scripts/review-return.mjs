@@ -39,6 +39,7 @@ try {
 		const { experienceThreshold } = await load(
 			"/src/domain/game/Progression.ts",
 		);
+		const { reviewRoutingFloor } = await load("/scripts/review-terrain.mjs");
 		const { maximumMana } = await load("/src/domain/game/Mana.ts");
 		const { resolvePlayerAction } = await load(
 			"/src/domain/game/PlayerActions.ts",
@@ -105,7 +106,7 @@ try {
 			state = {
 				...state,
 				player: { ...state.player, health: 33 },
-				mana: maximumMana(state.progression, state.equipment),
+				mana: maximumMana(state.progression, state.equipment, state.effects),
 			};
 			const review = createEscapeReview(),
 				memory = {};
@@ -119,10 +120,9 @@ try {
 					reason = "died";
 					break;
 				}
-				const floor = state.run.floors[state.run.activeFloor - 1];
 				const action = chooseTacticalAwareAction(
 					state,
-					createRoutes(floor, state.run.playerCoordinate),
+					createRoutes(reviewRoutingFloor(state), state.run.playerCoordinate),
 					memory,
 				);
 				if (!action) {

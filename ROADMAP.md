@@ -64,24 +64,33 @@ Current branch save format is **v18**. Valid older saves migrate without regener
 
 The six-seed generated merchant budget found 776–841 ordinary gold by floor 5 and 8,371–8,576 across 20 floors if everything is collected, versus 14,000 for full stock. Controlled return and budget diagnostics are not human win-rate evidence. Review chargers/alarms, optional challenges, supply spending and return pressure before another broad balance change.
 
-## Recommended next ten stories
+## Pacing and tactical clarity ready for review
 
-These are planning proposals, not newly created issues or implementation authorization. Use playtest findings to refine their scope before creating native epic/sub-issues. Existing issue numbers are included where work is already tracked.
+Implemented locally on `codex/pacing-and-tactical-clarity`, based on the preceding five-epic branch, with eight initial story commits and a separate post-review fix commit. Both native parent epics and all eight stories are **In Review**. Acceptance, merge and publishing remain developer-owned.
 
-| Order | Story | Why / completion evidence |
+| Epic | Stories / outcome |
+| --- | --- |
+| [#265](https://github.com/danielgebhardt/larn-remake/issues/265), Pacing and meaningful rewards | #266 per-visit pacing reports; #267 depth-sensitive ordinary equipment weights; #268 supply budgets; #269 twenty-floor XP audit. Supply probabilities and XP thresholds were retained based on available evidence. |
+| [#270](https://github.com/danielgebhardt/larn-remake/issues/270), Tactical clarity and counterplay | #271 visible threat/condition counterplay; #272 recent damage defeat recap; #273 spell elements/duration/target-adjusted damage; existing #212 intelligent enemies opening ordinary doors for one action. |
+
+Current branch save format is **v19**: validated enemy door-opening history is added, while all v18 played state and enchantments migrate intact. Orcs, cultists and necromancers can open ordinary doors during remembered pursuit; elite gates remain player-only. Loaded items remain authoritative; only new/replayed loot selection changes.
+
+[Story review guide](docs/pacing-tactics-review.md) contains logic and six-seed evidence. [Post-epic codebase review](docs/codebase-review-2026-10-13.md) records immediate fixes to diagnostic stacking/capacity, elite routing, current resource estimates and stale Help, with structural recommendations left for developer review. Scripted policies remain limited; human playtesting is still the next balance gate.
+
+## Recommended next work
+
+These are proposals, not authorization or newly created issues. Review the current program and playtest before another feature batch.
+
+| Order | Story / epic | Why |
 | --- | --- | --- |
-| 1 | Record a per-floor alpha pacing baseline | Capture representative human runs and matched seeded diagnostics after stacking and loops. Record turns, fights, useful upgrades, supplies, level, deaths and arrival/exit health/mana per floor. Distinguish exploration, combat and return travel where possible. Establish what is actually slow or easy before changing formulas. |
-| 2 | Reduce obsolete ordinary gear by depth | Make deep-floor finds less repetitive while preserving useful equipment tradeoffs and occasional alternatives. Compare catalog eligibility/weights and useful-upgrade counts; never guarantee a best item for every seed or remove meaningful ring choices. |
-| 3 | Tune healing, mana and antidote supply budgets | Stacking removes inventory friction but can change practical hoarding. Measure use and remaining supplies, then adjust source probabilities or quantities in an isolated slice. Keep recovery at 30 unless evidence justifies a separate change. Avoid silently changing enemies, loot and regeneration together. |
-| 4 | Review XP pacing through twenty floors | Use the new population and travel baseline to check when levels are earned. Target late-adventure upper levels rather than cap by mid-run. Change thresholds or rewards with clear evidence, keeping automatic stat growth and earned equipment bonuses intact. |
-| 5 | Add new-run difficulty presets (#213) | After normal has a documented baseline, offer bounded easier/normal/harder enemy health/damage scaling. Freeze difficulty per run, preserve it in saves, migrate old saves to normal and show actual scaled values. Do not also scale XP, loot or density implicitly. |
-| 6 | Improve threat and defeat explanations | Make ranged/prepared attack sources and active harmful conditions easy to identify. Add a concise defeat recap showing recent damage sources without another blocking warning during play. Preserve fog privacy and use existing activity emphasis before adding new panels. |
-| 7 | Clarify situational spell choices | Show range, relevant conditions/defenses and duration clearly enough to choose between owned spells. Compare mana efficiency and control value in real encounters; fix unclear descriptions before adding another large spell catalog. Reject/cancel actions remain free. |
-| 8 | Let selected enemies open doors (#212) | Give explicitly capable creatures a one-action door opening with visible feedback and deterministic ordering. Ordinary creatures remain blocked. Preserve the value of closing doors, protected arrivals and saved door state. |
-| 9 | Reduce repetitive safe travel | If quiet walking remains the main complaint after loops, try one interruptible corridor-run command before automatic exploration/pathfinding. Stop at threats, junctions, doors, stairs, items or discoveries; every traveled tile remains a committed turn. Establish exact interruption and keyboard rules first. |
-| 10 | Extend the first gold economy into town services | The wandering merchant now supplies the first use for gold. After playtesting prices and finite stock, consider moving/reusing those transactions at the entrance or adding one healing service. Avoid banks/taxes or a broad economy until needed. |
+| 1 | Human pacing and counterplay feedback | Compare a few recommended 60×60×20 runs against per-floor reports. Note supplies actually available at fights, optional challenges, level growth, merchant spending and return pressure. Generated supply/XP potential cannot replace human decisions. |
+| 2 | A bounded engineering cleanup | Review the proposed adventure-session extraction, save-validation organization and CI/browser smoke checks before implementation. Preserve state/focus ownership and historical save fixtures. |
+| 3 | New-run difficulty presets (#213) | Offer bounded easier/normal/harder enemy health/damage scaling only after normal has a human baseline. Freeze the choice in saves; avoid simultaneously scaling XP, density or loot. |
+| 4 | Interruptible safe travel | One corridor-run command before automatic exploration. Stop at threats, junctions, doors, stairs, items and discoveries; every tile remains a committed turn. Define interruption rules first. |
+| 5 | Extend the gold economy into town services | Reuse tested merchant transactions at the entrance, or add one healing service after supply/pricing feedback. Avoid banks/taxes or a broad economy until needed. |
+| 6 | Starting classes | Different starting attributes and automatic growth, with existing equipment/effect ownership. Defer manual stat allocation and large skill trees. |
 
-The first four form a **pacing and rewards** epic. Difficulty is a separate follow-up so comparisons remain interpretable. Threat/spell clarity and capable-door behavior form a **tactical readability** epic. Travel assistance and town services deserve separate epics because they change the exploration loop. Do not require completing all ten before another alpha.
+Further loot/supply/XP tuning should be separate evidence-backed slices, not a simultaneous formula overhaul. More enemy/spell content can follow feedback showing which choices are missing.
 
 ### Alpha feedback gate
 
@@ -94,7 +103,7 @@ Look specifically for bag frustration after stacking, usefulness of deep-floor l
 - **Frontend publishing #211:** share a static build when deployment is explicitly authorized; the backend check is already disabled. Confirm actual hosting configuration/limits at implementation time. Browser saves belong to an origin/profile; export/import is the existing transfer mechanism. No accounts or Java deployment are needed for this alpha.
 - **CI:** before the next large feature batch, consider PR/main checks for frontend Biome, tests, build/typecheck and Gradle backend tests, using declared tool versions. This supports releases without changing game rules.
 - **Small browser smoke suite:** welcome/start, Settings focus restoration, hotbar/pickup, save/load and one death/victory flow. Prefer stable controlled fixtures over a screenshot matrix or duplicating all domain tests.
-- **Performance:** retain large-map movement regressions. Measure startup before further lazy loading; the approximately 554kB main chunk currently produces a non-blocking build warning. Measure pursuit, targeting and saves if new behavior makes them slow.
+- **Performance:** retain large-map movement regressions. Measure startup before further lazy loading; the approximately 600kB main chunk currently produces a non-blocking build warning. Measure pursuit, targeting and saves if new behavior makes them slow.
 - **Persistence:** version changed saved contracts and retain captured legacy fixtures. Named save slots can follow demonstrated demand; autosave/IndexedDB should follow measured need, not replace working manual saves by default.
 
 ## Later gameplay directions

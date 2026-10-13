@@ -74,3 +74,9 @@ Orcs, cultists and necromancers explicitly declare ordinary-door capability. A c
 Navigation is refreshed after opening so later actors see the new door state in deterministic numeric identity order. Occupied doors remain protected. The activity message is filtered unless the source is visible; the visible-creature guide explains capability and counterplay. Browser keyboard waiting demonstrates opening at turn 1, movement at turn 2, unchanged player health and guide text.
 
 Save v19 introduces the new validated activity event. Its adapter validates shared structure via v18 while leaving historical event schemas unchanged. v18 migration preserves played terrain/doors, actors, pursuit, loot, merchant stock and enchantments. Tests cover whole-action ordering, visibility, capability, inactive/effect guards, occupied doors, memory expiry, later-actor navigation, malformed metadata and continued turns after reload. No new door/actor ownership field is required.
+
+## Post-epic review
+
+[Whole-codebase review](codebase-review-2026-10-13.md) records scope, immediate diagnostic/Help fixes, measured performance and deferred structural recommendations. Supply and XP rules remain unchanged; the short diagnostic baseline still does not establish late-game human difficulty. Both backend tests passed when explicitly rerun.
+
+Final validation: **290 frontend test files / 2,035 tests**, Biome, TypeScript and production build; two backend tests explicitly rerun and passing. Eight initial story commits plus one reviewed-fix commit; no push/merge/release.

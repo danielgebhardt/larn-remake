@@ -151,8 +151,8 @@ export function chooseTacticalAwareAction(state, route, memory = {}) {
 		aimedHere.length === 1 &&
 		canCast &&
 		isSpellTarget(state, aimedHere[0], missile) &&
-		spellPotency(state.progression, missile).minimumDamage >=
-			aimedHere[0].health
+		spellPotency(state.progression, missile, state.equipment, state.effects)
+			.minimumDamage >= aimedHere[0].health
 	)
 		return { type: "cast", spell: "magic-missile", targetId: aimedHere[0].id };
 	const shooting = seen.filter((actor) => {

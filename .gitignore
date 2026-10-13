@@ -39,3 +39,6 @@ out/
 
 # pnpm
 node_modules/
+
+# Local pnpm store
+.pnpm-store/

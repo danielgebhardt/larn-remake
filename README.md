@@ -61,7 +61,7 @@ Dungeon responsibilities are split into focused modules in `domain/dungeon`: `Du
 ## Prerequisites
 
 - Java 21
-- Node.js
+- Node.js 24.20.0 (`nvm use` reads `.nvmrc`)
 - pnpm 11.25.0
 
 ## Install dependencies
@@ -240,6 +240,8 @@ Start with `domain/dungeon/RunConfiguration.ts` when tuning dungeon generation. 
 Settings exposes rows, columns, floor count, fog enablement, and visibility radius. Partition size, padding, room size, and aspect ratio remain internal configuration values and are preserved when applying a Settings draft. Appearance is saved locally; dungeon and fog settings last for the current session. `Visibility.ts` calculates sight independently of React; `Exploration.ts` combines it with per-floor discovery memory. Unchanged visibility and discovery rows retain their references so memoized map rows and cells can avoid unnecessary rendering.
 
 ## Testing and quality checks
+
+The GitHub Actions workflow defines frontend Biome, complete tests, strict TypeScript and production build, plus independent Java 21/Gradle wrapper tests. The toolchain uses `.nvmrc` and the root `packageManager`; install with `pnpm install --frozen-lockfile` from the root. Tests use two workers on CI and backend reports are retained for seven days. Local commit hooks remain unchanged. See [CI and browser review notes](docs/ci-browser-review.md) for verification status.
 
 Run frontend formatting and lint checks:
 

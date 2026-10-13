@@ -29,3 +29,8 @@ dist-ssr
 
 # pnpm
 .pnpm-store/
+
+# Browser smoke output and generated save fixtures
+playwright-report/
+test-results/
+e2e/.generated/

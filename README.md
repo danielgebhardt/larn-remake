@@ -241,6 +241,15 @@ Settings exposes rows, columns, floor count, fog enablement, and visibility radi
 
 ## Testing and quality checks
 
+Run the isolated browser smoke suite against a production build:
+
+```bash
+pnpm --filter frontend exec playwright install chromium # Once per browser version
+pnpm frontend:smoke
+```
+
+Four Chromium flows check start/settings choices and focus, file import and potion/spell shortcuts, confirmed local save/load and immediate healing, and a fatal turn followed by replay. Each test has fresh storage; generated, validated compact saves stay under ignored `frontend/e2e/.generated`. The suite owns preview port 4179 and requires it to be free. It does not use Java or your open browser/save slot. Failures retain screenshots and traces; view the report with `pnpm --filter frontend exec playwright show-report`. Vitest and the browser suite remain separate.
+
 The GitHub Actions workflow defines frontend Biome, complete tests, strict TypeScript and production build, plus independent Java 21/Gradle wrapper tests. The toolchain uses `.nvmrc` and the root `packageManager`; install with `pnpm install --frozen-lockfile` from the root. Tests use two workers on CI and backend reports are retained for seven days. Local commit hooks remain unchanged. See [CI and browser review notes](docs/ci-browser-review.md) for verification status.
 
 Run frontend formatting and lint checks:

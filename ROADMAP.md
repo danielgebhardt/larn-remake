@@ -79,12 +79,12 @@ Current save format is **v19**: validated enemy door-opening history is added, w
 
 ## Current implementation and next program
 
-The developer agreed to this order after merging the engineering and visual polish. Stories are linked as native sub-issues. The five-story difficulty epic #213 is implemented on `codex/difficulty-and-adventure-choices` and awaiting developer review; CI/browser coverage and corridor travel remain planned. Starting classes, town services and cold-start measurement remain later work.
+The developer agreed to this order after merging the engineering and visual polish. Stories are linked as native sub-issues. The five-story difficulty epic #213 is implemented on `codex/difficulty-and-adventure-choices` and awaiting developer review; CI/browser coverage is being reviewed on `codex/ci-browser-smoke`; successful GitHub runner verification is pending branch publication. Corridor travel remains planned. Starting classes, town services and cold-start measurement remain later work.
 
 | Order | Epic | Outcome |
 | --- | --- | --- |
 | 1 | [#213 — Difficulty and new-adventure choices](https://github.com/danielgebhardt/larn-remake/issues/213) | Immutable combat pressure, saved continuation, explicit start/settings choices and fixed map-size boxes. Five stories below, implemented and awaiting review. |
-| Alongside | [#277 — Declared-toolchain CI and browser smoke coverage](https://github.com/danielgebhardt/larn-remake/issues/277) | Repeatable frontend/backend checks and a small controlled browser suite. Prefer establishing CI before the next large feature merge. |
+| Alongside | [#277 — Declared-toolchain CI and browser smoke coverage](https://github.com/danielgebhardt/larn-remake/issues/277) | Configured frontend/backend checks and four isolated Chromium flows; local checks pass, GitHub runner verification pending. Prefer verifying CI before the next large feature merge. |
 | 2 | [#285 — Interruptible safe corridor travel](https://github.com/danielgebhardt/larn-remake/issues/285) | Reduce repetitive movement through quiet corridors while preserving each committed turn and stopping at decisions or danger. |
 | Ongoing | Human pacing/counterplay playtests | Supplies at real fights, merchant spending, useful upgrades, leveling and hunted return. Keep human reports alongside bounded diagnostics. |
 | Later | Town/entrance service, then starting classes | Reuse the merchant transaction foundation and existing base/gear/effect ownership; avoid a broad economy or stat-distribution framework. |

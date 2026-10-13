@@ -11,6 +11,7 @@ import {
 	LibraryBig,
 	type LucideIcon,
 	Skull,
+	Store,
 	TriangleAlert,
 } from "lucide-react";
 import type {
@@ -19,6 +20,7 @@ import type {
 } from "../../domain/objects/DungeonObject";
 
 const icons: Record<Exclude<DungeonObjectKind, "elite-door">, LucideIcon> = {
+	merchant: Store,
 	door: DoorClosed,
 	reliquary: Gem,
 	archive: LibraryBig,

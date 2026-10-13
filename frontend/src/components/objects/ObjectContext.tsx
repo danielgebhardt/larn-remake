@@ -1,5 +1,6 @@
 import type { VisibilityGrid } from "../../domain/dungeon/Visibility";
 import type { GameState } from "../../domain/game/GameState";
+import { objectAvailable } from "../../domain/merchant/MerchantAvailability";
 import { orthogonalDistance } from "../../domain/monsters/MonsterLocations";
 import { describeObject } from "../../domain/objects/ObjectDescriptions";
 import DungeonObjectIcon from "./DungeonObjectIcon";
@@ -14,6 +15,7 @@ const ObjectContext = ({
 	const nearby = state.objects.filter(
 		(object) =>
 			object.floorNumber === state.run.activeFloor &&
+			objectAvailable(object) &&
 			!(object.kind === "gold" && object.activated) &&
 			orthogonalDistance(object.coordinate, state.run.playerCoordinate) <= 1 &&
 			(!visible || visible[object.coordinate.row]?.[object.coordinate.col]),

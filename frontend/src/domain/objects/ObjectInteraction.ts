@@ -1,5 +1,6 @@
 import { appendActivityEvents } from "../game/ActivityHistory";
 import type { GameState } from "../game/GameState";
+import { objectAvailable } from "../merchant/MerchantAvailability";
 import { orthogonalDistance } from "../monsters/MonsterLocations";
 import { drawFountain } from "./DungeonFountains";
 import { isDoor } from "./DungeonObject";
@@ -29,7 +30,8 @@ export const nearbyInteractionObjects = (state: GameState) => {
 		(object) =>
 			object.floorNumber === state.run.activeFloor &&
 			orthogonalDistance(object.coordinate, state.run.playerCoordinate) <= 1 &&
-			object.kind !== "gold",
+			object.kind !== "gold" &&
+			objectAvailable(object),
 	);
 	const player = state.run.playerCoordinate;
 	const order = (coordinate: { row: number; col: number }) =>
@@ -61,6 +63,8 @@ export const interactObject = (
 ): GameState | { error: string } => {
 	const object = nearbyInteractionObject(state, action.objectId);
 	const player = state.run.playerCoordinate;
+	if (object?.kind === "merchant")
+		return { error: "Press E to browse merchant supplies." };
 	if (!object) return { error: "No object within reach." };
 	if (!isDoor(object) && object.activated)
 		return { error: describeObject(object) };

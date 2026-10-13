@@ -190,6 +190,17 @@ export const isConsistentSave = (
 		)
 			return false;
 		for (const object of objects) {
+			if (
+				object.kind === "merchant" &&
+				(object.floorNumber % 5 !== 0 ||
+					object.floorNumber >= run.floors.length ||
+					object.activated ||
+					objects.filter(
+						(o) =>
+							o.kind === "merchant" && o.floorNumber === object.floorNumber,
+					).length !== 1)
+			)
+				return false;
 			if (object.kind === "elite-door") {
 				const floor = run.floors[object.floorNumber - 1];
 				const required = protectedFloorLocations(run, object.floorNumber);

@@ -1,5 +1,15 @@
 import type { Coordinate } from "../dungeon/DungeonTypes";
 export const OBJECT_DEFINITIONS = {
+	merchant: {
+		name: "Wandering potion merchant",
+		freshLabel: "potion merchant at a counter",
+		usedLabel: "potion merchant at a counter",
+		minFloor: 5,
+		maxFloor: 19,
+		maxPerFloor: 1,
+		chance: 1,
+		placement: "merchant",
+	},
 	"elite-door": {
 		name: "Elite chamber gate",
 		freshLabel: "closed skull-marked elite gate",

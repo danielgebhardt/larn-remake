@@ -6,6 +6,7 @@ import type { FloorItem } from "../items/FloorItems";
 import { spawnRunItems } from "../items/ItemPlacement";
 import { createPotionHotbar, type PotionHotbar } from "../items/PotionHotbar";
 import { spawnRunSpellbooks } from "../items/SpellbookPlacement";
+import { placeMerchants } from "../merchant/MerchantPlacement";
 import {
 	createMerchantStock,
 	type MerchantStock,
@@ -69,7 +70,7 @@ export const createGameState = (run: DungeonRun): GameState => {
 		run,
 		escape: null,
 		merchantStock: createMerchantStock(),
-		objects: encounters.objects,
+		objects: placeMerchants({ ...encounters, run, floorItems }),
 		gold: 0,
 		turn: 0,
 		knownSpells: createKnownSpells(),

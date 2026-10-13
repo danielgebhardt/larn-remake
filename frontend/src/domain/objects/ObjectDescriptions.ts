@@ -1,5 +1,6 @@
 import { appendActivityEvents } from "../game/ActivityHistory";
 import type { GameState } from "../game/GameState";
+import { objectAvailable } from "../merchant/MerchantAvailability";
 import {
 	type DungeonObject,
 	type DungeonObjectKind,
@@ -7,6 +8,11 @@ import {
 } from "./DungeonObject";
 
 const hints: Record<DungeonObjectKind, { fresh: string; spent: string }> = {
+	merchant: {
+		fresh:
+			"Press E within reach to trade. All stalls share finite supplies; successful trades give monsters a turn.",
+		spent: "Press E within reach to trade.",
+	},
 	"elite-door": {
 		fresh:
 			"Optional elite chamber. Press E to review the danger before opening. Enemies cannot open this gate.",
@@ -79,6 +85,7 @@ export const announceObjectArrival = (
 		(entry) =>
 			entry.floorNumber === after.run.activeFloor &&
 			entry.kind !== "gold" &&
+			objectAvailable(entry) &&
 			entry.coordinate.row === after.run.playerCoordinate.row &&
 			entry.coordinate.col === after.run.playerCoordinate.col,
 	);

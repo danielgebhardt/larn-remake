@@ -59,6 +59,7 @@ import { emptyEquipmentSlotFor } from "./domain/items/Equipment";
 import { itemsAtPlayer } from "./domain/items/FloorItems";
 import { ITEM_DEFINITIONS } from "./domain/items/Item";
 import type { HotbarSlot } from "./domain/items/PotionHotbar";
+import { objectAvailable } from "./domain/merchant/MerchantAvailability";
 import {
 	visibleAwarenessEvents,
 	visibleThreatHistory,
@@ -191,6 +192,7 @@ const Home = ({
 			game.state.objects.filter(
 				(object) =>
 					object.floorNumber === run.activeFloor &&
+					objectAvailable(object) &&
 					!(object.kind === "gold" && object.activated),
 			),
 		[game.state.objects, run.activeFloor],

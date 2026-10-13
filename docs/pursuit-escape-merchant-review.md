@@ -113,3 +113,11 @@ Validation: Home tests exercise cancel, blocked movement shortcuts, number selec
 GameState owns stock once per adventure; visits do not own inventories. Save v17 explicitly persists actual remaining counts. Validated older saves initialize shared stock exactly once during migration, without changing their existing gold or item ownership. Trades and placement follow in subsequent stories.
 
 Validation: independent initial stock, prices, complete catalog sale eligibility, spent-stock roundtrip, legacy migration and malformed counts; existing captured-save compatibility remains green.
+
+## #258 — Deterministic merchant locations and availability
+
+One merchant is placed on each fifth floor strictly below the goal floor (20→5/10/15; 15→5/10; 10→5; 5→none). A separate seeded stream selects a free room tile reachable from the stairs with elite gates sealed. Ordinary doors remain openable; actors, loot, objects and protected arrivals are excluded. If an exceptionally cramped/custom floor has no eligible space, placement safely skips it instead of overwriting content. Existing locations are never duplicated.
+
+`APP_FEATURES.wanderingMerchant` defaults true. Disabling it suppresses new placement, map/nearby display and interaction, retaining run-owned stock and saved locations. Merchants are traversable object tiles, so disabled stalls cannot create invisible barriers. A temporary standard store icon is replaced by the purpose-built stall in the next story; trading remains disabled until its dialog story.
+
+Validation: depth 5/10/13/15/20 schedule, actual generated placements, room eligibility, collisions, protected coordinates, sealed chambers, deterministic/idempotent placement and disabled behavior; generated adventure save continuation remains valid.

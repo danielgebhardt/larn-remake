@@ -3,6 +3,7 @@ import type { ComponentType, SVGProps } from "react";
 import { MONSTER_DEFINITIONS } from "../../domain/monsters/Monster";
 import type { MonsterKind } from "../../domain/monsters/Monster.ts";
 import BruteIcon from "./BruteIcon";
+import ChargerIcon from "./ChargerIcon";
 import CultistIcon from "./CultistIcon";
 import FrostGiantIcon from "./FrostGiantIcon";
 import GoblinArcherIcon from "./GoblinArcherIcon";
@@ -23,6 +24,11 @@ export const MONSTER_VISUALS: Record<
 		label: string;
 	}
 > = {
+	"horned-charger": {
+		icon: ChargerIcon,
+		color: "text-monster-orc",
+		label: MONSTER_DEFINITIONS["horned-charger"].name,
+	},
 	goblin: {
 		icon: GoblinIcon,
 		color: "text-goblin",

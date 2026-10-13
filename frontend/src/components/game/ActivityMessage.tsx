@@ -18,7 +18,10 @@ const ActivityMessage = ({ event }: { event: ActivityEvent }) => {
 		event.type === "escape-started";
 	const danger = event.type === "player-died";
 	const growth = event.type === "attribute-gained";
-	if (event.type === "monster-prepared")
+	if (
+		event.type === "monster-prepared" ||
+		event.type === "monster-charge-prepared"
+	)
 		return (
 			<span className="my-0.5 flex items-start gap-2 rounded-r border-l-2 border-map-threat/50 bg-map-threat/10 px-2 py-1 font-semibold text-map-threat">
 				<TriangleAlert

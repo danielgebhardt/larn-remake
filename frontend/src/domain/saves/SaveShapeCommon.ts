@@ -210,6 +210,17 @@ const eventFields = {
 	"player-died": {},
 	"quest-completed": {},
 	"escape-started": {},
+	"monster-charge-prepared": {
+		actorId: text,
+		monster: monsterKind,
+		target: coordinate,
+	},
+	"monster-charge-hit": { monster: monsterKind, damage: natural },
+	"monster-charge-ended": {
+		actorId: text,
+		monster: monsterKind,
+		outcome: oneOf(["blocked", "avoided", "missed", "interrupted"]),
+	},
 	"escape-floor-activated": { floorNumber },
 	"entrance-reminder": { goalFloor: floorNumber },
 	"item-equipped": { item: itemKind, slot, replaced: optional(itemKind) },

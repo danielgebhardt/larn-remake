@@ -9,14 +9,14 @@ import type {
 import type { GameState } from "../game/GameState";
 import { levelForExperience } from "../game/Progression";
 import { navigationRun } from "../objects/NavigationTerrain";
-import type { SaveDocumentV14 } from "./SaveDocumentV14";
+import type { SaveDocumentV15 } from "./SaveDocumentV15";
 import { validateSaveDocument } from "./SaveValidation";
 
-export const SAVE_FORMAT_VERSION = 14;
+export const SAVE_FORMAT_VERSION = 15;
 // Bound imported input before parsing. A maximum-size snapshot is measured in the review.
 export const MAX_SAVE_BYTES = 4 * 1024 * 1024;
 
-export type SaveDocument = SaveDocumentV14;
+export type SaveDocument = SaveDocumentV15;
 export type RestoredAdventure = {
 	state: GameState;
 	exploration: ExplorationState;
@@ -82,17 +82,19 @@ export const createSaveDocument = (
 				lastDamagedTurn: lastDamagedTurn ?? null,
 				awareness,
 				intent:
-					intent.type === "idle"
-						? { type: "idle" }
-						: intent.type === "preparing-area"
-							? {
-									type: "preparing-area",
-									target: { ...intent.target },
-									radius: intent.radius,
-									element: intent.element,
-									remaining: intent.remaining,
-								}
-							: { type: "preparing-attack", target: { ...intent.target } },
+					intent.type === "idle" || intent.type === "recovering-charge"
+						? { type: intent.type }
+						: intent.type === "preparing-charge"
+							? { type: "preparing-charge", target: { ...intent.target } }
+							: intent.type === "preparing-area"
+								? {
+										type: "preparing-area",
+										target: { ...intent.target },
+										radius: intent.radius,
+										element: intent.element,
+										remaining: intent.remaining,
+									}
+								: { type: "preparing-attack", target: { ...intent.target } },
 			}),
 		),
 		activityHistory: state.activityHistory,

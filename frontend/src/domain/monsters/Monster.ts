@@ -13,6 +13,8 @@ export type MonsterKind = keyof typeof monsterCatalog;
 
 export type MonsterIntent =
 	| { type: "idle" }
+	| { type: "preparing-charge"; target: Coordinate }
+	| { type: "recovering-charge" }
 	| { type: "preparing-attack"; target: Coordinate }
 	| {
 			type: "preparing-area";
@@ -50,6 +52,7 @@ export type MonsterDefinition = {
 	spawnWeight: number;
 	dropChance: number;
 	lootPreferences: Partial<Record<ItemKind, number>>;
+	chargeRange?: number;
 	rangedAttackRange?: number;
 	preparesAttack?: boolean;
 	// Disabled content can be exercised in encounters before seeded rollout.
@@ -95,6 +98,13 @@ export const validateMonsterDefinition = (
 		areaAttack,
 	} = definition;
 	if (
+		(definition.chargeRange !== undefined &&
+			(!Number.isInteger(definition.chargeRange) ||
+				definition.chargeRange < 2 ||
+				definition.chargeRange > 8 ||
+				preparesAttack ||
+				areaAttack ||
+				enemySpells)) ||
 		(actionInterval !== undefined &&
 			(!Number.isSafeInteger(actionInterval) || actionInterval < 1)) ||
 		(onHitCondition !== undefined && onHitCondition !== "poisoned") ||
@@ -161,6 +171,19 @@ export const validateMonsterDefinition = (
 		);
 };
 const monsterCatalog = {
+	"horned-charger": {
+		name: "horned charger",
+		minFloor: 5,
+		maxFloor: 20,
+		maxHealth: 14,
+		attackDamage: 5,
+		experienceReward: 10,
+		detectionRadius: 7,
+		spawnWeight: 1,
+		dropChance: 0.35,
+		lootPreferences: {},
+		chargeRange: 4,
+	},
 	goblin: {
 		name: "goblin",
 		experienceReward: 5,

@@ -15,6 +15,7 @@ import type { SaveDocumentV11 } from "./SaveDocumentV11";
 import type { SaveDocumentV12 } from "./SaveDocumentV12";
 import type { SaveDocumentV13 } from "./SaveDocumentV13";
 import type { SaveDocumentV14 } from "./SaveDocumentV14";
+import type { SaveDocumentV15 } from "./SaveDocumentV15";
 
 // Only migrate a structurally and semantically valid v1 snapshot. Preserve
 // played data; legacy monsters have no prepared attack to carry forward.
@@ -127,11 +128,14 @@ export const migratePlayedSave = (
 		| SaveDocumentV11
 		| SaveDocumentV12
 		| SaveDocumentV13
-		| SaveDocumentV14,
-): SaveDocumentV14 => {
-	if (document.version === 14) return document;
-	if (document.version === 13) return migrateSaveV13(document);
-	if (document.version === 12) return migrateSaveV13(migrateSaveV12(document));
+		| SaveDocumentV14
+		| SaveDocumentV15,
+): SaveDocumentV15 => {
+	if (document.version === 15) return document;
+	if (document.version === 14) return migrateSaveV14(document);
+	if (document.version === 13) return migrateSaveV14(migrateSaveV13(document));
+	if (document.version === 12)
+		return migrateSaveV14(migrateSaveV13(migrateSaveV12(document)));
 	const v4 = document.version === 3 ? migrateSaveV3(document) : document;
 	const v5 = v4.version === 4 ? migrateSaveV4(v4) : v4;
 	const v6 = v5.version === 5 ? migrateSaveV5(v5) : v5;
@@ -140,15 +144,17 @@ export const migratePlayedSave = (
 	const v9 = v8.version === 8 ? migrateSaveV8(v8) : v8;
 	const v10 = v9.version === 9 ? migrateSaveV9(v9) : v9;
 	const v11 = { ...v10, version: 11 as const };
-	return migrateSaveV13(
-		migrateSaveV12({
-			...v11,
-			version: 12,
-			state: {
-				...v11.state,
-				spellHotbar: [...v11.state.spellHotbar, null, null],
-			},
-		}),
+	return migrateSaveV14(
+		migrateSaveV13(
+			migrateSaveV12({
+				...v11,
+				version: 12,
+				state: {
+					...v11.state,
+					spellHotbar: [...v11.state.spellHotbar, null, null],
+				},
+			}),
+		),
 	);
 };
 
@@ -201,4 +207,9 @@ export const migrateSaveV13 = (document: SaveDocumentV13): SaveDocumentV14 => ({
 					}
 				: null,
 	},
+});
+
+export const migrateSaveV14 = (document: SaveDocumentV14): SaveDocumentV15 => ({
+	...document,
+	version: 15,
 });

@@ -59,7 +59,10 @@ import { emptyEquipmentSlotFor } from "./domain/items/Equipment";
 import { itemsAtPlayer } from "./domain/items/FloorItems";
 import { ITEM_DEFINITIONS } from "./domain/items/Item";
 import type { HotbarSlot } from "./domain/items/PotionHotbar";
-import { visibleAwarenessEvents } from "./domain/monsters/VisibleAwareness";
+import {
+	visibleAwarenessEvents,
+	visibleThreatHistory,
+} from "./domain/monsters/VisibleAwareness";
 import type { DungeonObject } from "./domain/objects/DungeonObject";
 import { navigationRun } from "./domain/objects/NavigationTerrain";
 import { objectChoices } from "./domain/objects/ObjectChoices";
@@ -315,16 +318,19 @@ const Home = ({
 							fogConfiguration.enabled ? nextExploration.visible : undefined,
 						)
 					: [];
+			const history = visibleThreatHistory(
+				current.state.activityHistory,
+				result.state.activityHistory,
+				result.state.monsters,
+				result.state.run.activeFloor,
+				fogConfiguration.enabled ? nextExploration.visible : undefined,
+			);
+			const projected = appendActivityEvents(history, events);
 			return {
-				state: events.length
-					? {
-							...result.state,
-							activityHistory: appendActivityEvents(
-								result.state.activityHistory,
-								events,
-							),
-						}
-					: result.state,
+				state:
+					projected === result.state.activityHistory
+						? result.state
+						: { ...result.state, activityHistory: projected },
 				actionError: "",
 				exploration: nextExploration,
 			};

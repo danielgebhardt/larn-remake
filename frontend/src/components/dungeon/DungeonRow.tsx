@@ -41,6 +41,7 @@ const DungeonCell = memo(function DungeonCell({
 	onTargetRequested,
 	threatened = false,
 	areaThreatened = false,
+	chargeThreatened = false,
 	inSpellArea = false,
 }: {
 	rowIndex: number;
@@ -58,6 +59,7 @@ const DungeonCell = memo(function DungeonCell({
 	onTargetRequested?: (id: string) => void;
 	threatened?: boolean;
 	areaThreatened?: boolean;
+	chargeThreatened?: boolean;
 	inSpellArea?: boolean;
 }) {
 	const showsPile =
@@ -89,15 +91,17 @@ const DungeonCell = memo(function DungeonCell({
 	return (
 		<td
 			ref={playerRef}
-			aria-label={`row${rowIndex}col${columnIndex}${label ? ` - ${label}` : ""}${threatened ? " - prepared heavy attack" : ""}${inSpellArea ? " - spell area" : ""}${areaThreatened ? " - prepared area attack" : ""}`}
+			aria-label={`row${rowIndex}col${columnIndex}${label ? ` - ${label}` : ""}${threatened ? " - prepared heavy attack" : ""}${inSpellArea ? " - spell area" : ""}${areaThreatened ? " - prepared area attack" : ""}${chargeThreatened ? " - prepared charge" : ""}`}
 			title={
-				areaThreatened
-					? "Prepared area attack: leave the highlighted tiles before the blast."
-					: threatened
-						? "Prepared heavy attack: move away to dodge."
-						: showsPile
-							? `${itemCount} items on this tile. Press G to choose one.`
-							: undefined
+				chargeThreatened
+					? "Prepared charge: sidestep the highlighted line."
+					: areaThreatened
+						? "Prepared area attack: leave the highlighted tiles before the blast."
+						: threatened
+							? "Prepared heavy attack: move away to dodge."
+							: showsPile
+								? `${itemCount} items on this tile. Press G to choose one.`
+								: undefined
 			}
 			data-visibility={visibility}
 			className={`relative size-[var(--dungeon-tile-size)] ${background}`}
@@ -135,7 +139,7 @@ const DungeonCell = memo(function DungeonCell({
 					className="pointer-events-none absolute inset-0 rounded-xs border-2 border-violet-500 bg-violet-500/20 dark:border-violet-300"
 				/>
 			)}
-			{(threatened || areaThreatened) && (
+			{(threatened || areaThreatened || chargeThreatened) && (
 				<span
 					aria-hidden="true"
 					className="pointer-events-none absolute inset-0 rounded-xs border-2 border-map-threat bg-map-threat/15"
@@ -171,6 +175,7 @@ const DungeonRow = memo(
 		onTargetRequested,
 		threatColumns,
 		areaThreatColumns,
+		chargeColumns,
 		spellColumns,
 	}: {
 		row: readonly string[];
@@ -190,6 +195,7 @@ const DungeonRow = memo(
 		onTargetRequested?: (id: string) => void;
 		threatColumns?: readonly number[];
 		areaThreatColumns?: readonly number[];
+		chargeColumns?: readonly number[];
 		spellColumns?: readonly number[];
 	}) {
 		return (
@@ -236,6 +242,10 @@ const DungeonRow = memo(
 								visibility === "visible" &&
 								(spellColumns?.includes(columnIndex) ?? false)
 							}
+							chargeThreatened={
+								visibility === "visible" &&
+								(chargeColumns?.includes(columnIndex) ?? false)
+							}
 							areaThreatened={
 								visibility === "visible" &&
 								(areaThreatColumns?.includes(columnIndex) ?? false)
@@ -280,6 +290,11 @@ const DungeonRow = memo(
 		);
 	},
 	(previous, next) =>
+		(previous.chargeColumns?.length ?? 0) ===
+			(next.chargeColumns?.length ?? 0) &&
+		(previous.chargeColumns ?? []).every(
+			(column, index) => column === next.chargeColumns?.[index],
+		) &&
 		(previous.spellColumns?.length ?? 0) === (next.spellColumns?.length ?? 0) &&
 		(previous.spellColumns ?? []).every(
 			(column, index) => column === next.spellColumns?.[index],

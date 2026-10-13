@@ -12,6 +12,12 @@ export const formatActivityEvent = (event: ActivityEvent): string => {
 	switch (event.type) {
 		case "escape-floor-activated":
 			return `${prefix}The hunted return reaches floor ${event.floorNumber}.`;
+		case "monster-charge-prepared":
+			return `${prefix}The ${MONSTER_DEFINITIONS[event.monster].name} lowers its horns. Sidestep the marked charge line!`;
+		case "monster-charge-hit":
+			return `${prefix}The ${MONSTER_DEFINITIONS[event.monster].name} charges into you for ${event.damage} damage.`;
+		case "monster-charge-ended":
+			return `${prefix}The ${MONSTER_DEFINITIONS[event.monster].name}’s charge is ${event.outcome}. It pauses to recover.`;
 		case "escape-started":
 			return `${prefix}The cure awakens the dungeon. You are hunted: return to the entrance on floor 1.`;
 		case "monster-awareness-changed":

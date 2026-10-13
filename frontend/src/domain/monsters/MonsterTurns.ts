@@ -24,6 +24,7 @@ import { chooseEnemySpell } from "./EnemyCasting";
 import { MONSTER_DEFINITIONS } from "./Monster";
 import { resolveMonsterArea } from "./MonsterAreaAttack";
 import { advanceUnseenPursuit } from "./MonsterAwareness";
+import { resolveMonsterCharge } from "./MonsterCharge";
 import { orthogonalDistance } from "./MonsterLocations";
 import { detectsPlayer, selectPursuitStep } from "./MonsterPursuit";
 import { selectRetreatStep } from "./MonsterRetreat";
@@ -136,6 +137,29 @@ export const resolveMonsterPhase = (
 				);
 			continue;
 		}
+		const charge = resolveMonsterCharge(
+			{ ...state, run: navigation },
+			monster,
+			monsters,
+			rollSource,
+			detected,
+		);
+		if (charge) {
+			monsters = monsters.map((actor) =>
+				actor.id === monster.id ? charge.monster : actor,
+			);
+			events.push(...charge.events);
+			if (charge.damage !== undefined) {
+				player = {
+					...player,
+					health: Math.max(0, player.health - charge.damage),
+				};
+				if (player.health === 0)
+					events.push({ type: "player-died", turn: state.turn });
+			}
+			continue;
+		}
+
 		const area = resolveMonsterArea(
 			{ ...state, run: navigation },
 			monster,

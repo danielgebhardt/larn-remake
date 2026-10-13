@@ -9,6 +9,19 @@ import type { SpellKind } from "./Spells";
 import type { EffectKind } from "./TimedEffects";
 
 export type ActivityEvent = { turn: number } & (
+	| {
+			type: "monster-charge-prepared";
+			actorId: string;
+			monster: MonsterKind;
+			target: Coordinate;
+	  }
+	| { type: "monster-charge-hit"; monster: MonsterKind; damage: number }
+	| {
+			type: "monster-charge-ended";
+			actorId: string;
+			monster: MonsterKind;
+			outcome: "blocked" | "avoided" | "missed" | "interrupted";
+	  }
 	| { type: "escape-started" }
 	| { type: "escape-floor-activated"; floorNumber: number }
 	| {

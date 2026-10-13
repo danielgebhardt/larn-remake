@@ -23,6 +23,10 @@ export const monsterTraits = (kind: MonsterKind): readonly string[] => {
 		traits.push(
 			"Landed hits poison: 1 damage per phase for 3 phases; refreshes without stacking.",
 		);
+	if (definition.chargeRange)
+		traits.push(
+			`Prepares a straight charge up to ${definition.chargeRange} tiles. Sidestep or interrupt it; it spends the following phase recovering.`,
+		);
 	if (definition.areaAttack) {
 		const area = definition.areaAttack;
 		traits.push(

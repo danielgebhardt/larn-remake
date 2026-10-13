@@ -11,7 +11,9 @@ import { FLOOR } from "../../domain/dungeon/Tiles";
 import type { VisibilityGrid } from "../../domain/dungeon/Visibility.ts";
 import { spellArea as areaFootprint } from "../../domain/game/AreaSpells";
 import type { FloorItem } from "../../domain/items/FloorItems";
+import { MONSTER_DEFINITIONS } from "../../domain/monsters/Monster";
 import type { Monster } from "../../domain/monsters/Monster.ts";
+import { chargeLine } from "../../domain/monsters/MonsterCharge";
 import type { DungeonObject } from "../../domain/objects/DungeonObject";
 import DungeonRow from "./DungeonRow.tsx";
 import { getScrollOffset } from "./MapScroll.ts";
@@ -81,18 +83,36 @@ const DungeonLayout = ({
 	const threatRows = useMemo(() => {
 		const heavy = new Map<number, Set<number>>();
 		const area = new Map<number, Set<number>>();
+		const charge = new Map<number, Set<number>>();
 		for (const monster of monsters) {
-			if (monster.health <= 0 || monster.intent.type === "idle") continue;
+			if (
+				monster.health <= 0 ||
+				monster.intent.type === "idle" ||
+				monster.intent.type === "recovering-charge"
+			)
+				continue;
 			const sourceVisible =
 				visible === undefined ||
 				visible[monster.coordinate.row]?.[monster.coordinate.col];
 			if (!sourceVisible) continue;
 			const intent = monster.intent;
 			const targets =
-				intent.type === "preparing-area"
-					? areaFootprint(dungeon, intent.target, intent.radius)
-					: [intent.target];
-			const rows = intent.type === "preparing-area" ? area : heavy;
+				intent.type === "preparing-charge"
+					? chargeLine(
+							dungeon,
+							monster.coordinate,
+							intent.target,
+							MONSTER_DEFINITIONS[monster.kind].chargeRange ?? 0,
+						)
+					: intent.type === "preparing-area"
+						? areaFootprint(dungeon, intent.target, intent.radius)
+						: [intent.target];
+			const rows =
+				intent.type === "preparing-charge"
+					? charge
+					: intent.type === "preparing-area"
+						? area
+						: heavy;
 			for (const target of targets) {
 				const targetVisible =
 					visible === undefined ||
@@ -113,7 +133,7 @@ const DungeonLayout = ({
 					[...columns].sort((a, b) => a - b),
 				]),
 			);
-		return { heavy: sorted(heavy), area: sorted(area) };
+		return { heavy: sorted(heavy), charge: sorted(charge), area: sorted(area) };
 	}, [monsters, visible, dungeon, playerPosition.row, playerPosition.col]);
 	const objectRows = useMemo(() => {
 		const rows = new Map<number, DungeonObject[]>();
@@ -232,6 +252,7 @@ const DungeonLayout = ({
 							dungeonObjects={objectRows.get(rowIndex)}
 							threatColumns={threatRows.heavy.get(rowIndex)}
 							areaThreatColumns={threatRows.area.get(rowIndex)}
+							chargeColumns={threatRows.charge.get(rowIndex)}
 							spellColumns={spellRows.get(rowIndex)}
 							visible={visible?.[rowIndex]}
 							explored={explored?.[rowIndex]}

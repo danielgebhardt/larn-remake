@@ -50,5 +50,5 @@ it("necromancers cast Shock without creating new actors", () => {
 		spell: "shock",
 	});
 });
-it("completes a twenty-kind creature catalog", () =>
-	expect(Object.keys(MONSTER_DEFINITIONS)).toHaveLength(20));
+it("retains at least twenty creature kinds as the bestiary expands", () =>
+	expect(Object.keys(MONSTER_DEFINITIONS).length).toBeGreaterThanOrEqual(20));

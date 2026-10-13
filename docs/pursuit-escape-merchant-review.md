@@ -99,3 +99,9 @@ Eligible empty side rooms on floors 8–20 have a seeded 20% opportunity, with a
 The gate uses a colored door with a skull and an explicit accessible label. Closed gates block movement, sight and enemy navigation. Opening requires an explicit domain choice; the next story exposes its warning/confirmation UI. Actual gate and champion ownership use the existing save schema. Imports reject gates that fail the optional-room proof. Random relocation and escape reinforcements exclude sealed chambers so they cannot force participation.
 
 Validation: geometry tests cover alternate entrances and required objectives; generated 10/60/100×20-floor maps verify deterministic placement, navigation, return-spawn exclusion and save continuation. Ordinary generated population remains unchanged.
+
+## #251 — Deliberate elite-gate opening
+
+E inspects a closed elite gate using the existing numbered object dialog. It explains the champion's health, fixed charge/recovery, arcane resistance/cold weakness and guaranteed equipment reward. Opening is explicit; movement bumps cannot open it. Inspection/Escape use no turn, while opening runs one ordinary monster phase. Once opened, E can close an unoccupied gate, and reopening requires the same deliberate choice. Escape pressure cannot open gates automatically.
+
+Validation: Home tests exercise cancel, blocked movement shortcuts, number selection, mouse selection and map focus restoration; domain tests verify sealed actors, a committed opening response and exact save/resume continuation. Browser review used a generated floor-eight gate, not a hand-carved demonstration map.

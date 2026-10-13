@@ -11,7 +11,6 @@ import {
 	type SubmitEvent,
 	Suspense,
 	useEffect,
-	useMemo,
 	useRef,
 	useState,
 } from "react";
@@ -29,6 +28,7 @@ import PlayerStatus from "./components/game/PlayerStatus.tsx";
 import PotionHotbarView from "./components/game/PotionHotbarView";
 import QuestStatus from "./components/game/QuestStatus";
 import SpellHotbarView from "./components/game/SpellHotbarView";
+import { useAdventureSession } from "./components/game/useAdventureSession";
 import { useSpellTargeting } from "./components/game/useSpellTargeting";
 import VictoryDialog from "./components/game/VictoryDialog";
 import VisibleEffects from "./components/game/VisibleEffects";
@@ -36,43 +36,23 @@ import MerchantDialog from "./components/merchant/MerchantDialog";
 import ObjectChoiceDialog from "./components/objects/ObjectChoiceDialog";
 import ObjectContext from "./components/objects/ObjectContext";
 import {
-	connectDungeonFloors,
-	type DungeonRun,
-	generateDungeonRun,
-} from "./domain/dungeon/DungeonRun.ts";
-import { updateExploration } from "./domain/dungeon/Exploration.ts";
-import {
 	DEFAULT_FOG_CONFIGURATION,
 	DEFAULT_RUN_CONFIGURATION,
 	type FogConfiguration,
 	type RunConfiguration,
 } from "./domain/dungeon/RunConfiguration.ts";
 import { MAX_SEED, parseSeedInput } from "./domain/dungeon/Seed.ts";
-import { appendActivityEvents } from "./domain/game/ActivityHistory";
 import type { VictorySummary } from "./domain/game/Adventure";
-import { createGameState } from "./domain/game/GameState.ts";
-import {
-	type PlayerAction,
-	resolvePlayerAction,
-} from "./domain/game/PlayerActions.ts";
 import { canAddToBag } from "./domain/items/Bag";
 import { emptyEquipmentSlotFor } from "./domain/items/Equipment";
-import { itemsAtPlayer } from "./domain/items/FloorItems";
 import { ITEM_DEFINITIONS } from "./domain/items/Item";
 import type { HotbarSlot } from "./domain/items/PotionHotbar";
-import { objectAvailable } from "./domain/merchant/MerchantAvailability";
-import {
-	visibleAwarenessEvents,
-	visibleThreatHistory,
-} from "./domain/monsters/VisibleAwareness";
 import { type DungeonObject, isDoor } from "./domain/objects/DungeonObject";
-import { navigationRun } from "./domain/objects/NavigationTerrain";
 import { objectChoices } from "./domain/objects/ObjectChoices";
 import { nearbyInteractionObjects } from "./domain/objects/ObjectInteraction";
 import {
 	createSaveDocument,
 	type RestoredAdventure,
-	restoreSave,
 	type SaveDocument,
 } from "./domain/saves/SaveFormat";
 import Header from "./Header.tsx";
@@ -88,16 +68,6 @@ const DeveloperCatalog = lazy(
 	() => import("./components/game/DeveloperCatalog"),
 );
 
-const createRun = (
-	seed: number,
-	configuration: RunConfiguration,
-): DungeonRun => {
-	const { floorCount, ...dungeonConfig } = configuration;
-	return connectDungeonFloors(
-		generateDungeonRun(seed, floorCount, dungeonConfig),
-	);
-};
-
 type HomeProps = {
 	initialFogConfiguration?: FogConfiguration;
 	initialSeed?: number;
@@ -111,26 +81,26 @@ const Home = ({
 	initialAdventure,
 	initialConfiguration = DEFAULT_RUN_CONFIGURATION,
 }: HomeProps) => {
-	const [fogConfiguration, setFogConfiguration] = useState(
-		initialAdventure?.fog ?? initialFogConfiguration,
-	);
-	const [game, setGame] = useState(() => {
-		if (initialAdventure)
-			return {
-				state: initialAdventure.state,
-				exploration: initialAdventure.exploration,
-				actionError: "",
-			};
-		const run = createRun(initialSeed ?? 0, initialConfiguration);
-		const state = createGameState(run);
-		return {
-			state,
-			exploration: updateExploration(
-				navigationRun(state),
-				fogConfiguration.radius,
-			),
-			actionError: "",
-		};
+	const {
+		game,
+		configuration,
+		fogConfiguration,
+		currentItems,
+		activeFloor,
+		activeObjects,
+		activeMonsters,
+		activeItems,
+		start,
+		restore,
+		requestAction: handleActionRequested,
+		setActionError,
+		setFogEnabled,
+		applyFogRadius: handleFogRadiusApply,
+	} = useAdventureSession({
+		initialSeed,
+		initialAdventure,
+		initialConfiguration,
+		initialFogConfiguration,
 	});
 	const { run, turn, player } = game.state;
 	const [dismissedVictory, setDismissedVictory] =
@@ -141,9 +111,6 @@ const Home = ({
 	const victoryOpen = victory !== null && dismissedVictory !== victory;
 	const canPlay = player.health > 0 && victory === null;
 	const { exploration } = game;
-	const [configuration, setConfiguration] = useState(
-		initialAdventure?.configuration ?? initialConfiguration,
-	);
 	const [configDraft, setConfigDraft] = useState(() =>
 		configurationDraft(initialAdventure?.configuration ?? initialConfiguration),
 	);
@@ -182,68 +149,28 @@ const Home = ({
 		setHelpOpen(false);
 		setCatalogOpen(false);
 	}, [deathOpen]);
-	const currentItems = itemsAtPlayer(game.state);
 	// Empty loot or death ends selection; later movement must not reopen it.
 	useEffect(() => {
 		if (pickupOpen && (currentItems.length === 0 || player.health <= 0))
 			setPickupOpen(false);
 	}, [pickupOpen, currentItems.length, player.health]);
 
-	const activeFloor = navigationRun(game.state).floors[run.activeFloor - 1];
-	const activeObjects = useMemo(
-		() =>
-			game.state.objects.filter(
-				(object) =>
-					object.floorNumber === run.activeFloor &&
-					objectAvailable(object) &&
-					!(object.kind === "gold" && object.activated),
-			),
-		[game.state.objects, run.activeFloor],
-	);
-	const activeMonsters = useMemo(
-		() =>
-			game.state.monsters.filter(
-				(monster) =>
-					monster.floorNumber === run.activeFloor && monster.health > 0,
-			),
-		[game.state.monsters, run.activeFloor],
-	);
-	const activeItems = useMemo(
-		() =>
-			game.state.floorItems.filter(
-				(item) => item.floorNumber === run.activeFloor,
-			),
-		[game.state.floorItems, run.activeFloor],
-	);
 	const startRun = (
 		seed: number,
 		nextConfiguration: RunConfiguration,
 	): boolean => {
-		let nextRun: DungeonRun;
-		try {
-			nextRun = createRun(seed, nextConfiguration);
-		} catch {
+		if (!start(seed, nextConfiguration)) {
 			setGenerationError(
 				"Could not create a dungeon with this seed and configuration. Try a different seed or larger dimensions.",
 			);
 			setSettingsOpen(true);
 			return false;
 		}
-		const nextState = createGameState(nextRun);
-		setGame({
-			state: nextState,
-			exploration: updateExploration(
-				navigationRun(nextState),
-				fogConfiguration.radius,
-			),
-			actionError: "",
-		});
 		setPickupOpen(false);
 		setDismissedDeath(false);
 		setInteractionObject(null);
 		setInteractionTargets([]);
 		setMerchantId(null);
-		setConfiguration(nextConfiguration);
 		setConfigDraft(configurationDraft(nextConfiguration));
 		setConfigErrors({});
 		setGenerationError(null);
@@ -253,20 +180,13 @@ const Home = ({
 	};
 
 	const handleRestore = (document: SaveDocument) => {
-		const loaded = restoreSave(document);
-		setFogConfiguration(loaded.fog);
-		setConfiguration(loaded.configuration);
+		const loaded = restore(document);
 		setConfigDraft(configurationDraft(loaded.configuration));
 		setConfigErrors({});
 		setGenerationError(null);
 		setSeedInput(String(loaded.state.run.seed));
 		setSeedError(null);
 		setDismissedVictory(null);
-		setGame({
-			state: loaded.state,
-			exploration: loaded.exploration,
-			actionError: "",
-		});
 		setPickupOpen(false);
 		setDismissedDeath(false);
 		setInteractionObject(null);
@@ -300,55 +220,11 @@ const Home = ({
 		if (startRun(seed, parsed.value)) setSettingsOpen(false);
 	};
 
-	const handleActionRequested = (action: PlayerAction) => {
-		setGame((current) => {
-			const result = resolvePlayerAction(current.state, action);
-			if (result.error) return { ...current, actionError: result.error };
-			if (result.state === current.state && !current.actionError)
-				return current;
-			const nextExploration = result.turnAdvanced
-				? updateExploration(
-						navigationRun(result.state),
-						fogConfiguration.radius,
-						current.exploration,
-					)
-				: current.exploration;
-			const events =
-				result.turnAdvanced &&
-				result.state.player.health > 0 &&
-				!result.state.quest.victory
-					? visibleAwarenessEvents(
-							current.state.monsters,
-							result.state.monsters,
-							result.state.run.activeFloor,
-							result.state.turn,
-							fogConfiguration.enabled ? nextExploration.visible : undefined,
-						)
-					: [];
-			const history = visibleThreatHistory(
-				current.state.activityHistory,
-				result.state.activityHistory,
-				result.state.monsters,
-				result.state.run.activeFloor,
-				fogConfiguration.enabled ? nextExploration.visible : undefined,
-			);
-			const projected = appendActivityEvents(history, events);
-			return {
-				state:
-					projected === result.state.activityHistory
-						? result.state
-						: { ...result.state, activityHistory: projected },
-				actionError: "",
-				exploration: nextExploration,
-			};
-		});
-	};
-
 	const selectInteractionObject = (object: DungeonObject) => {
 		if (object.kind === "merchant") {
 			setMerchantId(object.id);
 			setInteractionTargets([]);
-			setGame((current) => ({ ...current, actionError: "" }));
+			setActionError("");
 			return;
 		}
 		if (!object.activated && objectChoices(object).length)
@@ -389,7 +265,7 @@ const Home = ({
 		fogConfiguration.enabled ? exploration.visible : undefined,
 		gameplayEnabled,
 		handleActionRequested,
-		(message) => setGame((current) => ({ ...current, actionError: message })),
+		setActionError,
 		() => mapRef.current?.focus({ preventScroll: true }),
 	);
 
@@ -398,17 +274,6 @@ const Home = ({
 		mapRef.current?.focus({ preventScroll: true });
 	};
 
-	const handleFogRadiusApply = (radius: number) => {
-		setFogConfiguration((current) => ({ ...current, radius }));
-		setGame((current) => ({
-			...current,
-			exploration: updateExploration(
-				navigationRun(current.state),
-				radius,
-				current.exploration,
-			),
-		}));
-	};
 	const handlePickupRequested = () => {
 		const cure = currentItems.find((entry) => entry.item.kind === "cure");
 		if (cure) {
@@ -417,10 +282,7 @@ const Home = ({
 		}
 
 		if (currentItems.length === 0) {
-			setGame((current) => ({
-				...current,
-				actionError: "No items on this tile.",
-			}));
+			setActionError("No items on this tile.");
 		} else if (
 			currentItems.length === 1 ||
 			currentItems.every(
@@ -436,7 +298,7 @@ const Home = ({
 				itemId: currentItems[0].item.id,
 			});
 		} else {
-			setGame((current) => ({ ...current, actionError: "" }));
+			setActionError("");
 			setPickupOpen(true);
 		}
 	};
@@ -531,9 +393,7 @@ const Home = ({
 						<DungeonSettings
 							finalFocus={mapInputAvailable ? mapRef : false}
 							fogConfiguration={fogConfiguration}
-							onFogEnabledChange={(enabled) =>
-								setFogConfiguration((current) => ({ ...current, enabled }))
-							}
+							onFogEnabledChange={setFogEnabled}
 							onFogRadiusApply={handleFogRadiusApply}
 							seed={run.seed}
 							seedInput={seedInput}
@@ -656,10 +516,9 @@ const Home = ({
 							const spell = game.state.spellHotbar[slot - 1];
 							if (spell) spells.activate(spell);
 							else
-								setGame((current) => ({
-									...current,
-									actionError: `Spell slot ${slot} is empty. Assign a spell in Character.`,
-								}));
+								setActionError(
+									`Spell slot ${slot} is empty. Assign a spell in Character.`,
+								);
 						}}
 						onTargetingKey={spells.targeting ? spells.handleKey : undefined}
 						targetIds={spells.targetIds}

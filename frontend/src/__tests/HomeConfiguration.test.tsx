@@ -2,6 +2,7 @@ import { screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import * as DungeonRun from "../domain/dungeon/DungeonRun.ts";
+import * as GameState from "../domain/game/GameState.ts";
 import {
 	closeSettings,
 	DEFAULT_DUNGEON_CONFIG,
@@ -60,7 +61,7 @@ describe("Home dungeon configuration", () => {
 		expect(screen.getAllByRole("alert")).toHaveLength(2);
 	});
 
-	it.each(["terrain", "stairs"])(
+	it.each(["terrain", "stairs", "content"])(
 		"preserves the run and active configuration when %s generation fails, then allows retry",
 		async (stage) => {
 			const run = createThreeFloorTraversalRun();
@@ -70,6 +71,7 @@ describe("Home dungeon configuration", () => {
 			const connect = vi
 				.spyOn(DungeonRun, "connectDungeonFloors")
 				.mockReturnValue(run);
+			const content = vi.spyOn(GameState, "createGameState");
 			const user = userEvent.setup();
 			render(<Home />);
 			await user.keyboard("{ArrowRight}");
@@ -77,7 +79,12 @@ describe("Home dungeon configuration", () => {
 			const original = readDungeonCells(board);
 			await openSettings(user);
 			await editConfiguration(user, { rows: "10", columns: "10", floors: "6" });
-			(stage === "terrain" ? generate : connect).mockImplementationOnce(() => {
+			(stage === "terrain"
+				? generate
+				: stage === "stairs"
+					? connect
+					: content
+			).mockImplementationOnce(() => {
 				throw new Error("generation failed");
 			});
 			await user.click(screen.getByRole("button", { name: "Start from seed" }));

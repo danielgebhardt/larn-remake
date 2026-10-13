@@ -144,3 +144,9 @@ Use [Larn's monsters](https://larn.fandom.com/wiki/Monsters), [spells](https://l
 | Current alpha polish #216/#226 | [Inventory review](docs/alpha-polish-review.md), [exploration/status review](docs/release-polish-review.md) |
 
 Completed milestone details live in these review guides and GitHub stories. They should not reappear as outstanding roadmap work.
+
+## Engineering follow-up from October 13 review
+
+Epic [#274](https://github.com/danielgebhardt/larn-remake/issues/274) contains session ownership #275 and save-validation ownership #276. Review notes: [session/save maintainability](docs/session-save-maintainability-review.md).
+
+Backlog: declared-toolchain CI and browser smoke coverage [#277](https://github.com/danielgebhardt/larn-remake/issues/277), measured startup/dialog splitting [#278](https://github.com/danielgebhardt/larn-remake/issues/278), and fixed Small/Medium/Large start-dialog choices [#279](https://github.com/danielgebhardt/larn-remake/issues/279) after or alongside difficulty #213. Size and difficulty should remain separate choices; confirm the three dimensions during that work.

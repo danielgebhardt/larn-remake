@@ -1,0 +1,199 @@
+import { useMemo, useState } from "react";
+import {
+	connectDungeonFloors,
+	type DungeonRun,
+	generateDungeonRun,
+} from "../../domain/dungeon/DungeonRun";
+import { updateExploration } from "../../domain/dungeon/Exploration";
+import type {
+	FogConfiguration,
+	RunConfiguration,
+} from "../../domain/dungeon/RunConfiguration";
+import { appendActivityEvents } from "../../domain/game/ActivityHistory";
+import { createGameState } from "../../domain/game/GameState";
+import {
+	type PlayerAction,
+	resolvePlayerAction,
+} from "../../domain/game/PlayerActions";
+import { itemsAtPlayer } from "../../domain/items/FloorItems";
+import { objectAvailable } from "../../domain/merchant/MerchantAvailability";
+import {
+	visibleAwarenessEvents,
+	visibleThreatHistory,
+} from "../../domain/monsters/VisibleAwareness";
+import { navigationRun } from "../../domain/objects/NavigationTerrain";
+import {
+	type RestoredAdventure,
+	restoreSave,
+	type SaveDocument,
+} from "../../domain/saves/SaveFormat";
+
+const createRun = (
+	seed: number,
+	configuration: RunConfiguration,
+): DungeonRun => {
+	const { floorCount, ...dungeonConfig } = configuration;
+	return connectDungeonFloors(
+		generateDungeonRun(seed, floorCount, dungeonConfig),
+	);
+};
+
+type Session = RestoredAdventure & { actionError: string };
+type SessionOptions = {
+	initialSeed?: number;
+	initialAdventure?: RestoredAdventure;
+	initialConfiguration: RunConfiguration;
+	initialFogConfiguration: FogConfiguration;
+};
+
+const newSession = (
+	seed: number,
+	configuration: RunConfiguration,
+	fog: FogConfiguration,
+): Session => {
+	const state = createGameState(createRun(seed, configuration));
+	return {
+		state,
+		configuration,
+		fog,
+		exploration: updateExploration(navigationRun(state), fog.radius),
+		actionError: "",
+	};
+};
+
+// One state replacement keeps terrain, resources, settings and discovery together.
+// Dialog lifecycle and focus belong to Home, not to the adventure session.
+export const useAdventureSession = ({
+	initialSeed,
+	initialAdventure,
+	initialConfiguration,
+	initialFogConfiguration,
+}: SessionOptions) => {
+	const [session, setSession] = useState<Session>(() =>
+		initialAdventure
+			? { ...initialAdventure, actionError: "" }
+			: newSession(
+					initialSeed ?? 0,
+					initialConfiguration,
+					initialFogConfiguration,
+				),
+	);
+	const { run } = session.state;
+	const currentItems = itemsAtPlayer(session.state);
+	const activeFloor = navigationRun(session.state).floors[run.activeFloor - 1];
+	const activeObjects = useMemo(
+		() =>
+			session.state.objects.filter(
+				(object) =>
+					object.floorNumber === run.activeFloor &&
+					objectAvailable(object) &&
+					!(object.kind === "gold" && object.activated),
+			),
+		[session.state.objects, run.activeFloor],
+	);
+	const activeMonsters = useMemo(
+		() =>
+			session.state.monsters.filter(
+				(monster) =>
+					monster.floorNumber === run.activeFloor && monster.health > 0,
+			),
+		[session.state.monsters, run.activeFloor],
+	);
+	const activeItems = useMemo(
+		() =>
+			session.state.floorItems.filter(
+				(item) => item.floorNumber === run.activeFloor,
+			),
+		[session.state.floorItems, run.activeFloor],
+	);
+
+	const start = (seed: number, configuration: RunConfiguration): boolean => {
+		try {
+			const next = newSession(seed, configuration, session.fog);
+			setSession(next);
+			return true;
+		} catch {
+			return false;
+		}
+	};
+	const restore = (document: SaveDocument) => {
+		const loaded = restoreSave(document);
+		setSession({ ...loaded, actionError: "" });
+		return loaded;
+	};
+	const setActionError = (actionError: string) =>
+		setSession((current) => ({ ...current, actionError }));
+	const setFogEnabled = (enabled: boolean) =>
+		setSession((current) => ({ ...current, fog: { ...current.fog, enabled } }));
+	const applyFogRadius = (radius: number) =>
+		setSession((current) => ({
+			...current,
+			fog: { ...current.fog, radius },
+			exploration: updateExploration(
+				navigationRun(current.state),
+				radius,
+				current.exploration,
+			),
+		}));
+	const requestAction = (action: PlayerAction) => {
+		setSession((current) => {
+			const result = resolvePlayerAction(current.state, action);
+			if (result.error) return { ...current, actionError: result.error };
+			if (result.state === current.state && !current.actionError)
+				return current;
+			const nextExploration = result.turnAdvanced
+				? updateExploration(
+						navigationRun(result.state),
+						current.fog.radius,
+						current.exploration,
+					)
+				: current.exploration;
+			const events =
+				result.turnAdvanced &&
+				result.state.player.health > 0 &&
+				!result.state.quest.victory
+					? visibleAwarenessEvents(
+							current.state.monsters,
+							result.state.monsters,
+							result.state.run.activeFloor,
+							result.state.turn,
+							current.fog.enabled ? nextExploration.visible : undefined,
+						)
+					: [];
+			const history = visibleThreatHistory(
+				current.state.activityHistory,
+				result.state.activityHistory,
+				result.state.monsters,
+				result.state.run.activeFloor,
+				current.fog.enabled ? nextExploration.visible : undefined,
+			);
+			const projected = appendActivityEvents(history, events);
+			return {
+				...current,
+				state:
+					projected === result.state.activityHistory
+						? result.state
+						: { ...result.state, activityHistory: projected },
+				actionError: "",
+				exploration: nextExploration,
+			};
+		});
+	};
+
+	return {
+		game: session,
+		configuration: session.configuration,
+		fogConfiguration: session.fog,
+		currentItems,
+		activeFloor,
+		activeObjects,
+		activeMonsters,
+		activeItems,
+		start,
+		restore,
+		requestAction,
+		setActionError,
+		setFogEnabled,
+		applyFogRadius,
+	};
+};

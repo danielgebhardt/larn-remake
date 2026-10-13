@@ -27,8 +27,9 @@ describe("Heal activation", () => {
 		"self-casts with %s and removes low-health feedback",
 		async (method) => {
 			const user = setup();
-			expect(screen.getByLabelText("Player health")).toHaveTextContent(
-				"Low health",
+			expect(screen.getByRole("region", { name: "Adventure" })).toHaveAttribute(
+				"data-low-health",
+				"true",
 			);
 			if (method === "H") await user.keyboard("H");
 			else
@@ -36,8 +37,9 @@ describe("Heal activation", () => {
 			expect(screen.getByLabelText("Player health")).toHaveTextContent(
 				"Health 8 / 10",
 			);
-			expect(screen.getByLabelText("Player health")).not.toHaveTextContent(
-				"Low health",
+			expect(screen.getByRole("region", { name: "Adventure" })).toHaveAttribute(
+				"data-low-health",
+				"false",
 			);
 			expect(screen.getByLabelText("Player mana")).toHaveTextContent(
 				"Mana 6 / 10",

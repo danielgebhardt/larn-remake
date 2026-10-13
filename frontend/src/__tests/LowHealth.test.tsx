@@ -14,20 +14,23 @@ import Home from "./TestHome";
 afterEach(resetHomeTestState);
 
 describe("Low-health feedback", () => {
-	it.each([1, 5, 8])("warns at %i HP even with a larger maximum", (health) => {
-		render(
-			<HealthDisplay
-				player={{ health, maxHealth: 18 }}
-				label="Player health"
-			/>,
-		);
-		const output = screen.getByLabelText("Player health");
-		expect(output).toHaveTextContent(`Health ${health} / 18`);
-		expect(within(output).getByText("Low health")).toBeVisible();
-		expect(
-			within(output).getByText(String(health), { exact: true }),
-		).toHaveClass("text-destructive");
-	});
+	it.each([1, 5, 8])(
+		"highlights %i HP even with a larger maximum",
+		(health) => {
+			render(
+				<HealthDisplay
+					player={{ health, maxHealth: 18 }}
+					label="Player health"
+				/>,
+			);
+			const output = screen.getByLabelText("Player health");
+			expect(output).toHaveTextContent(`Health ${health} / 18`);
+			expect(screen.queryByText("Low health")).not.toBeInTheDocument();
+			expect(
+				within(output).getByText(String(health), { exact: true }),
+			).toHaveClass("text-destructive");
+		},
+	);
 	it.each([0, 9, 18])(
 		"does not show the living-player warning at %i HP",
 		(health) => {
@@ -40,7 +43,7 @@ describe("Low-health feedback", () => {
 			expect(screen.queryByText("Low health")).not.toBeInTheDocument();
 		},
 	);
-	it("updates the number and warning when health grows above the threshold", () => {
+	it("updates the number and color when health grows above the threshold", () => {
 		const { rerender } = render(
 			<HealthDisplay
 				player={{ health: 4, maxHealth: 10 }}
@@ -57,8 +60,13 @@ describe("Low-health feedback", () => {
 			"Health 7 / 12",
 		);
 		expect(screen.queryByText("Low health")).not.toBeInTheDocument();
+		expect(
+			within(screen.getByLabelText("Player health")).getByText("7", {
+				exact: true,
+			}),
+		).not.toHaveClass("text-destructive");
 	});
-	it("warns after damage, shares the Character treatment, and clears after a potion", async () => {
+	it("highlights damage in both views and clears after a potion", async () => {
 		stubDungeonRun(createCorridorEncounter());
 		const create = GameState.createGameState;
 		vi.spyOn(GameState, "createGameState").mockImplementationOnce((run) => ({
@@ -89,9 +97,11 @@ describe("Low-health feedback", () => {
 			"true",
 		);
 		await user.keyboard("dc");
-		expect(screen.getByLabelText("Character health")).toHaveTextContent(
-			"Low health",
-		);
+		expect(
+			within(screen.getByLabelText("Character health")).getByText("4", {
+				exact: true,
+			}),
+		).toHaveClass("text-destructive");
 		await user.keyboard("c1");
 		expect(screen.getByLabelText("Player health")).toHaveTextContent(
 			"Health 9 / 10",
@@ -111,7 +121,12 @@ describe("Low-health feedback", () => {
 			monsters: [],
 		}));
 		renderHome(<Home />);
-		expect(screen.getByText("Low health")).toBeVisible();
+		expect(screen.queryByText("Low health")).not.toBeInTheDocument();
+		expect(
+			within(screen.getByLabelText("Player health")).getByText("4", {
+				exact: true,
+			}),
+		).toHaveClass("text-destructive");
 		await userEvent
 			.setup()
 			.click(screen.getByRole("button", { name: "New Dungeon" }));
@@ -137,5 +152,9 @@ it("does not warn at exactly half health but follows capacity changes", () => {
 			player={{ health: 5, maxHealth: 12 }}
 		/>,
 	);
-	expect(screen.getByText("Low health")).toBeVisible();
+	expect(
+		within(screen.getByLabelText("Player health")).getByText("5", {
+			exact: true,
+		}),
+	).toHaveClass("text-destructive");
 });

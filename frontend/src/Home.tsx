@@ -554,6 +554,14 @@ const Home = ({
 					className="flex min-h-0 min-w-0 flex-1 flex-col rounded-lg border border-border bg-card p-3 sm:p-4"
 				>
 					<div className="flex shrink-0 flex-wrap items-center justify-center gap-x-5 gap-y-2 pb-3">
+						<PlayerStatus
+							gold={game.state.gold}
+							equipment={game.state.equipment}
+							mana={game.state.mana}
+							turn={turn}
+							player={player}
+							progression={game.state.progression}
+						/>
 						<PotionHotbarView
 							bag={game.state.bag}
 							potionHotbar={game.state.potionHotbar}
@@ -566,14 +574,6 @@ const Home = ({
 							enabled={gameplayEnabled}
 							targeting={spells.targeting?.spell}
 							onActivate={spells.activate}
-						/>
-						<PlayerStatus
-							gold={game.state.gold}
-							equipment={game.state.equipment}
-							mana={game.state.mana}
-							turn={turn}
-							player={player}
-							progression={game.state.progression}
 						/>
 					</div>
 					<QuestStatus quest={game.state.quest} />

@@ -1,4 +1,3 @@
-import { TriangleAlert } from "lucide-react";
 import type { PlayerStats } from "../../domain/game/PlayerStats";
 
 export const isLowHealth = (player: PlayerStats) =>
@@ -25,14 +24,6 @@ const HealthDisplay = ({
 			{player.health}
 		</span>{" "}
 		/ {player.maxHealth}
-		{isLowHealth(player) && (
-			<span
-				className={`${compact ? "mt-1 flex" : "ml-2 inline-flex"} items-center gap-1 rounded-md bg-destructive/15 px-2 py-1 text-xs font-semibold text-destructive`}
-			>
-				<TriangleAlert aria-hidden="true" className="size-3.5" />
-				Low health
-			</span>
-		)}
 	</output>
 );
 export default HealthDisplay;

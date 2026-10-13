@@ -52,7 +52,7 @@ describe("Player status panel", () => {
 			"value",
 			"3",
 		);
-		expect(screen.getByText("Low health")).toBeVisible();
+		expect(screen.queryByText("Low health")).not.toBeInTheDocument();
 		view.rerender(
 			<PlayerStatus {...props} player={{ health: 0, maxHealth: 20 }} />,
 		);

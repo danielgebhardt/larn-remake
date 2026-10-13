@@ -1,0 +1,19 @@
+import type { ActivityEvent } from "./ActivityHistory";
+
+const incomingTypes = new Set([
+	"monster-hit",
+	"monster-shot-hit",
+	"monster-heavy-hit",
+	"monster-charge-hit",
+	"monster-spell-hit",
+	"monster-area-hit",
+	"player-condition-hit",
+	"trap-sprung",
+	"throne-wound",
+	"fountain-poisoned",
+	"discovery-opened",
+]);
+export const isPlayerDamage = (
+	event: ActivityEvent,
+): event is ActivityEvent & { damage: number } =>
+	incomingTypes.has(event.type) && "damage" in event && event.damage > 0;

@@ -2,22 +2,11 @@ import { Dialog } from "@base-ui/react/dialog";
 import { Skull } from "lucide-react";
 import { type RefObject, useRef } from "react";
 import { Button } from "@/components/ui/button";
+import { defeatRecap } from "../../domain/game/DefeatRecap";
 import type { GameState } from "../../domain/game/GameState";
 import { levelForExperience } from "../../domain/game/Progression";
 import { formatActivityEvent } from "./ActivityMessages";
 
-const playerDamageTypes = new Set([
-	"monster-hit",
-	"monster-shot-hit",
-	"monster-heavy-hit",
-	"monster-spell-hit",
-	"monster-area-hit",
-	"player-condition-hit",
-	"trap-sprung",
-	"throne-wound",
-	"fountain-poisoned",
-	"discovery-opened",
-]);
 const GameOverDialog = ({
 	state,
 	open,
@@ -34,12 +23,7 @@ const GameOverDialog = ({
 	mapRef: RefObject<HTMLElement | null>;
 }) => {
 	const title = useRef<HTMLHeadingElement>(null);
-	const lastDamage = state.activityHistory.entries.findLast(
-		({ event }) =>
-			playerDamageTypes.has(event.type) &&
-			"damage" in event &&
-			event.damage > 0,
-	);
+	const recentDamage = defeatRecap(state.activityHistory, state.turn);
 	const values = [
 		["Seed", state.run.seed],
 		["Floor reached", state.run.activeFloor],
@@ -75,11 +59,43 @@ const GameOverDialog = ({
 						Your expedition has ended. Inspect what happened or begin another
 						adventure.
 					</Dialog.Description>
-					{lastDamage && (
-						<p className="mt-3 rounded-md bg-destructive/10 p-3 text-sm">
-							{formatActivityEvent(lastDamage.event)}
-						</p>
-					)}
+					<section
+						aria-label="Defeat recap"
+						className="mt-3 rounded-md bg-destructive/10 p-3 text-sm"
+					>
+						<h3 className="font-medium">Recent damage</h3>
+						{recentDamage.length ? (
+							<>
+								<p className="mt-1 text-xs text-muted-foreground">
+									Last five recorded hits in the final five turns. Damage
+									includes overkill.
+								</p>
+								<ol aria-label="Recent damage" className="mt-2 space-y-2">
+									{recentDamage.map(({ id, event }, index) => (
+										<li
+											key={id}
+											className={
+												index === recentDamage.length - 1
+													? "font-medium"
+													: undefined
+											}
+										>
+											{index === recentDamage.length - 1 && (
+												<span className="block text-xs text-destructive">
+													Last recorded damage
+												</span>
+											)}
+											{formatActivityEvent(event)}
+										</li>
+									))}
+								</ol>
+							</>
+						) : (
+							<p className="mt-1 text-muted-foreground">
+								No recent damage recorded in this save.
+							</p>
+						)}
+					</section>
 					<dl className="my-5 grid grid-cols-2 gap-3">
 						{values.map(([label, value]) => (
 							<div key={label} className="rounded-lg border bg-muted/20 p-3">

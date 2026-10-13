@@ -1,23 +1,11 @@
 import { DEFAULT_FOG_CONFIGURATION } from "../src/domain/dungeon/RunConfiguration";
 import { hasLineOfSight } from "../src/domain/dungeon/Visibility";
+import { isPlayerDamage } from "../src/domain/game/PlayerDamageEvents";
 import { equipmentSlotFor } from "../src/domain/items/Equipment";
 import { compareEquipment } from "../src/domain/items/EquipmentComparison";
 import { orthogonalDistance } from "../src/domain/monsters/MonsterLocations";
 import { navigationRun } from "../src/domain/objects/NavigationTerrain";
 
-const incoming = new Set([
-	"monster-hit",
-	"monster-charge-hit",
-	"monster-shot-hit",
-	"monster-heavy-hit",
-	"monster-spell-hit",
-	"monster-area-hit",
-	"player-condition-hit",
-	"trap-sprung",
-	"throne-wound",
-	"fountain-poisoned",
-	"discovery-opened",
-]);
 const outgoing = new Set(["player-hit", "spell-hit", "condition-hit"]);
 export const createReviewMetrics = () => ({
 	combat: Object.fromEntries(
@@ -104,7 +92,7 @@ export const recordReviewTurn = (metrics, before, action, after) => {
 		if (id < before.activityHistory.nextId) continue;
 		if (Object.hasOwn(metrics.combat, event.type)) metrics.combat[event.type]++;
 		// Event damage includes overkill, matching the game's established log contract.
-		if (incoming.has(event.type)) {
+		if (isPlayerDamage(event)) {
 			metrics.damage.received += event.damage;
 			metrics.damage.receivedByKind[event.monster ?? "environment"] =
 				(metrics.damage.receivedByKind[event.monster ?? "environment"] ?? 0) +

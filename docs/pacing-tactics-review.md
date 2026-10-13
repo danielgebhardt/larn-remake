@@ -54,3 +54,9 @@ Supply totals across the same seeds were 295–450 health and 293–353 mana, wi
 Visible prepared charges, heavy strikes, alarms and recovery phases show the source's visible location and concrete next-action counterplay beside existing conditions. Area countdowns retain their existing display. Hidden/dead sources remain filtered, and hidden target coordinates are not disclosed. Your poison chip explains one damage after monsters per committed turn and antidote timing. The visible-creature guide clarifies ranged distance/cover, enemy magic and prepared-strike interruption. Game rules remain unchanged.
 
 Readable UI tests cover source visibility, dead sources, poison timing and counterplay. A legacy v15 charge fixture imported in the browser displays the cue correctly; the Help sheet remains usable with no turn spent.
+
+## #272 — Defeat recap
+
+The death dialog shows up to five incoming damage events from the final five turns before the last recorded death marker. It distinguishes source/action through the existing activity formatter and emphasizes the last recorded damaging event, without claiming exact overkill attribution. Outgoing attacks, misses and zero-damage discoveries are excluded. Empty/legacy history explains that no recent damage is recorded. Restart/replay/inspection and map focus behavior remain intact. No saved contract changes.
+
+A shared `isPlayerDamage` predicate owns incoming damage classification for diagnostics and the recap, including charges. Domain tests cover window/order/limits and records after the death marker; Home tests cover dialog content and inspection/restart. Browser import shows ranged damage followed by a charge, with the latter emphasized.

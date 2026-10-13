@@ -15,6 +15,9 @@ it("opens a focused game-over summary and allows free inspection without reopeni
 	const dialog = await screen.findByRole("dialog", { name: "You died" });
 	expect(within(dialog).getByLabelText("Run turns")).toHaveTextContent("1");
 	expect(
+		within(dialog).getByRole("list", { name: "Recent damage" }),
+	).toHaveTextContent("goblin hits you for 1 damage");
+	expect(
 		within(dialog).getByText(/goblin hits you for 1 damage/),
 	).toBeVisible();
 	await waitFor(() =>

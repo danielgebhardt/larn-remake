@@ -63,7 +63,7 @@ const DungeonSettings = ({
 		<SheetContent
 			initialFocus={inputRef}
 			finalFocus={finalFocus}
-			className="overflow-y-auto data-[side=right]:w-full"
+			className="overflow-y-auto data-[side=right]:w-full data-[side=right]:sm:max-w-3xl"
 		>
 			<SheetHeader>
 				<SheetTitle>Settings</SheetTitle>
@@ -71,147 +71,148 @@ const DungeonSettings = ({
 					Choose your appearance or start a dungeon from another seed.
 				</SheetDescription>
 			</SheetHeader>
-			<div className="grid gap-4 px-4 pb-4">
-				<p className="text-sm text-muted-foreground">
-					Current seed:{" "}
-					<output
-						aria-label="Current dungeon seed"
-						className="font-mono text-foreground"
-					>
-						{seed}
-					</output>
-				</p>
-				<p className="text-sm text-muted-foreground">
-					Current dungeon:{" "}
-					<output aria-label="Current dungeon configuration">
-						{configuration.rows} rows × {configuration.cols} columns ·{" "}
-						{configuration.floorCount}{" "}
-						{configuration.floorCount === 1 ? "floor" : "floors"}
-					</output>
-				</p>
-				<form className="grid gap-3" onSubmit={onSeedSubmit}>
-					<div className="grid gap-2">
-						<Label htmlFor="dungeon-seed">Dungeon seed</Label>
-						<Input
-							ref={inputRef}
-							id="dungeon-seed"
-							type="text"
-							inputMode="numeric"
-							value={seedInput}
-							aria-invalid={seedError !== null}
-							aria-describedby={seedError ? "seed-error" : undefined}
-							onChange={(event) => onSeedInputChange(event.target.value)}
-						/>
-					</div>
-					{seedError && (
-						<p
-							id="seed-error"
-							role="alert"
-							className="text-sm text-destructive"
+			<div className="grid items-start gap-5 px-4 pb-4 sm:grid-cols-2">
+				<div className="grid gap-4 rounded-xl border bg-muted/20 p-4">
+					<p className="text-sm text-muted-foreground">
+						Current seed:{" "}
+						<output
+							aria-label="Current dungeon seed"
+							className="font-mono text-foreground"
 						>
-							{seedError}
-						</p>
-					)}
-					<fieldset className="grid grid-cols-2 gap-3">
-						<legend className="mb-2 text-sm font-medium">
-							Dungeon configuration
-						</legend>
-						{(
-							[
-								{ field: "rows", label: "Rows" },
-								{ field: "cols", label: "Columns" },
-								{ field: "floorCount", label: "Floors" },
-							] as const
-						).map(({ field, label }) => {
-							const { min, max } = CONFIGURATION_LIMITS[field];
-							return (
-								<div
-									key={field}
-									className={`grid gap-1.5${field === "floorCount" ? " col-span-2" : ""}`}
-								>
-									<Label htmlFor={`dungeon-${field}`}>{label}</Label>
-									<Input
-										id={`dungeon-${field}`}
-										type="text"
-										inputMode="numeric"
-										value={configDraft[field]}
-										aria-invalid={!!configErrors[field]}
-										aria-describedby={`${field}-hint${configErrors[field] ? ` ${field}-error` : ""}`}
-										onChange={(event) =>
-											onConfigInputChange(field, event.target.value)
-										}
-									/>
-									<p
-										id={`${field}-hint`}
-										className="text-xs text-muted-foreground"
-									>
-										{min}–{max}, whole numbers
-									</p>
-									{configErrors[field] && (
-										<p
-											id={`${field}-error`}
-											role="alert"
-											className="text-sm text-destructive"
-										>
-											{configErrors[field]}
-										</p>
-									)}
-								</div>
-							);
-						})}
-					</fieldset>
-					<p className="text-xs text-muted-foreground">
-						Start from seed applies these settings and restarts on floor 1.
+							{seed}
+						</output>
 					</p>
-					{generationError && (
-						<p role="alert" className="text-sm text-destructive">
-							{generationError}
-						</p>
-					)}
-					<Button type="submit" variant="outline">
-						Start from seed
-					</Button>
-				</form>
-				<FogSettings
-					configuration={fogConfiguration}
-					onEnabledChange={onFogEnabledChange}
-					onRadiusApply={onFogRadiusApply}
-				/>
-				<div className="grid gap-2 border-t pt-4">
-					<p id="appearance-label" className="text-sm font-medium">
-						Appearance
+					<p className="text-sm text-muted-foreground">
+						Current dungeon:{" "}
+						<output aria-label="Current dungeon configuration">
+							{configuration.rows} rows × {configuration.cols} columns ·{" "}
+							{configuration.floorCount}{" "}
+							{configuration.floorCount === 1 ? "floor" : "floors"}
+						</output>
 					</p>
-					<ToggleGroup
-						aria-labelledby="appearance-label"
-						value={[theme]}
-						onValueChange={(values) => {
-							if (values[0]) setTheme(values[0]);
-						}}
-						className="flex gap-1 rounded-lg border bg-muted p-1"
-					>
-						{(
-							[
-								{ value: "light", label: "Light", Icon: Sun },
-								{ value: "dark", label: "Dark", Icon: Moon },
-								{ value: "system", label: "System", Icon: Monitor },
-							] as const
-						).map(({ value, label, Icon }) => (
-							<Toggle
-								key={value}
-								value={value}
-								className={buttonVariants({
-									variant: theme === value ? "default" : "ghost",
-									className: "flex-1",
-								})}
+					<form className="grid gap-3" onSubmit={onSeedSubmit}>
+						<div className="grid gap-2">
+							<Label htmlFor="dungeon-seed">Dungeon seed</Label>
+							<Input
+								ref={inputRef}
+								id="dungeon-seed"
+								type="text"
+								inputMode="numeric"
+								value={seedInput}
+								aria-invalid={seedError !== null}
+								aria-describedby={seedError ? "seed-error" : undefined}
+								onChange={(event) => onSeedInputChange(event.target.value)}
+							/>
+						</div>
+						{seedError && (
+							<p
+								id="seed-error"
+								role="alert"
+								className="text-sm text-destructive"
 							>
-								<Icon aria-hidden="true" focusable="false" />
-								{label}
-							</Toggle>
-						))}
-					</ToggleGroup>
-					<p className="text-xs text-muted-foreground">
-						Saved on this device. System follows your device’s appearance.
-					</p>
+								{seedError}
+							</p>
+						)}
+						<fieldset className="grid grid-cols-3 gap-3">
+							<legend className="mb-2 text-sm font-medium">
+								Dungeon configuration
+							</legend>
+							{(
+								[
+									{ field: "rows", label: "Rows" },
+									{ field: "cols", label: "Columns" },
+									{ field: "floorCount", label: "Floors" },
+								] as const
+							).map(({ field, label }) => {
+								const { min, max } = CONFIGURATION_LIMITS[field];
+								return (
+									<div key={field} className="grid min-w-0 gap-1.5">
+										<Label htmlFor={`dungeon-${field}`}>{label}</Label>
+										<Input
+											id={`dungeon-${field}`}
+											type="text"
+											inputMode="numeric"
+											value={configDraft[field]}
+											aria-invalid={!!configErrors[field]}
+											aria-describedby={`${field}-hint${configErrors[field] ? ` ${field}-error` : ""}`}
+											onChange={(event) =>
+												onConfigInputChange(field, event.target.value)
+											}
+										/>
+										<p
+											id={`${field}-hint`}
+											className="text-xs text-muted-foreground"
+										>
+											{min}–{max}, whole numbers
+										</p>
+										{configErrors[field] && (
+											<p
+												id={`${field}-error`}
+												role="alert"
+												className="text-sm text-destructive"
+											>
+												{configErrors[field]}
+											</p>
+										)}
+									</div>
+								);
+							})}
+						</fieldset>
+						<p className="text-xs text-muted-foreground">
+							Start from seed applies these settings and restarts on floor 1.
+						</p>
+						{generationError && (
+							<p role="alert" className="text-sm text-destructive">
+								{generationError}
+							</p>
+						)}
+						<Button type="submit" variant="outline">
+							Start from seed
+						</Button>
+					</form>
+				</div>
+				<div className="grid gap-4 rounded-xl border bg-muted/20 p-4">
+					<FogSettings
+						configuration={fogConfiguration}
+						onEnabledChange={onFogEnabledChange}
+						onRadiusApply={onFogRadiusApply}
+					/>
+					<div className="grid gap-2 border-t pt-4">
+						<p id="appearance-label" className="text-sm font-medium">
+							Appearance
+						</p>
+						<ToggleGroup
+							aria-labelledby="appearance-label"
+							value={[theme]}
+							onValueChange={(values) => {
+								if (values[0]) setTheme(values[0]);
+							}}
+							className="flex gap-1 rounded-lg border bg-muted p-1"
+						>
+							{(
+								[
+									{ value: "light", label: "Light", Icon: Sun },
+									{ value: "dark", label: "Dark", Icon: Moon },
+									{ value: "system", label: "System", Icon: Monitor },
+								] as const
+							).map(({ value, label, Icon }) => (
+								<Toggle
+									key={value}
+									value={value}
+									className={buttonVariants({
+										variant: theme === value ? "default" : "ghost",
+										className: "flex-1",
+									})}
+								>
+									<Icon aria-hidden="true" focusable="false" />
+									{label}
+								</Toggle>
+							))}
+						</ToggleGroup>
+						<p className="text-xs text-muted-foreground">
+							Saved on this device. System follows your device’s appearance.
+						</p>
+					</div>
 				</div>
 			</div>
 		</SheetContent>

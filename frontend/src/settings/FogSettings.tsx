@@ -35,8 +35,8 @@ const FogSettings = ({
 		setError(null);
 	};
 	return (
-		<fieldset className="grid gap-3 border-t pt-4">
-			<legend className="pt-4 text-sm font-medium">Fog of war</legend>
+		<fieldset className="grid gap-3">
+			<legend className="mb-3 text-sm font-medium">Fog of war</legend>
 			<Label className="flex items-center gap-2" htmlFor="fog-enabled">
 				<input
 					id="fog-enabled"

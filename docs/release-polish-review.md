@@ -33,3 +33,7 @@ Bottlenecks improve about 34.4%; stair travel improves about 5.4%. This adds alt
 ## #230 — Player status panel
 
 Health, Mana, Gold and Level now have labeled cards with small icons, readable numeric values and a shared header for turn count. Health and mana have visual reserve bars backed by native accessible meters. Low health highlights its card, reserve bar and HP value without adding a badge or changing card height; death feedback remains visible. The resource panel sits on the left and hotbars on the right. Hotbar controls and bindings are unchanged. The panel uses four columns on desktop and two on narrow screens. Focused resource/turn/low-health tests pass; browser checks at 1280×720 in both themes and 390×844 confirm readable wrapping. Tests cover current/maximum resources, updating values, low health and death. README describes the panel and removes a stale backend-footer statement.
+
+## #231 — Wider Settings sheet
+
+The desktop Settings sheet is now 768px wide, with dungeon setup in the left card and fog/appearance in the right. Rows, columns and floors share one row. At 1280×720 in both themes the sheet's scroll height equals its viewport height, so all normal controls fit without scrolling. At 390×844 the cards stack and retain scrolling. Validation messages can still expand content safely. Existing seed, configuration, Settings/focus tests pass; interaction and persistence logic is unchanged.

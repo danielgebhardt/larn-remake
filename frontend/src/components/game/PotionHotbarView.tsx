@@ -41,7 +41,7 @@ const PotionHotbarView = ({
 						aria-label={label}
 						title={label}
 						onClick={() => onActivate(slot)}
-						className="relative size-12 rounded-md p-2"
+						className="relative size-12 rounded-md p-2 dark:bg-background/60"
 					>
 						<kbd className="absolute top-0.5 left-1 text-[10px] leading-none text-muted-foreground">
 							{slot}

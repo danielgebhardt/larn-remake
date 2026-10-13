@@ -74,7 +74,7 @@ const SpellHotbarView = ({
 						<span
 							role="img"
 							aria-label={`Spell slot ${index + 1}: empty`}
-							className="relative flex size-12 items-center justify-center rounded-lg border border-dashed bg-background text-muted-foreground dark:bg-input/30"
+							className="relative flex size-12 items-center justify-center rounded-lg border border-dashed bg-background text-muted-foreground dark:bg-background/60"
 						>
 							<kbd className="absolute top-0.5 left-1 text-[10px]">
 								{SPELL_SLOT_KEYS[SPELL_SLOTS[index]]}
@@ -109,7 +109,7 @@ const SpellHotbarView = ({
 							(targeting !== undefined && definition.mode === "self")
 						}
 						onClick={() => onActivate(spell)}
-						className="relative size-12 p-2 text-violet-700 dark:text-violet-300"
+						className="relative size-12 p-2 text-violet-700 dark:bg-background/60 dark:text-violet-300"
 					>
 						<Icon aria-hidden="true" className="size-5" />
 						<kbd className="absolute top-0.5 left-1 text-[10px] text-muted-foreground">

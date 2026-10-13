@@ -11,16 +11,19 @@ import {
 	LibraryBig,
 	type LucideIcon,
 	Skull,
-	Store,
 	TriangleAlert,
 } from "lucide-react";
+import { objectAvailable } from "../../domain/merchant/MerchantAvailability";
 import type {
 	DungeonObject,
 	DungeonObjectKind,
 } from "../../domain/objects/DungeonObject";
+import MerchantIcon from "./MerchantIcon";
 
-const icons: Record<Exclude<DungeonObjectKind, "elite-door">, LucideIcon> = {
-	merchant: Store,
+const icons: Record<
+	Exclude<DungeonObjectKind, "elite-door" | "merchant">,
+	LucideIcon
+> = {
 	door: DoorClosed,
 	reliquary: Gem,
 	archive: LibraryBig,
@@ -32,6 +35,8 @@ const icons: Record<Exclude<DungeonObjectKind, "elite-door">, LucideIcon> = {
 	shrine: Landmark,
 };
 const DungeonObjectIcon = ({ object }: { object: DungeonObject }) => {
+	if (!objectAvailable(object)) return null;
+	if (object.kind === "merchant") return <MerchantIcon />;
 	if (object.kind === "elite-door") {
 		const Gate = object.activated ? DoorOpen : DoorClosed;
 		return (

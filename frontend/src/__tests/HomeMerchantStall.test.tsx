@@ -1,0 +1,67 @@
+import { render, screen, within } from "@testing-library/react";
+import { afterEach, expect, it, vi } from "vitest";
+import * as GameState from "../domain/game/GameState";
+import { ThemeProvider } from "../settings/ThemeProvider";
+import { resetHomeTestState, stubDungeonRun } from "./HomeTestHelpers";
+import { createCorridorEncounter } from "./MonsterEncounterTestHelpers";
+import Home from "./TestHome";
+
+const flags = vi.hoisted(() => ({
+	developerCatalog: true,
+	wanderingMerchant: true,
+}));
+vi.mock("../settings/FeatureFlags", () => ({ APP_FEATURES: flags }));
+afterEach(() => {
+	resetHomeTestState();
+	flags.wanderingMerchant = true;
+});
+it.each([true, false])(
+	"shows the labeled countertop only when availability is %s",
+	(enabled) => {
+		flags.wanderingMerchant = enabled;
+		stubDungeonRun(createCorridorEncounter());
+		const create = GameState.createGameState;
+		vi.spyOn(GameState, "createGameState").mockImplementationOnce((run) => ({
+			...create(run),
+			monsters: [],
+			floorItems: [],
+			objects: [
+				{
+					id: "floor:1:object:merchant:1",
+					kind: "merchant",
+					floorNumber: 1,
+					coordinate: { row: 1, col: 2 },
+					activated: false,
+				},
+			],
+		}));
+		render(<Home />, { wrapper: ThemeProvider });
+		if (enabled) {
+			expect(
+				screen.getByRole("cell", {
+					name: "row1col2 - potion merchant at a counter",
+				}),
+			).toBeVisible();
+			expect(screen.getByText(/Press E within reach to trade/)).toBeVisible();
+			expect(
+				within(
+					screen.getByRole("cell", {
+						name: "row1col2 - potion merchant at a counter",
+					}),
+				).getByTitle("Potion merchant behind a counter"),
+			).toBeInTheDocument();
+		} else {
+			expect(
+				screen.queryByRole("cell", {
+					name: "row1col2 - potion merchant at a counter",
+				}),
+			).not.toBeInTheDocument();
+			expect(
+				screen.getByRole("cell", { name: "row1col2 - floor" }),
+			).toBeVisible();
+			expect(
+				screen.queryByText(/Press E within reach to trade/),
+			).not.toBeInTheDocument();
+		}
+	},
+);

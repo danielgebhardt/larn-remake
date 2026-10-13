@@ -121,3 +121,9 @@ One merchant is placed on each fifth floor strictly below the goal floor (20→5
 `APP_FEATURES.wanderingMerchant` defaults true. Disabling it suppresses new placement, map/nearby display and interaction, retaining run-owned stock and saved locations. Merchants are traversable object tiles, so disabled stalls cannot create invisible barriers. A temporary standard store icon is replaced by the purpose-built stall in the next story; trading remains disabled until its dialog story.
 
 Validation: depth 5/10/13/15/20 schedule, actual generated placements, room eligibility, collisions, protected coordinates, sealed chambers, deterministic/idempotent placement and disabled behavior; generated adventure save continuation remains valid.
+
+## #259 — Accessible merchant and counter
+
+A custom merchant portrait stands behind a broad countertop with small bottles. The entire decoration is within the merchant tile; it adds no walls or separate collision objects. Map cells and nearby inspection say "potion merchant at a counter", so meaning does not depend on color. Existing object catalog entries pick up the new definition and icon. Fog continues to control map exposure; unavailable merchants have no icon or nearby description.
+
+Validation: Home tests verify enabled/disabled cells and nearby labels; catalog coverage includes the new object. Browser review at normal tile size on an actual generated floor-five stall confirmed dark/light contrast, with the original dark preference restored afterward.

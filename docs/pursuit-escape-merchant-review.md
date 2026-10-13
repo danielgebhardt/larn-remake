@@ -127,3 +127,11 @@ Validation: depth 5/10/13/15/20 schedule, actual generated placements, room elig
 A custom merchant portrait stands behind a broad countertop with small bottles. The entire decoration is within the merchant tile; it adds no walls or separate collision objects. Map cells and nearby inspection say "potion merchant at a counter", so meaning does not depend on color. Existing object catalog entries pick up the new definition and icon. Fog continues to control map exposure; unavailable merchants have no icon or nearby description.
 
 Validation: Home tests verify enabled/disabled cells and nearby labels; catalog coverage includes the new object. Browser review at normal tile size on an actual generated floor-five stall confirmed dark/light contrast, with the original dark preference restored afterward.
+
+## #260 — Keyboard-friendly merchant browsing
+
+E beside a merchant opens Buy/Sell tabs showing current gold, offer prices, shared remaining counts and bag equipment sale values. B/S switches tabs; standard Tab/Enter navigation works; Buy reserves numbered 1–4 choices for the following transaction story. Existing modal guards suspend movement, pickup and healing. Escape closes and restores map focus. Starting/loading a run and death clear merchant selection, and no safe-zone exception is introduced.
+
+This commit builds browsing and transaction callbacks; purchase/sale callbacks are wired in #261/#262. Inspection, tab switches and canceling leave run state unchanged.
+
+Validation: a Home interaction test covers E, stock/prices/gold, Buy/Sell shortcuts, blocked dungeon actions, no turn consumption and focus restoration; existing object/gate interactions stay green.

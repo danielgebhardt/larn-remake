@@ -32,6 +32,7 @@ import SpellHotbarView from "./components/game/SpellHotbarView";
 import { useSpellTargeting } from "./components/game/useSpellTargeting";
 import VictoryDialog from "./components/game/VictoryDialog";
 import VisibleEffects from "./components/game/VisibleEffects";
+import MerchantDialog from "./components/merchant/MerchantDialog";
 import ObjectChoiceDialog from "./components/objects/ObjectChoiceDialog";
 import ObjectContext from "./components/objects/ObjectContext";
 import {
@@ -163,6 +164,7 @@ const Home = ({
 		readonly DungeonObject[]
 	>([]);
 	const [pickupOpen, setPickupOpen] = useState(false);
+	const [merchantId, setMerchantId] = useState<string | null>(null);
 	const mapRef = useRef<HTMLElement>(null);
 	useEffect(() => {
 		if (initialSeed !== undefined || initialAdventure?.state.player.health)
@@ -174,6 +176,7 @@ const Home = ({
 		setPickupOpen(false);
 		setInteractionObject(null);
 		setInteractionTargets([]);
+		setMerchantId(null);
 		setSettingsOpen(false);
 		setSaveOpen(false);
 		setHelpOpen(false);
@@ -239,6 +242,7 @@ const Home = ({
 		setDismissedDeath(false);
 		setInteractionObject(null);
 		setInteractionTargets([]);
+		setMerchantId(null);
 		setConfiguration(nextConfiguration);
 		setConfigDraft(configurationDraft(nextConfiguration));
 		setConfigErrors({});
@@ -267,6 +271,7 @@ const Home = ({
 		setDismissedDeath(false);
 		setInteractionObject(null);
 		setInteractionTargets([]);
+		setMerchantId(null);
 		setCharacterOpen(false);
 		setHelpOpen(false);
 		setCatalogOpen(false);
@@ -340,10 +345,17 @@ const Home = ({
 	};
 
 	const selectInteractionObject = (object: DungeonObject) => {
+		if (object.kind === "merchant") {
+			setMerchantId(object.id);
+			setInteractionTargets([]);
+			setGame((current) => ({ ...current, actionError: "" }));
+			return;
+		}
 		if (!object.activated && objectChoices(object).length)
 			setInteractionObject(object);
 		else handleActionRequested({ type: "interact", objectId: object.id });
 		setInteractionTargets([]);
+		setMerchantId(null);
 	};
 	const handleInteractRequested = () => {
 		const nearby = nearbyInteractionObjects(game.state).filter(
@@ -360,6 +372,7 @@ const Home = ({
 		else handleActionRequested({ type: "interact" });
 	};
 	const mapInputAvailable =
+		merchantId === null &&
 		!deathOpen &&
 		interactionObject === null &&
 		interactionTargets.length === 0 &&
@@ -687,7 +700,7 @@ const Home = ({
 						}
 						movementEnabled={gameplayEnabled}
 					/>
-					{game.actionError && (
+					{game.actionError && merchantId === null && (
 						<p
 							role="status"
 							aria-label="Action feedback"
@@ -712,6 +725,13 @@ const Home = ({
 					if (startRun(run.seed, configuration))
 						mapRef.current?.focus({ preventScroll: true });
 				}}
+				mapRef={mapRef}
+			/>
+			<MerchantDialog
+				open={merchantId !== null && canPlay}
+				state={game.state}
+				error={game.actionError}
+				onClose={() => setMerchantId(null)}
 				mapRef={mapRef}
 			/>
 			<ObjectChoiceDialog

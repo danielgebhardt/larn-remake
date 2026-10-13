@@ -40,6 +40,39 @@ const renderPickupRun = (
 afterEach(resetHomeTestState);
 
 describe("G pickup from gameplay", () => {
+	it("offers auto-equip candidates in the numbered chooser even with a full bag", async () => {
+		const cap: FloorItem = {
+			...potion,
+			item: { id: "loot:cap", kind: "leather-cap" },
+		};
+		const user = renderPickupRun([potion, cap], {
+			monsters: [],
+			bag: createBag(
+				Array.from({ length: 27 }, (_, i) => ({
+					id: `full:${i}`,
+					kind: "short-sword",
+				})),
+			),
+		});
+		await user.keyboard("g");
+		await screen.findByRole("dialog", { name: "Pick up items" });
+		await user.keyboard("2");
+		expect(
+			within(screen.getByLabelText("Pickup activity")).getByText(
+				/You equip Leather cap in your head/,
+			),
+		).toBeVisible();
+		await user.keyboard("{Escape}");
+		await waitFor(() =>
+			expect(screen.queryByRole("dialog")).not.toBeInTheDocument(),
+		);
+		expect(screen.getByLabelText("Turn count")).toHaveTextContent("Turn 1");
+		await user.click(screen.getByRole("button", { name: "Character" }));
+		expect(
+			await screen.findByRole("button", { name: "Head: Leather cap" }),
+		).toBeVisible();
+		expect(screen.getByLabelText("Bag capacity")).toHaveTextContent("27 / 27");
+	});
 	it.each(["G key", "pickup chooser", "Character"])(
 		"makes a picked-up potion immediately usable through the hotbar from %s",
 		async (route) => {

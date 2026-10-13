@@ -104,6 +104,14 @@ describe("Equipment comparison in Character", () => {
 			panel.getByRole("button", { name: "Pick up Leather cap, item 1" }),
 		);
 		expect(
+			panel.getByRole("button", { name: "Head: Leather cap" }),
+		).toBeVisible();
+		expect(
+			panel.queryByRole("button", { name: /Leather cap, slot/ }),
+		).not.toBeInTheDocument();
+		await user.click(panel.getByRole("button", { name: "Head: Leather cap" }));
+		await user.click(panel.getByRole("button", { name: "Unequip head" }));
+		expect(
 			panel.getByRole("button", { name: /Leather cap, slot/ }),
 		).toHaveAccessibleDescription(/Better/);
 		await user.keyboard("c");

@@ -1,6 +1,6 @@
 # Alpha inventory and visual usability polish
 
-Branch: `codex/alpha-inventory-polish`. Epic #216; stories #217–222 and #224. One tested commit per story, awaiting developer acceptance. No push/merge/deployment.
+Branch: `codex/alpha-inventory-polish`. Epic #216; stories #217–222, #224 and #225. One tested commit per story, awaiting developer acceptance. No push/merge/deployment.
 
 ## #217 — Potion stacks and 27 slots
 
@@ -49,3 +49,11 @@ Fresh sessions start with fog enabled and visibility radius 8. The shared RunCon
 ### Inventory spacing correction
 
 Restore the original 56px square tiles, 16px equipment / 20px potion icons and original font sizes. Nine desktop columns use the available bag width rather than shrinking cells. The character layout reserves 576px for nine columns at desktop and 448px for seven at intermediate widths. Equipment names get a separate 20px two-line row with 10px line height, followed by a 10px comparison row; labels no longer overlap. Responsive browser checks cover wrapped names, comparison labels, potion quantities and overflow. Existing bag and equipment-comparison interaction tests pass.
+
+## #225 — Automatic equipment pickup
+
+Wearable pickups go directly to an empty compatible slot, with rings preferring left then right. Occupied equipment is never replaced automatically; normal bag capacity and potion rules apply otherwise. Direct equip does not require temporary bag space. FloorItems reports ownership/equipment changes and existing pickup/equip events; PlayerActions applies the normal equipment resource rule and both events before its single monster phase. Home's full-bag shortcut recognizes empty compatible slots so the numbered chooser remains available. No new save fields or event kinds are needed.
+
+Tests first failed for automatic placement and full-bag chooser eligibility. Coverage includes every equipment category, ring ordering/full slots, full-bag direct equip, duplicate ownership, unchanged health/mana on capacity growth, same-turn armor mitigation, immutable input and numbered keyboard pickup. Existing occupied-slot pickup, potion, spellbook and quest tests remain relevant.
+
+Browser verification picked up a Leather cap and Copper ring using G and numbered choices with 27 occupied bag slots. Head/left-ring equipment updated immediately; pickup/equip messages shared turns 1 and 2 respectively, and bag capacity stayed 27/27. The chest-capacity regression now explicitly fills compatible equipment slots; comparison UI tests recognize automatic pickup equip and verify comparisons again after unequipping.

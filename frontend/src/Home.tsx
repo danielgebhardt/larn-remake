@@ -54,6 +54,7 @@ import {
 	resolvePlayerAction,
 } from "./domain/game/PlayerActions.ts";
 import { canAddToBag } from "./domain/items/Bag";
+import { emptyEquipmentSlotFor } from "./domain/items/Equipment";
 import { itemsAtPlayer } from "./domain/items/FloorItems";
 import { ITEM_DEFINITIONS } from "./domain/items/Item";
 import type { HotbarSlot } from "./domain/items/PotionHotbar";
@@ -382,7 +383,8 @@ const Home = ({
 				({ item }) =>
 					ITEM_DEFINITIONS[item.kind].type !== "spellbook" &&
 					item.kind !== "cure" &&
-					!canAddToBag(game.state.bag, item),
+					!canAddToBag(game.state.bag, item) &&
+					emptyEquipmentSlotFor(game.state.equipment, item) === undefined,
 			)
 		) {
 			handleActionRequested({

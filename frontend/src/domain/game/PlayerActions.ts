@@ -196,6 +196,10 @@ const resolvePlayerEffect = (
 		return {
 			...state,
 			bag: transfer.bag,
+			equipment: transfer.equipment ?? state.equipment,
+			...(transfer.equipment
+				? resourcesAfterEquipmentChange(state, transfer.equipment)
+				: {}),
 			knownSpells: transfer.knownSpells ?? state.knownSpells,
 			spellHotbar: fillNewSpellSlots(
 				state.spellHotbar,
@@ -217,6 +221,7 @@ const resolvePlayerEffect = (
 					: state.potionHotbar,
 			activityHistory: appendActivityEvents(state.activityHistory, [
 				{ ...transfer.event, turn },
+				...(transfer.equipEvent ? [{ ...transfer.equipEvent, turn }] : []),
 			]),
 		};
 	}

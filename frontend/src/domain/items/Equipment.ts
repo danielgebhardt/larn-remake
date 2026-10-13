@@ -37,6 +37,12 @@ export const equipmentSlotsFor = (
 		: equipmentSlotFor(item)
 			? [equipmentSlotFor(item) as EquipmentSlot]
 			: [];
+export const emptyEquipmentSlotFor = (
+	equipment: Equipment,
+	item: ItemInstance,
+): EquipmentSlot | undefined =>
+	equipmentSlotsFor(item).find((slot) => equipment[slot] === null);
+
 export const fitsEquipmentSlot = (
 	item: ItemInstance,
 	slot: EquipmentSlot,

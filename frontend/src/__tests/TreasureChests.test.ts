@@ -36,9 +36,14 @@ it("opens a chest once in one turn and leaves its fixed reward on the floor", ()
 	expect(repeated.turnAdvanced).toBe(false);
 	expect(repeated.state).toBe(first.state);
 });
-it("opening with a full bag retains loot until a slot becomes available", () => {
+it("retains chest loot when the bag is full and compatible equipment slots are occupied", () => {
 	const initial = {
 		...encounter(),
+		equipment: {
+			...encounter().equipment,
+			chest: { id: "worn:chest", kind: "leather-armor" as const },
+			head: { id: "worn:head", kind: "leather-cap" as const },
+		},
 		bag: {
 			items: Array.from({ length: BAG_CAPACITY }, (_, index) => ({
 				id: `carried:${index}`,

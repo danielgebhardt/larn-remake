@@ -2,6 +2,12 @@ import type { Coordinate } from "../dungeon/DungeonTypes";
 import type { GameState } from "../game/GameState";
 import type { SpellKind } from "../game/Spells";
 import { type Bag, canAddToBag, createBag } from "./Bag";
+import {
+	type Equipment,
+	emptyEquipmentSlotFor,
+	replaceEquipmentSlot,
+} from "./Equipment";
+import type { EquipmentChangeEvent } from "./EquipmentChanges";
 import { ITEM_DEFINITIONS, type ItemInstance, type ItemKind } from "./Item";
 
 export type FloorItem = Readonly<{
@@ -22,6 +28,8 @@ type Transfer =
 			floorItems: readonly FloorItem[];
 			event: FloorItemEvent;
 			knownSpells?: readonly SpellKind[];
+			equipment?: Equipment;
+			equipEvent?: EquipmentChangeEvent;
 	  }
 	| { error: string };
 
@@ -64,16 +72,25 @@ export const transferFloorItem = (
 				event: { type: "item-picked-up", item: "cure" },
 			};
 		}
-		if (!canAddToBag(state.bag, found.item))
-			return {
-				error: "Your bag is full. Make room before picking up an item.",
-			};
 		if (
 			[...state.bag.items, ...Object.values(state.equipment)].some(
 				(item) => item?.id === action.itemId,
 			)
 		)
 			return { error: "You already own that item." };
+		const slot = emptyEquipmentSlotFor(state.equipment, found.item);
+		if (slot !== undefined)
+			return {
+				bag: state.bag,
+				equipment: replaceEquipmentSlot(state.equipment, slot, found.item),
+				floorItems: state.floorItems.filter((entry) => entry !== found),
+				event: { type: "item-picked-up", item: found.item.kind },
+				equipEvent: { type: "item-equipped", item: found.item.kind, slot },
+			};
+		if (!canAddToBag(state.bag, found.item))
+			return {
+				error: "Your bag is full. Make room before picking up an item.",
+			};
 		return {
 			bag: createBag([...state.bag.items, found.item]),
 			floorItems: state.floorItems.filter((entry) => entry !== found),

@@ -67,6 +67,31 @@ describe("Seeded stair links", () => {
 		).toBeGreaterThan(1);
 	});
 
+	it("varies upstairs rooms and tiles while leaving downstairs independent", () => {
+		const run = fixedGeometry();
+		const floor = run.floors[1];
+		const roomIndices = new Set<number>();
+		const tiles = new Set<string>();
+		for (let seed = 0; seed < 30; seed++) {
+			const linked = connectDungeonFloors({ ...run, seed });
+			const up = linked.floors[1].upStair?.coordinate;
+			expect(up).toBeDefined();
+			if (!up) throw new Error("Missing upstairs");
+			roomIndices.add(
+				floor.rooms.findIndex(
+					(room) =>
+						up.row >= room.startRow &&
+						up.row <= room.endRow &&
+						up.col >= room.startCol &&
+						up.col <= room.endCol,
+				),
+			);
+			tiles.add(JSON.stringify(up));
+		}
+		expect(roomIndices.size).toBeGreaterThan(1);
+		expect(roomIndices.has(-1)).toBe(false);
+		expect(tiles.size).toBeGreaterThan(1);
+	});
 	it("reproduces complete links despite intervening connections with another seed", () => {
 		const run = fixedGeometry();
 		const first = connectDungeonFloors(run);
@@ -204,7 +229,10 @@ describe("Seeded stair links", () => {
 					expect(deeper.upStair?.destinationFloor).toBe(floor.floorNumber);
 				}
 				if (floor.upStair) {
-					expect(floor.upStair.coordinate).toEqual(entry);
+					if (floor.downStair)
+						expect(floor.upStair.coordinate).not.toEqual(
+							floor.downStair.coordinate,
+						);
 					expectAllFloorTilesReachable(floor.terrain, floor.upStair.coordinate);
 				}
 			}

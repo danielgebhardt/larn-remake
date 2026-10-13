@@ -113,6 +113,19 @@ export const selectFloorDownStair = (
 		),
 	);
 
+// Use an independent stream and exclude the downstairs room where possible.
+export const selectFloorUpStair = (
+	seed: number,
+	floor: DungeonFloor,
+): Coordinate =>
+	selectStairLocation(
+		floor,
+		selectFloorDownStair(seed, floor),
+		createSeededRandom(
+			hashStringToUint32(`${seed}:${floor.floorNumber}:stairs:up`),
+		),
+	);
+
 export const connectAdjacentFloors = (
 	seed: number,
 	shallowerFloor: DungeonFloor,
@@ -122,7 +135,7 @@ export const connectAdjacentFloors = (
 		throw new RangeError("Stair links must connect adjacent floors");
 	}
 
-	const deeperEntry = selectPlayerStart(deeperFloor);
+	const deeperEntry = selectFloorUpStair(seed, deeperFloor);
 	const shallowerStair = selectFloorDownStair(seed, shallowerFloor);
 
 	return [

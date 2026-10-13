@@ -4,8 +4,10 @@ import {
 	orthogonalDistance,
 	protectedFloorLocations,
 } from "../monsters/MonsterLocations";
+import { maximumMonsterHealth } from "../monsters/MonsterStats";
 import {
 	sameCoordinate,
+	savedDifficulty,
 	savedLocations,
 	unique,
 } from "./SaveConsistencyHelpers";
@@ -38,7 +40,8 @@ export const hasConsistentActors = (document: SaveSourceDocument): boolean => {
 				!protectedLocations
 					.get(entry.floorNumber)
 					?.some((location) => sameCoordinate(location, entry.coordinate)) &&
-				entry.health <= MONSTER_DEFINITIONS[entry.kind].maxHealth &&
+				entry.health <=
+					maximumMonsterHealth(entry.kind, savedDifficulty(document)) &&
 				!(
 					"alarmUsed" in entry &&
 					entry.alarmUsed === true &&

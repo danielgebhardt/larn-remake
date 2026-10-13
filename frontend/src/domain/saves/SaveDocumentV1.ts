@@ -13,6 +13,17 @@ import type { ItemInstance } from "../items/Item";
 import type { PotionHotbar } from "../items/PotionHotbar";
 import type { Monster } from "../monsters/Monster";
 
+type SavedConfigurationV1 = Pick<
+	RunConfiguration,
+	| "rows"
+	| "cols"
+	| "floorCount"
+	| "minPartitionSize"
+	| "roomPadding"
+	| "minRoomSize"
+	| "maxRoomAspectRatio"
+>;
+
 export type SavedItemV1 = Pick<ItemInstance, "id" | "kind">;
 
 // Select persisted fields explicitly: adding GameState or Monster fields must
@@ -28,7 +39,7 @@ type SavedMonsterV1 = Pick<
 export type SaveDocumentV1 = {
 	version: 1;
 	savedAt: string;
-	configuration: RunConfiguration;
+	configuration: SavedConfigurationV1;
 	fog: FogConfiguration;
 	state: {
 		run: {

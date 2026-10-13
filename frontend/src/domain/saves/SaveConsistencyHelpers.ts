@@ -16,3 +16,6 @@ export const savedLocations = (document: SaveSourceDocument) => {
 		floorAt(number)?.terrain[point.row]?.[point.col] === ".";
 	return { floorAt, walkable };
 };
+
+export const savedDifficulty = (document: SaveSourceDocument) =>
+	document.version === 20 ? document.configuration.difficulty : 1;

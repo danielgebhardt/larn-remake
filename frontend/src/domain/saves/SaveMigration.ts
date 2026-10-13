@@ -22,6 +22,7 @@ import type { SaveDocumentV16 } from "./SaveDocumentV16";
 import type { SaveDocumentV17 } from "./SaveDocumentV17";
 import type { SaveDocumentV18 } from "./SaveDocumentV18";
 import type { SaveDocumentV19 } from "./SaveDocumentV19";
+import type { SaveDocumentV20 } from "./SaveDocumentV20";
 
 // Only migrate a structurally and semantically valid v1 snapshot. Preserve
 // played data; legacy monsters have no prepared attack to carry forward.
@@ -289,9 +290,21 @@ const migratePlayedSaveToV18 = (
 	};
 };
 
-export const migratePlayedSave = (
+const migratePlayedSaveToV19 = (
 	document: Parameters<typeof migratePlayedSaveToV18>[0] | SaveDocumentV19,
 ): SaveDocumentV19 => {
 	if (document.version === 19) return document;
 	return { ...migratePlayedSaveToV18(document), version: 19 };
+};
+
+export const migratePlayedSave = (
+	document: Parameters<typeof migratePlayedSaveToV19>[0] | SaveDocumentV20,
+): SaveDocumentV20 => {
+	if (document.version === 20) return document;
+	const legacy = migratePlayedSaveToV19(document);
+	return {
+		...legacy,
+		version: 20,
+		configuration: { ...legacy.configuration, difficulty: 1 },
+	};
 };

@@ -1,3 +1,4 @@
+import type { Difficulty } from "../game/Difficulty";
 export const MAX_SIZE = 100;
 export const MAX_FLOORS = 20;
 
@@ -15,6 +16,7 @@ export type DungeonConfig = {
 
 export type RunConfiguration = Required<DungeonConfig> & {
 	floorCount: number;
+	difficulty?: Difficulty;
 };
 
 export const DEFAULT_RUN_CONFIGURATION: RunConfiguration = {

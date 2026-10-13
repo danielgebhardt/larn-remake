@@ -10,14 +10,14 @@ import type { GameState } from "../game/GameState";
 import { levelForExperience } from "../game/Progression";
 import type { ItemInstance } from "../items/Item";
 import { navigationRun } from "../objects/NavigationTerrain";
-import type { SaveDocumentV19 } from "./SaveDocumentV19";
+import type { SaveDocumentV20 } from "./SaveDocumentV20";
 import { validateSaveDocument } from "./SaveValidation";
 
-export const SAVE_FORMAT_VERSION = 19;
+export const SAVE_FORMAT_VERSION = 20;
 // Bound imported input before parsing. A maximum-size snapshot is measured in the review.
 export const MAX_SAVE_BYTES = 4 * 1024 * 1024;
 
-export type SaveDocument = SaveDocumentV19;
+export type SaveDocument = SaveDocumentV20;
 export type RestoredAdventure = {
 	state: GameState;
 	exploration: ExplorationState;
@@ -44,7 +44,7 @@ export const createSaveDocument = (
 ): SaveDocument => ({
 	version: SAVE_FORMAT_VERSION,
 	savedAt: now.toISOString(),
-	configuration: { ...configuration },
+	configuration: { ...configuration, difficulty: state.difficulty },
 	fog: { ...fog },
 	state: {
 		gold: state.gold,
@@ -161,7 +161,7 @@ export const parseSave = (text: string): SaveResult<SaveDocument> => {
 export const restoreSave = (document: SaveDocument): RestoredAdventure => {
 	const state: GameState = {
 		...document.state,
-		difficulty: 1,
+		difficulty: document.configuration.difficulty,
 		run: {
 			...document.state.run,
 			floors: document.state.run.floors.map((floor) => ({

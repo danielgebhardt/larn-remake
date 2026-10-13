@@ -1,6 +1,11 @@
 import type { PotionKind } from "../../domain/items/PotionHotbar";
 
 const bottles = {
+	boost: {
+		color: "text-item-equipment",
+		path: "M9 3h6v5l4 4v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-7l4-4V3Z",
+		liquid: "M9 3h6",
+	},
 	health: {
 		color: "text-item-potion",
 		path: "M9 3h6v5a7 7 0 1 1-6 0V3Z",
@@ -23,6 +28,9 @@ const families: Record<PotionKind, keyof typeof bottles> = {
 	"mana-potion": "mana",
 	"greater-mana-potion": "mana",
 	antidote: "antidote",
+	"strength-potion": "boost",
+	"dexterity-potion": "boost",
+	"intelligence-potion": "boost",
 };
 
 const PotionIcon = ({ kind }: { kind: PotionKind }) => {
@@ -41,6 +49,19 @@ const PotionIcon = ({ kind }: { kind: PotionKind }) => {
 		>
 			<path d={bottle.path} />
 			<path d={bottle.liquid} />
+			{families[kind] === "boost" && (
+				<text
+					x="12"
+					y="18"
+					textAnchor="middle"
+					fontSize="9"
+					fontWeight="bold"
+					fill="currentColor"
+					stroke="none"
+				>
+					{kind[0].toUpperCase()}
+				</text>
+			)}
 			{kind.startsWith("greater-") && (
 				<path data-strength="greater" d="M20 2v6m-3-3h6" strokeWidth="2.25" />
 			)}

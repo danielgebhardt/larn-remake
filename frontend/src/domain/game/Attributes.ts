@@ -39,7 +39,8 @@ export const deriveAttributes = (
 	};
 	const strength = strengthAtLevel(level) + bonuses.strength;
 	const dexterity = dexterityAtLevel(level) + bonuses.dexterity;
-	const intelligence = intelligenceAtLevel(level) + gear.intelligence;
+	const intelligence =
+		intelligenceAtLevel(level) + gear.intelligence + temporary.intelligence;
 	return {
 		intelligence,
 		intelligenceModifier: Math.floor((intelligence - BASE_ATTRIBUTE) / 2),

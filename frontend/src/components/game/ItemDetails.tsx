@@ -73,7 +73,9 @@ const ItemDetails = ({
 				{details.type === "potion"
 					? "cleanses" in details
 						? "Removes poison"
-						: `Recovery up to ${details.recovery.amount} ${details.recovery.resource}`
+						: "boost" in details
+							? "+2 temporary attribute for 6 turns; refreshes instead of stacking"
+							: `Recovery up to ${details.recovery.amount} ${details.recovery.resource}`
 					: details.type === "weapon"
 						? `Attack bonus +${details.attackBonus}`
 						: details.type === "ring" && "stats" in details

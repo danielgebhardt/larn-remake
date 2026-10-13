@@ -248,6 +248,7 @@ const CharacterDialog = ({
 					</Tabs.Panel>
 					<Tabs.Panel value="spells" className="min-h-0 flex-1 overflow-y-auto">
 						<SpellsView
+							effects={effects}
 							equipment={equipment}
 							slots={spellHotbar}
 							onAction={onAction}

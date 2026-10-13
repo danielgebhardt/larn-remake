@@ -64,7 +64,7 @@ export const resolveThroneChoice = (
 				health: Math.min(next.player.maxHealth, next.player.health + 8),
 			},
 			mana: Math.min(
-				maximumMana(next.progression, next.equipment),
+				maximumMana(next.progression, next.equipment, next.effects),
 				next.mana + 6,
 			),
 		};

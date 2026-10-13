@@ -240,6 +240,11 @@ const eventFields = {
 	"item-picked-up": { item: itemKind },
 	"item-dropped": { item: itemKind },
 	"item-cleansed": { item: itemKind },
+	"item-boosted": {
+		item: itemKind,
+		condition: oneOf(Object.keys(EFFECT_DEFINITIONS)),
+		duration: integer(1, 6),
+	},
 	"item-consumed": { item: itemKind, recovered: natural },
 	"monster-loot": { monster: monsterKind, item: itemKind },
 	"items-seen": { items: array(itemKind, 1) },

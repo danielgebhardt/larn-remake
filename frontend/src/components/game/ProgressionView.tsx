@@ -110,6 +110,7 @@ const ProgressionView = ({
 					Intelligence {attributes.intelligence}
 				</output>
 				<ManaDisplay
+					effects={effects}
 					equipment={equipment}
 					mana={mana}
 					progression={progression}

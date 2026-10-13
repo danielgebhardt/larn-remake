@@ -13,12 +13,13 @@ export type InteractionChoice = Readonly<{
 }>;
 export const objectChoices = (
 	object: DungeonObject,
-	state?: Pick<GameState, "player" | "progression" | "equipment">,
+	state?: Pick<GameState, "player" | "progression" | "equipment" | "effects">,
 ): readonly InteractionChoice[] => {
 	if (object.kind === "fountain") {
 		const terms = fountainRestoration(
 			state ?? {
 				player: createPlayerStats(),
+				effects: [],
 				progression: createProgression(),
 				equipment: createStartingEquipment(),
 			},

@@ -11,6 +11,9 @@ import {
 import ItemIcon from "../items/ItemIcon";
 
 const POTION_LABELS: Record<PotionKind, string> = {
+	"strength-potion": "Strength",
+	"dexterity-potion": "Dexterity",
+	"intelligence-potion": "Intellect",
 	"healing-potion": "Health",
 	"mana-potion": "Mana",
 	antidote: "Antidote",

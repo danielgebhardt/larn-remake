@@ -7,6 +7,7 @@ export const playerEffectBonuses = (effects: readonly TimedEffect[] = []) => {
 		);
 	return {
 		strength: has("strengthened") ? 2 : 0,
+		intelligence: has("enlightened") ? 2 : 0,
 		dexterity: has("nimble") ? 2 : 0,
 		armor: has("protected") ? 2 : 0,
 	};

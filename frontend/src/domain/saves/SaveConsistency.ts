@@ -107,6 +107,7 @@ export const isConsistentSave = (
 			: maximumMana(
 					state.progression,
 					document.version >= 6 ? state.equipment : undefined,
+					"effects" in state ? state.effects : [],
 				);
 	if (
 		document.version < 3 &&

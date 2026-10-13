@@ -3,16 +3,18 @@ import { equipmentBonuses } from "../items/EquipmentBonuses";
 import { deriveAttributes } from "./Attributes";
 import type { GameState } from "./GameState";
 import type { Progression } from "./Progression";
+import type { TimedEffect } from "./TimedEffects";
 
 export const BASE_MAXIMUM_MANA = 10;
 export const MANA_PER_INTELLIGENCE_MODIFIER = 2;
 export const maximumMana = (
 	progression: Progression,
 	equipment?: Partial<Equipment>,
+	effects: readonly TimedEffect[] = [],
 ): number =>
 	BASE_MAXIMUM_MANA +
 	MANA_PER_INTELLIGENCE_MODIFIER *
-		deriveAttributes(progression, [], equipment).intelligenceModifier +
+		deriveAttributes(progression, effects, equipment).intelligenceModifier +
 	equipmentBonuses(equipment).mana;
 
 export const growManaCapacity = (
@@ -33,7 +35,7 @@ export const recoverManaAfterTurn = (state: GameState): GameState => {
 	)
 		return state;
 	const mana = Math.min(
-		maximumMana(state.progression, state.equipment),
+		maximumMana(state.progression, state.equipment, state.effects),
 		state.mana + 1,
 	);
 	return mana === state.mana ? state : { ...state, mana };

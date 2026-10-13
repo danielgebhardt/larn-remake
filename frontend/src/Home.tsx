@@ -599,6 +599,7 @@ const Home = ({
 				>
 					<div className="flex shrink-0 flex-wrap items-center justify-center gap-x-5 gap-y-2 pb-3">
 						<PlayerStatus
+							effects={game.state.effects}
 							gold={game.state.gold}
 							equipment={game.state.equipment}
 							mana={game.state.mana}

@@ -175,3 +175,11 @@ Safe sips restore at least 6 health/4 mana, or 25% of capacity rounded up. Risky
 At an unequipped level-20 capacity this means reliable 12 health/7 mana, versus greater bottles' fixed restoration, making a finite side discovery useful throughout a run. Restoration happens before normal monster response.
 
 Validation: early/late-game values, cap/full rejection, one-use behavior, outcomes/replay and response ordering; existing keyboard choice/cancel/focus tests updated to the new amounts. Saved object ownership continues through the existing activated flag.
+
+## #254 — Temporary attribute potions
+
+Strength, Dexterity and Intelligence potions enter found/drop pools from floor 3 with modest weights. Each adds +2 to its attribute for six committed turns including drinking. Strength/Dexterity reuse their existing spell effects; Intelligence adds the matching player-only effect. Another application refreshes the same timer instead of stacking. Potion copies use existing bag stacking, first-kind assignment and four numbered shortcuts, with distinct S/D/I bottle markings.
+
+Intelligence now flows through spell potency, mana capacity and their displays. Increasing capacity grants no free mana; drinking a mana bottle while boosted may fill the larger capacity, and expiry clamps excess. Equipment changes, recovery, fountains/thrones and save validation respect active capacity. This uses the existing owned-item/timed-effect record shapes, so catalog additions require no new persisted fields; v17 remains the contract.
+
+Validation: all three attribute bonuses, one bottle/turn, refresh/no stacking, exact expiry, spell damage, capacity/no refill/clamp, active-effect save/resume; Home exercises numbered use, activity description and character/resource displays. Existing condition/spell/resource tests remain part of the full checks.

@@ -1,11 +1,22 @@
 import type { GameState } from "../game/GameState";
 import { maximumMana } from "../game/Mana";
 import type { PlayerStats } from "../game/PlayerStats";
+import {
+	EFFECT_DEFINITIONS,
+	type PlayerEffectKind,
+	refreshPlayerEffect,
+} from "../game/TimedEffects";
 import { type Bag, createBag } from "./Bag";
 import { ITEM_DEFINITIONS, type ItemKind } from "./Item";
 
 export type ConsumeAction = { type: "consume"; itemId: string };
 export type ConsumptionEvent =
+	| {
+			type: "item-boosted";
+			item: ItemKind;
+			condition: PlayerEffectKind;
+			duration: number;
+	  }
 	| { type: "item-cleansed"; item: ItemKind }
 	| {
 			type: "item-consumed";
@@ -51,12 +62,25 @@ export const consumeItem = (
 			event: { type: "item-cleansed", item: selected.kind },
 		};
 	}
+	if ("boost" in definition)
+		return {
+			player,
+			mana,
+			effects: refreshPlayerEffect(state.effects, definition.boost),
+			bag: createBag(bag.items.filter((item) => item.id !== selected.id)),
+			event: {
+				type: "item-boosted",
+				item: selected.kind,
+				condition: definition.boost,
+				duration: EFFECT_DEFINITIONS[definition.boost].duration,
+			},
+		};
 	const { resource, amount } = definition.recovery;
 	const current = resource === "health" ? player.health : mana;
 	const maximum =
 		resource === "health"
 			? player.maxHealth
-			: maximumMana(state.progression, state.equipment);
+			: maximumMana(state.progression, state.equipment, state.effects);
 	if (current >= maximum)
 		return { error: `You are already at full ${resource}.` };
 	const recovered = Math.min(amount, maximum - current);

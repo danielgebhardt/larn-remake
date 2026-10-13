@@ -26,6 +26,45 @@ export type ItemDefinition = {
 	dropWeight: number;
 };
 export const ITEM_DEFINITIONS = {
+	"strength-potion": {
+		name: "Potion of Strength",
+		type: "potion",
+		attackBonus: 0,
+		armor: 0,
+		boost: "strengthened",
+		description:
+			"Temporarily adds 2 Strength for six committed turns, including drinking. Reusing refreshes the effect instead of stacking. Capacity increases do not refill resources.",
+		minFloor: 3,
+		maxFloor: 20,
+		foundWeight: 0.5,
+		dropWeight: 0.3,
+	},
+	"dexterity-potion": {
+		name: "Potion of Dexterity",
+		type: "potion",
+		attackBonus: 0,
+		armor: 0,
+		boost: "nimble",
+		description:
+			"Temporarily adds 2 Dexterity for six committed turns, including drinking. Reusing refreshes the effect instead of stacking. Capacity increases do not refill resources.",
+		minFloor: 3,
+		maxFloor: 20,
+		foundWeight: 0.5,
+		dropWeight: 0.3,
+	},
+	"intelligence-potion": {
+		name: "Potion of Intelligence",
+		type: "potion",
+		attackBonus: 0,
+		armor: 0,
+		boost: "enlightened",
+		description:
+			"Temporarily adds 2 Intelligence for six committed turns, including drinking. Reusing refreshes the effect instead of stacking. Capacity increases do not refill resources.",
+		minFloor: 3,
+		maxFloor: 20,
+		foundWeight: 0.5,
+		dropWeight: 0.3,
+	},
 	"relic-band": {
 		specialFindOnly: true,
 		name: "Band of the forgotten",

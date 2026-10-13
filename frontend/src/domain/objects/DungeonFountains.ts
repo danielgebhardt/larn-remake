@@ -9,9 +9,9 @@ import { objectDamage, spendObject } from "./ObjectEffects";
 import type { ObjectChoice } from "./ObjectInteraction";
 export const FOUNTAIN_RULES = { restorationChance: 0.7, damage: 3 } as const;
 export const fountainRestoration = (
-	state: Pick<GameState, "player" | "progression" | "equipment">,
+	state: Pick<GameState, "player" | "progression" | "equipment" | "effects">,
 ) => {
-	const mana = maximumMana(state.progression, state.equipment);
+	const mana = maximumMana(state.progression, state.equipment, state.effects);
 	return {
 		sip: {
 			health: Math.max(6, Math.ceil(state.player.maxHealth / 4)),
@@ -31,7 +31,11 @@ export const drawFountain = (
 	if (object.activated) return { error: "This fountain is dry." };
 	if (choice !== "sip" && choice !== "draw")
 		return { error: "Choose a safe sip or risky draw." };
-	const maximum = maximumMana(state.progression, state.equipment);
+	const maximum = maximumMana(
+		state.progression,
+		state.equipment,
+		state.effects,
+	);
 	if (state.player.health === state.player.maxHealth && state.mana === maximum)
 		return { error: "Your health and mana are already full." };
 	const spent = spendObject(state, object);

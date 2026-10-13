@@ -12,6 +12,7 @@ import {
 	type SpellKind,
 	spellPotency,
 } from "../../domain/game/Spells";
+import type { TimedEffect } from "../../domain/game/TimedEffects";
 import { EFFECT_DEFINITIONS } from "../../domain/game/TimedEffects";
 import type { Equipment } from "../../domain/items/Equipment";
 import ManaDisplay from "./ManaDisplay";
@@ -25,6 +26,7 @@ const SpellsView = ({
 	mana,
 	progression,
 	equipment,
+	effects = [],
 }: {
 	knownSpells: readonly SpellKind[];
 	slots: SpellHotbar;
@@ -33,11 +35,13 @@ const SpellsView = ({
 	mana: number;
 	progression: Progression;
 	equipment?: Equipment;
+	effects?: readonly TimedEffect[];
 }) => {
 	return (
 		<div className="grid content-start gap-3 p-4">
 			<div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border bg-muted/20 p-3">
 				<ManaDisplay
+					effects={effects}
 					equipment={equipment}
 					label="Spell mana"
 					mana={mana}
@@ -96,7 +100,12 @@ const SpellsView = ({
 			<div className="grid items-start gap-3 sm:grid-cols-2 xl:grid-cols-3">
 				{knownSpells.map((spell) => {
 					const definition = SPELL_DEFINITIONS[spell];
-					const potency = spellPotency(progression, definition, equipment);
+					const potency = spellPotency(
+						progression,
+						definition,
+						equipment,
+						effects,
+					);
 					const Icon = SPELL_ICONS[spell];
 					return (
 						<section

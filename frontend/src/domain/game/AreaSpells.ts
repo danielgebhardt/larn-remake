@@ -46,7 +46,12 @@ export const castAreaSpell = (
 	rolls: AttackRollSource,
 ): { state: GameState } | { error: string } => {
 	const definition = SPELL_DEFINITIONS[spell];
-	const potency = spellPotency(state.progression, definition, state.equipment);
+	const potency = spellPotency(
+		state.progression,
+		definition,
+		state.equipment,
+		state.effects,
+	);
 	if (
 		potency.effect !== "damage" ||
 		!("radius" in definition) ||

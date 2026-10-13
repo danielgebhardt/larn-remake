@@ -1,9 +1,11 @@
 import type { Monster } from "../monsters/Monster";
 import { appendActivityEvents } from "./ActivityHistory";
 import type { GameState } from "./GameState";
+import { maximumMana } from "./Mana";
 import { damageMonster } from "./MonsterDamage";
 
 export const EFFECT_DEFINITIONS = {
+	enlightened: { name: "Intelligence", duration: 6 },
 	slowed: { name: "Slowed", duration: 3 },
 	rooted: { name: "Webbed", duration: 3 },
 	asleep: { name: "Asleep", duration: 3 },
@@ -24,6 +26,7 @@ export const PLAYER_EFFECT_KINDS = [
 	"protected",
 	"strengthened",
 	"nimble",
+	"enlightened",
 	"poisoned",
 ] as const;
 export const MONSTER_EFFECT_KINDS = [
@@ -170,7 +173,16 @@ export const advanceTimedEffects = (state: GameState): GameState => {
 		)
 			effects.push({ ...effect, remaining: effect.remaining - 1 });
 	}
-	return changed ? { ...next, effects } : state;
+	return changed
+		? {
+				...next,
+				effects,
+				mana: Math.min(
+					next.mana,
+					maximumMana(next.progression, next.equipment, effects),
+				),
+			}
+		: state;
 };
 
 export const applyPlayerEffect = (

@@ -6,6 +6,7 @@ import {
 	levelForExperience,
 	type Progression,
 } from "../../domain/game/Progression";
+import type { TimedEffect } from "../../domain/game/TimedEffects";
 import type { Equipment } from "../../domain/items/Equipment";
 import HealthDisplay, { isLowHealth } from "./HealthDisplay";
 import ManaDisplay from "./ManaDisplay";
@@ -71,6 +72,7 @@ const PlayerStatus = ({
 	player,
 	progression,
 	equipment,
+	effects = [],
 }: {
 	gold?: number;
 	turn: number;
@@ -78,6 +80,7 @@ const PlayerStatus = ({
 	player: PlayerStats;
 	progression: Progression;
 	equipment?: Equipment;
+	effects?: readonly TimedEffect[];
 }) => (
 	<section
 		aria-label="Player status"
@@ -117,6 +120,7 @@ const PlayerStatus = ({
 			>
 				<div className="font-semibold">
 					<ManaDisplay
+						effects={effects}
 						compact
 						equipment={equipment}
 						mana={mana}
@@ -127,7 +131,7 @@ const PlayerStatus = ({
 				<Reserve
 					label="Mana reserve"
 					value={mana}
-					maximum={maximumMana(progression, equipment)}
+					maximum={maximumMana(progression, equipment, effects)}
 					mana
 				/>
 			</StatusCard>

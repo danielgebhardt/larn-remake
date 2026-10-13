@@ -2,7 +2,7 @@ import type { Equipment } from "../items/Equipment";
 import { deriveAttributes } from "./Attributes";
 import type { DamageElement } from "./DamageElements";
 import type { Progression } from "./Progression";
-import type { EffectKind, PlayerEffectKind } from "./TimedEffects";
+import type { EffectKind, PlayerEffectKind, TimedEffect } from "./TimedEffects";
 
 type SpellDetails = { name: string; cost: number; description: string };
 export type SpellDefinition = SpellDetails &
@@ -276,10 +276,11 @@ export const spellPotency = (
 	progression: Progression,
 	definition: SpellDefinition,
 	equipment?: Partial<Equipment>,
+	effects: readonly TimedEffect[] = [],
 ) => {
 	const modifier = deriveAttributes(
 		progression,
-		[],
+		effects,
 		equipment,
 	).intelligenceModifier;
 	switch (definition.effect) {

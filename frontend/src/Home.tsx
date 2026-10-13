@@ -729,6 +729,10 @@ const Home = ({
 			/>
 			<MerchantDialog
 				open={merchantId !== null && canPlay}
+				onBuy={(kind) => {
+					if (merchantId)
+						handleActionRequested({ type: "buy", merchantId, kind });
+				}}
 				state={game.state}
 				error={game.actionError}
 				onClose={() => setMerchantId(null)}

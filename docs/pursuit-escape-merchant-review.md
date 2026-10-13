@@ -135,3 +135,11 @@ E beside a merchant opens Buy/Sell tabs showing current gold, offer prices, shar
 This commit builds browsing and transaction callbacks; purchase/sale callbacks are wired in #261/#262. Inspection, tab switches and canceling leave run state unchanged.
 
 Validation: a Home interaction test covers E, stock/prices/gold, Buy/Sell shortcuts, blocked dungeon actions, no turn consumption and focus restoration; existing object/gate interactions stay green.
+
+## #261 — Potion purchases
+
+A Buy button or 1–4 buys exactly one bottle from shared stock. The action checks merchant reach/availability, known offer, stock, gold and bag capacity before changing ownership. Stable per-supply purchase IDs prevent duplicate bottles. Success decrements stock, spends gold and adds/automatically assigns the bottle, then the existing action resolver advances exactly one turn and normal enemy/effect/recovery phases. Rejections consume nothing and do not advance time. A matching potion stack accepts another bottle in a full bag.
+
+The dialog remains open and updates resources/counts after a trade. A fatal monster response ends browsing and opens the existing death dialog; the completed purchase is retained in the run state.
+
+Validation: successful/repeated transfers, distinct IDs, hotbar assignment, every rejection, full-stack capacity, disabled saved merchants, one enemy response and fatal purchase ownership; Home covers both number/mouse purchase, updated stock/gold, focus and death closure.

@@ -2,16 +2,13 @@ import type { Coordinate } from "../dungeon/DungeonTypes";
 import { createSeededRandom, hashStringToUint32 } from "../dungeon/Seed";
 import type { GameState } from "../game/GameState";
 import { sealedEliteTiles } from "../objects/OptionalEliteRooms";
-import {
-	MONSTER_DEFINITIONS,
-	type Monster,
-	selectMonsterKind,
-} from "./Monster";
+import { type Monster, selectMonsterKind } from "./Monster";
 import {
 	coordinateKey,
 	orthogonalDistance,
 	protectedFloorLocations,
 } from "./MonsterLocations";
+import { maximumMonsterHealth } from "./MonsterStats";
 
 export const ESCAPE_ENCOUNTER_RULES = {
 	arrivalBuffer: 3,
@@ -94,7 +91,7 @@ export const generateEscapeEncounters = (
 			kind,
 			floorNumber,
 			coordinate,
-			health: MONSTER_DEFINITIONS[kind].maxHealth,
+			health: maximumMonsterHealth(kind, state.difficulty),
 			intent: { type: "idle" },
 			awareness: { type: "idle" },
 			lastDamagedTurn: null,

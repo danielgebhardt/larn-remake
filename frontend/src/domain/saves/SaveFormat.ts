@@ -161,6 +161,7 @@ export const parseSave = (text: string): SaveResult<SaveDocument> => {
 export const restoreSave = (document: SaveDocument): RestoredAdventure => {
 	const state: GameState = {
 		...document.state,
+		difficulty: 1,
 		run: {
 			...document.state.run,
 			floors: document.state.run.floors.map((floor) => ({

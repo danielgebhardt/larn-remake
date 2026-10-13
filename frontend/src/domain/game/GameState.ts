@@ -13,6 +13,7 @@ import {
 } from "../merchant/MerchantRules";
 import type { Monster } from "../monsters/Monster.ts";
 import { spawnRunMonsters } from "../monsters/MonsterPlacement.ts";
+import { maximumMonsterHealth } from "../monsters/MonsterStats";
 import type { DungeonObject } from "../objects/DungeonObject";
 import { spawnRunObjects } from "../objects/ObjectPlacement";
 import { addOptionalEliteRooms } from "../objects/OptionalEliteRooms";
@@ -21,6 +22,7 @@ import {
 	createActivityHistory,
 } from "./ActivityHistory.ts";
 import { createQuest, type QuestState } from "./Adventure";
+import { assertDifficulty, type Difficulty } from "./Difficulty";
 import type { EscapeState } from "./Escape";
 import { maximumMana } from "./Mana";
 import { createPlayerStats, type PlayerStats } from "./PlayerStats.ts";
@@ -30,6 +32,7 @@ import { createKnownSpells, type SpellKind } from "./Spells";
 import type { TimedEffect } from "./TimedEffects";
 
 export type GameState = {
+	readonly difficulty: Difficulty;
 	merchantStock: MerchantStock;
 	escape: EscapeState | null;
 	run: DungeonRun;
@@ -52,7 +55,11 @@ export type GameState = {
 	activityHistory: ActivityHistory;
 };
 
-export const createGameState = (run: DungeonRun): GameState => {
+export const createGameState = (
+	run: DungeonRun,
+	difficulty: number = 1,
+): GameState => {
+	assertDifficulty(difficulty);
 	const monsters = spawnRunMonsters(run);
 	const ordinaryLoot = spawnRunItems(run, monsters);
 	const loot = [
@@ -67,6 +74,7 @@ export const createGameState = (run: DungeonRun): GameState => {
 		objects: spawnRunObjects(run, monsters, floorItems),
 	});
 	return {
+		difficulty,
 		run,
 		escape: null,
 		merchantStock: createMerchantStock(),
@@ -85,7 +93,13 @@ export const createGameState = (run: DungeonRun): GameState => {
 		bag: createStartingBag(),
 		potionHotbar: createPotionHotbar(),
 		floorItems,
-		monsters: encounters.monsters,
+		monsters:
+			difficulty === 1
+				? encounters.monsters
+				: encounters.monsters.map((monster) => ({
+						...monster,
+						health: maximumMonsterHealth(monster.kind, difficulty),
+					})),
 		activityHistory: createActivityHistory(),
 	};
 };

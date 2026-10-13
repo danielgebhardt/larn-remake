@@ -1,6 +1,7 @@
 import type { Equipment } from "../items/Equipment";
 import { deriveAttributes } from "./Attributes";
 import { resolveIncomingDamage } from "./CombatStats";
+import { assertDifficulty, scaleEnemyValue } from "./Difficulty";
 import type { Progression } from "./Progression";
 import type { TimedEffect } from "./TimedEffects";
 
@@ -71,8 +72,10 @@ export const resolveMeleeAttack = (
 	profile: AttackProfile,
 	rolls: MeleeRolls,
 	armor = 0,
+	difficulty = 1,
 ): MeleeOutcome => {
 	validateProfile(profile);
+	assertDifficulty(difficulty);
 	if (!Number.isInteger(armor) || armor < 0)
 		throw new RangeError("Armor must be a nonnegative whole number.");
 	const hitRoll = rolls.d20();
@@ -86,5 +89,8 @@ export const resolveMeleeAttack = (
 		raw > profile.maxDamage
 	)
 		throw new RangeError("Damage roll is outside the attack range.");
-	return { hit: true, damage: resolveIncomingDamage(raw, armor) };
+	return {
+		hit: true,
+		damage: resolveIncomingDamage(scaleEnemyValue(raw, difficulty), armor),
+	};
 };

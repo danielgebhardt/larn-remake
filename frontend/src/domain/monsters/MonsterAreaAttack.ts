@@ -2,6 +2,7 @@ import { hasLineOfSight } from "../dungeon/Visibility";
 import type { ActivityEvent } from "../game/ActivityHistory";
 import { spellArea } from "../game/AreaSpells";
 import type { AttackRollSource } from "../game/CombatRandomness";
+import { scaleEnemyValue } from "../game/Difficulty";
 import type { GameState } from "../game/GameState";
 import { MONSTER_DEFINITIONS, type Monster } from "./Monster";
 import { orthogonalDistance } from "./MonsterLocations";
@@ -67,13 +68,14 @@ export const resolveMonsterArea = (
 					},
 				],
 			};
-		const damage = rolls({
+		const rawDamage = rolls({
 			seed: state.run.seed,
 			floorNumber: state.run.activeFloor,
 			turn: state.turn,
 			attackerId: `${monster.id}:area:${intent.element}`,
 			targetId: "player",
 		}).damage(profile.minDamage, profile.maxDamage);
+		const damage = scaleEnemyValue(rawDamage, state.difficulty);
 		return {
 			monster: finished,
 			damage,

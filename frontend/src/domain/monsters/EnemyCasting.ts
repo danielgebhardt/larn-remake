@@ -1,4 +1,5 @@
 import type { AttackRollSource } from "../game/CombatRandomness";
+import { scaleEnemyValue } from "../game/Difficulty";
 import type { GameState } from "../game/GameState";
 import { SPELL_DEFINITIONS } from "../game/Spells";
 import {
@@ -6,6 +7,7 @@ import {
 	MONSTER_DEFINITIONS,
 	type Monster,
 } from "./Monster";
+import { maximumMonsterHealth } from "./MonsterStats";
 export type EnemySpellOutcome =
 	| { type: "wait" }
 	| { type: "heal"; spell: "heal"; recovered: number }
@@ -18,17 +20,18 @@ export const chooseEnemySpell = (
 	rolls: AttackRollSource,
 ): EnemySpellOutcome => {
 	const definition = MONSTER_DEFINITIONS[monster.kind];
+	const maxHealth = maximumMonsterHealth(monster.kind, state.difficulty);
 	const interval = definition.spellInterval ?? 3;
 	const index = Number(monster.id.split(":")[1]);
 	if ((state.turn - 1 + index - 1) % interval !== 0) return { type: "wait" };
 	const repertoire = definition.enemySpells ?? [];
-	if (monster.health <= definition.maxHealth / 2 && repertoire.includes("heal"))
+	if (monster.health <= maxHealth / 2 && repertoire.includes("heal"))
 		return {
 			type: "heal",
 			spell: "heal",
 			recovered: Math.min(
 				SPELL_DEFINITIONS.heal.healing,
-				definition.maxHealth - monster.health,
+				maxHealth - monster.health,
 			),
 		};
 	const damageSpells = repertoire.filter(
@@ -42,12 +45,16 @@ export const chooseEnemySpell = (
 			Math.floor((state.turn - 1 + index - 1) / interval) % damageSpells.length
 		];
 	const profile = SPELL_DEFINITIONS[spell];
-	const damage = rolls({
+	const rawDamage = rolls({
 		seed: state.run.seed,
 		floorNumber: state.run.activeFloor,
 		turn: state.turn,
 		attackerId: `${monster.id}:spell:${spell}`,
 		targetId: "player",
 	}).damage(profile.minimumDamage, profile.maximumDamage);
-	return { type: "damage", spell, damage };
+	return {
+		type: "damage",
+		spell,
+		damage: scaleEnemyValue(rawDamage, state.difficulty),
+	};
 };

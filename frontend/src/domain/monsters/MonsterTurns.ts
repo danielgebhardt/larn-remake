@@ -31,6 +31,7 @@ import { monsterDoorToOpen } from "./MonsterDoors";
 import { orthogonalDistance } from "./MonsterLocations";
 import { detectsPlayer, selectPursuitStep } from "./MonsterPursuit";
 import { selectRetreatStep } from "./MonsterRetreat";
+import { maximumMonsterHealth } from "./MonsterStats";
 import { pursuitRulesFor } from "./PursuitRules";
 
 // The player phase has already chosen the active floor and turn number.
@@ -75,7 +76,7 @@ export const resolveMonsterPhase = (
 		) {
 			const recovered = Math.min(
 				profile.regeneration,
-				profile.maxHealth - monster.health,
+				maximumMonsterHealth(monster.kind, state.difficulty) - monster.health,
 			);
 			if (recovered > 0) {
 				monster = { ...monster, health: monster.health + recovered };
@@ -355,6 +356,7 @@ export const resolveMonsterPhase = (
 				targetId: "player",
 			}),
 			armor,
+			state.difficulty,
 		);
 		if (!outcome.hit) {
 			events.push({

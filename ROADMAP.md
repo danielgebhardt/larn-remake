@@ -175,3 +175,5 @@ Session ownership #275 and save-validation ownership #276 are accepted and merge
 CI/browser checks are organized under epic #277. Startup measurement and selective dialog splitting [#278](https://github.com/danielgebhardt/larn-remake/issues/278) stay Backlog; splitting is conditional on measured benefit. Size presets #279 are now part of difficulty/new-adventure epic #213.
 
 The latest recorded complete frontend verification passes **292 files / 2,144 tests**, Biome, TypeScript and production build. Final visual-feedback changes also passed the focused 14-test set and production build. No gameplay or save format changes were introduced by that polish.
+
+Earlier appearances of stronger monster kinds are a separate [Backlog experiment #291](https://github.com/danielgebhardt/larn-remake/issues/291), after the health/damage baseline. Keep its progression/reward effects separate from the current difficulty multipliers.

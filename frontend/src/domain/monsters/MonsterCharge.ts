@@ -146,6 +146,7 @@ export const resolveMonsterCharge = (
 				}),
 				deriveCombatStats(state.equipment, state.progression, state.effects)
 					.armor,
+				state.difficulty,
 			);
 			if (!outcome.hit) return finished("missed");
 			return {

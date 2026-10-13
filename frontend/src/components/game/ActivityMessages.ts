@@ -10,6 +10,8 @@ import { describeObject } from "../../domain/objects/ObjectDescriptions";
 export const formatActivityEvent = (event: ActivityEvent): string => {
 	const prefix = `Turn ${event.turn} — `;
 	switch (event.type) {
+		case "escape-floor-activated":
+			return `${prefix}The hunted return reaches floor ${event.floorNumber}.`;
 		case "escape-started":
 			return `${prefix}The cure awakens the dungeon. You are hunted: return to the entrance on floor 1.`;
 		case "monster-awareness-changed":

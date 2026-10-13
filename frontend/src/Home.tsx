@@ -599,7 +599,10 @@ const Home = ({
 							onActivate={spells.activate}
 						/>
 					</div>
-					<QuestStatus quest={game.state.quest} />
+					<QuestStatus
+						quest={game.state.quest}
+						activeFloor={game.state.run.activeFloor}
+					/>
 					<VisibleEffects
 						effects={game.state.effects}
 						monsters={activeMonsters}

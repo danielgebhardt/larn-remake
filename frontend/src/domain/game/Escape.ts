@@ -1,4 +1,5 @@
 import { generateEscapeEncounters } from "../monsters/EscapeEncounters";
+import { appendActivityEvents } from "./ActivityHistory";
 import type { GameState } from "./GameState";
 
 export type EscapeState = Readonly<{
@@ -26,6 +27,9 @@ export const activateEscapeFloor = (
 	const actors = generateEscapeEncounters(state, floor);
 	return {
 		...state,
+		activityHistory: appendActivityEvents(state.activityHistory, [
+			{ type: "escape-floor-activated", floorNumber: floor, turn: state.turn },
+		]),
 		escape: {
 			...snapshot,
 			activatedFloors: [...snapshot.activatedFloors, floor],

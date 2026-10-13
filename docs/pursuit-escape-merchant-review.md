@@ -42,3 +42,7 @@ Committed stair ascent activates an eligible floor immediately before its ordina
 ## #242 — Stronger bounded escape pursuit
 
 During a live cure-carrier escape, all surviving and newly added actors gain two tiles of detection radius, eighteen eligible phases of last-seen memory, and four search phases. Closed doors/walls still block sight, three blocked phases still end a chase, and inactive floors/condition skips retain their pauses. These values are centralized beside ordinary pursuit. Area preparation receives the same detection policy; attack ranges, damage, XP and loot are unchanged. Focused tests compare ordinary versus escape detection, wall/inactive-floor safety and finite searching.
+
+## #243 — Return progress and integrated continuation
+
+The existing objective line shows remaining floors to climb, switching to an entrance reminder on floor one. Each activated floor produces one restrained return-progress message; Help explains finite waves and stronger pursuit without exposing hidden actor positions. A generated 60×60 continuation test preserves actors, markers and subsequent actions exactly across save/load, proves repeated activation after reload is inert, and confirms restart resets escape. UI tests cover progress/entrance messaging and existing quest behavior; browser verified the imported surface-floor reminder (`/tmp/larn-escape-progress-review.png`). No additional persisted representation or save version was needed: v14 already stores the actual actor state and activated-floor list.

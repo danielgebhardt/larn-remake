@@ -10,6 +10,7 @@ import type { EffectKind } from "./TimedEffects";
 
 export type ActivityEvent = { turn: number } & (
 	| { type: "escape-started" }
+	| { type: "escape-floor-activated"; floorNumber: number }
 	| {
 			type: "monster-awareness-changed";
 			monster: MonsterKind;

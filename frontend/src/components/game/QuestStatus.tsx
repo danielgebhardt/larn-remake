@@ -4,9 +4,11 @@ import { type QuestState, questInstruction } from "../../domain/game/Adventure";
 const QuestStatus = ({
 	quest,
 	pouch = false,
+	activeFloor,
 }: {
 	quest: QuestState;
 	pouch?: boolean;
+	activeFloor?: number;
 }) => (
 	<section
 		aria-label={pouch ? "Quest pouch" : "Adventure quest"}
@@ -22,7 +24,14 @@ const QuestStatus = ({
 						: "Empty — reserved for the cure."}
 				</p>
 			)}
-			<output aria-label="Quest objective">{questInstruction(quest)}</output>
+			<output aria-label="Quest objective">
+				{questInstruction(quest)}
+				{quest.cureRecovered && !quest.victory && activeFloor !== undefined
+					? activeFloor === 1
+						? " Reach the entrance on this floor."
+						: ` ${activeFloor - 1} ${activeFloor === 2 ? "floor" : "floors"} to climb.`
+					: ""}
+			</output>
 		</div>
 	</section>
 );

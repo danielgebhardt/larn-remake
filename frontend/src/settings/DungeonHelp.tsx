@@ -257,6 +257,18 @@ const DungeonHelp = ({
 					</li>
 				</ul>
 			</section>
+			<section
+				aria-label="Hunted return"
+				className="rounded-lg border p-4 text-sm"
+			>
+				<h3 className="mb-2 font-medium">Hunted return</h3>
+				<p>
+					Recovering the cure awakens a finite group of enemies on each floor as
+					you climb toward the entrance. Surviving enemies also detect you
+					farther away and pursue longer. Walls and closed doors still break
+					sight. Revisiting a floor never creates another wave.
+				</p>
+			</section>
 			<ObservedCreatures monsters={monsters} visible={visible} />
 			<section
 				aria-label="Enemy tactics"

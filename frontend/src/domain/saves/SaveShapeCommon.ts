@@ -210,6 +210,7 @@ const eventFields = {
 	"player-died": {},
 	"quest-completed": {},
 	"escape-started": {},
+	"escape-floor-activated": { floorNumber },
 	"entrance-reminder": { goalFloor: floorNumber },
 	"item-equipped": { item: itemKind, slot, replaced: optional(itemKind) },
 	"item-unequipped": { item: itemKind, slot, replaced: optional(itemKind) },

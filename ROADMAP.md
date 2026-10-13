@@ -77,13 +77,13 @@ Current save format is **v19**: validated enemy door-opening history is added, w
 
 [Story review guide](docs/pacing-tactics-review.md) contains logic and six-seed evidence. [Post-epic codebase review](docs/codebase-review-2026-10-13.md) records immediate fixes to diagnostic stacking/capacity, elite routing, current resource estimates and stale Help, followed by the accepted session/save refactors #274–276. CI and startup follow-ups remain planned. Scripted policies remain limited; human playtesting is still the next balance gate.
 
-## Next planned program
+## Current implementation and next program
 
-The developer agreed to this order after merging the engineering and visual polish. Stories are created and linked as native sub-issues; this is planning, not authorization to begin implementation. Starting classes, town services and cold-start measurement remain later work.
+The developer agreed to this order after merging the engineering and visual polish. Stories are linked as native sub-issues. The five-story difficulty epic #213 is implemented on `codex/difficulty-and-adventure-choices` and awaiting developer review; CI/browser coverage and corridor travel remain planned. Starting classes, town services and cold-start measurement remain later work.
 
 | Order | Epic | Outcome |
 | --- | --- | --- |
-| 1 | [#213 — Difficulty and new-adventure choices](https://github.com/danielgebhardt/larn-remake/issues/213) | Immutable combat pressure, saved continuation, explicit start/settings choices and fixed map-size boxes. Five stories below. |
+| 1 | [#213 — Difficulty and new-adventure choices](https://github.com/danielgebhardt/larn-remake/issues/213) | Immutable combat pressure, saved continuation, explicit start/settings choices and fixed map-size boxes. Five stories below, implemented and awaiting review. |
 | Alongside | [#277 — Declared-toolchain CI and browser smoke coverage](https://github.com/danielgebhardt/larn-remake/issues/277) | Repeatable frontend/backend checks and a small controlled browser suite. Prefer establishing CI before the next large feature merge. |
 | 2 | [#285 — Interruptible safe corridor travel](https://github.com/danielgebhardt/larn-remake/issues/285) | Reduce repetitive movement through quiet corridors while preserving each committed turn and stopping at decisions or danger. |
 | Ongoing | Human pacing/counterplay playtests | Supplies at real fights, merchant spending, useful upgrades, leveling and hunted return. Keep human reports alongside bounded diagnostics. |
@@ -91,13 +91,13 @@ The developer agreed to this order after merging the engineering and visual poli
 
 ### Difficulty and start-dialog choices — five stories
 
-1. **[#281](https://github.com/danielgebhardt/larn-remake/issues/281): difficulty rules and ownership.** Proposed Easier / Normal / Harder multipliers are 0.75 / 1.0 / 1.25. Scale enemy maximum health and direct melee/ranged/charge/area damage with documented rounding and a positive minimum of 1. Keep Normal behavior, XP, loot, population, armor/resistance/accuracy, spell availability, environmental damage and ongoing conditions unchanged initially. Confirm exact supported values and ordering during implementation.
+1. **[#281](https://github.com/danielgebhardt/larn-remake/issues/281): difficulty rules and ownership.** Supported Easier / Normal / Harder multipliers are 0.75 / 1.0 / 1.25. Scale enemy maximum health and direct melee/ranged/charge/area damage with documented rounding and a positive minimum of 1. Keep Normal behavior, XP, loot, population, armor/resistance/accuracy, spell availability, environmental damage and ongoing conditions unchanged initially. Round to nearest, minimum one; physical rolls scale before armor and enemy spells/area attacks retain their existing armor bypass.
 2. **[#282](https://github.com/danielgebhardt/larn-remake/issues/282): saved continuation and replay.** Explicitly version difficulty and validate actual wounded/scaled actors. Migrate v1–v19 saves to Normal without regenerating played state. Preserve deterministic continuation and existing merchant/escape/effect/enchantment ownership.
 3. **[#283](https://github.com/danielgebhardt/larn-remake/issues/283): difficulty UI.** Choose before starting; Settings edits the next-run draft. Show the active choice and actual scaled creature values, keep the catalog baseline clear, and retain keyboard/focus/error behavior.
-4. **[#279](https://github.com/danielgebhardt/larn-remake/issues/279): Small / Medium / Large boxes.** Proposed row/column dimensions: 20×20 / 40×40 / 60×60. Keep floors independently configurable unless the developer chooses full-adventure presets. Retain custom Settings and 60×60×20 as the reference/default. Confirm dimensions before implementation.
+4. **[#279](https://github.com/danielgebhardt/larn-remake/issues/279): Small / Medium / Large boxes.** Implemented row/column dimensions: 20×20 / 40×40 / 60×60. Floors remain independently configurable. Retain custom Settings and 60×60×20 as the reference/default.
 5. **[#284](https://github.com/danielgebhardt/larn-remake/issues/284): matched verification.** Compare compact and recommended seeds; verify intended geometry/content stability, actual scaling, normal-mode regression, save/replay and keyboard lifecycle. Treat scripted observations as limited mechanics evidence, not human win rates.
 
-Do not expose non-normal modes before persistence and UI are ready. Changing one combat multiplier does not authorize simultaneous supply/XP/density tuning.
+Persistence and UI are implemented together: v20 stores active difficulty, and valid v1–v19 saves restore Normal. Review evidence and limitations are recorded in [the epic review guide](docs/difficulty-adventure-review.md). Changing one combat multiplier does not authorize simultaneous supply/XP/density tuning.
 
 ### Interruptible safe corridor travel — three stories
 

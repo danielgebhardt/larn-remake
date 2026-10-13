@@ -37,3 +37,20 @@ The four UI regressions failed first, then passed; focused opening/configuration
 The welcome form now offers dimension-only Small (20×20), Medium (40×40), and Large (60×60) presets. Large remains the default; floor count and difficulty are independent. A rectangular custom configuration is not mislabeled as a preset. The selected dimensions and floor count appear below the actions, and Settings retains custom sizing.
 
 Five behavioral tests failed before implementation and now pass, including native keyboard selection and the actual configuration passed into generation. Focused opening coverage passes 4 files / 14 tests. The dark welcome dialog fits a 1280×720 viewport without internal scrolling (684px client/scroll height).
+
+## Matched verification — #284
+
+The generation regressions cover compact (20×20×5) and reference (60×60×20) runs, actor identity/placement, every catalog kind’s health and physical range, and return encounters. Two page regressions import Easier/Harder saves, use G/H immediately, retain custom 15×15 dimensions in Settings, restart the saved seed and use Space without selecting the map. These verification tests pass against the preceding implementation; this story introduces no additional gameplay tuning.
+
+Run `node scripts/review-difficulty.mjs` from `frontend`; optional positional seeds replace the default 0, 1, 123, 987. The audit passed **24 matched generated adventures and 24 played save/turn continuations**, including **15 distinct optional elite actors**. It compares all state other than difficulty and monster health against a detached baseline, checks physical range rounding and floor-1 return actors, then wounds/kills actors through domain rules and resumes a v20 save across turn 29→30. Absent optional stair properties are normalized at the JSON boundary for comparison; no game data is regenerated to restore it.
+
+| Seed 123 configuration | Monsters | Easier total initial HP | Normal HP | Harder HP |
+| --- | ---: | ---: | ---: | ---: |
+| 20×20×5 | 23 | 96 | 123 | 156 |
+| 60×60×20 | 246 | 3,001 | 3,953 | 4,980 |
+
+Geometry, ordinary/elite identities, objects, item opportunities, initial player resources and rewards stayed equal across modes. Integer rounding means a population’s effective health ratio is not exactly the multiplier. Existing physical, spell, area, charge and regeneration tests verify attack behavior; the audit does not claim to simulate fights across a whole adventure, every return floor, merchant decisions or human wins. Human Normal/Harder playtesting should evaluate meaningful supplies, counterplay and late-game/return pressure before changing more variables.
+
+Browser checks at 1280×720 verified dark/light welcome dialogs (684px client and scroll height), default Large/Normal, selected Small/Harder startup, Settings drafts, custom-sized restart and Harder v20 import. G picked up the potion and H healed without another map click. After the Settings closing transition, focus returned to the map and Space committed a turn. The original Dark theme was restored; the browser save slot was not overwritten.
+
+Five-story commits are ready for developer review. Earlier monster eligibility remains separate Backlog #291; CI/browser automation #277 and corridor travel #285 have not been implemented here.

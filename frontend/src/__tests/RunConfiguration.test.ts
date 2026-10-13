@@ -13,6 +13,7 @@ describe("run configuration input", () => {
 		).toEqual({
 			valid: true,
 			value: {
+				difficulty: 1,
 				rows: 10,
 				cols: 100,
 				floorCount: 5,
@@ -65,6 +66,7 @@ describe("run configuration input", () => {
 		).toEqual({
 			valid: true,
 			value: {
+				difficulty: 1,
 				rows: 100,
 				cols: 100,
 				floorCount: 20,
@@ -93,6 +95,7 @@ describe("run configuration input", () => {
 		).toEqual({
 			valid: true,
 			value: {
+				difficulty: 1,
 				rows: 20,
 				cols: 40,
 				floorCount: 6,
@@ -106,6 +109,7 @@ describe("run configuration input", () => {
 	it("includes only user-editable values in the settings draft", () => {
 		expect(
 			configurationDraft({
+				difficulty: 1,
 				rows: 30,
 				cols: 100,
 				floorCount: 5,
@@ -114,7 +118,7 @@ describe("run configuration input", () => {
 				minRoomSize: 4,
 				maxRoomAspectRatio: 2,
 			}),
-		).toEqual({ rows: "30", cols: "100", floorCount: "5" });
+		).toEqual({ rows: "30", cols: "100", floorCount: "5", difficulty: "1" });
 	});
 	it("reports all invalid fields together", () => {
 		const result = parseRunConfiguration({
@@ -130,4 +134,35 @@ describe("run configuration input", () => {
 				"floorCount",
 			]);
 	});
+	it.each(["0.75", "1", "1.25"])(
+		"accepts supported difficulty %s",
+		(difficulty) => {
+			const result = parseRunConfiguration({
+				rows: "20",
+				cols: "20",
+				floorCount: "5",
+				difficulty,
+			});
+			expect(result).toMatchObject({
+				valid: true,
+				value: { difficulty: Number(difficulty) },
+			});
+		},
+	);
+	it.each(["", "0", "0.5", "2", "abc"])(
+		"rejects unsupported difficulty %s",
+		(difficulty) => {
+			expect(
+				parseRunConfiguration({
+					rows: "20",
+					cols: "20",
+					floorCount: "5",
+					difficulty,
+				}),
+			).toEqual({
+				valid: false,
+				errors: { difficulty: "Choose Easier, Normal, or Harder." },
+			});
+		},
+	);
 });

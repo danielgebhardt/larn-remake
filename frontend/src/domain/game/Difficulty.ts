@@ -26,3 +26,6 @@ export const scaleEnemyValue = (
 		);
 	return Math.max(1, Math.round(value * difficulty));
 };
+
+export const difficultyLabel = (value: Difficulty) =>
+	value === 0.75 ? "Easier" : value === 1.25 ? "Harder" : "Normal";

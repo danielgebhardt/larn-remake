@@ -3,16 +3,24 @@ import { ScrollText, Shield } from "lucide-react";
 import { useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetTrigger } from "@/components/ui/sheet";
+import {
+	DEFAULT_RUN_CONFIGURATION,
+	type RunConfiguration,
+} from "../../domain/dungeon/RunConfiguration";
 import type { SaveDocument } from "../../domain/saves/SaveFormat";
 import AdventureSaveSheet from "./AdventureSaveSheet";
+import DifficultyChoice from "./DifficultyChoice";
 
 const AdventureOpening = ({
 	onBegin,
 	onRestore,
+	startError,
 }: {
-	onBegin: () => void;
+	onBegin: (configuration: RunConfiguration) => void;
+	startError?: string;
 	onRestore: (document: SaveDocument) => void;
 }) => {
+	const [configuration, setConfiguration] = useState(DEFAULT_RUN_CONFIGURATION);
 	const [saveOpen, setSaveOpen] = useState(false);
 	const title = useRef<HTMLHeadingElement>(null);
 	return (
@@ -55,9 +63,28 @@ const AdventureOpening = ({
 								a safe return and a lost expedition.
 							</p>
 						</div>
-						<Button className="w-full" onClick={onBegin}>
-							Begin Adventure
-						</Button>
+						<form
+							className="grid gap-4"
+							onSubmit={(event) => {
+								event.preventDefault();
+								onBegin(configuration);
+							}}
+						>
+							<DifficultyChoice
+								value={configuration.difficulty ?? 1}
+								onChange={(difficulty) =>
+									setConfiguration((current) => ({ ...current, difficulty }))
+								}
+							/>
+							{startError && (
+								<p role="alert" className="text-sm text-destructive">
+									{startError}
+								</p>
+							)}
+							<Button type="submit" className="w-full">
+								Begin Adventure
+							</Button>
+						</form>
 						<Sheet open={saveOpen} onOpenChange={setSaveOpen}>
 							<SheetTrigger
 								render={<Button variant="outline" className="mt-2 w-full" />}

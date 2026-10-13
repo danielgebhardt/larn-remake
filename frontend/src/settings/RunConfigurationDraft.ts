@@ -3,9 +3,13 @@ import {
 	DEFAULT_RUN_CONFIGURATION,
 	type RunConfiguration,
 } from "../domain/dungeon/RunConfiguration.ts";
+import { isDifficulty } from "../domain/game/Difficulty";
 
-export type ConfigurationField = "rows" | "cols" | "floorCount";
-export type ConfigurationDraft = Record<ConfigurationField, string>;
+export type ConfigurationField = "rows" | "cols" | "floorCount" | "difficulty";
+export type ConfigurationDraft = Record<
+	Exclude<ConfigurationField, "difficulty">,
+	string
+> & { difficulty?: string };
 export type ConfigurationErrors = Partial<Record<ConfigurationField, string>>;
 
 export const configurationDraft = (
@@ -14,6 +18,7 @@ export const configurationDraft = (
 	rows: String(value.rows),
 	cols: String(value.cols),
 	floorCount: String(value.floorCount),
+	difficulty: String(value.difficulty ?? 1),
 });
 
 export const parseRunConfiguration = (
@@ -23,8 +28,12 @@ export const parseRunConfiguration = (
 	| { valid: true; value: RunConfiguration }
 	| { valid: false; errors: ConfigurationErrors } => {
 	const errors: ConfigurationErrors = {};
+	const difficulty = Number(draft.difficulty ?? configuration.difficulty ?? 1);
+	if (!isDifficulty(difficulty))
+		errors.difficulty = "Choose Easier, Normal, or Harder.";
 	const value: RunConfiguration = {
 		...configuration,
+		difficulty: isDifficulty(difficulty) ? difficulty : 1,
 		rows: Number(draft.rows.trim()),
 		cols: Number(draft.cols.trim()),
 		floorCount: Number(draft.floorCount.trim()),

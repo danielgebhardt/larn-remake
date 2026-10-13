@@ -11,11 +11,13 @@ import {
 	SheetHeader,
 	SheetTitle,
 } from "@/components/ui/sheet";
+import DifficultyChoice from "../components/game/DifficultyChoice";
 import {
 	CONFIGURATION_LIMITS,
 	type FogConfiguration,
 	type RunConfiguration,
 } from "../domain/dungeon/RunConfiguration.ts";
+import { difficultyLabel, isDifficulty } from "../domain/game/Difficulty";
 import FogSettings from "./FogSettings.tsx";
 import type {
 	ConfigurationDraft,
@@ -57,6 +59,7 @@ const DungeonSettings = ({
 	onSeedInputChange,
 	onSeedSubmit,
 }: DungeonSettingsProps) => {
+	const selectedDifficulty = Number(configDraft.difficulty ?? 1);
 	const inputRef = useRef<HTMLInputElement>(null);
 	const { theme, setTheme } = useTheme();
 	return (
@@ -90,6 +93,12 @@ const DungeonSettings = ({
 							{configuration.floorCount === 1 ? "floor" : "floors"}
 						</output>
 					</p>
+					<p className="text-sm text-muted-foreground">
+						Current difficulty:{" "}
+						<output aria-label="Current adventure difficulty">
+							{difficultyLabel(configuration.difficulty ?? 1)}
+						</output>
+					</p>
 					<form className="grid gap-3" onSubmit={onSeedSubmit}>
 						<div className="grid gap-2">
 							<Label htmlFor="dungeon-seed">Dungeon seed</Label>
@@ -111,6 +120,17 @@ const DungeonSettings = ({
 								className="text-sm text-destructive"
 							>
 								{seedError}
+							</p>
+						)}
+						<DifficultyChoice
+							value={isDifficulty(selectedDifficulty) ? selectedDifficulty : 1}
+							onChange={(difficulty) =>
+								onConfigInputChange("difficulty", String(difficulty))
+							}
+						/>
+						{configErrors.difficulty && (
+							<p role="alert" className="text-sm text-destructive">
+								{configErrors.difficulty}
 							</p>
 						)}
 						<fieldset className="grid grid-cols-3 gap-3">

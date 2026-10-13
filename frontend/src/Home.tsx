@@ -428,6 +428,7 @@ const Home = ({
 						<DungeonHelp
 							finalFocus={mapInputAvailable ? mapRef : false}
 							monsters={activeMonsters}
+							difficulty={game.state.difficulty}
 							visible={
 								fogConfiguration.enabled ? exploration.visible : undefined
 							}
@@ -459,6 +460,7 @@ const Home = ({
 				>
 					<div className="flex shrink-0 flex-wrap items-center justify-center gap-x-5 gap-y-2 pb-3">
 						<PlayerStatus
+							difficulty={game.state.difficulty}
 							effects={game.state.effects}
 							gold={game.state.gold}
 							equipment={game.state.equipment}

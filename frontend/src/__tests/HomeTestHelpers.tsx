@@ -25,7 +25,11 @@ import { predictableAttackRolls } from "./ControlledCombatTestHelpers";
 import { COMPACT_TEST_CONFIGURATION } from "./TestRunConfiguration";
 import { findFloorPath } from "./testhelpers.ts";
 
-const { floorCount, ...DEFAULT_DUNGEON_CONFIG } = COMPACT_TEST_CONFIGURATION;
+const {
+	floorCount,
+	difficulty: _difficulty,
+	...DEFAULT_DUNGEON_CONFIG
+} = COMPACT_TEST_CONFIGURATION;
 
 export { DEFAULT_DUNGEON_CONFIG };
 

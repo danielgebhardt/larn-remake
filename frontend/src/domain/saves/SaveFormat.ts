@@ -6,6 +6,7 @@ import type {
 	FogConfiguration,
 	RunConfiguration,
 } from "../dungeon/RunConfiguration";
+import { difficultyLabel } from "../game/Difficulty";
 import type { GameState } from "../game/GameState";
 import { levelForExperience } from "../game/Progression";
 import type { ItemInstance } from "../items/Item";
@@ -196,4 +197,4 @@ export const restoreSave = (document: SaveDocument): RestoredAdventure => {
 };
 
 export const saveSummary = (document: SaveDocument): string =>
-	`Seed ${document.state.run.seed} · Floor ${document.state.run.activeFloor} of ${document.state.run.floors.length} · Level ${levelForExperience(document.state.progression.experience)} · Turn ${document.state.turn}`;
+	`Seed ${document.state.run.seed} · Floor ${document.state.run.activeFloor} of ${document.state.run.floors.length} · Level ${levelForExperience(document.state.progression.experience)} · Turn ${document.state.turn} · ${difficultyLabel(document.configuration.difficulty)}`;

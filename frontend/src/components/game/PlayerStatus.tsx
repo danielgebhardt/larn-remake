@@ -1,5 +1,6 @@
 import { Coins, Droplets, Heart, Sparkles, UserRound } from "lucide-react";
 import type { ReactNode } from "react";
+import { type Difficulty, difficultyLabel } from "../../domain/game/Difficulty";
 import { maximumMana } from "../../domain/game/Mana";
 import type { PlayerStats } from "../../domain/game/PlayerStats";
 import {
@@ -67,6 +68,7 @@ const Reserve = ({
 );
 const PlayerStatus = ({
 	gold = 0,
+	difficulty = 1,
 	turn,
 	mana,
 	player,
@@ -75,6 +77,7 @@ const PlayerStatus = ({
 	effects = [],
 }: {
 	gold?: number;
+	difficulty?: Difficulty;
 	turn: number;
 	mana: number;
 	player: PlayerStats;
@@ -91,6 +94,12 @@ const PlayerStatus = ({
 				<UserRound aria-hidden="true" className="size-4 text-player" />
 				Adventurer
 			</span>
+			<output
+				aria-label="Adventure difficulty"
+				className="rounded border border-border px-1.5 py-0.5"
+			>
+				{difficultyLabel(difficulty)}
+			</output>
 			<output aria-label="Turn count">Turn {turn}</output>
 		</div>
 		<div className="grid grid-cols-2 gap-2 sm:grid-cols-4">

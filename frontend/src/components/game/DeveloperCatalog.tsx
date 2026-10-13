@@ -133,8 +133,9 @@ const DeveloperCatalog = ({
 			<SheetHeader className="shrink-0">
 				<SheetTitle>Developer catalog</SheetTitle>
 				<SheetDescription>
-					Live definitions and game SVGs. Inspection is free; this view includes
-					undiscovered content.
+					Normal baseline definitions and game SVGs. Active difficulty values
+					are shown in Help. Inspection is free; this view includes undiscovered
+					content.
 				</SheetDescription>
 			</SheetHeader>
 			<Tabs.Root

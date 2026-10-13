@@ -32,7 +32,11 @@ const createRun = (
 	seed: number,
 	configuration: RunConfiguration,
 ): DungeonRun => {
-	const { floorCount, ...dungeonConfig } = configuration;
+	const {
+		floorCount,
+		difficulty: _difficulty,
+		...dungeonConfig
+	} = configuration;
 	return connectDungeonFloors(
 		generateDungeonRun(seed, floorCount, dungeonConfig),
 	);
@@ -46,12 +50,15 @@ type SessionOptions = {
 	initialFogConfiguration: FogConfiguration;
 };
 
-const newSession = (
+export const createAdventureSession = (
 	seed: number,
 	configuration: RunConfiguration,
 	fog: FogConfiguration,
 ): Session => {
-	const state = createGameState(createRun(seed, configuration));
+	const state = createGameState(
+		createRun(seed, configuration),
+		configuration.difficulty ?? 1,
+	);
 	return {
 		state,
 		configuration,
@@ -72,7 +79,7 @@ export const useAdventureSession = ({
 	const [session, setSession] = useState<Session>(() =>
 		initialAdventure
 			? { ...initialAdventure, actionError: "" }
-			: newSession(
+			: createAdventureSession(
 					initialSeed ?? 0,
 					initialConfiguration,
 					initialFogConfiguration,
@@ -109,7 +116,7 @@ export const useAdventureSession = ({
 
 	const start = (seed: number, configuration: RunConfiguration): boolean => {
 		try {
-			const next = newSession(seed, configuration, session.fog);
+			const next = createAdventureSession(seed, configuration, session.fog);
 			setSession(next);
 			return true;
 		} catch {

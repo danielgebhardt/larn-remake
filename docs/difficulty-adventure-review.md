@@ -21,3 +21,13 @@ Save v20 explicitly adds difficulty to saved run configuration. Runtime difficul
 Source-version actor validation uses the corresponding scaled cap only in v20. Wounded actors, removed kills/rewards, enchants, resources, actual geometry and prepared state remain authoritative. Missing/unsupported difficulty and easier actors above their scaled limit are rejected before restoration. Player death is retained as before; defeated monsters remain removed rather than becoming zero-health saved actors.
 
 The new continuation tests failed first; current/legacy migration and validation coverage passes 6 files / 180 tests. The all-source dispatch table now includes 20 formats. Existing current-version assertions were updated without regenerating legacy fixtures.
+
+## Difficulty interface — #283
+
+A shared native-radio choice group appears on the welcome form and Settings. Settings retains the next-run draft until explicit application; current difficulty is separately shown there and in PlayerStatus. Generation receives only terrain configuration, while state creation receives the validated difficulty. Replay/random restart use the active applied configuration; restoring a save uses its canonical difficulty.
+
+App now prepares a complete adventure with the same session factory before transitioning from the welcome dialog. Failed first-start generation preserves the selection/dialog and provides retry feedback. Home continues owning modal and map-focus lifecycle. The factory does not create the adventure a second time when Home mounts.
+
+Observed creature information derives scaled maximum health and physical/blast/spell damage ranges. The developer catalog identifies its Normal baseline. Save summaries include the active difficulty. Native controls support keyboard selection; active map focus and G feedback were verified in the browser after a Settings restart. The welcome and Settings layout fit the 1280×720 browser viewport.
+
+The four UI regressions failed first, then passed; focused opening/configuration/error/focus coverage passes 5 files / 50 tests. The standard full hook remains required for the story commit.

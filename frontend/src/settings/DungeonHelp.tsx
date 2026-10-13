@@ -19,6 +19,7 @@ import DungeonLegend from "../components/dungeon/DungeonLegend.tsx";
 import MonsterIcon from "../components/monsters/MonsterIcon";
 import ObservedCreatures from "../components/monsters/ObservedCreatures";
 import type { VisibilityGrid } from "../domain/dungeon/Visibility";
+import type { Difficulty } from "../domain/game/Difficulty";
 import { MANA_RECOVERY_INTERVAL } from "../domain/game/Mana";
 import {
 	MONSTER_HIT_CHANCE,
@@ -51,10 +52,12 @@ const movementControls = [
 ];
 const DungeonHelp = ({
 	monsters,
+	difficulty = 1,
 	visible,
 	finalFocus,
 }: {
 	monsters?: readonly Monster[];
+	difficulty?: Difficulty;
 	visible?: VisibilityGrid;
 	finalFocus?: RefObject<HTMLElement | null> | false;
 }) => (
@@ -271,7 +274,11 @@ const DungeonHelp = ({
 					sight. Revisiting a floor never creates another wave.
 				</p>
 			</section>
-			<ObservedCreatures monsters={monsters} visible={visible} />
+			<ObservedCreatures
+				monsters={monsters}
+				visible={visible}
+				difficulty={difficulty}
+			/>
 			<section
 				aria-label="Enemy tactics"
 				className="grid gap-3 rounded-lg border p-4 text-sm"

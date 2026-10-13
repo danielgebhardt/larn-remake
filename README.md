@@ -549,3 +549,9 @@ Monster icons use a reserved palette of ember/rust orange, rose, fuchsia, teal a
 Rings use a gold outline with S/D/I attribute letters, a red Vitality heart or a blue Mana bottle; the Band of the Forgotten has an ornate ring silhouette. Dragon mail has a decorated chest-armor outline. Web has curved web strands; Poison Dart uses a skull-and-crossbones bottle. The developer catalog groups item types for browsing, including all potions together; this display sort does not alter seeded loot definition order.
 
 Difficulty is recorded in v20 run configuration. Valid v1–v19 saves migrate to Normal (1), retaining played state; unintroduced legacy difficulty metadata cannot change that baseline. Current actors are checked against their scaled maximum health. The writer records the active runtime difficulty and the loader derives it from validated saved configuration.
+
+### Adventure difficulty
+
+Choose Easier (×0.75), Normal (×1), or Harder (×1.25) before beginning. Settings edits the next adventure; the active choice is fixed for the current run and shown in the player status panel. New Dungeon/replay reuse the last applied setting; loaded adventures retain their own difficulty.
+
+Enemy maximum health and direct damage round to the nearest integer with a minimum of 1. Physical melee/ranged/charge rolls scale before armor. Enemy spells and area attacks retain their existing armor bypass. Enemy healing/regeneration use scaled caps with unchanged recovery amounts. XP, loot, population, accuracy, defenses, ongoing conditions, environmental damage and player resources are unchanged. Help shows scaled creature values; the developer catalog explicitly shows Normal baseline definitions.

@@ -23,6 +23,7 @@ export const DEFAULT_RUN_CONFIGURATION: RunConfiguration = {
 	rows: 60,
 	cols: 60,
 	floorCount: 20,
+	difficulty: 1,
 	minPartitionSize: 8,
 	roomPadding: 1,
 	minRoomSize: 3,

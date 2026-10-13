@@ -32,7 +32,8 @@ const MerchantDialog = ({
 }: Props) => {
 	const titleRef = useRef<HTMLHeadingElement>(null),
 		[tab, setTab] = useState<"buy" | "sell">("buy");
-	const firstSale = useRef<HTMLButtonElement>(null),
+	const buyTab = useRef<HTMLButtonElement>(null),
+		firstSale = useRef<HTMLButtonElement>(null),
 		sellTab = useRef<HTMLButtonElement>(null),
 		[focusAfterSale, setFocusAfterSale] = useState(false);
 	useLayoutEffect(() => {
@@ -66,6 +67,7 @@ const MerchantDialog = ({
 							event.preventDefault();
 							event.stopPropagation();
 							setTab(key === "b" ? "buy" : "sell");
+							(key === "b" ? buyTab.current : sellTab.current)?.focus();
 						}
 						const index = Number(key) - 1;
 						if (
@@ -121,6 +123,7 @@ const MerchantDialog = ({
 						>
 							<Tabs.Tab
 								value="buy"
+								ref={buyTab}
 								className="rounded-t px-4 py-2 font-semibold data-[active]:border-b-2 data-[active]:border-primary"
 							>
 								Buy
@@ -160,6 +163,9 @@ const MerchantDialog = ({
 										<span className="block text-xs text-muted-foreground">
 											{MERCHANT_OFFERS[kind].price} gold ·{" "}
 											{state.merchantStock[kind]} remaining
+										</span>
+										<span className="mt-1 block text-xs font-normal text-muted-foreground">
+											{ITEM_DEFINITIONS[kind].description}
 										</span>
 									</span>
 								</Button>

@@ -45,6 +45,7 @@ it("E opens free Buy/Sell browsing, pauses game shortcuts, and Escape restores m
 	await user.keyboard("dgh ");
 	expect(screen.getByLabelText("Turn count")).toHaveTextContent("Turn 0");
 	await user.keyboard("s");
+	expect(within(dialog).getByRole("tab", { name: "Sell" })).toHaveFocus();
 	expect(within(dialog).getByRole("tab", { name: "Sell" })).toHaveAttribute(
 		"aria-selected",
 		"true",
@@ -52,6 +53,7 @@ it("E opens free Buy/Sell browsing, pauses game shortcuts, and Escape restores m
 	expect(within(dialog).getByText("Iron sword")).toBeVisible();
 	expect(within(dialog).getByText(/Unequip/)).toBeVisible();
 	await user.keyboard("b");
+	expect(within(dialog).getByRole("tab", { name: "Buy" })).toHaveFocus();
 	expect(within(dialog).getByRole("tab", { name: "Buy" })).toHaveAttribute(
 		"aria-selected",
 		"true",

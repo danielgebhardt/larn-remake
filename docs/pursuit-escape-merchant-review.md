@@ -159,3 +159,11 @@ Current snapshots retain shared remaining stock and actual purchased item IDs, g
 Import consistency now ties each owned `merchant:supply:index` bottle to its kind and a spent stock position (1–10), in addition to existing unique ownership/gold bounds. A merchant cannot be saved inside a sealed elite chamber. Missing/invalid stock remains a structural rejection.
 
 Validation: real generated floor-five/floor-ten purchases, consumption, sale, exact save/resume action equivalence and replay reset; older-save location initialization; forged purchased IDs; actual staircase ascent/escape activation retains stock and objects by identity. Captured old saves and expanded adventure continuation remain valid.
+
+## #264 — Merchant verification and economy evidence
+
+`node scripts/review-merchant.mjs 0 1 123 987 42 4294967295` reviews complete generated recommended 60×60×20 adventures. It reports cumulative ordinary-creature/coin income potential, excludes optional elites/return waves/sales/discoveries/spending, and does not claim played win rates. Seeds produced 776–841 gold through floor 5, 2,461–2,573 through floor 10, 4,977–5,132 through floor 15, and 8,371–8,576 over all 20 floors. Collecting everything is an optimistic assumption.
+
+Prices remain 150/200/450/600. At the first visit this can cover five basic health bottles OR three/four mana bottles OR one greater bottle; these are separate all-in budgets, not simultaneous shopping lists. All stock costs 14,000, beyond ordinary full-run income or the 6,231-gold manual alpha example. Spending, missed encounters and player preferences still require playtesting.
+
+Verification includes a real generated 20-floor run with no found supplies, ten completed purchases, shared depletion and loaded sold-out rejection; source accounting tests; previous capacity, reach, stock/gold/ownership validation, keyboard transactions, monster pressure and persistence coverage. Browser review verified E, numbered Buy, B/S, Enter Sell, gold/stock updates and exactly two turns for two trades. B/S now focuses the active tab as well as changing its panel. Both themes/stall visibility were reviewed in #259. Future town integration can reuse MerchantTrades independently of placement/UI.

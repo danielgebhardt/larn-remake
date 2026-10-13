@@ -45,7 +45,7 @@ it("E opens explicit fountain choices, Escape cancels freely, and 1 drinks while
 	await waitFor(() => expect(map).toHaveFocus());
 	expect(screen.getByLabelText("Turn count")).toHaveTextContent("Turn 1");
 	expect(screen.getByLabelText("Player health")).toHaveTextContent(
-		"Health 7 / 10",
+		"Health 10 / 10",
 	);
 	expect(
 		screen.getByRole("cell", { name: "row1col2 - dry fountain" }),

@@ -79,7 +79,7 @@ describe("Choosing a nearby door", () => {
 		await user.keyboard("1");
 		await waitFor(() => expect(dialog).not.toBeInTheDocument());
 		expect(screen.getByLabelText("Player health")).toHaveTextContent(
-			"Health 8 / 10",
+			"Health 10 / 10",
 		);
 		expect(screen.getByLabelText("Turn count")).toHaveTextContent("Turn 1");
 	});

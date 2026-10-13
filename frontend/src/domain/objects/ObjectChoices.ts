@@ -1,3 +1,8 @@
+import type { GameState } from "../game/GameState";
+import { createPlayerStats } from "../game/PlayerStats";
+import { createProgression } from "../game/Progression";
+import { createStartingEquipment } from "../items/Equipment";
+import { fountainRestoration } from "./DungeonFountains";
 import type { DungeonObject } from "./DungeonObject";
 import { shrineTerms } from "./DungeonShrines";
 import type { ObjectChoice } from "./ObjectInteraction";
@@ -8,8 +13,30 @@ export type InteractionChoice = Readonly<{
 }>;
 export const objectChoices = (
 	object: DungeonObject,
-): readonly InteractionChoice[] =>
-	object.kind === "elite-door" && !object.activated
+	state?: Pick<GameState, "player" | "progression" | "equipment">,
+): readonly InteractionChoice[] => {
+	if (object.kind === "fountain") {
+		const terms = fountainRestoration(
+			state ?? {
+				player: createPlayerStats(),
+				progression: createProgression(),
+				equipment: createStartingEquipment(),
+			},
+		);
+		return [
+			{
+				value: "sip",
+				label: "Safe sip",
+				description: `Recover up to ${terms.sip.health} health and ${terms.sip.mana} mana. Scales with capacity. One turn; empties the fountain.`,
+			},
+			{
+				value: "draw",
+				label: "Risky draw",
+				description: `70%: recover up to ${terms.draw.health} health and ${terms.draw.mana} mana. Otherwise take 3 damage, ignoring armor and potentially fatal, and poison for 3 turns. One turn; empties the fountain.`,
+			},
+		];
+	}
+	return object.kind === "elite-door" && !object.activated
 		? [
 				{
 					value: "open-elite",
@@ -59,19 +86,5 @@ export const objectChoices = (
 										"70%: gain depth-scaled gold. Otherwise take 4–8 damage, potentially fatal. One turn; spends the throne.",
 								},
 							]
-						: object.kind === "fountain"
-							? [
-									{
-										value: "sip",
-										label: "Safe sip",
-										description:
-											"Recover up to 3 health and 2 mana. One turn; empties the fountain.",
-									},
-									{
-										value: "draw",
-										label: "Risky draw",
-										description:
-											"60%: recover up to 8 health and 6 mana. Otherwise take 3 damage and poison for 3 turns. One turn; empties the fountain.",
-									},
-								]
-							: [];
+						: [];
+};

@@ -7,6 +7,22 @@ import { applyPlayerEffect } from "../game/TimedEffects";
 import type { DungeonObject } from "./DungeonObject";
 import { objectDamage, spendObject } from "./ObjectEffects";
 import type { ObjectChoice } from "./ObjectInteraction";
+export const FOUNTAIN_RULES = { restorationChance: 0.7, damage: 3 } as const;
+export const fountainRestoration = (
+	state: Pick<GameState, "player" | "progression" | "equipment">,
+) => {
+	const mana = maximumMana(state.progression, state.equipment);
+	return {
+		sip: {
+			health: Math.max(6, Math.ceil(state.player.maxHealth / 4)),
+			mana: Math.max(4, Math.ceil(mana / 4)),
+		},
+		draw: {
+			health: Math.max(12, Math.ceil(state.player.maxHealth / 2)),
+			mana: Math.max(8, Math.ceil(mana / 2)),
+		},
+	};
+};
 export const drawFountain = (
 	state: GameState,
 	object: DungeonObject,
@@ -16,17 +32,13 @@ export const drawFountain = (
 	if (choice !== "sip" && choice !== "draw")
 		return { error: "Choose a safe sip or risky draw." };
 	const maximum = maximumMana(state.progression, state.equipment);
-	if (
-		choice === "sip" &&
-		state.player.health === state.player.maxHealth &&
-		state.mana === maximum
-	)
+	if (state.player.health === state.player.maxHealth && state.mana === maximum)
 		return { error: "Your health and mana are already full." };
 	const spent = spendObject(state, object);
 	const roll = createSeededRandom(
 		hashStringToUint32(`${state.run.seed}:${object.id}:draw`),
 	)();
-	if (choice === "draw" && roll >= 0.6) {
+	if (choice === "draw" && roll >= FOUNTAIN_RULES.restorationChance) {
 		const hurt = objectDamage(spent, 3, {
 			type: "fountain-poisoned",
 			damage: 3,
@@ -35,10 +47,13 @@ export const drawFountain = (
 		return hurt.player.health > 0 ? applyPlayerEffect(hurt, "poisoned") : hurt;
 	}
 	const health = Math.min(
-		choice === "sip" ? 3 : 8,
+		fountainRestoration(state)[choice].health,
 		state.player.maxHealth - state.player.health,
 	);
-	const mana = Math.min(choice === "sip" ? 2 : 6, maximum - state.mana);
+	const mana = Math.min(
+		fountainRestoration(state)[choice].mana,
+		maximum - state.mana,
+	);
 	return {
 		...spent,
 		player: { ...state.player, health: state.player.health + health },

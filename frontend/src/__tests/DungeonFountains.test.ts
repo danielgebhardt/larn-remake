@@ -31,8 +31,8 @@ it("a safe sip restores bounded resources for one turn and cannot be reused", ()
 		choice: "sip",
 	});
 	expect(result.turnAdvanced).toBe(true);
-	expect(result.state.player.health).toBe(7);
-	expect(result.state.mana).toBe(6);
+	expect(result.state.player.health).toBe(10);
+	expect(result.state.mana).toBe(8);
 	expect(result.state.objects[0].activated).toBe(true);
 	expect(
 		resolvePlayerAction(result.state, { type: "interact", choice: "sip" })

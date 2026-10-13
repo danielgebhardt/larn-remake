@@ -1,6 +1,7 @@
 import { Dialog } from "@base-ui/react/dialog";
 import { type RefObject, useLayoutEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
+import type { GameState } from "../../domain/game/GameState";
 import {
 	type DungeonObject,
 	OBJECT_DEFINITIONS,
@@ -12,6 +13,7 @@ import DungeonObjectIcon from "./DungeonObjectIcon";
 
 const ObjectChoiceDialog = ({
 	object,
+	state,
 	targets = [],
 	onSelect,
 	onClose,
@@ -19,6 +21,7 @@ const ObjectChoiceDialog = ({
 	mapRef,
 }: {
 	object: DungeonObject | null;
+	state: GameState;
 	targets?: readonly DungeonObject[];
 	onSelect?: (object: DungeonObject) => void;
 	onClose: () => void;
@@ -26,7 +29,7 @@ const ObjectChoiceDialog = ({
 	mapRef: RefObject<HTMLElement | null>;
 }) => {
 	const titleRef = useRef<HTMLHeadingElement>(null);
-	const choices = object ? objectChoices(object) : [];
+	const choices = object ? objectChoices(object, state) : [];
 	const count = object ? choices.length : targets.length;
 	useLayoutEffect(() => {
 		if (object) titleRef.current?.focus({ preventScroll: true });

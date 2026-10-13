@@ -455,7 +455,7 @@ Treasure chests can appear in safe room tiles. Press **E** within reach to open 
 
 Visible traps (floor 2+) show red warning icons. Crossing springs one for 2–6 damage within the movement turn. **E** attempts disarm: starting chance 55%, increasing 5% per Dexterity modifier up to 95%. Failure springs it. Both outcomes spend the trap permanently; protected stairs and starts never contain one.
 
-Ancient fountains (floor 2+) offer a safe sip or risky draw. **E** opens a choice dialog; **1/2** select and **Escape** cancels without a turn. Safe sip recovers up to 3 health/2 mana. Risky draw has a 60% chance to recover up to 8 health/6 mana; otherwise it deals 3 damage and poisons for three phases. A chosen draw uses one turn and empties the fountain.
+Ancient fountains (floor 2+) offer a safe sip or risky draw. **E** opens a choice dialog; **1/2** select and **Escape** cancels without a turn. Safe sip recovers up to 6 health/4 mana or a quarter of resource capacity, whichever is greater. Risky draw has a 70% chance to recover up to 12 health/8 mana or half capacity; otherwise it deals 3 damage ignoring armor and poisons for three phases. The choice dialog displays current amounts; drinking at full resources is a free rejection. A chosen draw uses one turn and empties the fountain.
 
 Forgotten thrones (floor 4+) offer **sit**, **pry treasure**, or free cancellation. The dialog describes the fixed risk distribution before choosing. Blessings grant ordinary XP; other outcomes restore resources, poison/wound the player, relocate safely within the same floor, or grant gold. A committed choice spends the throne for the rest of the adventure.
 

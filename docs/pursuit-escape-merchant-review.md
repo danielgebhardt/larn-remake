@@ -167,3 +167,11 @@ Validation: real generated floor-five/floor-ten purchases, consumption, sale, ex
 Prices remain 150/200/450/600. At the first visit this can cover five basic health bottles OR three/four mana bottles OR one greater bottle; these are separate all-in budgets, not simultaneous shopping lists. All stock costs 14,000, beyond ordinary full-run income or the 6,231-gold manual alpha example. Spending, missed encounters and player preferences still require playtesting.
 
 Verification includes a real generated 20-floor run with no found supplies, ten completed purchases, shared depletion and loaded sold-out rejection; source accounting tests; previous capacity, reach, stock/gold/ownership validation, keyboard transactions, monster pressure and persistence coverage. Browser review verified E, numbered Buy, B/S, Enter Sell, gold/stock updates and exactly two turns for two trades. B/S now focuses the active tab as well as changing its panel. Both themes/stall visibility were reviewed in #259. Future town integration can reuse MerchantTrades independently of placement/UI.
+
+## #253 — Fountains worth seeking
+
+Safe sips restore at least 6 health/4 mana, or 25% of capacity rounded up. Risky draws restore at least 12 health/8 mana, or 50% of capacity, with a 70% chance; failure retains the existing 3 armor-ignoring damage and three-phase poison risk. Current restoration is displayed before choosing. Both choices reject freely when resources are already full, clamp recovery to capacity, consume one turn and permanently spend the fountain. The identity-seeded draw stream remains independent of turn number, so waiting cannot reroll it.
+
+At an unequipped level-20 capacity this means reliable 12 health/7 mana, versus greater bottles' fixed restoration, making a finite side discovery useful throughout a run. Restoration happens before normal monster response.
+
+Validation: early/late-game values, cap/full rejection, one-use behavior, outcomes/replay and response ordering; existing keyboard choice/cancel/focus tests updated to the new amounts. Saved object ownership continues through the existing activated flag.

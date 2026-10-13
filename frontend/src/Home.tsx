@@ -743,6 +743,7 @@ const Home = ({
 				mapRef={mapRef}
 			/>
 			<ObjectChoiceDialog
+				state={game.state}
 				object={interactionObject}
 				targets={interactionTargets}
 				onSelect={selectInteractionObject}

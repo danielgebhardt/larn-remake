@@ -51,7 +51,7 @@ const BagContents = ({
 			</output>
 			<ul
 				aria-label="Carried items"
-				className="grid w-max grid-cols-[repeat(4,3.5rem)] lg:grid-cols-[repeat(7,3rem)] xl:grid-cols-[repeat(9,3rem)] gap-2 p-1"
+				className="grid w-max grid-cols-[repeat(4,3.5rem)] lg:grid-cols-[repeat(7,3.5rem)] xl:grid-cols-[repeat(9,3.5rem)] gap-2 p-1"
 			>
 				{Array.from({ length: BAG_CAPACITY }, (_, index) => {
 					const item = slots[index]?.item;
@@ -74,12 +74,12 @@ const BagContents = ({
 												: undefined
 									}
 									onClick={() => onSelect(item.id)}
-									className={`relative grid size-14 lg:size-12 justify-items-center ${comparison ? "grid-rows-[1rem_minmax(0,1fr)_0.625rem] gap-0" : "gap-1"} whitespace-normal rounded-md p-1 aria-pressed:bg-primary/10 aria-pressed:ring-2 aria-pressed:ring-primary/60 aria-pressed:ring-offset-1 aria-pressed:ring-offset-card ${comparison ? comparisonStyles[comparison.label].border : ""}`}
+									className={`relative grid size-14 justify-items-center ${comparison ? "grid-rows-[1rem_1.25rem_0.625rem] gap-0" : "grid-rows-[1.25rem_1.25rem] gap-1"} whitespace-normal rounded-md p-1 aria-pressed:bg-primary/10 aria-pressed:ring-2 aria-pressed:ring-primary/60 aria-pressed:ring-offset-1 aria-pressed:ring-offset-card ${comparison ? comparisonStyles[comparison.label].border : ""}`}
 								>
 									<span className={comparison ? "size-4" : "size-5"}>
 										<ItemIcon kind={item.kind} />
 									</span>
-									<span className="line-clamp-2 text-[9px] leading-tight">
+									<span className="line-clamp-2 min-h-0 text-[9px] leading-[10px]">
 										{ITEM_DEFINITIONS[item.kind].name}
 									</span>
 									{count > 1 && (
@@ -95,7 +95,7 @@ const BagContents = ({
 										<>
 											<span
 												aria-hidden="true"
-												className={`text-[8px] leading-tight font-medium ${comparisonStyles[comparison.label].text}`}
+												className={`text-[8px] leading-[10px] font-medium ${comparisonStyles[comparison.label].text}`}
 											>
 												{comparison.label}
 											</span>
@@ -109,7 +109,7 @@ const BagContents = ({
 								<span
 									role="img"
 									aria-label={`Empty bag slot ${index + 1}`}
-									className="flex size-14 lg:size-12 items-center justify-center rounded-md border border-dashed bg-muted/20 text-xs tabular-nums text-muted-foreground/50"
+									className="flex size-14 items-center justify-center rounded-md border border-dashed bg-muted/20 text-xs tabular-nums text-muted-foreground/50"
 								>
 									{index + 1}
 								</span>

@@ -4,7 +4,7 @@ Branch: `codex/alpha-inventory-polish`. Epic #216; stories #217–222 and #224. 
 
 ## #217 — Potion stacks and 27 slots
 
-Bag capacity counts occupied slots: identical potion kinds group together, while gear remains individual. The grid displays quantity and its accessible description; it has nine 48px tiles per row at 1280px and larger, seven on intermediate desktops and four on narrow screens. All 27 slots remain visible as occupied/empty cells. The domain retains individual bottle identities, so drink/drop/hotbar ownership stays unchanged and only one bottle transfers or disappears per action. Matching pickup succeeds at full slot capacity. Multiple reachable pickup candidates still use the chooser when an eligible stack or book can be selected.
+Bag capacity counts occupied slots: identical potion kinds group together, while gear remains individual. The grid displays quantity and its accessible description; it has nine 56px tiles per row at 1280px and larger, seven on intermediate desktops and four on narrow screens. All 27 slots remain visible as occupied/empty cells. The domain retains individual bottle identities, so drink/drop/hotbar ownership stays unchanged and only one bottle transfers or disappears per action. Matching pickup succeeds at full slot capacity. Multiple reachable pickup candidates still use the chooser when an eligible stack or book can be selected.
 
 Format v11 records the expanded bag contract without replacing item instances with quantity fields. Old source versions retain their twenty-copy structural validation, migrate all actual items and group only in the view/capacity rule. Current validation checks every physical instance, duplicate ownership and occupied slots; physical copies are independently bounded at 10,000. Captured old fixtures remain unchanged. Existing capacity tests now fill 27 gear slots, while new domain/UI tests cover grouped quantities, full-bag matching pickup, one-bottle consumption/drop and old/current saved bags. Generated maximum-run stress checks get an explicit 15-second allowance under concurrent suites.
 
@@ -45,3 +45,7 @@ All six stories are implemented for developer review. Four potion slots and four
 ## #224 — Eight-tile default visibility
 
 Fresh sessions start with fog enabled and visibility radius 8. The shared RunConfiguration default drives both initial sight and Settings. Custom radii, session preferences and loaded-save values remain untouched; no save migration or monster detection change is needed. The default-boundary regression failed first, then passed for visible distance eight, hidden distance nine and Settings value 8. The explicit radius-six movement test and historical save fixture remain intact. README describes the new default.
+
+### Inventory spacing correction
+
+Restore the original 56px square tiles, 16px equipment / 20px potion icons and original font sizes. Nine desktop columns use the available bag width rather than shrinking cells. The character layout reserves 576px for nine columns at desktop and 448px for seven at intermediate widths. Equipment names get a separate 20px two-line row with 10px line height, followed by a 10px comparison row; labels no longer overlap. Responsive browser checks cover wrapped names, comparison labels, potion quantities and overflow. Existing bag and equipment-comparison interaction tests pass.

@@ -162,7 +162,7 @@ const CharacterDialog = ({
 							/>
 						</div>
 						<div className="min-h-0 overflow-y-auto p-2">
-							<div className="grid items-start gap-3 md:grid-cols-2 lg:grid-cols-[minmax(0,0.65fr)_minmax(0,1fr)_minmax(0,1.5fr)]">
+							<div className="grid items-start gap-3 md:grid-cols-2 lg:grid-cols-[minmax(0,0.65fr)_minmax(0,1fr)_minmax(28rem,1.5fr)] xl:grid-cols-[minmax(0,0.65fr)_minmax(0,1fr)_minmax(36rem,1.5fr)]">
 								<ProgressionView
 									equipment={equipment}
 									effects={effects}

@@ -31,7 +31,7 @@ const SpellsView = ({
 	equipment?: Equipment;
 }) => {
 	return (
-		<div className="grid content-start gap-4 p-4">
+		<div className="grid content-start gap-3 p-4">
 			<div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border bg-muted/20 p-3">
 				<ManaDisplay
 					equipment={equipment}
@@ -47,7 +47,8 @@ const SpellsView = ({
 			<section aria-label="Spell shortcuts" className="rounded-lg border p-3">
 				<p className="mb-2 text-xs text-muted-foreground">
 					Four spell shortcuts use keys 5–8. Assign below; changing shortcuts is
-					free. Z still targets Magic Missile and H casts Heal.
+					free. Choose Assign 5–8 on a spell to replace that shortcut. The
+					active assignment says Assigned. Clear a slot above to remove it.
 				</p>
 				<div className="flex flex-wrap gap-2">
 					{SPELL_SLOTS.map((slot) => (
@@ -65,12 +66,29 @@ const SpellsView = ({
 							{slots[slot - 1]
 								? SPELL_DEFINITIONS[slots[slot - 1] as SpellKind].name
 								: "Empty"}{" "}
-							×
+							· Clear
 						</Button>
 					))}
 				</div>
 			</section>
-			<div className="grid gap-4 sm:grid-cols-2">
+			<section
+				aria-label="Spell controls"
+				className="rounded-lg border bg-muted/20 p-3 text-xs leading-relaxed text-muted-foreground"
+			>
+				<h3 className="mb-1 font-medium text-foreground">Casting controls</h3>
+				<p>
+					After closing Character, use a spell’s assigned key or hotbar button.
+					Targeted spells: arrows or WASD cast straight in that direction; Enter
+					or a target click casts at the highlighted monster. Targets must be
+					visible, within range and clear wall sight; distance combines
+					horizontal and vertical steps. Escape or Z cancels for free.
+				</p>
+				<p className="mt-1">
+					Self-cast spells activate immediately. Z selects Magic Missile; H
+					casts Heal.
+				</p>
+			</section>
+			<div className="grid items-start gap-3 sm:grid-cols-2 xl:grid-cols-3">
 				{knownSpells.map((spell) => {
 					const definition = SPELL_DEFINITIONS[spell];
 					const potency = spellPotency(progression, definition, equipment);
@@ -79,7 +97,7 @@ const SpellsView = ({
 						<section
 							key={spell}
 							aria-label={definition.name}
-							className="grid content-start gap-3 rounded-lg border bg-muted/20 p-4"
+							className="grid content-start gap-2 rounded-lg border bg-muted/20 p-3"
 						>
 							<h3 className="flex items-center gap-2 font-semibold">
 								<Icon
@@ -97,15 +115,24 @@ const SpellsView = ({
 											? `Reposition · ${definition.cost} mana`
 											: `Damage ${potency.minimumDamage}–${potency.maximumDamage} · ${definition.cost} mana`}
 							</p>
+							<p className="text-xs text-muted-foreground">
+								{definition.mode === "self"
+									? "Self-cast"
+									: `Targeted · Range ${definition.range}`}
+								{"radius" in definition ? ` · Radius ${definition.radius}` : ""}
+							</p>
 							<fieldset
 								aria-label={`Assign ${definition.name} shortcut`}
-								className="flex gap-2"
+								className="flex flex-wrap gap-1"
 							>
+								<legend className="mb-1 text-xs font-medium">
+									Assign shortcut
+								</legend>
 								{SPELL_SLOTS.map((slot) => (
 									<Button
 										key={slot}
 										size="sm"
-										variant="outline"
+										variant={slots[slot - 1] === spell ? "default" : "outline"}
 										disabled={!assignmentsEnabled}
 										aria-pressed={slots[slot - 1] === spell}
 										aria-label={`Assign ${definition.name} to spell slot ${slot}`}
@@ -113,20 +140,18 @@ const SpellsView = ({
 											onAction({ type: "assign-spell", slot, spell })
 										}
 									>
-										{slot + 4}
+										{slots[slot - 1] === spell
+											? `Assigned ${slot + 4}`
+											: `Assign ${slot + 4}`}
 									</Button>
 								))}
 							</fieldset>
-							<p className="text-sm text-muted-foreground">
-								{definition.description}
-							</p>
-							<p className="text-xs text-muted-foreground">
-								{definition.mode === "self"
-									? spell === "heal"
-										? "Self-cast: H or click its hotbar button after closing Character."
-										: "Self-cast: use its assigned key or click its hotbar button after closing Character."
-									: `Targeted: use its assigned key or click its hotbar button after closing Character. Z always selects Magic Missile. Range ${definition.range} (horizontal and vertical distance combined), clear wall sight, and currently visible targets. Arrows or WASD cast at the nearest eligible monster straight in that direction; Enter or a target click casts at the highlighted target. Escape or Z cancels for free.`}
-							</p>
+							<details className="text-xs leading-relaxed text-muted-foreground">
+								<summary className="cursor-pointer font-medium">
+									Spell details
+								</summary>
+								<p className="mt-2">{definition.description}</p>
+							</details>
 						</section>
 					);
 				})}

@@ -17,3 +17,9 @@ A fixed-geometry, varying-seed regression first failed because all upstairs occu
 ## #219 — Visible hotbar labels
 
 Each potion/spell slot now has a compact two-line label below its existing icon button. Potion names distinguish regular and greater supplies; spell labels use their catalog name. Key numbers, potion quantities and spell mana costs remain on the buttons, and full accessible names/tooltips remain unchanged. Empty slots have an explicit label. Current counts remain four potion and four spell slots; the separate six-spell follow-up is #223 (keys 5–9/0). Two visible-label tests failed first, then passed alongside existing hotbar interactions.
+
+## #220 — Compact spells and explicit assignment
+
+Spell cards keep name, potency/cost, self/targeted mode, range/radius and assignment visible. Full individual descriptions remain in a keyboard-accessible details disclosure; shared directional/target/self controls appear once. Desktop uses three card columns. Assignment buttons now visibly say Assign or Assigned followed by the actual key; the slot summary offers explicit Clear controls. No assignment, casting, turn or save rules change. New tests first failed for missing shared controls and assignment labels, then verified disclosure and controlled assignment replacement. Existing Home tests continue to exercise keyboard interaction, paused gameplay and free assignment/clear.
+
+Assigned spell buttons also use the primary theme color; unassigned choices stay outlined. The selected color moves when a shortcut is reassigned.

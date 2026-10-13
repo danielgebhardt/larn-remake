@@ -11,13 +11,20 @@ import { BAG_CAPACITY, bagSlots } from "../items/Bag";
 import { type EquipmentSlot, fitsEquipmentSlot } from "../items/Equipment";
 import { equipmentBonuses } from "../items/EquipmentBonuses";
 import { ITEM_DEFINITIONS } from "../items/Item";
+import {
+	MERCHANT_OFFERS,
+	type MerchantSupply,
+} from "../merchant/MerchantRules";
 import { MONSTER_DEFINITIONS } from "../monsters/Monster";
 import {
 	orthogonalDistance,
 	protectedFloorLocations,
 } from "../monsters/MonsterLocations";
 import { isDoor } from "../objects/DungeonObject";
-import { findOptionalEliteRooms } from "../objects/OptionalEliteRooms";
+import {
+	findOptionalEliteRooms,
+	sealedEliteTiles,
+} from "../objects/OptionalEliteRooms";
 import type { SaveDocumentV1 } from "./SaveDocumentV1";
 import type { SaveDocumentV2 } from "./SaveDocumentV2";
 import type { SaveDocumentV3 } from "./SaveDocumentV3";
@@ -190,6 +197,18 @@ export const isConsistentSave = (
 		)
 			return false;
 		for (const object of objects) {
+			if (object.kind === "merchant") {
+				const floor = run.floors[object.floorNumber - 1];
+				if (
+					!floor ||
+					sealedEliteTiles(
+						{ ...floor, terrain: floor.terrain.map((row) => row.split("")) },
+						objects,
+					).has(`${object.coordinate.row}:${object.coordinate.col}`)
+				)
+					return false;
+			}
+
 			if (
 				object.kind === "merchant" &&
 				(object.floorNumber % 5 !== 0 ||
@@ -252,6 +271,25 @@ export const isConsistentSave = (
 		...state.floorItems.map((entry) => entry.item),
 	];
 	if (!unique(allItems.map((entry) => entry.id))) return false;
+	if ("merchantStock" in state)
+		for (const item of allItems) {
+			if (!item.id.startsWith("merchant:")) continue;
+			const parts = item.id.split(":"),
+				kind = parts[1],
+				index = Number(parts[2]);
+			if (
+				parts.length !== 3 ||
+				kind !== item.kind ||
+				!Object.hasOwn(MERCHANT_OFFERS, kind) ||
+				!Number.isInteger(index) ||
+				index < 1 ||
+				index > 10 ||
+				String(index) !== parts[2] ||
+				index > 10 - state.merchantStock[kind as MerchantSupply]
+			)
+				return false;
+		}
+
 	for (const [name, entry] of Object.entries(state.equipment))
 		if (entry && !fitsEquipmentSlot(entry, name as EquipmentSlot)) return false;
 	if (

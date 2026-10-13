@@ -151,3 +151,11 @@ Sell transfers one selected bag-owned equipment instance out of the adventure an
 After Enter/click sells an item, keyboard focus moves to the next available equipment button, or the Sell tab when none remain. This avoids losing keyboard control when the focused row disappears. The purchase death test now explicitly waits for dialog focus before typing, removing its initial-focus race.
 
 Validation: item ownership and duplicates, values/gold, stock preservation, excluded categories, reach/equipped rejection, fatal response; Home verifies keyboard sales, remaining selection, empty-tab focus and map restoration.
+
+## #263 — Merchant economy save/travel continuity
+
+Current snapshots retain shared remaining stock and actual purchased item IDs, gold, consumption, sales and stall locations. Loading/revisiting never reconstructs a current trade inventory. Older formats gain initial stock and deterministic free merchant locations using their saved terrain/actors/loot/objects; existing played content is retained. Disabled merchants preserve stored state. Replay constructs fresh stock once through normal new-adventure initialization.
+
+Import consistency now ties each owned `merchant:supply:index` bottle to its kind and a spent stock position (1–10), in addition to existing unique ownership/gold bounds. A merchant cannot be saved inside a sealed elite chamber. Missing/invalid stock remains a structural rejection.
+
+Validation: real generated floor-five/floor-ten purchases, consumption, sale, exact save/resume action equivalence and replay reset; older-save location initialization; forged purchased IDs; actual staircase ascent/escape activation retains stock and objects by identity. Captured old saves and expanded adventure continuation remain valid.

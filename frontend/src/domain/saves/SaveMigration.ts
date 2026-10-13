@@ -1,6 +1,7 @@
 import { maximumMana } from "../game/Mana";
 import { HEALTH_PER_LEVEL, levelForExperience } from "../game/Progression";
 import { createSpellHotbar } from "../game/SpellHotbar";
+import { placeMerchants } from "../merchant/MerchantPlacement";
 import { createMerchantStock } from "../merchant/MerchantRules";
 import type { SaveDocumentV1 } from "./SaveDocumentV1";
 import type { SaveDocumentV2 } from "./SaveDocumentV2";
@@ -240,9 +241,19 @@ export const migratePlayedSave = (
 ): SaveDocumentV17 => {
 	if (document.version === 17) return document;
 	const previous = migratePlayedSaveToV16(document);
+	const objects = placeMerchants({
+		...previous.state,
+		run: {
+			...previous.state.run,
+			floors: previous.state.run.floors.map((floor) => ({
+				...floor,
+				terrain: floor.terrain.map((row) => row.split("")),
+			})),
+		},
+	});
 	return {
 		...previous,
 		version: 17,
-		state: { ...previous.state, merchantStock: createMerchantStock() },
+		state: { ...previous.state, objects, merchantStock: createMerchantStock() },
 	};
 };

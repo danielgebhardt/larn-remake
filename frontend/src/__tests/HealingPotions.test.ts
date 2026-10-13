@@ -92,7 +92,7 @@ describe("Drinking healing potions", () => {
 		expect(
 			result.activityHistory.entries.map(({ event }) => event.type),
 		).toEqual(["item-consumed", "monster-hit"]);
-		expect(result.monsters[0]).toBe(adjacentGoblin);
+		expect(result.monsters[0]).toMatchObject(adjacentGoblin);
 	});
 	it("keeps the potion consumed and the recovery logged when retaliation is fatal", () => {
 		const damage = MONSTER_DEFINITIONS.goblin.attackDamage;

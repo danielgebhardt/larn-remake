@@ -57,7 +57,7 @@ describe("Monster turns", () => {
 		expect(result.state.turn).toBe(1);
 		expect(result.state.run.playerCoordinate).toEqual({ row: 1, col: 2 });
 		expect(result.state.player.health).toBe(9);
-		expect(result.state.monsters).toBe(game.monsters);
+		expect(result.state.monsters).toMatchObject(game.monsters);
 		expect(result.state.activityHistory.entries.map((e) => e.event)).toEqual([
 			{ type: "monster-hit", turn: 1, monster: "goblin", damage: 1 },
 		]);
@@ -89,7 +89,7 @@ describe("Monster turns", () => {
 		expect(result.run.activeFloor).toBe(2);
 		expect(result.turn).toBe(1);
 		expect(result.player.health).toBe(9);
-		expect(result.monsters).toBe(game.monsters);
+		expect(result.monsters).toMatchObject(game.monsters);
 		expect(result.activityHistory.entries.map(({ event }) => event)).toEqual([
 			{ type: "floor-changed", fromFloor: 1, toFloor: 2, turn: 1 },
 			{ type: "monster-hit", monster: "goblin", damage: 1, turn: 1 },

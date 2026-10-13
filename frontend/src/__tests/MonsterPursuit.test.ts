@@ -176,6 +176,6 @@ describe("One-step pursuit", () => {
 		};
 		const result = resolveMonsterPhase(game);
 		expect(result.player.health).toBe(9);
-		expect(result.monsters).toBe(game.monsters);
+		expect(result.monsters[0].coordinate).toEqual(game.monsters[0].coordinate);
 	});
 });

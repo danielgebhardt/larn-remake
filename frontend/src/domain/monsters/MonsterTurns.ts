@@ -26,6 +26,7 @@ import { resolveMonsterArea } from "./MonsterAreaAttack";
 import { orthogonalDistance } from "./MonsterLocations";
 import { detectsPlayer, selectPursuitStep } from "./MonsterPursuit";
 import { selectRetreatStep } from "./MonsterRetreat";
+import { PURSUIT_RULES } from "./PursuitRules";
 
 // The player phase has already chosen the active floor and turn number.
 export const resolveMonsterPhase = (
@@ -94,6 +95,54 @@ export const resolveMonsterPhase = (
 				);
 			continue;
 		}
+		const detected = detectsPlayer(navigation, monster);
+		if (detected) {
+			const target = state.run.playerCoordinate;
+			const remembered = monster.awareness;
+			if (
+				remembered?.type !== "pursuing" ||
+				remembered.target.row !== target.row ||
+				remembered.target.col !== target.col ||
+				remembered.remaining !== PURSUIT_RULES.memoryPhases ||
+				remembered.blocked !== 0
+			) {
+				monster = {
+					...monster,
+					awareness: {
+						type: "pursuing",
+						target: { ...target },
+						remaining: PURSUIT_RULES.memoryPhases,
+						blocked: 0,
+					},
+				};
+				monsters = monsters.map((actor) =>
+					actor.id === monster.id ? monster : actor,
+				);
+			}
+		}
+		if (!detected && monster.intent.type === "idle") {
+			const memory = monster.awareness;
+			if (memory?.type === "pursuing" && memory.remaining > 0) {
+				const coordinate = hasMonsterEffect(state, monster, "rooted")
+					? undefined
+					: selectPursuitStep(
+							navigation,
+							monster,
+							monsters,
+							memory.target,
+							true,
+						);
+				monster = {
+					...monster,
+					coordinate: coordinate ?? monster.coordinate,
+					awareness: { ...memory, remaining: memory.remaining - 1 },
+				};
+				monsters = monsters.map((actor) =>
+					actor.id === monster.id ? monster : actor,
+				);
+			}
+			continue;
+		}
 		const area = resolveMonsterArea(
 			{ ...state, run: navigation },
 			monster,
@@ -144,7 +193,7 @@ export const resolveMonsterPhase = (
 				continue;
 			}
 		} else {
-			if (!detectsPlayer(navigation, monster)) continue;
+			if (!detected) continue;
 			if (definition.preparesAttack && distance === 1) {
 				const target = { ...state.run.playerCoordinate };
 				monsters = monsters.map((actor) =>

@@ -22,6 +22,11 @@ export type MonsterIntent =
 			remaining: number;
 	  };
 
+export type MonsterAwareness =
+	| { type: "idle" }
+	| { type: "pursuing"; target: Coordinate; remaining: number; blocked: number }
+	| { type: "searching"; target: Coordinate; remaining: number };
+
 export type Monster = {
 	// Stable identity: floorNumber:spawnIndex (index starts at 1).
 	id: string;
@@ -31,6 +36,7 @@ export type Monster = {
 	health: number;
 	intent: MonsterIntent;
 	lastDamagedTurn?: number | null;
+	awareness?: MonsterAwareness;
 };
 
 export type MonsterDefinition = {

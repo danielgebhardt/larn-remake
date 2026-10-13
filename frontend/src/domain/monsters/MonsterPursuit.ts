@@ -42,6 +42,8 @@ export const selectPursuitStep = (
 	run: DungeonRun,
 	monster: Monster,
 	actors: readonly Monster[],
+	target: Coordinate = run.playerCoordinate,
+	exactTarget = false,
 ): Coordinate | undefined => {
 	const terrain = run.floors[run.activeFloor - 1].terrain;
 	const blocked = new Set(
@@ -59,10 +61,11 @@ export const selectPursuitStep = (
 	// Every pursuit path must end beside the player. If those tiles are all
 	// blocked, avoid searching the entire floor for a destination that cannot exist.
 	if (
+		!exactTarget &&
 		!offsets.some((offset) => {
 			const goal = {
-				row: run.playerCoordinate.row + offset.row,
-				col: run.playerCoordinate.col + offset.col,
+				row: target.row + offset.row,
+				col: target.col + offset.col,
 			};
 			return (
 				terrain[goal.row]?.[goal.col] === FLOOR &&
@@ -78,7 +81,7 @@ export const selectPursuitStep = (
 	// A queue cursor avoids the repeated array shifts of a large-map search.
 	for (let cursor = 0; cursor < queue.length; cursor++) {
 		const { coordinate, firstStep } = queue[cursor];
-		if (orthogonalDistance(coordinate, run.playerCoordinate) === 1)
+		if (orthogonalDistance(coordinate, target) === (exactTarget ? 0 : 1))
 			return firstStep;
 		for (const offset of offsets) {
 			const next = {

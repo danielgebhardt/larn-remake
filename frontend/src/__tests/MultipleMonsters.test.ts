@@ -77,7 +77,7 @@ describe("Multiple monster turns", () => {
 		const game = corridor();
 		game.monsters = [goblin(1, 2), goblin(2, 3)];
 		const result = resolveMonsterPhase(game);
-		expect(result.monsters).toBe(game.monsters);
+		expect(result.monsters).toMatchObject(game.monsters);
 		expect(result.player.health).toBe(9);
 		expect(result.activityHistory.entries).toHaveLength(1);
 	});
@@ -100,7 +100,7 @@ describe("Multiple monster turns", () => {
 			goblin(2, 2),
 		];
 		const result = resolveMonsterPhase(game);
-		expect(result.monsters).toBe(game.monsters);
+		expect(result.monsters).toMatchObject(game.monsters);
 		expect(result.player.health).toBe(0);
 		expect(result.activityHistory.entries.map((e) => e.event.type)).toEqual([
 			"monster-hit",
@@ -113,7 +113,7 @@ describe("Multiple monster turns", () => {
 		game.monsters = [goblin(2, 4), goblin(1, 2)];
 		const result = resolveMonsterPhase(game);
 		expect(result.player.health).toBe(8);
-		expect(result.monsters).toBe(game.monsters);
+		expect(result.monsters).toMatchObject(game.monsters);
 		expect(result.activityHistory.entries.map((e) => e.event)).toEqual([
 			{ type: "monster-hit", monster: "goblin", damage: 1, turn: 1 },
 			{ type: "monster-hit", monster: "goblin", damage: 1, turn: 1 },
@@ -127,7 +127,7 @@ describe("Multiple monster turns", () => {
 			type: "move",
 			direction: "right",
 		}).state;
-		expect(result.monsters).toEqual([game.monsters[1]]);
+		expect(result.monsters).toMatchObject([game.monsters[1]]);
 		expect(result.player.health).toBe(9);
 		expect(result.run).toBe(game.run);
 		expect(result.activityHistory.entries.map((e) => e.event.type)).toEqual([

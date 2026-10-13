@@ -57,7 +57,7 @@ describe("Goblin archer turns", () => {
 			const rolls = vi.fn(highRolls);
 			const after = wait(before, rolls);
 			expect(after.player.health).toBe(8);
-			expect(after.monsters).toBe(before.monsters);
+			expect(after.monsters).toMatchObject(before.monsters);
 			expect(rolls).toHaveBeenCalledTimes(1);
 			expect(after.activityHistory.entries.map(({ event }) => event)).toEqual([
 				{
@@ -74,7 +74,7 @@ describe("Goblin archer turns", () => {
 	it("uses melee rather than a shot when adjacent", () => {
 		const before = encounter({ row: 4, col: 3 });
 		const after = wait(before);
-		expect(after.monsters).toBe(before.monsters);
+		expect(after.monsters).toMatchObject(before.monsters);
 		expect(after.activityHistory.entries[0].event).toEqual({
 			type: "monster-hit",
 			turn: 1,
@@ -96,7 +96,7 @@ describe("Goblin archer turns", () => {
 			expect(moved.player.health).toBe(10);
 			expect(rolls).not.toHaveBeenCalled();
 			const shot = wait(moved, rolls);
-			expect(shot.monsters).toBe(moved.monsters);
+			expect(shot.monsters).toMatchObject(moved.monsters);
 			expect(shot.player.health).toBe(8);
 			expect(rolls).toHaveBeenCalledTimes(1);
 		},
@@ -156,7 +156,7 @@ describe("Goblin archer turns", () => {
 			before.monsters = [{ ...before.monsters[0], id: "1:1", floorNumber: 1 }];
 		const rolls = vi.fn(highRolls);
 		const after = wait(before, rolls);
-		expect(after.monsters).toBe(before.monsters);
+		expect(after.monsters).toMatchObject(before.monsters);
 		expect(after.player.health).toBe(10);
 		expect(after.activityHistory.entries).toEqual([]);
 		expect(rolls).not.toHaveBeenCalled();

@@ -91,7 +91,7 @@ describe("Monster occupancy and retention", () => {
 			direction: "left",
 		}).state;
 		expect(up.run.activeFloor).toBe(1);
-		expect(up.monsters).toBe(game.monsters);
+		expect(up.monsters).toMatchObject(game.monsters);
 		expect(up.monsters[0].health).toBe(2);
 	});
 });

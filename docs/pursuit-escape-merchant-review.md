@@ -46,3 +46,21 @@ During a live cure-carrier escape, all surviving and newly added actors gain two
 ## #243 — Return progress and integrated continuation
 
 The existing objective line shows remaining floors to climb, switching to an entrance reminder on floor one. Each activated floor produces one restrained return-progress message; Help explains finite waves and stronger pursuit without exposing hidden actor positions. A generated 60×60 continuation test preserves actors, markers and subsequent actions exactly across save/load, proves repeated activation after reload is inert, and confirms restart resets escape. UI tests cover progress/entrance messaging and existing quest behavior; browser verified the imported surface-floor reminder (`/tmp/larn-escape-progress-review.png`). No additional persisted representation or save version was needed: v14 already stores the actual actor state and activated-floor list.
+
+
+## #244 — Escape diagnostics and handoff
+
+The diagnostic reports now separate return turns, added enemies, confirmed defeats, potions and cure-recovery resources. Defeats use the domain counter rather than a population-size difference, so spawns cannot subtract kills. A diagnostic-only comparison plugin disables return pressure without modifying production configuration. Generated 10×10, 60×60 and 100×100 twenty-floor tests activate every return floor once, preserve geometry/caps, and validate the resulting full snapshot.
+
+Matched recommended 60×60×20 full-run seeds 0, 1, 123 and 987 with tactical-aware policy / 30,000 actions did not reach the cure: action limit on floors 6 and 14, no route on floor 2, death on floor 12. Escape enabled/disabled had identical descent results, as required. These runs provide no escape win-rate evidence and expose current diagnostic policy limitations.
+
+A separate controlled cleared-descent return uses level 20, runeblade/tower shield/dragon mail/runic helmet/intelligence ring, 33 initial health, full mana, 3 greater health and 7 greater mana potions, and no surviving outbound enemies. Doors/discoveries are already spent and ground loot is cleared. It is an explicit supplied snapshot, not earned progression.
+
+| Seed | Pressure off turns | Pressure on turns | Return fights | Potions used | Final health / mana | Outcome |
+| --- | --- | --- | --- | --- | --- | --- |
+| 0 | 1292 | 1328 | 16 | 4 | 32 / 29 | won |
+| 1 | 1339 | 1356 | 10 | 1 | 33 / 28 | won |
+| 123 | 1091 | 1128 | 17 | 4 | 25 / 23 | won |
+| 987 | 1492 | 1536 | 16 | 6 | 39 / 24 | won |
+
+Each pressure-on run activated 76 finite actors; the route encountered only a subset. Pressure-off runs had zero new actors/fights/potions. Initial caps remain unchanged pending human testing: these small supplied samples demonstrate bounded mechanics, not balance across real characters or seeds. Browser keyboard verification imported a controlled floor-20 snapshot, used G to recover on turn 1, then ArrowLeft to ascend/activate floor 19 on turn 2 (`/tmp/larn-return-keyboard-review.png`). Fog was disabled for that demonstration; hidden-awareness privacy is covered separately.

@@ -5,6 +5,7 @@ export const REVIEW_USAGE = `Usage: node scripts/review-adventure.mjs [seeds...]
   --max-actions N               Action budget per seed (default 500)
   --policy NAME                 baseline (default), spell-aware or tactical-aware
   --mana-recovery N             Experimental turns per +1 mana (diagnostic process only)
+  --without-escape-pressure     Compare without return spawns/aggression (diagnostics only)
   --summary-only                Print aggregate results only
   --help                        Show this usage
 Defaults: seeds 0, 1, 123, 987; 60×60; 20 floors.
@@ -30,6 +31,10 @@ export function parseReviewOptions(args, defaults, limits, maxSeed) {
 	for (let i = 0; i < args.length; i++) {
 		const arg = args[i];
 		if (arg === "--help") return { help: true };
+		if (arg === "--without-escape-pressure") {
+			options.disableEscapePressure = true;
+			continue;
+		}
 		if (arg === "--summary-only") {
 			options.summaryOnly = true;
 			continue;

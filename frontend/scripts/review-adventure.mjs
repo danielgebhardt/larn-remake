@@ -2,6 +2,11 @@
 // Run from frontend: node scripts/review-adventure.mjs
 import { createServer } from "vite";
 import {
+	createEscapeReview,
+	escapePressurePlugin,
+	recordEscapeReview,
+} from "./review-escape.mjs";
+import {
 	parseReviewOptions,
 	REVIEW_USAGE,
 	summarizeReviews,
@@ -17,6 +22,7 @@ const sumCounts = (records) =>
 let options;
 const server = await createServer({
 	plugins: [
+		escapePressurePlugin(() => options),
 		{
 			name: "diagnostic-mana-interval",
 			transform(code, id) {
@@ -132,7 +138,7 @@ try {
 					kind: entry.item.kind,
 				})),
 			};
-			let kills = 0;
+			const escapeReview = createEscapeReview();
 			const metrics = createReviewMetrics();
 			const observedEquipment = new Set();
 			const tacticalMemory = {};
@@ -254,7 +260,7 @@ try {
 				observeReviewEquipment(metrics, state, observedEquipment);
 				const previousFloor = state.run.activeFloor;
 				actions.push(action);
-				const before = state.monsters.length;
+
 				const consumed =
 					action.type === "consume"
 						? state.bag.items.find((item) => item.id === action.itemId)
@@ -265,6 +271,7 @@ try {
 						`Policy ${options.policy} rejected action at seed ${seed}, turn ${state.turn}: ${JSON.stringify(action)} (${result.error ?? "no committed turn"})`,
 					);
 				recordReviewTurn(metrics, state, action, result.state);
+				recordEscapeReview(escapeReview, state, action, result.state);
 				state = result.state;
 				if (consumed) {
 					potionUses[consumed.kind] = (potionUses[consumed.kind] ?? 0) + 1;
@@ -272,8 +279,6 @@ try {
 				}
 				if (action.type === "cast")
 					casts[action.spell] = (casts[action.spell] ?? 0) + 1;
-
-				kills += before - state.monsters.length;
 
 				visited.add(state.run.activeFloor);
 				if (state.run.activeFloor !== previousFloor)
@@ -313,7 +318,9 @@ try {
 				deepest: Math.max(...visited),
 				turns: state.turn,
 				health: state.player.health,
-				kills,
+				kills: state.monstersDefeated,
+				escapePressure: !options.disableEscapePressure,
+				escapeReview,
 				potions,
 				...metrics,
 				decisions: {
@@ -335,6 +342,7 @@ try {
 			JSON.stringify({
 				...summarizeReviews(results, configuration, options.maxActions),
 				policy: options.policy,
+				escapePressure: !options.disableEscapePressure,
 				manaRecoveryInterval: MANA_RECOVERY_INTERVAL,
 				...summarizeReviewMetrics(results),
 				casts: sumCounts(results.map((result) => result.casts)),

@@ -31,6 +31,7 @@ import type { SaveDocumentV12 } from "./SaveDocumentV12";
 import type { SaveDocumentV13 } from "./SaveDocumentV13";
 import type { SaveDocumentV14 } from "./SaveDocumentV14";
 import type { SaveDocumentV15 } from "./SaveDocumentV15";
+import type { SaveDocumentV16 } from "./SaveDocumentV16";
 
 export const isConsistentSave = (
 	document:
@@ -48,7 +49,8 @@ export const isConsistentSave = (
 		| SaveDocumentV12
 		| SaveDocumentV13
 		| SaveDocumentV14
-		| SaveDocumentV15,
+		| SaveDocumentV15
+		| SaveDocumentV16,
 ): boolean => {
 	const { state, configuration: config } = document;
 	const { run, quest } = state;
@@ -260,6 +262,11 @@ export const isConsistentSave = (
 					?.some((location) => same(location, entry.coordinate)) &&
 				entry.health <= MONSTER_DEFINITIONS[entry.kind].maxHealth &&
 				!(
+					"alarmUsed" in entry &&
+					entry.alarmUsed === true &&
+					!MONSTER_DEFINITIONS[entry.kind].alarmRadius
+				) &&
+				!(
 					entry.floorNumber === run.activeFloor &&
 					same(entry.coordinate, run.playerCoordinate)
 				),
@@ -271,43 +278,54 @@ export const isConsistentSave = (
 		!document.state.monsters.every(
 			(monster) =>
 				monster.intent.type === "idle" ||
-				(monster.intent.type === "recovering-charge"
-					? !!MONSTER_DEFINITIONS[monster.kind].chargeRange
-					: monster.intent.type === "preparing-charge"
-						? !!MONSTER_DEFINITIONS[monster.kind].chargeRange &&
-							walkable(monster.floorNumber, monster.intent.target) &&
-							(monster.coordinate.row === monster.intent.target.row ||
-								monster.coordinate.col === monster.intent.target.col) &&
-							orthogonalDistance(monster.coordinate, monster.intent.target) >=
-								2 &&
-							orthogonalDistance(monster.coordinate, monster.intent.target) <=
-								(MONSTER_DEFINITIONS[monster.kind].chargeRange ?? 0)
-						: monster.intent.type === "preparing-area"
-							? (() => {
-									const profile = MONSTER_DEFINITIONS[monster.kind].areaAttack;
-									const intent = monster.intent;
-									return (
-										!!profile &&
-										intent.radius === profile.radius &&
-										intent.element === profile.element &&
-										intent.remaining <= profile.radius + 1 &&
-										walkable(monster.floorNumber, intent.target) &&
-										orthogonalDistance(monster.coordinate, intent.target) <=
-											profile.range &&
-										hasLineOfSight(
-											floorAt(monster.floorNumber).terrain.map((row) => [
-												...row,
-											]),
-											monster.coordinate,
-											intent.target,
-										)
-									);
-								})()
-							: walkable(monster.floorNumber, monster.intent.target) &&
-								orthogonalDistance(
-									monster.coordinate,
-									monster.intent.target,
-								) === 1),
+				(monster.intent.type === "preparing-alarm"
+					? !!MONSTER_DEFINITIONS[monster.kind].alarmRadius &&
+						!("alarmUsed" in monster && monster.alarmUsed === true) &&
+						walkable(monster.floorNumber, monster.intent.target) &&
+						orthogonalDistance(monster.coordinate, monster.intent.target) > 0 &&
+						Math.hypot(
+							monster.coordinate.row - monster.intent.target.row,
+							monster.coordinate.col - monster.intent.target.col,
+						) <=
+							MONSTER_DEFINITIONS[monster.kind].detectionRadius + 2
+					: monster.intent.type === "recovering-charge"
+						? !!MONSTER_DEFINITIONS[monster.kind].chargeRange
+						: monster.intent.type === "preparing-charge"
+							? !!MONSTER_DEFINITIONS[monster.kind].chargeRange &&
+								walkable(monster.floorNumber, monster.intent.target) &&
+								(monster.coordinate.row === monster.intent.target.row ||
+									monster.coordinate.col === monster.intent.target.col) &&
+								orthogonalDistance(monster.coordinate, monster.intent.target) >=
+									2 &&
+								orthogonalDistance(monster.coordinate, monster.intent.target) <=
+									(MONSTER_DEFINITIONS[monster.kind].chargeRange ?? 0)
+							: monster.intent.type === "preparing-area"
+								? (() => {
+										const profile =
+											MONSTER_DEFINITIONS[monster.kind].areaAttack;
+										const intent = monster.intent;
+										return (
+											!!profile &&
+											intent.radius === profile.radius &&
+											intent.element === profile.element &&
+											intent.remaining <= profile.radius + 1 &&
+											walkable(monster.floorNumber, intent.target) &&
+											orthogonalDistance(monster.coordinate, intent.target) <=
+												profile.range &&
+											hasLineOfSight(
+												floorAt(monster.floorNumber).terrain.map((row) => [
+													...row,
+												]),
+												monster.coordinate,
+												intent.target,
+											)
+										);
+									})()
+								: walkable(monster.floorNumber, monster.intent.target) &&
+									orthogonalDistance(
+										monster.coordinate,
+										monster.intent.target,
+									) === 1),
 		)
 	)
 		return false;

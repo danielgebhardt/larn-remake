@@ -88,7 +88,8 @@ const DungeonLayout = ({
 			if (
 				monster.health <= 0 ||
 				monster.intent.type === "idle" ||
-				monster.intent.type === "recovering-charge"
+				monster.intent.type === "recovering-charge" ||
+				monster.intent.type === "preparing-alarm"
 			)
 				continue;
 			const sourceVisible =

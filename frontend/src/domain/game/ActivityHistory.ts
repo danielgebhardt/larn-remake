@@ -10,6 +10,12 @@ import type { EffectKind } from "./TimedEffects";
 
 export type ActivityEvent = { turn: number } & (
 	| {
+			type: "monster-alarm-prepared" | "monster-alarm-sounded";
+			actorId: string;
+			monster: MonsterKind;
+			target: Coordinate;
+	  }
+	| {
 			type: "monster-charge-prepared";
 			actorId: string;
 			monster: MonsterKind;

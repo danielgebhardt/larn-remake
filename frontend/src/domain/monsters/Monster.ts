@@ -13,6 +13,7 @@ export type MonsterKind = keyof typeof monsterCatalog;
 
 export type MonsterIntent =
 	| { type: "idle" }
+	| { type: "preparing-alarm"; target: Coordinate }
 	| { type: "preparing-charge"; target: Coordinate }
 	| { type: "recovering-charge" }
 	| { type: "preparing-attack"; target: Coordinate }
@@ -39,6 +40,7 @@ export type Monster = {
 	intent: MonsterIntent;
 	lastDamagedTurn?: number | null;
 	awareness?: MonsterAwareness;
+	alarmUsed?: boolean;
 };
 
 export type MonsterDefinition = {
@@ -52,6 +54,8 @@ export type MonsterDefinition = {
 	spawnWeight: number;
 	dropChance: number;
 	lootPreferences: Partial<Record<ItemKind, number>>;
+	alarmRadius?: number;
+	stationary?: boolean;
 	chargeRange?: number;
 	rangedAttackRange?: number;
 	preparesAttack?: boolean;
@@ -98,6 +102,16 @@ export const validateMonsterDefinition = (
 		areaAttack,
 	} = definition;
 	if (
+		(definition.stationary !== undefined &&
+			typeof definition.stationary !== "boolean") ||
+		(definition.alarmRadius !== undefined &&
+			(!Number.isInteger(definition.alarmRadius) ||
+				definition.alarmRadius < 1 ||
+				definition.alarmRadius > 12 ||
+				definition.chargeRange ||
+				areaAttack ||
+				enemySpells ||
+				preparesAttack)) ||
 		(definition.chargeRange !== undefined &&
 			(!Number.isInteger(definition.chargeRange) ||
 				definition.chargeRange < 2 ||
@@ -171,6 +185,20 @@ export const validateMonsterDefinition = (
 		);
 };
 const monsterCatalog = {
+	"alarm-sentry": {
+		name: "alarm sentry",
+		minFloor: 3,
+		maxFloor: 20,
+		maxHealth: 8,
+		attackDamage: 2,
+		experienceReward: 8,
+		detectionRadius: 7,
+		spawnWeight: 0.5,
+		dropChance: 0.3,
+		lootPreferences: {},
+		alarmRadius: 8,
+		stationary: true,
+	},
 	"horned-charger": {
 		name: "horned charger",
 		minFloor: 5,

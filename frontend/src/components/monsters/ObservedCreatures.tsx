@@ -69,11 +69,32 @@ const ObservedCreatures = ({
 									).length;
 									return count ? (
 										<span key={state}>
-											{label}: {count}
+											{state === "pursuing" && definition.stationary
+												? "Alert"
+												: label}
+											: {count}
 										</span>
 									) : null;
 								})}
 							</p>
+							{definition.alarmRadius && (
+								<p className="text-xs text-muted-foreground">
+									Preparing alarm:{" "}
+									{
+										observed.filter(
+											(actor) =>
+												actor.kind === kind &&
+												actor.intent.type === "preparing-alarm",
+										).length
+									}{" "}
+									· Alarm spent:{" "}
+									{
+										observed.filter(
+											(actor) => actor.kind === kind && actor.alarmUsed,
+										).length
+									}
+								</p>
+							)}
 							<ul className="list-disc space-y-1 pl-4 text-xs">
 								{monsterTraits(kind).map((trait) => (
 									<li key={trait}>{trait}</li>

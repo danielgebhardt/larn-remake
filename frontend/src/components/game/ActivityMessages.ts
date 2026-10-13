@@ -18,10 +18,23 @@ export const formatActivityEvent = (event: ActivityEvent): string => {
 			return `${prefix}The ${MONSTER_DEFINITIONS[event.monster].name} charges into you for ${event.damage} damage.`;
 		case "monster-charge-ended":
 			return `${prefix}The ${MONSTER_DEFINITIONS[event.monster].name}’s charge is ${event.outcome}. It pauses to recover.`;
+		case "monster-alarm-prepared":
+			return `${prefix}The ${MONSTER_DEFINITIONS[event.monster].name} raises its alarm. Stop it before its next action!`;
+		case "monster-alarm-sounded":
+			return `${prefix}The ${MONSTER_DEFINITIONS[event.monster].name} sounds its alarm.`;
 		case "escape-started":
 			return `${prefix}The cure awakens the dungeon. You are hunted: return to the entrance on floor 1.`;
-		case "monster-awareness-changed":
-			return `${prefix}The ${MONSTER_DEFINITIONS[event.monster].name} ${event.awareness === "pursuing" ? "spots you and begins pursuit." : event.awareness === "searching" ? "searches its last known position." : "gives up the search."}`;
+		case "monster-awareness-changed": {
+			const definition = MONSTER_DEFINITIONS[event.monster];
+			let message = "gives up the search.";
+			if (event.awareness === "searching")
+				message = "searches its last known position.";
+			if (event.awareness === "pursuing")
+				message = definition.stationary
+					? "spots you and becomes alert."
+					: "spots you and begins pursuit.";
+			return `${prefix}The ${definition.name} ${message}`;
+		}
 		case "discovery-opened":
 			return `${prefix}You open the ${OBJECT_DEFINITIONS[event.kind].name}.${event.damage ? ` The seal deals ${event.damage} damage.` : ""} ${ITEM_DEFINITIONS[event.item].name} remains on the floor for G pickup.`;
 		case "object-seen":

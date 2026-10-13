@@ -12,6 +12,7 @@ import GolemIcon from "./GolemIcon";
 import KoboldSlingerIcon from "./KoboldSlingerIcon";
 import NecromancerIcon from "./NecromancerIcon";
 import SalamanderIcon from "./SalamanderIcon";
+import SentryIcon from "./SentryIcon";
 import SpiderIcon from "./SpiderIcon";
 import WardenIcon from "./WardenIcon";
 import WyvernIcon from "./WyvernIcon";
@@ -24,6 +25,11 @@ export const MONSTER_VISUALS: Record<
 		label: string;
 	}
 > = {
+	"alarm-sentry": {
+		icon: SentryIcon,
+		color: "text-monster-archer",
+		label: MONSTER_DEFINITIONS["alarm-sentry"].name,
+	},
 	"horned-charger": {
 		icon: ChargerIcon,
 		color: "text-monster-orc",

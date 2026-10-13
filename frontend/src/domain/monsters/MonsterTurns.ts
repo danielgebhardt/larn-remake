@@ -22,6 +22,7 @@ import {
 import { navigationRun } from "../objects/NavigationTerrain";
 import { chooseEnemySpell } from "./EnemyCasting";
 import { MONSTER_DEFINITIONS } from "./Monster";
+import { resolveMonsterAlarm } from "./MonsterAlarm";
 import { resolveMonsterArea } from "./MonsterAreaAttack";
 import { advanceUnseenPursuit } from "./MonsterAwareness";
 import { resolveMonsterCharge } from "./MonsterCharge";
@@ -89,9 +90,10 @@ export const resolveMonsterPhase = (
 		const interval = MONSTER_DEFINITIONS[monster.kind].actionInterval ?? 1;
 		if (state.turn % interval !== 0) continue;
 		if (hasMonsterEffect(state, monster, "afraid")) {
-			const coordinate = hasMonsterEffect(state, monster, "rooted")
-				? undefined
-				: selectRetreatStep(navigation, monster, monsters);
+			const coordinate =
+				hasMonsterEffect(state, monster, "rooted") || profile.stationary
+					? undefined
+					: selectRetreatStep(navigation, monster, monsters);
 			if (coordinate)
 				monsters = monsters.map((actor) =>
 					actor.id === monster.id ? { ...actor, coordinate } : actor,
@@ -129,7 +131,8 @@ export const resolveMonsterPhase = (
 				monster,
 				monsters,
 				pursuitRules,
-				hasMonsterEffect(state, monster, "rooted"),
+				hasMonsterEffect(state, monster, "rooted") ||
+					profile.stationary === true,
 			);
 			if (next !== monster)
 				monsters = monsters.map((actor) =>
@@ -137,6 +140,15 @@ export const resolveMonsterPhase = (
 				);
 			continue;
 		}
+		const alarm = resolveMonsterAlarm(state, monster, detected);
+		if (alarm) {
+			monsters = monsters.map((actor) =>
+				actor.id === monster.id ? alarm.monster : actor,
+			);
+			events.push(...alarm.events);
+			continue;
+		}
+
 		const charge = resolveMonsterCharge(
 			{ ...state, run: navigation },
 			monster,
@@ -270,9 +282,10 @@ export const resolveMonsterPhase = (
 			distance >= 2 &&
 			distance <= definition.rangedAttackRange;
 		if (distance !== 1 && !shooting) {
-			const coordinate = hasMonsterEffect(state, monster, "rooted")
-				? undefined
-				: selectPursuitStep(navigation, monster, monsters);
+			const coordinate =
+				hasMonsterEffect(state, monster, "rooted") || profile.stationary
+					? undefined
+					: selectPursuitStep(navigation, monster, monsters);
 			if (coordinate)
 				monsters = monsters.map((actor) =>
 					actor.id === monster.id ? { ...actor, coordinate } : actor,

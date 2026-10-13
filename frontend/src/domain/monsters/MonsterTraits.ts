@@ -23,6 +23,10 @@ export const monsterTraits = (kind: MonsterKind): readonly string[] => {
 		traits.push(
 			"Landed hits poison: 1 damage per phase for 3 phases; refreshes without stacking.",
 		);
+	if (definition.alarmRadius)
+		traits.push(
+			"Stays at its post. Prepares one alarm before sounding it on the next active phase. Kill, Sleep or Fear interrupts preparation; rooting does not silence it.",
+		);
 	if (definition.chargeRange)
 		traits.push(
 			`Prepares a straight charge up to ${definition.chargeRange} tiles. Sidestep or interrupt it; it spends the following phase recovering.`,

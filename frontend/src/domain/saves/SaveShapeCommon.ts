@@ -210,6 +210,16 @@ const eventFields = {
 	"player-died": {},
 	"quest-completed": {},
 	"escape-started": {},
+	"monster-alarm-prepared": {
+		actorId: text,
+		monster: monsterKind,
+		target: coordinate,
+	},
+	"monster-alarm-sounded": {
+		actorId: text,
+		monster: monsterKind,
+		target: coordinate,
+	},
 	"monster-charge-prepared": {
 		actorId: text,
 		monster: monsterKind,

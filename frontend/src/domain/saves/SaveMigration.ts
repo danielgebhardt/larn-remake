@@ -16,6 +16,7 @@ import type { SaveDocumentV12 } from "./SaveDocumentV12";
 import type { SaveDocumentV13 } from "./SaveDocumentV13";
 import type { SaveDocumentV14 } from "./SaveDocumentV14";
 import type { SaveDocumentV15 } from "./SaveDocumentV15";
+import type { SaveDocumentV16 } from "./SaveDocumentV16";
 
 // Only migrate a structurally and semantically valid v1 snapshot. Preserve
 // played data; legacy monsters have no prepared attack to carry forward.
@@ -115,7 +116,7 @@ export const migrateSaveV7 = (legacy: SaveDocumentV7): SaveDocumentV8 => ({
 });
 
 // Each adapter handles one version; callers validate the original rules first.
-export const migratePlayedSave = (
+const migratePlayedSaveToV15 = (
 	document:
 		| SaveDocumentV3
 		| SaveDocumentV4
@@ -213,3 +214,21 @@ export const migrateSaveV14 = (document: SaveDocumentV14): SaveDocumentV15 => ({
 	...document,
 	version: 15,
 });
+
+export const migratePlayedSave = (
+	document: Parameters<typeof migratePlayedSaveToV15>[0] | SaveDocumentV16,
+): SaveDocumentV16 => {
+	if (document.version === 16) return document;
+	const previous = migratePlayedSaveToV15(document);
+	return {
+		...previous,
+		version: 16,
+		state: {
+			...previous.state,
+			monsters: previous.state.monsters.map((monster) => ({
+				...monster,
+				alarmUsed: undefined,
+			})),
+		},
+	};
+};

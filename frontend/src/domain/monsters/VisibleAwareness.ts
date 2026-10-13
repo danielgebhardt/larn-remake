@@ -52,7 +52,9 @@ export const visibleThreatHistory = (
 	const retained = newEntries.filter(({ event }) => {
 		if (
 			event.type !== "monster-charge-prepared" &&
-			event.type !== "monster-charge-ended"
+			event.type !== "monster-charge-ended" &&
+			event.type !== "monster-alarm-prepared" &&
+			event.type !== "monster-alarm-sounded"
 		)
 			return true;
 		const actor = actors.find(

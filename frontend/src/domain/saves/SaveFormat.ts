@@ -9,14 +9,14 @@ import type {
 import type { GameState } from "../game/GameState";
 import { levelForExperience } from "../game/Progression";
 import { navigationRun } from "../objects/NavigationTerrain";
-import type { SaveDocumentV15 } from "./SaveDocumentV15";
+import type { SaveDocumentV16 } from "./SaveDocumentV16";
 import { validateSaveDocument } from "./SaveValidation";
 
-export const SAVE_FORMAT_VERSION = 15;
+export const SAVE_FORMAT_VERSION = 16;
 // Bound imported input before parsing. A maximum-size snapshot is measured in the review.
 export const MAX_SAVE_BYTES = 4 * 1024 * 1024;
 
-export type SaveDocument = SaveDocumentV15;
+export type SaveDocument = SaveDocumentV16;
 export type RestoredAdventure = {
 	state: GameState;
 	exploration: ExplorationState;
@@ -73,6 +73,7 @@ export const createSaveDocument = (
 				intent,
 				lastDamagedTurn,
 				awareness,
+				alarmUsed,
 			}) => ({
 				id,
 				kind,
@@ -81,11 +82,13 @@ export const createSaveDocument = (
 				health,
 				lastDamagedTurn: lastDamagedTurn ?? null,
 				awareness,
+				alarmUsed,
 				intent:
 					intent.type === "idle" || intent.type === "recovering-charge"
 						? { type: intent.type }
-						: intent.type === "preparing-charge"
-							? { type: "preparing-charge", target: { ...intent.target } }
+						: intent.type === "preparing-charge" ||
+								intent.type === "preparing-alarm"
+							? { type: intent.type, target: { ...intent.target } }
 							: intent.type === "preparing-area"
 								? {
 										type: "preparing-area",

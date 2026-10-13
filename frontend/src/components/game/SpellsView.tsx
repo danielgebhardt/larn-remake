@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { MANA_RECOVERY_INTERVAL } from "../../domain/game/Mana";
 import type { PlayerAction } from "../../domain/game/PlayerActions";
 import type { Progression } from "../../domain/game/Progression";
+import { spellEffectDetails } from "../../domain/game/SpellDetails";
 import {
 	SPELL_SLOT_KEYS,
 	SPELL_SLOTS,
@@ -135,6 +136,11 @@ const SpellsView = ({
 									: `Targeted · Range ${definition.range}`}
 								{"radius" in definition ? ` · Radius ${definition.radius}` : ""}
 							</p>
+							{spellEffectDetails(definition) && (
+								<p className="text-xs leading-relaxed text-muted-foreground">
+									{spellEffectDetails(definition)}
+								</p>
+							)}
 							<fieldset
 								aria-label={`Assign ${definition.name} shortcut`}
 								className="flex flex-wrap gap-1"

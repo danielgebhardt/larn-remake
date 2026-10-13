@@ -19,6 +19,11 @@ describe("Compact spell library", () => {
 		expect(
 			screen.getAllByRole("region", { name: "Spell controls" }),
 		).toHaveLength(1);
+		expect(
+			within(screen.getByRole("region", { name: "Frost Bolt" })).getByText(
+				/cold damage.*Slowed.*3 active phases/i,
+			),
+		).toBeVisible();
 		const card = within(screen.getByRole("region", { name: "Magic Missile" }));
 		expect(card.getByText(/Range 6/)).toBeVisible();
 		const description = card.getByText(/A homing bolt/);

@@ -60,3 +60,9 @@ Readable UI tests cover source visibility, dead sources, poison timing and count
 The death dialog shows up to five incoming damage events from the final five turns before the last recorded death marker. It distinguishes source/action through the existing activity formatter and emphasizes the last recorded damaging event, without claiming exact overkill attribution. Outgoing attacks, misses and zero-damage discoveries are excluded. Empty/legacy history explains that no recent damage is recorded. Restart/replay/inspection and map focus behavior remain intact. No saved contract changes.
 
 A shared `isPlayerDamage` predicate owns incoming damage classification for diagnostics and the recap, including charges. Domain tests cover window/order/limits and records after the death marker; Home tests cover dialog content and inspection/restart. Browser import shows ranged damage followed by a charge, with the latter emphasized.
+
+## #273 — Situational spell choices
+
+Known spell cards now show damage element, secondary condition duration and concise control behavior without expanding details. Life drain explains actual-damage healing. Targeting adds the selected visible target's adjusted damage range, relevant resistance/weakness and current conditions. Range/radius, mana costs and shared controls remain in place. Preview uses `resistedDamage`, the actual combat function, rather than reproducing resistance math. Unknown, hidden, dead, inactive and out-of-range targets cannot be inspected by the helper.
+
+No spells or combat rules are added. Domain/card/Home tests retain free cancel/rejection behavior; browser checks show an actual level-20 targeting range and Frost Bolt's visible three-phase slow. Human testing still needs to establish relative mana/control efficiency across real encounters.

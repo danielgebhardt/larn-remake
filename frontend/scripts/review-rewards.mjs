@@ -29,6 +29,7 @@ try {
 		);
 		const { chestReward } = await load("/src/domain/objects/TreasureChests.ts");
 		const { rewardBudget } = await load("/scripts/reward-budget.mjs");
+		const { experienceBudget } = await load("/scripts/experience-budget.mjs");
 		const configuration = {
 			...defaults,
 			rows: options.rows,
@@ -46,6 +47,7 @@ try {
 					seed,
 					configuration,
 					...rewardBudget(state, createMonsterDrop, chestReward),
+					experience: experienceBudget(state),
 				}),
 			);
 		}

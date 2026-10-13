@@ -14,6 +14,7 @@ import {
 	objectLabel,
 } from "../../domain/objects/DungeonObject";
 import ItemIcon from "../items/ItemIcon";
+import LootPileIcon from "../items/LootPileIcon";
 import MonsterIcon from "../monsters/MonsterIcon.tsx";
 import { MONSTER_VISUALS } from "../monsters/MonsterVisuals.ts";
 import DungeonObjectIcon from "../objects/DungeonObjectIcon";
@@ -59,6 +60,11 @@ const DungeonCell = memo(function DungeonCell({
 	areaThreatened?: boolean;
 	inSpellArea?: boolean;
 }) {
+	const showsPile =
+		itemKind !== undefined &&
+		itemCount > 1 &&
+		!monsterKind &&
+		dungeonObject?.kind !== "door";
 	const description = monsterKind
 		? MONSTER_VISUALS[monsterKind].label
 		: dungeonObject?.kind === "door"
@@ -89,7 +95,9 @@ const DungeonCell = memo(function DungeonCell({
 					? "Prepared area attack: leave the highlighted tiles before the blast."
 					: threatened
 						? "Prepared heavy attack: move away to dodge."
-						: undefined
+						: showsPile
+							? `${itemCount} items on this tile. Press G to choose one.`
+							: undefined
 			}
 			data-visibility={visibility}
 			className={`relative size-[var(--dungeon-tile-size)] ${background}`}
@@ -111,7 +119,11 @@ const DungeonCell = memo(function DungeonCell({
 			) : dungeonObject?.kind === "door" ? (
 				<DungeonObjectIcon object={dungeonObject} />
 			) : itemKind ? (
-				<ItemIcon kind={itemKind} />
+				showsPile ? (
+					<LootPileIcon count={itemCount} />
+				) : (
+					<ItemIcon kind={itemKind} />
+				)
 			) : dungeonObject ? (
 				<DungeonObjectIcon object={dungeonObject} />
 			) : (

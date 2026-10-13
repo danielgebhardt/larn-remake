@@ -27,3 +27,17 @@ Assigned spell buttons also use the primary theme color; unassigned choices stay
 ## #221 — Distinct potion families
 
 The shared ItemIcon renders custom outline bottles: round red health, tall blue mana, and triangular green antidote. Greater health/mana bottles retain their family shape and add a plus marker, so identification does not rely on color alone. Light/dark theme tokens provide contrasting hues; the same SVGs appear in the map, bag, hotbar and developer catalog. Names and accessible descriptions remain on their existing parent controls. New tests first failed for shared mana/antidote identity and missing greater markers, then passed for distinct families and strength cues. Browser checks inspect 24px and 48px previews.
+
+## #222 — Visible loot piles
+
+Visible tiles with multiple physical items show an open-package symbol and a count badge (9+ for larger piles). The tile retains its exact accessible item count and gains a Press G hint. A single remaining item immediately regains its own icon; no item is hidden behind a pile after the last transfer. Player/stair/monster/door overlays and fog still control visibility. Threat warning tooltips take precedence. The two missing-pile regressions failed first; tests cover count changes, large piles, fog and overlay behavior. The existing numbered pickup chooser and turn rules are unchanged.
+
+## Review checkpoints
+
+- At a 1280px viewport, inspect all 27 inventory tiles in nine columns, pick up a matching potion into a full bag, and drink/drop a single bottle from a stack.
+- Generate several seeds to check upstairs variety and reciprocal arrivals. Played saves preserve their existing geometry; current saves are v11 and historical saves still load.
+- Assign a spell shortcut: the selected button says Assigned and uses the gold theme color. Shared instructions remain visible; individual spell descriptions expand on demand.
+- Check red/blue/green bottle families and greater markers in both themes. Potion/spell names remain visible beneath hotbar buttons.
+- Walk onto a loot pile, press G and then a number to pick one item. The browser fixture verified a matching potion pickup at 27 occupied slots and restoration of the remaining single bottle icon.
+
+All six stories are implemented for developer review. Four potion slots and four spell slots remain in this batch; #223 tracks six spell slots using keys 5–9 and 0, with potion slots staying 1–4.

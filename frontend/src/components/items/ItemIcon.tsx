@@ -3,8 +3,6 @@ import {
 	BookOpen,
 	Circle,
 	Crown,
-	FlaskConical,
-	FlaskRound,
 	Gem,
 	HardHat,
 	Layers,
@@ -18,14 +16,17 @@ import {
 } from "lucide-react";
 import { ITEM_DEFINITIONS, type ItemKind } from "../../domain/items/Item";
 
+import type { PotionKind } from "../../domain/items/PotionHotbar";
+import PotionIcon from "./PotionIcon";
+
+const isPotionKind = (kind: ItemKind): kind is PotionKind =>
+	ITEM_DEFINITIONS[kind].type === "potion";
+
 type BookKind = Extract<ItemKind, `book-${string}`>;
 const isBookKind = (kind: ItemKind): kind is BookKind =>
 	ITEM_DEFINITIONS[kind].type === "spellbook";
-const icons: Record<Exclude<ItemKind, BookKind>, LucideIcon> = {
+const icons: Record<Exclude<ItemKind, BookKind | PotionKind>, LucideIcon> = {
 	cure: Gem,
-	antidote: FlaskConical,
-	"greater-healing-potion": FlaskRound,
-	"greater-mana-potion": FlaskConical,
 	"relic-band": Gem,
 	"copper-ring": Circle,
 	"ring-strength": Circle,
@@ -33,8 +34,6 @@ const icons: Record<Exclude<ItemKind, BookKind>, LucideIcon> = {
 	"ring-intelligence": Circle,
 	"ring-vitality": Circle,
 	"ring-mana": Circle,
-	"healing-potion": FlaskRound,
-	"mana-potion": FlaskConical,
 	"short-sword": Sword,
 	"iron-sword": Sword,
 	"steel-sword": Sword,
@@ -55,12 +54,13 @@ const icons: Record<Exclude<ItemKind, BookKind>, LucideIcon> = {
 	"scholar-robe": Shirt,
 };
 const ItemIcon = ({ kind }: { kind: ItemKind }) => {
+	if (isPotionKind(kind)) return <PotionIcon kind={kind} />;
 	const Icon = isBookKind(kind) ? BookOpen : icons[kind];
 	return (
 		<Icon
 			aria-hidden="true"
 			focusable="false"
-			className={`size-full ${kind.startsWith("book-") ? "text-violet-700 dark:text-violet-300" : kind === "cure" ? "text-item-cure" : kind === "healing-potion" || kind === "greater-healing-potion" ? "text-item-potion" : kind === "mana-potion" || kind === "greater-mana-potion" || kind === "antidote" ? "text-item-mana" : "text-item-gear"}`}
+			className={`size-full ${kind.startsWith("book-") ? "text-violet-700 dark:text-violet-300" : kind === "cure" ? "text-item-cure" : "text-item-gear"}`}
 		/>
 	);
 };

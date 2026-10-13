@@ -23,3 +23,7 @@ Each potion/spell slot now has a compact two-line label below its existing icon 
 Spell cards keep name, potency/cost, self/targeted mode, range/radius and assignment visible. Full individual descriptions remain in a keyboard-accessible details disclosure; shared directional/target/self controls appear once. Desktop uses three card columns. Assignment buttons now visibly say Assign or Assigned followed by the actual key; the slot summary offers explicit Clear controls. No assignment, casting, turn or save rules change. New tests first failed for missing shared controls and assignment labels, then verified disclosure and controlled assignment replacement. Existing Home tests continue to exercise keyboard interaction, paused gameplay and free assignment/clear.
 
 Assigned spell buttons also use the primary theme color; unassigned choices stay outlined. The selected color moves when a shortcut is reassigned.
+
+## #221 — Distinct potion families
+
+The shared ItemIcon renders custom outline bottles: round red health, tall blue mana, and triangular green antidote. Greater health/mana bottles retain their family shape and add a plus marker, so identification does not rely on color alone. Light/dark theme tokens provide contrasting hues; the same SVGs appear in the map, bag, hotbar and developer catalog. Names and accessible descriptions remain on their existing parent controls. New tests first failed for shared mana/antidote identity and missing greater markers, then passed for distinct families and strength cues. Browser checks inspect 24px and 48px previews.

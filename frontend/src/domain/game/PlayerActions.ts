@@ -34,6 +34,7 @@ import {
 import { type ActivityEvent, appendActivityEvents } from "./ActivityHistory.ts";
 import { type AttackRollSource, createAttackRolls } from "./CombatRandomness";
 import { deriveCombatStats } from "./CombatStats";
+import { activateEscapeFloor } from "./Escape";
 import type { GameState } from "./GameState.ts";
 import { recoverManaAfterTurn } from "./Mana";
 import {
@@ -283,7 +284,10 @@ const resolvePlayerEffect = (
 	);
 	return monster
 		? resolveAttack(state, monster, rollSource)
-		: announceArrival({ ...state, run }, state.run.activeFloor);
+		: activateEscapeFloor(
+				announceArrival({ ...state, run }, state.run.activeFloor),
+				state.run.activeFloor,
+			);
 };
 
 const announceArrival = (state: GameState, fromFloor: number): GameState => {

@@ -160,6 +160,12 @@ describe("Complete adventure with tactical encounters", () => {
 		state = walk(state, { row: 2, col: 6 });
 		state = act(state, { type: "pickup", itemId: "quest:cure" }).state;
 		expect(state.quest.cureRecovered).toBe(true);
+		// This controlled journey isolates the archer and brute; escape waves have
+		// their own integration tests. Treat these return floors as already cleared.
+		state = {
+			...state,
+			escape: { startedTurn: state.turn, activatedFloors: [1, 2, 3, 4] },
+		};
 		for (let floor = 5; floor > 1; floor--) {
 			state = walk(state, { row: 1, col: 1 });
 			expect(state.run.activeFloor).toBe(floor - 1);

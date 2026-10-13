@@ -9,11 +9,18 @@ import {
 	protectedFloorLocations,
 } from "./MonsterLocations";
 
-export const detectsPlayer = (run: DungeonRun, monster: Monster): boolean => {
+import { PURSUIT_RULES, type PursuitRules } from "./PursuitRules";
+
+export const detectsPlayer = (
+	run: DungeonRun,
+	monster: Monster,
+	rules: Readonly<PursuitRules> = PURSUIT_RULES,
+): boolean => {
 	if (monster.floorNumber !== run.activeFloor) return false;
 	const row = run.playerCoordinate.row - monster.coordinate.row;
 	const col = run.playerCoordinate.col - monster.coordinate.col;
-	const radius = MONSTER_DEFINITIONS[monster.kind].detectionRadius;
+	const radius =
+		MONSTER_DEFINITIONS[monster.kind].detectionRadius + rules.detectionBonus;
 	return (
 		row * row + col * col <= radius * radius &&
 		hasLineOfSight(

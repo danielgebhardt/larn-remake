@@ -21,6 +21,6 @@ Live browser checks verified both themes, the reserved creature palette, gold co
 
 The monster palette remains centralized in App.css for later tuning. A multi-tile merchant stall and terrain changes are outside this story.
 
-## Feedback iteration (uncommitted)
+## Accepted feedback iteration
 
-The first pass used a single orange color and a dart silhouette. Developer feedback requested varied hostile colors and a poison bottle; these changes remain uncommitted while further visual review continues. Unique monster silhouettes and all other accepted visuals are retained.
+The first pass used a single orange color and a dart silhouette. Developer feedback requested varied hostile colors and a poison bottle; the developer committed these changes as `82c8768` and merged them into `main`. Story #280 is accepted and Done. Unique monster silhouettes and all other accepted visuals are retained.

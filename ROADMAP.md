@@ -14,11 +14,11 @@ Updated October 13, 2026. This project reimagines Larn while providing a place t
 
 ## Current playable baseline
 
-Already merged before this release branch:
+Merged into `main` and accepted by the developer:
 
 - Seeded multi-floor terrain, linked stairs, collision, player-following scrolling, efficient large maps, fog and per-floor discovery memory.
 - Welcome/start/resume, cure recovery and return victory, death dialog, turn resolution and activity history.
-- Twenty floor-eligible creature kinds, melee/ranged/prepared attacks, announced threats and bounded conditions/defenses.
+- Twenty ordinary creature kinds plus charger, sentry and optional champion profiles; melee/ranged/prepared attacks, announced threats and bounded conditions/defenses.
 - Level-based Strength, Dexterity and Intelligence, a level-20 cap, reproducible hit/miss and damage, armor and mana.
 - Twenty spells in the catalog. Magic Missile and Heal start known; other knowledge comes from seeded, depth-eligible spellbooks. A run does not guarantee every spell.
 - Main hand, off hand, head, chest and two rings; derived equipment bonuses and comparison feedback.
@@ -48,9 +48,9 @@ The published alpha used **v12**: old valid saves migrate, retaining their items
 
 Matched layout measurements on five seeds at 60×60×20 (100 floors) show mean bottleneck tiles falling from **181.46 to 119.00**, and entry-to-downstairs distance from **66.18 to 62.58**. No unreachable tiles were found; a separate sixty-floor 100×100 batch also stayed connected. These measure topology, not human run duration or combat difficulty. The final gameplay commit passes **1,839 tests**, Biome, TypeScript and the frontend production build.
 
-## Current program: five epics ready for review
+## Completed pursuit, return, merchant and discovery program
 
-Implemented locally on `codex/pursuit-escape-and-merchants`, with **28 story commits**. Stories and native parent epics are **In Review**; acceptance, push/merge and release remain developer-owned. No deployment is part of this work. Review logic, tests and diagnostic limits in [the program review guide](docs/pursuit-escape-merchant-review.md).
+Merged into `main` and accepted, with 28 initial story commits. Native parent epics and stories are closed and marked Done. Review logic, tests and diagnostic limits in [the program review guide](docs/pursuit-escape-merchant-review.md).
 
 | Epic / stories | Implemented outcome |
 | --- | --- |
@@ -60,49 +60,68 @@ Implemented locally on `codex/pursuit-escape-and-merchants`, with **28 story com
 | [#256](https://github.com/danielgebhardt/larn-remake/issues/256), #257–264 | Shared finite potion merchant on floors 5/10/15 below the goal, keyboard Buy/Sell, deliberate prices and saved ownership. |
 | [#252](https://github.com/danielgebhardt/larn-remake/issues/252), #253–255 | Capacity-scaled finite fountains, temporary attribute potions and guaranteed per-item enchantment capped at +3. |
 
-Current branch save format is **v18**. Valid older saves migrate without regenerating played terrain/actors/loot; old merchant-free formats initialize reachable stalls/stock once. Current saves retain pursuit, alarms, escape activation, stock and actual enchantments. The reference remains 60×60×20 with level cap 20 and mana recovery every 30 turns. Ordinary population remains twelve per floor; return waves cap total living actors at sixteen. Human difficulty/pacing still needs playtesting.
+This milestone introduced **v18**; current `main` uses **v19**. Valid older saves migrate without regenerating played terrain/actors/loot; old merchant-free formats initialize reachable stalls/stock once. Current saves retain pursuit, alarms, escape activation, stock and actual enchantments. The reference remains 60×60×20 with level cap 20 and mana recovery every 30 turns. Ordinary population remains twelve per floor; return waves cap total living actors at sixteen. Human difficulty/pacing still needs playtesting.
 
 The six-seed generated merchant budget found 776–841 ordinary gold by floor 5 and 8,371–8,576 across 20 floors if everything is collected, versus 14,000 for full stock. Controlled return and budget diagnostics are not human win-rate evidence. Review chargers/alarms, optional challenges, supply spending and return pressure before another broad balance change.
 
-## Pacing and tactical clarity ready for review
+## Completed pacing and tactical clarity
 
-Implemented locally on `codex/pacing-and-tactical-clarity`, based on the preceding five-epic branch, with eight initial story commits and a separate post-review fix commit. Both native parent epics and all eight stories are **In Review**. Acceptance, merge and publishing remain developer-owned.
+Merged into `main` and accepted, with eight initial story commits and a separate post-review fix. Both native parent epics and all eight stories are closed and marked Done.
 
 | Epic | Stories / outcome |
 | --- | --- |
 | [#265](https://github.com/danielgebhardt/larn-remake/issues/265), Pacing and meaningful rewards | #266 per-visit pacing reports; #267 depth-sensitive ordinary equipment weights; #268 supply budgets; #269 twenty-floor XP audit. Supply probabilities and XP thresholds were retained based on available evidence. |
 | [#270](https://github.com/danielgebhardt/larn-remake/issues/270), Tactical clarity and counterplay | #271 visible threat/condition counterplay; #272 recent damage defeat recap; #273 spell elements/duration/target-adjusted damage; existing #212 intelligent enemies opening ordinary doors for one action. |
 
-Current branch save format is **v19**: validated enemy door-opening history is added, while all v18 played state and enchantments migrate intact. Orcs, cultists and necromancers can open ordinary doors during remembered pursuit; elite gates remain player-only. Loaded items remain authoritative; only new/replayed loot selection changes.
+Current save format is **v19**: validated enemy door-opening history is added, while all v18 played state and enchantments migrate intact. Orcs, cultists and necromancers can open ordinary doors during remembered pursuit; elite gates remain player-only. Loaded items remain authoritative; only new/replayed loot selection changes.
 
-[Story review guide](docs/pacing-tactics-review.md) contains logic and six-seed evidence. [Post-epic codebase review](docs/codebase-review-2026-10-13.md) records immediate fixes to diagnostic stacking/capacity, elite routing, current resource estimates and stale Help, with structural recommendations left for developer review. Scripted policies remain limited; human playtesting is still the next balance gate.
+[Story review guide](docs/pacing-tactics-review.md) contains logic and six-seed evidence. [Post-epic codebase review](docs/codebase-review-2026-10-13.md) records immediate fixes to diagnostic stacking/capacity, elite routing, current resource estimates and stale Help, followed by the accepted session/save refactors #274–276. CI and startup follow-ups remain planned. Scripted policies remain limited; human playtesting is still the next balance gate.
 
-## Recommended next work
+## Next planned program
 
-These are proposals, not authorization or newly created issues. Review the current program and playtest before another feature batch.
+The developer agreed to this order after merging the engineering and visual polish. Stories are created and linked as native sub-issues; this is planning, not authorization to begin implementation. Starting classes, town services and cold-start measurement remain later work.
 
-| Order | Story / epic | Why |
+| Order | Epic | Outcome |
 | --- | --- | --- |
-| 1 | Human pacing and counterplay feedback | Compare a few recommended 60×60×20 runs against per-floor reports. Note supplies actually available at fights, optional challenges, level growth, merchant spending and return pressure. Generated supply/XP potential cannot replace human decisions. |
-| 2 | A bounded engineering cleanup | Review the proposed adventure-session extraction, save-validation organization and CI/browser smoke checks before implementation. Preserve state/focus ownership and historical save fixtures. |
-| 3 | New-run difficulty presets (#213) | Offer bounded easier/normal/harder enemy health/damage scaling only after normal has a human baseline. Freeze the choice in saves; avoid simultaneously scaling XP, density or loot. |
-| 4 | Interruptible safe travel | One corridor-run command before automatic exploration. Stop at threats, junctions, doors, stairs, items and discoveries; every tile remains a committed turn. Define interruption rules first. |
-| 5 | Extend the gold economy into town services | Reuse tested merchant transactions at the entrance, or add one healing service after supply/pricing feedback. Avoid banks/taxes or a broad economy until needed. |
-| 6 | Starting classes | Different starting attributes and automatic growth, with existing equipment/effect ownership. Defer manual stat allocation and large skill trees. |
+| 1 | [#213 — Difficulty and new-adventure choices](https://github.com/danielgebhardt/larn-remake/issues/213) | Immutable combat pressure, saved continuation, explicit start/settings choices and fixed map-size boxes. Five stories below. |
+| Alongside | [#277 — Declared-toolchain CI and browser smoke coverage](https://github.com/danielgebhardt/larn-remake/issues/277) | Repeatable frontend/backend checks and a small controlled browser suite. Prefer establishing CI before the next large feature merge. |
+| 2 | [#285 — Interruptible safe corridor travel](https://github.com/danielgebhardt/larn-remake/issues/285) | Reduce repetitive movement through quiet corridors while preserving each committed turn and stopping at decisions or danger. |
+| Ongoing | Human pacing/counterplay playtests | Supplies at real fights, merchant spending, useful upgrades, leveling and hunted return. Keep human reports alongside bounded diagnostics. |
+| Later | Town/entrance service, then starting classes | Reuse the merchant transaction foundation and existing base/gear/effect ownership; avoid a broad economy or stat-distribution framework. |
 
-Further loot/supply/XP tuning should be separate evidence-backed slices, not a simultaneous formula overhaul. More enemy/spell content can follow feedback showing which choices are missing.
+### Difficulty and start-dialog choices — five stories
+
+1. **[#281](https://github.com/danielgebhardt/larn-remake/issues/281): difficulty rules and ownership.** Proposed Easier / Normal / Harder multipliers are 0.75 / 1.0 / 1.25. Scale enemy maximum health and direct melee/ranged/charge/area damage with documented rounding and a positive minimum of 1. Keep Normal behavior, XP, loot, population, armor/resistance/accuracy, spell availability, environmental damage and ongoing conditions unchanged initially. Confirm exact supported values and ordering during implementation.
+2. **[#282](https://github.com/danielgebhardt/larn-remake/issues/282): saved continuation and replay.** Explicitly version difficulty and validate actual wounded/scaled actors. Migrate v1–v19 saves to Normal without regenerating played state. Preserve deterministic continuation and existing merchant/escape/effect/enchantment ownership.
+3. **[#283](https://github.com/danielgebhardt/larn-remake/issues/283): difficulty UI.** Choose before starting; Settings edits the next-run draft. Show the active choice and actual scaled creature values, keep the catalog baseline clear, and retain keyboard/focus/error behavior.
+4. **[#279](https://github.com/danielgebhardt/larn-remake/issues/279): Small / Medium / Large boxes.** Proposed row/column dimensions: 20×20 / 40×40 / 60×60. Keep floors independently configurable unless the developer chooses full-adventure presets. Retain custom Settings and 60×60×20 as the reference/default. Confirm dimensions before implementation.
+5. **[#284](https://github.com/danielgebhardt/larn-remake/issues/284): matched verification.** Compare compact and recommended seeds; verify intended geometry/content stability, actual scaling, normal-mode regression, save/replay and keyboard lifecycle. Treat scripted observations as limited mechanics evidence, not human win rates.
+
+Do not expose non-normal modes before persistence and UI are ready. Changing one combat multiplier does not authorize simultaneous supply/XP/density tuning.
+
+### Interruptible safe corridor travel — three stories
+
+1. **[#286](https://github.com/danielgebhardt/larn-remake/issues/286): eligibility and interruption policy.** Use player-visible/remembered information. Stop at threats, junctions, rooms, doors, stairs, loot, objects and meaningful newly revealed content; stop after damage/harmful conditions. No hidden knowledge, auto-combat, pickup, door opening or automatic exploration.
+2. **[#287](https://github.com/danielgebhardt/larn-remake/issues/287): keyboard/controller.** Proposed R followed by a direction starts one-step-at-a-time travel; Escape cancels. Confirm against existing controls. Keep each action visible and interruptible, and cancel on manual action, modal/focus change, new/load/replay, death or victory. Closing menus must not resume it.
+3. **[#288](https://github.com/danielgebhardt/larn-remake/issues/288): continuation/lifecycle verification.** Compare manual and corridor steps for turns, actors, recovery and discovery. Check large-map following/responsiveness and queued-step cancellation. Travel instructions are transient and do not resume after loading a save.
+
+### CI and browser smoke coverage — two stories
+
+1. **[#289](https://github.com/danielgebhardt/larn-remake/issues/289): declared-toolchain CI.** Frontend Biome/full tests/TypeScript/build and backend Gradle tests, with documented Node/pnpm/Java versions, frozen lockfiles and bounded runner concurrency. Preserve local hooks and verify actual successful CI jobs.
+2. **[#290](https://github.com/danielgebhardt/larn-remake/issues/290): controlled browser smoke suite.** Isolated storage and compact deterministic fixtures for welcome/start, Settings focus, pickup/heal/hotbars, save/load and a terminal adventure flow. Add difficulty/size coverage when available. Keep it small and investigate timing failures rather than raising timeouts indiscriminately.
+
 
 ### Alpha feedback gate
 
-Release this branch first and gather a small set of feedback before more content work. Keep seed, dimensions, depth, release version and a save near the reported problem. Include several 60×60×20 runs, a shorter 15×15×5 correctness/survival check, and maximum-map performance checks when relevant. Human play remains essential: diagnostics know routes and follow a limited policy, so their win rate is not a player difficulty rating.
+Gather a small set of feedback on the merged build before another content/balance expansion. Keep seed, dimensions, depth, release version and a save near the reported problem. Include several 60×60×20 runs, a shorter 15×15×5 correctness/survival check, and maximum-map performance checks when relevant. Human play remains essential: diagnostics know routes and follow a limited policy, so their win rate is not a player difficulty rating.
 
 Look specifically for bag frustration after stacking, usefulness of deep-floor loot, spell choice, ranged-threat readability, floor-by-floor level growth and quiet travel. Fix reproducible input/save/combat bugs before balance proposals. Tune one system at a time and retain before/after seed comparisons.
 
 ## Engineering and sharing alongside playtesting
 
 - **Frontend publishing #211:** share a static build when deployment is explicitly authorized; the backend check is already disabled. Confirm actual hosting configuration/limits at implementation time. Browser saves belong to an origin/profile; export/import is the existing transfer mechanism. No accounts or Java deployment are needed for this alpha.
-- **CI:** before the next large feature batch, consider PR/main checks for frontend Biome, tests, build/typecheck and Gradle backend tests, using declared tool versions. This supports releases without changing game rules.
-- **Small browser smoke suite:** welcome/start, Settings focus restoration, hotbar/pickup, save/load and one death/victory flow. Prefer stable controlled fixtures over a screenshot matrix or duplicating all domain tests.
+- **CI #277/#289:** planned alongside difficulty work, before the next large feature merge where practical. This supports releases without changing game rules.
+- **Browser smoke #290:** welcome/start, Settings focus restoration, hotbar/pickup, save/load and one death/victory flow, using isolated controlled fixtures.
 - **Performance:** retain large-map movement regressions. Measure startup before further lazy loading; the approximately 600kB main chunk currently produces a non-blocking build warning. Measure pursuit, targeting and saves if new behavior makes them slow.
 - **Persistence:** version changed saved contracts and retain captured legacy fixtures. Named save slots can follow demonstrated demand; autosave/IndexedDB should follow measured need, not replace working manual saves by default.
 
@@ -142,11 +161,17 @@ Use [Larn's monsters](https://larn.fandom.com/wiki/Monsters), [spells](https://l
 | Distinct enemy tactics #146 | [Tactics review](docs/enemy-tactics-review.md), [diagnostics](docs/enemy-tactics-playtest.md) |
 | Expanded adventure #154/#159/#170/#176/#185/#194 and prior UI polish | [Story plan](docs/expanded-adventure-plan.md), [implementation review](docs/expanded-adventure-review.md) |
 | Current alpha polish #216/#226 | [Inventory review](docs/alpha-polish-review.md), [exploration/status review](docs/release-polish-review.md) |
+| Pursuit/return/tactical encounters/merchant/discoveries #232/#238/#245/#256/#252 | [Program review](docs/pursuit-escape-merchant-review.md) |
+| Pacing/tactical clarity #265/#270, including doors #212 | [Pacing/tactics review](docs/pacing-tactics-review.md), [codebase review](docs/codebase-review-2026-10-13.md) |
+| Session/save ownership #274–276 | [Maintainability review](docs/session-save-maintainability-review.md) |
+| Icon/catalog polish #280 | [Visual review](docs/dungeon-visual-polish-review.md) |
 
 Completed milestone details live in these review guides and GitHub stories. They should not reappear as outstanding roadmap work.
 
 ## Engineering follow-up from October 13 review
 
-Epic [#274](https://github.com/danielgebhardt/larn-remake/issues/274) contains session ownership #275 and save-validation ownership #276. Review notes: [session/save maintainability](docs/session-save-maintainability-review.md).
+Session ownership #275 and save-validation ownership #276 are accepted and merged under completed epic #274. Merchant/item/spell/monster visual polish #280, including the final varied monster palette and poison bottle, is also accepted and merged.
 
-Backlog: declared-toolchain CI and browser smoke coverage [#277](https://github.com/danielgebhardt/larn-remake/issues/277), measured startup/dialog splitting [#278](https://github.com/danielgebhardt/larn-remake/issues/278), and fixed Small/Medium/Large start-dialog choices [#279](https://github.com/danielgebhardt/larn-remake/issues/279) after or alongside difficulty #213. Size and difficulty should remain separate choices; confirm the three dimensions during that work.
+CI/browser checks are organized under epic #277. Startup measurement and selective dialog splitting [#278](https://github.com/danielgebhardt/larn-remake/issues/278) stay Backlog; splitting is conditional on measured benefit. Size presets #279 are now part of difficulty/new-adventure epic #213.
+
+The latest recorded complete frontend verification passes **292 files / 2,144 tests**, Biome, TypeScript and production build. Final visual-feedback changes also passed the focused 14-test set and production build. No gameplay or save format changes were introduced by that polish.

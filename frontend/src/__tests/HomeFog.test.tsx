@@ -29,25 +29,31 @@ const corridorRun = (): DungeonRun => ({
 afterEach(resetHomeTestState);
 
 describe("Home fog of war", () => {
-	it("starts with fog enabled and a radius of six", () => {
+	it("starts with fog enabled and an eight-tile radius in the map and Settings", async () => {
 		stubDungeonRun(corridorRun());
 		render(<Home />, { wrapper: ThemeProvider });
 		expect(
 			screen.getByRole("cell", { name: "row1col1 - player" }),
 		).toBeVisible();
 		expect(
-			screen.getByRole("cell", { name: "row1col7 - floor" }),
+			screen.getByRole("cell", { name: "row1col9 - floor" }),
 		).toBeVisible();
 		expect(
 			screen
-				.getByRole("cell", { name: "row1col8 - undiscovered" })
+				.getByRole("cell", { name: "row1col10 - undiscovered" })
 				.querySelector("svg"),
 		).toBeNull();
+		await openSettings(userEvent.setup());
+		expect(
+			screen.getByRole("textbox", { name: "Visibility radius" }),
+		).toHaveValue("8");
 	});
 
-	it("reveals movement surroundings and remembers tiles left behind", async () => {
+	it("preserves an explicit six-tile radius while revealing and remembering movement surroundings", async () => {
 		stubDungeonRun(corridorRun());
-		render(<Home />, { wrapper: ThemeProvider });
+		render(<Home initialFogConfiguration={{ enabled: true, radius: 6 }} />, {
+			wrapper: ThemeProvider,
+		});
 		await userEvent.keyboard(
 			"{ArrowRight}{ArrowRight}{ArrowRight}{ArrowRight}{ArrowRight}{ArrowRight}{ArrowRight}",
 		);
@@ -140,10 +146,10 @@ describe("Home fog of war", () => {
 			expect(input).toHaveAccessibleDescription(/whole number from 1 to 20/);
 			await closeSettings(user);
 			expect(
-				screen.getByRole("cell", { name: "row1col7 - floor" }),
+				screen.getByRole("cell", { name: "row1col9 - floor" }),
 			).toBeVisible();
 			expect(
-				screen.getByRole("cell", { name: "row1col8 - undiscovered" }),
+				screen.getByRole("cell", { name: "row1col10 - undiscovered" }),
 			).toBeVisible();
 			expect(generate).toHaveBeenCalledTimes(1);
 		},

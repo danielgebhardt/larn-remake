@@ -35,6 +35,6 @@ export const CONFIGURATION_LIMITS = {
 export type FogConfiguration = { enabled: boolean; radius: number };
 export const DEFAULT_FOG_CONFIGURATION: FogConfiguration = {
 	enabled: true,
-	radius: 6,
+	radius: 8,
 };
 export const FOG_RADIUS_LIMITS = { min: 1, max: 20 };

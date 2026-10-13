@@ -1,6 +1,6 @@
 # Alpha inventory and visual usability polish
 
-Branch: `codex/alpha-inventory-polish`. Epic #216; stories #217–222. One tested commit per story, awaiting developer acceptance. No push/merge/deployment.
+Branch: `codex/alpha-inventory-polish`. Epic #216; stories #217–222 and #224. One tested commit per story, awaiting developer acceptance. No push/merge/deployment.
 
 ## #217 — Potion stacks and 27 slots
 
@@ -41,3 +41,7 @@ Visible tiles with multiple physical items show an open-package symbol and a cou
 - Walk onto a loot pile, press G and then a number to pick one item. The browser fixture verified a matching potion pickup at 27 occupied slots and restoration of the remaining single bottle icon.
 
 All six stories are implemented for developer review. Four potion slots and four spell slots remain in this batch; #223 tracks six spell slots using keys 5–9 and 0, with potion slots staying 1–4.
+
+## #224 — Eight-tile default visibility
+
+Fresh sessions start with fog enabled and visibility radius 8. The shared RunConfiguration default drives both initial sight and Settings. Custom radii, session preferences and loaded-save values remain untouched; no save migration or monster detection change is needed. The default-boundary regression failed first, then passed for visible distance eight, hidden distance nine and Settings value 8. The explicit radius-six movement test and historical save fixture remain intact. README describes the new default.

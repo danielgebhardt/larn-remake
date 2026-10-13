@@ -2,7 +2,7 @@ import type { PotionKind } from "../../domain/items/PotionHotbar";
 
 const bottles = {
 	boost: {
-		color: "text-item-equipment",
+		color: "text-item-gear",
 		path: "M9 3h6v5l4 4v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-7l4-4V3Z",
 		liquid: "M9 3h6",
 	},

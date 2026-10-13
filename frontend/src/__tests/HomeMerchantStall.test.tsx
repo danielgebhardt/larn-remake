@@ -16,7 +16,7 @@ afterEach(() => {
 	flags.wanderingMerchant = true;
 });
 it.each([true, false])(
-	"shows the labeled countertop only when availability is %s",
+	"shows the labeled shop icon only when availability is %s",
 	(enabled) => {
 		flags.wanderingMerchant = enabled;
 		stubDungeonRun(createCorridorEncounter());
@@ -39,21 +39,21 @@ it.each([true, false])(
 		if (enabled) {
 			expect(
 				screen.getByRole("cell", {
-					name: "row1col2 - potion merchant at a counter",
+					name: "row1col2 - potion merchant",
 				}),
 			).toBeVisible();
 			expect(screen.getByText(/Press E within reach to trade/)).toBeVisible();
 			expect(
 				within(
 					screen.getByRole("cell", {
-						name: "row1col2 - potion merchant at a counter",
+						name: "row1col2 - potion merchant",
 					}),
-				).getByTitle("Potion merchant behind a counter"),
+				).getByTitle("Potion merchant shop"),
 			).toBeInTheDocument();
 		} else {
 			expect(
 				screen.queryByRole("cell", {
-					name: "row1col2 - potion merchant at a counter",
+					name: "row1col2 - potion merchant",
 				}),
 			).not.toBeInTheDocument();
 			expect(

@@ -117,6 +117,29 @@ describe("Developer catalog", () => {
 		expect(sheet.getByRole("tabpanel", { name: "Terrain" })).toBeVisible();
 		expect(screen.getByLabelText("Turn count")).toHaveTextContent("Turn 0");
 	});
+	it("keeps all potion kinds together, including ordinary mana potion", async () => {
+		renderHome(<Home />);
+		const user = userEvent.setup();
+		await user.click(screen.getByRole("button", { name: "Catalog" }));
+		const sheet = within(
+			await screen.findByRole("dialog", { name: "Developer catalog" }),
+		);
+		await user.click(sheet.getByRole("tab", { name: "Items" }));
+		const names = sheet
+			.getAllByRole("listitem")
+			.map((card) => within(card).getByRole("heading").textContent);
+		const potions: string[] = Object.values(ITEM_DEFINITIONS)
+			.filter((item) => item.type === "potion")
+			.map((item) => item.name);
+		const firstPotion = names.findIndex((name) => potions.includes(name ?? ""));
+		expect(firstPotion).toBeGreaterThanOrEqual(0);
+		expect(names.slice(firstPotion, firstPotion + potions.length)).toEqual(
+			expect.arrayContaining(potions),
+		);
+		expect(names.slice(firstPotion, firstPotion + potions.length)).toContain(
+			"Mana potion",
+		);
+	});
 	it("hides the entry point when the developer feature is disabled", () => {
 		flags.developerCatalog = false;
 		renderHome(<Home />);

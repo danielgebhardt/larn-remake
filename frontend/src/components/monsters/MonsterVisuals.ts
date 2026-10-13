@@ -12,11 +12,14 @@ import GoblinIcon from "./GoblinIcon.tsx";
 import GolemIcon from "./GolemIcon";
 import KoboldSlingerIcon from "./KoboldSlingerIcon";
 import NecromancerIcon from "./NecromancerIcon";
+import OgreIcon from "./OgreIcon";
 import SalamanderIcon from "./SalamanderIcon";
 import SentryIcon from "./SentryIcon";
 import SpiderIcon from "./SpiderIcon";
+import TrollIcon from "./TrollIcon";
 import WardenIcon from "./WardenIcon";
 import WyvernIcon from "./WyvernIcon";
+import ZombieIcon from "./ZombieIcon";
 
 export const MONSTER_VISUALS: Record<
 	MonsterKind,
@@ -28,117 +31,117 @@ export const MONSTER_VISUALS: Record<
 > = {
 	"iron-champion": {
 		icon: ChampionIcon,
-		color: "text-monster-brute",
+		color: "text-monster-icon",
 		label: MONSTER_DEFINITIONS["iron-champion"].name,
 	},
 	"alarm-sentry": {
 		icon: SentryIcon,
-		color: "text-monster-archer",
+		color: "text-monster-icon",
 		label: MONSTER_DEFINITIONS["alarm-sentry"].name,
 	},
 	"horned-charger": {
 		icon: ChargerIcon,
-		color: "text-monster-orc",
+		color: "text-monster-icon",
 		label: MONSTER_DEFINITIONS["horned-charger"].name,
 	},
 	goblin: {
 		icon: GoblinIcon,
-		color: "text-goblin",
+		color: "text-monster-icon",
 		label: MONSTER_DEFINITIONS.goblin.name,
 	},
 	"goblin-archer": {
 		icon: GoblinArcherIcon,
-		color: "text-monster-archer",
+		color: "text-monster-icon",
 		label: MONSTER_DEFINITIONS["goblin-archer"].name,
 	},
 	"dungeon-brute": {
 		icon: BruteIcon,
-		color: "text-monster-brute",
+		color: "text-monster-icon",
 		label: MONSTER_DEFINITIONS["dungeon-brute"].name,
 	},
 	"giant-rat": {
 		icon: Rat,
-		color: "text-monster-rat",
+		color: "text-monster-icon",
 		label: MONSTER_DEFINITIONS["giant-rat"].name,
 	},
 	orc: {
 		icon: Skull,
-		color: "text-monster-orc",
+		color: "text-monster-icon",
 		label: MONSTER_DEFINITIONS.orc.name,
 	},
 	skeleton: {
 		icon: Bone,
-		color: "text-monster-undead",
+		color: "text-monster-icon",
 		label: MONSTER_DEFINITIONS.skeleton.name,
 	},
 	zombie: {
-		icon: Skull,
-		color: "text-goblin",
+		icon: ZombieIcon,
+		color: "text-monster-icon",
 		label: MONSTER_DEFINITIONS.zombie.name,
 	},
 	wolf: {
 		icon: Dog,
-		color: "text-monster-orc",
+		color: "text-monster-icon",
 		label: MONSTER_DEFINITIONS.wolf.name,
 	},
 	"kobold-slinger": {
 		icon: KoboldSlingerIcon,
-		color: "text-monster-archer",
+		color: "text-monster-icon",
 		label: MONSTER_DEFINITIONS["kobold-slinger"].name,
 	},
 	spider: {
 		icon: SpiderIcon,
-		color: "text-goblin",
+		color: "text-monster-icon",
 		label: MONSTER_DEFINITIONS.spider.name,
 	},
 	ogre: {
-		icon: BruteIcon,
-		color: "text-monster-orc",
+		icon: OgreIcon,
+		color: "text-monster-icon",
 		label: MONSTER_DEFINITIONS.ogre.name,
 	},
 	troll: {
-		icon: BruteIcon,
-		color: "text-goblin",
+		icon: TrollIcon,
+		color: "text-monster-icon",
 		label: MONSTER_DEFINITIONS.troll.name,
 	},
 	cultist: {
 		icon: CultistIcon,
-		color: "text-monster-brute",
+		color: "text-monster-icon",
 		label: MONSTER_DEFINITIONS.cultist.name,
 	},
 	"stone-golem": {
 		icon: GolemIcon,
-		color: "text-monster-undead",
+		color: "text-monster-icon",
 		label: MONSTER_DEFINITIONS["stone-golem"].name,
 	},
 	wraith: {
 		icon: Ghost,
-		color: "text-monster-rat",
+		color: "text-monster-icon",
 		label: MONSTER_DEFINITIONS.wraith.name,
 	},
 	wyvern: {
 		icon: WyvernIcon,
-		color: "text-goblin",
+		color: "text-monster-icon",
 		label: MONSTER_DEFINITIONS.wyvern.name,
 	},
 	salamander: {
 		icon: SalamanderIcon,
-		color: "text-monster-orc",
+		color: "text-monster-icon",
 		label: MONSTER_DEFINITIONS.salamander.name,
 	},
 	"frost-giant": {
 		icon: FrostGiantIcon,
-		color: "text-monster-archer",
+		color: "text-monster-icon",
 		label: MONSTER_DEFINITIONS["frost-giant"].name,
 	},
 	necromancer: {
 		icon: NecromancerIcon,
-		color: "text-monster-undead",
+		color: "text-monster-icon",
 		label: MONSTER_DEFINITIONS.necromancer.name,
 	},
 	"demon-warden": {
 		icon: WardenIcon,
-		color: "text-monster-brute",
+		color: "text-monster-icon",
 		label: MONSTER_DEFINITIONS["demon-warden"].name,
 	},
 };

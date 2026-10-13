@@ -1,7 +1,6 @@
 import {
 	Bomb,
 	CircleDashed,
-	Droplets,
 	Flame,
 	Footprints,
 	Ghost,
@@ -11,7 +10,6 @@ import {
 	Moon,
 	Mountain,
 	Move,
-	Network,
 	Orbit,
 	Shield,
 	Snowflake,
@@ -27,6 +25,8 @@ import {
 	type SpellHotbar,
 } from "../../domain/game/SpellHotbar";
 import { SPELL_DEFINITIONS, type SpellKind } from "../../domain/game/Spells";
+import PoisonDartIcon from "./PoisonDartIcon";
+import WebIcon from "./WebIcon";
 
 export const SPELL_ICONS = {
 	"magic-missile": Sparkles,
@@ -37,10 +37,10 @@ export const SPELL_ICONS = {
 	"stone-lance": Mountain,
 	"sonic-spear": Waves,
 	"drain-life": HeartHandshake,
-	web: Network,
+	web: WebIcon,
 	sleep: Moon,
 	fear: Ghost,
-	"poison-dart": Droplets,
+	"poison-dart": PoisonDartIcon,
 	renewal: HeartPulse,
 	fireball: Bomb,
 	"frost-nova": CircleDashed,

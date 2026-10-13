@@ -1,12 +1,9 @@
 import {
 	Axe,
 	BookOpen,
-	Circle,
 	Crown,
 	Gem,
 	HardHat,
-	Layers,
-	type LucideIcon,
 	ScrollText,
 	Shield,
 	ShieldCheck,
@@ -15,10 +12,12 @@ import {
 	Sword,
 	Swords,
 } from "lucide-react";
+import type { ComponentType, SVGProps } from "react";
 import { ITEM_DEFINITIONS, type ItemKind } from "../../domain/items/Item";
-
 import type { PotionKind } from "../../domain/items/PotionHotbar";
+import DragonMailIcon from "./DragonMailIcon";
 import PotionIcon from "./PotionIcon";
+import RingIcon from "./RingIcon";
 
 const isPotionKind = (kind: ItemKind): kind is PotionKind =>
 	ITEM_DEFINITIONS[kind].type === "potion";
@@ -26,16 +25,16 @@ const isPotionKind = (kind: ItemKind): kind is PotionKind =>
 type BookKind = Extract<ItemKind, `book-${string}`>;
 const isBookKind = (kind: ItemKind): kind is BookKind =>
 	ITEM_DEFINITIONS[kind].type === "spellbook";
-const icons: Record<Exclude<ItemKind, BookKind | PotionKind>, LucideIcon> = {
+type RingKind = Extract<
+	ItemKind,
+	"relic-band" | "copper-ring" | `ring-${string}`
+>;
+const icons: Record<
+	Exclude<ItemKind, BookKind | PotionKind | RingKind>,
+	ComponentType<SVGProps<SVGSVGElement>>
+> = {
 	"enchantment-scroll": ScrollText,
 	cure: Gem,
-	"relic-band": Gem,
-	"copper-ring": Circle,
-	"ring-strength": Circle,
-	"ring-dexterity": Circle,
-	"ring-intelligence": Circle,
-	"ring-vitality": Circle,
-	"ring-mana": Circle,
 	"short-sword": Sword,
 	"iron-sword": Sword,
 	"steel-sword": Sword,
@@ -50,13 +49,16 @@ const icons: Record<Exclude<ItemKind, BookKind | PotionKind>, LucideIcon> = {
 	"iron-shield": ShieldCheck,
 	"tower-shield": ShieldHalf,
 	"plate-armor": Shirt,
-	"dragon-mail": Layers,
+	"dragon-mail": DragonMailIcon,
 	"steel-helmet": HardHat,
 	"runic-helmet": Crown,
 	"scholar-robe": Shirt,
 };
+const isRingKind = (kind: ItemKind): kind is RingKind =>
+	ITEM_DEFINITIONS[kind].type === "ring";
 const ItemIcon = ({ kind }: { kind: ItemKind }) => {
 	if (isPotionKind(kind)) return <PotionIcon kind={kind} />;
+	if (isRingKind(kind)) return <RingIcon kind={kind} />;
 	const Icon = isBookKind(kind) ? BookOpen : icons[kind];
 	return (
 		<Icon

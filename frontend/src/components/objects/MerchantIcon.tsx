@@ -1,30 +1,23 @@
-const MerchantIcon = () => (
+import type { SVGProps } from "react";
+
+const MerchantIcon = (props: SVGProps<SVGSVGElement>) => (
 	<svg
+		aria-hidden="true"
+		focusable="false"
 		viewBox="0 0 24 24"
 		fill="none"
 		stroke="currentColor"
-		strokeWidth="1.6"
+		strokeWidth="2"
+		className="size-full text-item-gear"
 		strokeLinecap="round"
 		strokeLinejoin="round"
-		aria-hidden="true"
-		focusable="false"
-		className="size-full text-object-stone"
+		{...props}
 	>
-		<title>Potion merchant behind a counter</title>
-		<path d="M9 3h6l1 3H8z" fill="currentColor" fillOpacity=".2" />
-		<circle cx="12" cy="8" r="2.5" />
-		<path d="M7 14v-1a5 5 0 0 1 10 0v1" />
-		<rect
-			x="2"
-			y="14"
-			width="20"
-			height="7"
-			rx="1"
-			fill="currentColor"
-			fillOpacity=".2"
-		/>
-		<path d="M2 17h20M5 21v1M19 21v1" />
-		<path d="M4 11h2v3H4zM18 11h2v3h-2z" />
+		<title>Potion merchant shop</title>
+		<path d="M2 3h3l3 13h11M6 6h16l-3 7H7" />
+		<path d="M7 6h15l-3 7H8" fill="currentColor" fillOpacity=".12" />
+		<circle cx="9" cy="20" r="1.3" fill="currentColor" />
+		<circle cx="18" cy="20" r="1.3" fill="currentColor" />
 	</svg>
 );
 export default MerchantIcon;

@@ -2,8 +2,8 @@ import type { Coordinate } from "../dungeon/DungeonTypes";
 export const OBJECT_DEFINITIONS = {
 	merchant: {
 		name: "Wandering potion merchant",
-		freshLabel: "potion merchant at a counter",
-		usedLabel: "potion merchant at a counter",
+		freshLabel: "potion merchant",
+		usedLabel: "potion merchant",
 		minFloor: 5,
 		maxFloor: 19,
 		maxPerFloor: 1,

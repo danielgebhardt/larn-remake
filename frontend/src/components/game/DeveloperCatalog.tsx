@@ -96,6 +96,24 @@ const itemBonuses = (definition: ItemDefinition) =>
 		.filter(Boolean)
 		.join(" · ");
 
+// Display order belongs to the catalog, not seeded content selection.
+const itemTypeOrder: Record<ItemDefinition["type"], number> = {
+	weapon: 0,
+	shield: 1,
+	"chest-armor": 2,
+	helmet: 3,
+	ring: 4,
+	potion: 5,
+	enchantment: 6,
+	spellbook: 7,
+	quest: 8,
+};
+const catalogItems = (Object.keys(ITEM_DEFINITIONS) as ItemKind[]).sort(
+	(a, b) =>
+		itemTypeOrder[ITEM_DEFINITIONS[a].type] -
+		itemTypeOrder[ITEM_DEFINITIONS[b].type],
+);
+
 const DeveloperCatalog = ({
 	finalFocus,
 }: {
@@ -233,7 +251,7 @@ const DeveloperCatalog = ({
 						})}
 				</Group>
 				<Group name="Items">
-					{(Object.keys(ITEM_DEFINITIONS) as ItemKind[])
+					{catalogItems
 						.filter((kind) =>
 							matches(
 								kind,

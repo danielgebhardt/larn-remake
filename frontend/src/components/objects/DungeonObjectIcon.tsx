@@ -5,24 +5,24 @@ import {
 	Coins,
 	DoorClosed,
 	DoorOpen,
-	Droplets,
 	Gem,
 	Landmark,
 	LibraryBig,
-	type LucideIcon,
 	Skull,
 	TriangleAlert,
 } from "lucide-react";
+import type { ComponentType, SVGProps } from "react";
 import { objectAvailable } from "../../domain/merchant/MerchantAvailability";
 import type {
 	DungeonObject,
 	DungeonObjectKind,
 } from "../../domain/objects/DungeonObject";
+import FountainIcon from "./FountainIcon";
 import MerchantIcon from "./MerchantIcon";
 
 const icons: Record<
 	Exclude<DungeonObjectKind, "elite-door" | "merchant">,
-	LucideIcon
+	ComponentType<SVGProps<SVGSVGElement>>
 > = {
 	door: DoorClosed,
 	reliquary: Gem,
@@ -30,7 +30,7 @@ const icons: Record<
 	gold: Coins,
 	chest: Archive,
 	trap: TriangleAlert,
-	fountain: Droplets,
+	fountain: FountainIcon,
 	throne: Armchair,
 	shrine: Landmark,
 };
@@ -59,7 +59,7 @@ const DungeonObjectIcon = ({ object }: { object: DungeonObject }) => {
 		<Icon
 			aria-hidden="true"
 			focusable="false"
-			className={`size-full ${object.activated && object.kind !== "door" ? "opacity-50" : ""} ${object.kind === "trap" ? "text-destructive" : object.kind === "gold" ? "text-item-equipment" : "text-object-stone"}`}
+			className={`size-full ${object.activated && object.kind !== "door" ? "opacity-50" : ""} ${object.kind === "trap" ? "text-destructive" : object.kind === "gold" ? "text-item-gear" : "text-object-stone"}`}
 		/>
 	);
 };

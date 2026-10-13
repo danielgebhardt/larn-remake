@@ -51,6 +51,35 @@ const hidePlayer = (state: GameState): GameState => {
 	};
 };
 describe("Last-seen pursuit", () => {
+	it("pauses memory for sleeping actors and skipped slow phases", () => {
+		const hidden = hidePlayer(phase(awarenessEncounter()));
+		const sleeping = {
+			...hidden,
+			effects: [
+				{
+					actorId: "1:1",
+					floorNumber: 1,
+					kind: "asleep" as const,
+					remaining: 2,
+				},
+			],
+		};
+		expect(phase(sleeping).monsters).toBe(sleeping.monsters);
+		const slow = {
+			...hidden,
+			turn: 3,
+			monsters: [{ ...hidden.monsters[0], kind: "zombie" as const }],
+		};
+		expect(phase(slow).monsters).toBe(slow.monsters);
+	});
+	it("does not advance memory on an inactive floor", () => {
+		const hidden = hidePlayer(phase(awarenessEncounter()));
+		const inactive = {
+			...hidden,
+			monsters: [{ ...hidden.monsters[0], floorNumber: 2 }],
+		};
+		expect(phase(inactive)).toBe(inactive);
+	});
 	it("continues around cover toward the remembered tile without tracking the hidden player", () => {
 		const seen = phase(awarenessEncounter());
 		expect(seen.monsters[0].coordinate).toEqual({ row: 4, col: 5 });

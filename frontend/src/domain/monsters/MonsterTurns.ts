@@ -23,6 +23,7 @@ import { navigationRun } from "../objects/NavigationTerrain";
 import { chooseEnemySpell } from "./EnemyCasting";
 import { MONSTER_DEFINITIONS } from "./Monster";
 import { resolveMonsterArea } from "./MonsterAreaAttack";
+import { advanceUnseenPursuit } from "./MonsterAwareness";
 import { orthogonalDistance } from "./MonsterLocations";
 import { detectsPlayer, selectPursuitStep } from "./MonsterPursuit";
 import { selectRetreatStep } from "./MonsterRetreat";
@@ -121,26 +122,17 @@ export const resolveMonsterPhase = (
 			}
 		}
 		if (!detected && monster.intent.type === "idle") {
-			const memory = monster.awareness;
-			if (memory?.type === "pursuing" && memory.remaining > 0) {
-				const coordinate = hasMonsterEffect(state, monster, "rooted")
-					? undefined
-					: selectPursuitStep(
-							navigation,
-							monster,
-							monsters,
-							memory.target,
-							true,
-						);
-				monster = {
-					...monster,
-					coordinate: coordinate ?? monster.coordinate,
-					awareness: { ...memory, remaining: memory.remaining - 1 },
-				};
+			const next = advanceUnseenPursuit(
+				navigation,
+				monster,
+				monsters,
+				PURSUIT_RULES,
+				hasMonsterEffect(state, monster, "rooted"),
+			);
+			if (next !== monster)
 				monsters = monsters.map((actor) =>
-					actor.id === monster.id ? monster : actor,
+					actor.id === monster.id ? next : actor,
 				);
-			}
 			continue;
 		}
 		const area = resolveMonsterArea(

@@ -25,6 +25,7 @@ export const equipmentSlotFor = (item: ItemInstance): EquipmentSlot | null => {
 			return "head";
 		case "spellbook":
 		case "quest":
+		case "enchantment":
 		case "potion":
 			return null;
 	}

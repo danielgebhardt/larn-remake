@@ -8,16 +8,17 @@ export type BagSlot = Readonly<{ item: ItemInstance; count: number }>;
 
 export const bagSlots = (bag: Bag): readonly BagSlot[] => {
 	const slots: { item: ItemInstance; count: number }[] = [];
-	const potions = new Map<string, number>();
+	const stacks = new Map<string, number>();
 	for (const item of bag.items) {
-		const index =
-			ITEM_DEFINITIONS[item.kind].type === "potion"
-				? potions.get(item.kind)
-				: undefined;
+		const index = ["potion", "enchantment"].includes(
+			ITEM_DEFINITIONS[item.kind].type,
+		)
+			? stacks.get(item.kind)
+			: undefined;
 		if (index !== undefined) slots[index].count++;
 		else {
-			if (ITEM_DEFINITIONS[item.kind].type === "potion")
-				potions.set(item.kind, slots.length);
+			if (["potion", "enchantment"].includes(ITEM_DEFINITIONS[item.kind].type))
+				stacks.set(item.kind, slots.length);
 			slots.push({ item, count: 1 });
 		}
 	}
@@ -26,7 +27,7 @@ export const bagSlots = (bag: Bag): readonly BagSlot[] => {
 export const canAddToBag = (bag: Bag, item: ItemInstance): boolean =>
 	bag.items.length < MAX_BAG_ITEMS &&
 	(bagSlots(bag).length < BAG_CAPACITY ||
-		(ITEM_DEFINITIONS[item.kind].type === "potion" &&
+		(["potion", "enchantment"].includes(ITEM_DEFINITIONS[item.kind].type) &&
 			bag.items.some((copy) => copy.kind === item.kind)));
 
 export const createBag = (items: readonly ItemInstance[] = []): Bag => {

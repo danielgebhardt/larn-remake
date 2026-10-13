@@ -240,6 +240,7 @@ const eventFields = {
 	"item-picked-up": { item: itemKind },
 	"item-dropped": { item: itemKind },
 	"item-cleansed": { item: itemKind },
+	"equipment-enchanted": { item: itemKind, enchantment: integer(1, 3) },
 	"item-boosted": {
 		item: itemKind,
 		condition: oneOf(Object.keys(EFFECT_DEFINITIONS)),

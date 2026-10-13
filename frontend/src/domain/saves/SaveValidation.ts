@@ -22,6 +22,7 @@ import { isSaveDocumentV14 } from "./SaveShapeV14";
 import { isSaveDocumentV15 } from "./SaveShapeV15";
 import { isSaveDocumentV16 } from "./SaveShapeV16";
 import { isSaveDocumentV17 } from "./SaveShapeV17";
+import { isSaveDocumentV18 } from "./SaveShapeV18";
 
 const inconsistent = {
 	ok: false,
@@ -35,7 +36,7 @@ export const validateSaveDocument = (
 		data !== null &&
 		!Array.isArray(data) &&
 		(!("version" in data) ||
-			![1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17].includes(
+			![1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18].includes(
 				data.version as number,
 			))
 	)
@@ -69,7 +70,8 @@ export const validateSaveDocument = (
 			isSaveDocumentV14(data) ||
 			isSaveDocumentV15(data) ||
 			isSaveDocumentV16(data) ||
-			isSaveDocumentV17(data)
+			isSaveDocumentV17(data) ||
+			isSaveDocumentV18(data)
 		)
 	)
 		return {

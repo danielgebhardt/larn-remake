@@ -8,6 +8,7 @@ import {
 	type ItemDefinition,
 	type ItemInstance,
 } from "./Item";
+import { itemArmor, itemAttackBonus } from "./ItemValues";
 
 const contributions = (item: ItemInstance | null) => {
 	const definition: ItemDefinition | undefined = item
@@ -16,8 +17,8 @@ const contributions = (item: ItemInstance | null) => {
 	const stats = definition?.stats;
 	return {
 		"Attack bonus":
-			(definition?.attackBonus ?? 0) + Math.floor((stats?.strength ?? 0) / 2),
-		Armor: definition?.armor ?? 0,
+			itemAttackBonus(item) + Math.floor((stats?.strength ?? 0) / 2),
+		Armor: itemArmor(item),
 		Strength: stats?.strength ?? 0,
 		Dexterity: stats?.dexterity ?? 0,
 		Intelligence: stats?.intelligence ?? 0,

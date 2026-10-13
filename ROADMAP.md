@@ -1,6 +1,6 @@
 # Larn Remake roadmap
 
-Updated October 12, 2026. This project reimagines Larn while providing a place to practice TDD and software design. The aim is an enjoyable, understandable dungeon crawler; original Larn is inspiration rather than a specification.
+Updated October 13, 2026. This project reimagines Larn while providing a place to practice TDD and software design. The aim is an enjoyable, understandable dungeon crawler; original Larn is inspiration rather than a specification.
 
 [Issue #38](https://github.com/danielgebhardt/larn-remake/issues/38) is the running index and discussion point. This file owns the detailed order; individual stories own acceptance criteria. Planning does not authorize implementation. Future epics use native GitHub parent/sub-issue links.
 
@@ -28,9 +28,9 @@ Already merged before this release branch:
 
 The reference adventure is **60×60 tiles, 20 floors**. Supported sizes remain **10–100 rows/columns and 5–20 floors**; support does not promise equal balance for every size. Mana recovers **1 point every 30 committed turns**. Normal monster populations remain capped at twelve per floor. These are current rules, not commitments against later tuning.
 
-## Next alpha: inventory, exploration and interface polish
+## Published alpha: inventory, exploration and interface polish
 
-Implemented on `codex/alpha-inventory-polish`; merge/tag/release remain developer-owned. These are release contents, not future tasks:
+Merged, tagged and published by the developer before this program. These are the established alpha contents, not future tasks:
 
 | Stories | Outcome |
 | --- | --- |
@@ -44,9 +44,25 @@ Implemented on `codex/alpha-inventory-polish`; merge/tag/release remain develope
 
 Epics [#216](https://github.com/danielgebhardt/larn-remake/issues/216) and [#226](https://github.com/danielgebhardt/larn-remake/issues/226). Review guides: [inventory polish](docs/alpha-polish-review.md), [exploration/status polish](docs/release-polish-review.md). Release text: [next alpha notes](docs/alpha-release-notes.md).
 
-Current save format is **v12**: old valid saves migrate, retaining their items and four assigned spell slots with two empty slots added. Played saves retain their terrain/stairs. New or replayed runs can have changed geometry and upstairs placement, even with a historical seed; seed equality is not a cross-release layout guarantee.
+The published alpha used **v12**: old valid saves migrate, retaining their items and four assigned spell slots with two empty slots added. Played saves retain their terrain/stairs. New or replayed runs can have changed geometry and upstairs placement, even with a historical seed; seed equality is not a cross-release layout guarantee.
 
 Matched layout measurements on five seeds at 60×60×20 (100 floors) show mean bottleneck tiles falling from **181.46 to 119.00**, and entry-to-downstairs distance from **66.18 to 62.58**. No unreachable tiles were found; a separate sixty-floor 100×100 batch also stayed connected. These measure topology, not human run duration or combat difficulty. The final gameplay commit passes **1,839 tests**, Biome, TypeScript and the frontend production build.
+
+## Current program: five epics ready for review
+
+Implemented locally on `codex/pursuit-escape-and-merchants`, with **28 story commits**. Stories and native parent epics are **In Review**; acceptance, push/merge and release remain developer-owned. No deployment is part of this work. Review logic, tests and diagnostic limits in [the program review guide](docs/pursuit-escape-merchant-review.md).
+
+| Epic / stories | Implemented outcome |
+| --- | --- |
+| [#232](https://github.com/danielgebhardt/larn-remake/issues/232), #233–237 | Remembered last-seen positions, bounded pursuit/search, visible cues and saved continuation. |
+| [#238](https://github.com/danielgebhardt/larn-remake/issues/238), #239–244 | Explicit hunted return, one finite seeded wave per return floor, stronger bounded pursuit and progress/diagnostics. |
+| [#245](https://github.com/danielgebhardt/larn-remake/issues/245), #246–251 | Telegraphed chargers, interruptible one-shot alarm sentries, nearby alerts and optional skull-gated champions/rewards. |
+| [#256](https://github.com/danielgebhardt/larn-remake/issues/256), #257–264 | Shared finite potion merchant on floors 5/10/15 below the goal, keyboard Buy/Sell, deliberate prices and saved ownership. |
+| [#252](https://github.com/danielgebhardt/larn-remake/issues/252), #253–255 | Capacity-scaled finite fountains, temporary attribute potions and guaranteed per-item enchantment capped at +3. |
+
+Current branch save format is **v18**. Valid older saves migrate without regenerating played terrain/actors/loot; old merchant-free formats initialize reachable stalls/stock once. Current saves retain pursuit, alarms, escape activation, stock and actual enchantments. The reference remains 60×60×20 with level cap 20 and mana recovery every 30 turns. Ordinary population remains twelve per floor; return waves cap total living actors at sixteen. Human difficulty/pacing still needs playtesting.
+
+The six-seed generated merchant budget found 776–841 ordinary gold by floor 5 and 8,371–8,576 across 20 floors if everything is collected, versus 14,000 for full stock. Controlled return and budget diagnostics are not human win-rate evidence. Review chargers/alarms, optional challenges, supply spending and return pressure before another broad balance change.
 
 ## Recommended next ten stories
 
@@ -63,7 +79,7 @@ These are planning proposals, not newly created issues or implementation authori
 | 7 | Clarify situational spell choices | Show range, relevant conditions/defenses and duration clearly enough to choose between owned spells. Compare mana efficiency and control value in real encounters; fix unclear descriptions before adding another large spell catalog. Reject/cancel actions remain free. |
 | 8 | Let selected enemies open doors (#212) | Give explicitly capable creatures a one-action door opening with visible feedback and deterministic ordering. Ordinary creatures remain blocked. Preserve the value of closing doors, protected arrivals and saved door state. |
 | 9 | Reduce repetitive safe travel | If quiet walking remains the main complaint after loops, try one interruptible corridor-run command before automatic exploration/pathfinding. Stop at threats, junctions, doors, stairs, items or discoveries; every traveled tile remains a committed turn. Establish exact interruption and keyboard rules first. |
-| 10 | Introduce the first use for gold | Start a small town/entrance service epic: one deliberate shop or healing service, with explicit prices, inventory ownership and return/quest rules. Start with one service, not banks, taxes and a full economy. Measure whether it improves run decisions. |
+| 10 | Extend the first gold economy into town services | The wandering merchant now supplies the first use for gold. After playtesting prices and finite stock, consider moving/reusing those transactions at the entrance or adding one healing service. Avoid banks/taxes or a broad economy until needed. |
 
 The first four form a **pacing and rewards** epic. Difficulty is a separate follow-up so comparisons remain interpretable. Threat/spell clarity and capable-door behavior form a **tactical readability** epic. Travel assistance and town services deserve separate epics because they change the exploration loop. Do not require completing all ten before another alpha.
 

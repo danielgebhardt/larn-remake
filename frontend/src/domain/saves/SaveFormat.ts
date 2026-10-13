@@ -8,15 +8,16 @@ import type {
 } from "../dungeon/RunConfiguration";
 import type { GameState } from "../game/GameState";
 import { levelForExperience } from "../game/Progression";
+import type { ItemInstance } from "../items/Item";
 import { navigationRun } from "../objects/NavigationTerrain";
-import type { SaveDocumentV17 } from "./SaveDocumentV17";
+import type { SaveDocumentV18 } from "./SaveDocumentV18";
 import { validateSaveDocument } from "./SaveValidation";
 
-export const SAVE_FORMAT_VERSION = 17;
+export const SAVE_FORMAT_VERSION = 18;
 // Bound imported input before parsing. A maximum-size snapshot is measured in the review.
 export const MAX_SAVE_BYTES = 4 * 1024 * 1024;
 
-export type SaveDocument = SaveDocumentV17;
+export type SaveDocument = SaveDocumentV18;
 export type RestoredAdventure = {
 	state: GameState;
 	exploration: ExplorationState;
@@ -27,6 +28,13 @@ export type SaveResult<T> =
 	| { ok: true; value: T }
 	| { ok: false; error: string };
 
+const savedItem = (item: ItemInstance) => ({
+	id: item.id,
+	kind: item.kind,
+	...(item.enchantment !== undefined ? { enchantment: item.enchantment } : {}),
+});
+const nullableItem = (item: ItemInstance | null) =>
+	item ? savedItem(item) : null;
 export const createSaveDocument = (
 	state: GameState,
 	exploration: ExplorationState,
@@ -60,10 +68,21 @@ export const createSaveDocument = (
 		monstersDefeated: state.monstersDefeated,
 		player: state.player,
 		progression: state.progression,
-		equipment: state.equipment,
-		bag: state.bag,
+		equipment: {
+			mainHand: nullableItem(state.equipment.mainHand),
+			offHand: nullableItem(state.equipment.offHand),
+			chest: nullableItem(state.equipment.chest),
+			head: nullableItem(state.equipment.head),
+			leftRing: nullableItem(state.equipment.leftRing),
+			rightRing: nullableItem(state.equipment.rightRing),
+		},
+		bag: { items: state.bag.items.map(savedItem) },
 		potionHotbar: state.potionHotbar,
-		floorItems: state.floorItems,
+		floorItems: state.floorItems.map(({ item, floorNumber, coordinate }) => ({
+			item: savedItem(item),
+			floorNumber,
+			coordinate: { ...coordinate },
+		})),
 		monsters: state.monsters.map(
 			({
 				id,

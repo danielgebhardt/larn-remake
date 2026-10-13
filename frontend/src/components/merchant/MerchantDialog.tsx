@@ -4,6 +4,7 @@ import { type RefObject, useLayoutEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import type { GameState } from "../../domain/game/GameState";
 import { ITEM_DEFINITIONS } from "../../domain/items/Item";
+import { itemName } from "../../domain/items/ItemValues";
 import {
 	equipmentSalePrice,
 	MERCHANT_OFFERS,
@@ -194,9 +195,7 @@ const MerchantDialog = ({
 													<ItemIcon kind={item.kind} />
 												</span>
 												<span>
-													<span className="block">
-														{ITEM_DEFINITIONS[item.kind].name}
-													</span>
+													<span className="block">{itemName(item)}</span>
 													<span className="block text-xs text-muted-foreground">
 														Sell for {equipmentSalePrice(item)} gold
 													</span>

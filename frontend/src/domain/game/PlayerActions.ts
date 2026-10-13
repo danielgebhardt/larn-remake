@@ -8,6 +8,10 @@ import {
 	changeEquipment,
 	type EquipmentAction,
 } from "../items/EquipmentChanges";
+import {
+	type EnchantAction,
+	enchantEquipment,
+} from "../items/EquipmentEnchantment";
 import { resourcesAfterEquipmentChange } from "../items/EquipmentResources";
 import {
 	type FloorItemAction,
@@ -58,6 +62,7 @@ import {
 } from "./SpellHotbar";
 import { advanceTimedEffects } from "./TimedEffects";
 export type PlayerAction =
+	| EnchantAction
 	| BuyAction
 	| SellAction
 	| InteractAction
@@ -180,6 +185,7 @@ const resolvePlayerEffect = (
 	rollSource: AttackRollSource,
 ): GameState | { error: string } | undefined => {
 	const turn = state.turn;
+	if (action.type === "enchant") return enchantEquipment(state, action);
 	if (action.type === "buy") return buyPotion(state, action);
 	if (action.type === "sell") return sellEquipment(state, action);
 	if (action.type === "interact") return interactObject(state, action);

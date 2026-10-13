@@ -5,10 +5,21 @@ import {
 	generateDungeonRun,
 } from "../domain/dungeon/DungeonRun";
 import { updateExploration } from "../domain/dungeon/Exploration";
-import { DEFAULT_FOG_CONFIGURATION } from "../domain/dungeon/RunConfiguration";
+import {
+	DEFAULT_FOG_CONFIGURATION,
+	DEFAULT_RUN_CONFIGURATION,
+} from "../domain/dungeon/RunConfiguration";
 import { createGameState } from "../domain/game/GameState";
 import { resolvePlayerAction } from "../domain/game/PlayerActions";
+import {
+	coordinateKey,
+	protectedFloorLocations,
+} from "../domain/monsters/MonsterLocations";
 import { navigationRun } from "../domain/objects/NavigationTerrain";
+import {
+	addOptionalEliteRooms,
+	findOptionalEliteRooms,
+} from "../domain/objects/OptionalEliteRooms";
 import {
 	createSaveDocument,
 	parseSave,
@@ -196,4 +207,46 @@ describe("Shared merchant economy continuation", () => {
 		expect(returned.merchantStock["mana-potion"]).toBe(2);
 		expect(returned.objects).toBe(state.objects);
 	});
+	it("rejects imported merchants inside an elite chamber even behind an opened gate", () => {
+		const base = createGameState(
+			connectDungeonFloors(
+				generateDungeonRun(123, 20, DEFAULT_RUN_CONFIGURATION),
+			),
+		);
+		const encounters = addOptionalEliteRooms(base, { chance: 1 });
+		const gate = encounters.objects.find(
+			(o) => o.kind === "elite-door" && o.floorNumber === 10,
+		);
+		if (!gate) throw new Error("Expected optional floor-ten chamber");
+		const floor = base.run.floors[9],
+			chamber = findOptionalEliteRooms(
+				floor,
+				protectedFloorLocations(base.run, 10),
+			).find((c) => coordinateKey(c.gate) === coordinateKey(gate.coordinate));
+		if (!chamber) throw new Error("Expected chamber geometry");
+		const state = {
+			...base,
+			...encounters,
+			objects: encounters.objects.map((o) =>
+				o.id === gate.id
+					? { ...o, activated: true }
+					: o.kind === "merchant" && o.floorNumber === 10
+						? {
+								...o,
+								coordinate: {
+									row: chamber.room.startRow,
+									col: chamber.room.startCol,
+								},
+							}
+						: o,
+			),
+		};
+		const document = createSaveDocument(
+			state,
+			updateExploration(navigationRun(state), 8),
+			DEFAULT_RUN_CONFIGURATION,
+			DEFAULT_FOG_CONFIGURATION,
+		);
+		expect(parseSave(serializeSave(document)).ok).toBe(false);
+	}, 15000);
 });

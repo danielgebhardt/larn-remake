@@ -9,6 +9,7 @@ import type { SpellKind } from "./Spells";
 import type { EffectKind } from "./TimedEffects";
 
 export type ActivityEvent = { turn: number } & (
+	| { type: "equipment-enchanted"; item: ItemKind; enchantment: number }
 	| { type: "merchant-bought" | "merchant-sold"; item: ItemKind; gold: number }
 	| {
 			type: "monster-alarm-prepared" | "monster-alarm-sounded";

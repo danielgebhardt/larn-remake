@@ -2,6 +2,7 @@ import { useRef } from "react";
 import { Button } from "@/components/ui/button";
 import type { FloorItem, FloorItemAction } from "../../domain/items/FloorItems";
 import { ITEM_DEFINITIONS } from "../../domain/items/Item";
+import { itemName } from "../../domain/items/ItemValues";
 import ItemIcon from "../items/ItemIcon";
 
 const FloorItemsView = ({
@@ -40,7 +41,7 @@ const FloorItemsView = ({
 								type="button"
 								variant="outline"
 								disabled={!alive}
-								aria-label={`Pick up ${ITEM_DEFINITIONS[item.kind].name}, item ${index + 1}`}
+								aria-label={`Pick up ${itemName(item)}, item ${index + 1}`}
 								className="h-auto w-full justify-start gap-3 whitespace-normal p-3"
 								onClick={() => {
 									onAction({ type: "pickup", itemId: item.id });
@@ -56,7 +57,7 @@ const FloorItemsView = ({
 									<ItemIcon kind={item.kind} />
 								</span>
 								<span className="text-left">
-									Pick up {ITEM_DEFINITIONS[item.kind].name}
+									Pick up {itemName(item)}
 									{ITEM_DEFINITIONS[item.kind].type === "spellbook" && (
 										<span className="mt-1 block text-xs text-muted-foreground">
 											{ITEM_DEFINITIONS[item.kind].description}

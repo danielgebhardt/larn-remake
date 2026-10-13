@@ -183,3 +183,19 @@ Strength, Dexterity and Intelligence potions enter found/drop pools from floor 3
 Intelligence now flows through spell potency, mana capacity and their displays. Increasing capacity grants no free mana; drinking a mana bottle while boosted may fill the larger capacity, and expiry clamps excess. Equipment changes, recovery, fountains/thrones and save validation respect active capacity. This uses the existing owned-item/timed-effect record shapes, so catalog additions require no new persisted fields; v17 remains the contract.
 
 Validation: all three attribute bonuses, one bottle/turn, refresh/no stacking, exact expiry, spell damage, capacity/no refill/clamp, active-effect save/resume; Home exercises numbered use, activity description and character/resource displays. Existing condition/spell/resource tests remain part of the full checks.
+
+## #255 — Guaranteed capped equipment enchantment
+
+Depth-five+ enchantment scrolls stack in the bag. Character details offer explicit owned targets using mouse or Tab/Enter, with free canceling. One scroll and one committed turn add +1 attack to a weapon or +1 armor to a shield/chest/helmet, capped at +3 per instance. Rings, potions, quest items, unowned targets, exhausted scrolls and capped equipment are free rejections. New armor applies before the normal same-turn enemy response.
+
+`ItemValues` feeds the instance bonus into combat and comparisons without changing shared catalog definitions. Equipped/bag/floor-selection names show +N, and nominal sale value adds five gold per enchantment. Save v18 explicitly writes declared item fields including the optional bonus; legacy item contracts are frozen, and validated older formats drop unknown item metadata rather than promoting it to a bonus. Imports reject unsupported/invalid bonuses and unexpected equipment slots safely.
+
+Validation: selected ownership, all supported armor categories, cap/no consumption, stacking, combat response, comparison/value, equipped/bag/dropped save records, malicious bonus/slot inputs, legacy compatibility, free UI cancel and keyboard enchantment. Browser verified +1 naming, +2 short-sword attack contribution, changed bag comparison and exported/reloaded v18 with one scroll remaining.
+
+Final branch review also exposed an old-save placement edge: an already-opened elite chamber could become a merchant location. A failing placement/import regression now keeps merchants outside optional chambers regardless of gate state, avoiding later closed-gate/save inconsistency.
+
+## Review handoff
+
+All five native epics / 28 stories have one initial story commit on this branch. Implementation is handed off In Review; developer acceptance, pushing, merging, tagging and publishing are still pending. Read commits in execution order: #233–237, #239–244, #246–251, #257–264, #253–255.
+
+Suggested manual checks: lose pursuit around corners/doors; interrupt a charge or alarm; inspect/cancel an optional elite gate; recover the cure and revisit a return floor; buy/sell at two merchant appearances; use a temporary potion and let it expire; enchant/cancel/save/load equipment. Include one recommended 60×60×20 run and a maximum-map movement check. Automated diagnostics establish specific rules, not human difficulty or ideal balance.

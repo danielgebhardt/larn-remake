@@ -81,4 +81,75 @@ describe("Wandering merchant placement", () => {
 		expect(placeMerchants(ordinary, false)).toBe(ordinary.objects);
 		expect(placeMerchants(state, false)).toBe(state.objects);
 	});
+	it("keeps merchants outside an elite chamber even when its gate was previously opened", () => {
+		const original = createGameState(
+			connectDungeonFloors(
+				generateDungeonRun(123, 15, COMPACT_TEST_CONFIGURATION),
+			),
+		);
+		const terrain = Array.from({ length: 10 }, () =>
+			Array<string>(18).fill("#"),
+		);
+		const chamber = { startRow: 3, endRow: 5, startCol: 3, endCol: 5 },
+			main = { startRow: 3, endRow: 5, startCol: 12, endCol: 14 };
+		for (const room of [chamber, main])
+			for (let row = room.startRow; row <= room.endRow; row++)
+				for (let col = room.startCol; col <= room.endCol; col++)
+					terrain[row][col] = ".";
+		for (let col = 6; col <= 11; col++) terrain[4][col] = ".";
+		const floor = {
+			...original.run.floors[9],
+			terrain,
+			rooms: [chamber, main],
+			upStair: {
+				coordinate: { row: 4, col: 13 },
+				destinationFloor: 9,
+				arrivalCoordinate: { row: 1, col: 1 },
+			},
+			downStair: {
+				coordinate: { row: 5, col: 14 },
+				destinationFloor: 11,
+				arrivalCoordinate: { row: 1, col: 1 },
+			},
+		};
+		// Every main-room tile is occupied; the opened optional chamber is the only
+		// remaining room space, and must still not become a required shopping stop.
+		const loot = [];
+		for (let row = 3; row <= 5; row++)
+			for (let col = 12; col <= 14; col++)
+				loot.push({
+					item: { id: `test:${row}:${col}`, kind: "healing-potion" as const },
+					floorNumber: 10,
+					coordinate: { row, col },
+				});
+		const source = {
+			...original,
+			run: {
+				...original.run,
+				floors: original.run.floors.map((f) =>
+					f.floorNumber === 10 ? floor : f,
+				),
+			},
+			monsters: original.monsters.filter((m) => m.floorNumber !== 10),
+			floorItems: [
+				...original.floorItems.filter((i) => i.floorNumber !== 10),
+				...loot,
+			],
+			objects: [
+				...original.objects.filter((o) => o.floorNumber !== 10),
+				{
+					id: "floor:10:object:elite-door:1",
+					kind: "elite-door" as const,
+					floorNumber: 10,
+					coordinate: { row: 4, col: 6 },
+					activated: true,
+				},
+			],
+		};
+		expect(
+			placeMerchants(source, true).some(
+				(o) => o.kind === "merchant" && o.floorNumber === 10,
+			),
+		).toBe(false);
+	});
 });

@@ -7,6 +7,7 @@ import {
 	HardHat,
 	Layers,
 	type LucideIcon,
+	ScrollText,
 	Shield,
 	ShieldCheck,
 	ShieldHalf,
@@ -26,6 +27,7 @@ type BookKind = Extract<ItemKind, `book-${string}`>;
 const isBookKind = (kind: ItemKind): kind is BookKind =>
 	ITEM_DEFINITIONS[kind].type === "spellbook";
 const icons: Record<Exclude<ItemKind, BookKind | PotionKind>, LucideIcon> = {
+	"enchantment-scroll": ScrollText,
 	cure: Gem,
 	"relic-band": Gem,
 	"copper-ring": Circle,

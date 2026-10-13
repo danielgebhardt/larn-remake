@@ -18,7 +18,9 @@ export const createMerchantStock = (): MerchantStock => ({
 export const equipmentSalePrice = (item: ItemInstance): number | null =>
 	equipmentSlotFor(item) === null
 		? null
-		: 10 + Math.ceil(ITEM_DEFINITIONS[item.kind].minFloor / 4) * 10;
+		: 10 +
+			Math.ceil(ITEM_DEFINITIONS[item.kind].minFloor / 4) * 10 +
+			(item.enchantment ?? 0) * 5;
 
 export const isMerchantStock = (value: unknown): value is MerchantStock => {
 	if (typeof value !== "object" || value === null || Array.isArray(value))

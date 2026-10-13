@@ -4,6 +4,7 @@ export type ItemDefinition = {
 	name: string;
 	type:
 		| "potion"
+		| "enchantment"
 		| "weapon"
 		| "shield"
 		| "chest-armor"
@@ -26,6 +27,18 @@ export type ItemDefinition = {
 	dropWeight: number;
 };
 export const ITEM_DEFINITIONS = {
+	"enchantment-scroll": {
+		name: "Enchantment scroll",
+		type: "enchantment",
+		attackBonus: 0,
+		armor: 0,
+		description:
+			"Choose an owned weapon, shield, chest piece or helmet. Guaranteed +1 attack or armor, capped at +3 per item. One scroll and one turn; canceling is free. Rings are excluded.",
+		minFloor: 5,
+		maxFloor: 20,
+		foundWeight: 0.5,
+		dropWeight: 0.25,
+	},
 	"strength-potion": {
 		name: "Potion of Strength",
 		type: "potion",
@@ -684,7 +697,11 @@ export const ITEM_DEFINITIONS = {
 export type ItemKind = keyof typeof ITEM_DEFINITIONS;
 
 // Kind identifies the shared definition; id identifies this particular copy.
-export type ItemInstance = Readonly<{ id: string; kind: ItemKind }>;
+export type ItemInstance = Readonly<{
+	id: string;
+	kind: ItemKind;
+	enchantment?: number;
+}>;
 
 export type LootSource = "found" | "drop";
 export const validateItemDefinition = (definition: ItemDefinition): void => {

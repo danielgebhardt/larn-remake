@@ -8,7 +8,11 @@ import {
 	PLAYER_EFFECT_KINDS,
 } from "../game/TimedEffects";
 import { BAG_CAPACITY, bagSlots } from "../items/Bag";
-import { type EquipmentSlot, fitsEquipmentSlot } from "../items/Equipment";
+import {
+	EQUIPMENT_SLOT_LABELS,
+	type EquipmentSlot,
+	fitsEquipmentSlot,
+} from "../items/Equipment";
 import { equipmentBonuses } from "../items/EquipmentBonuses";
 import { ITEM_DEFINITIONS } from "../items/Item";
 import {
@@ -42,6 +46,7 @@ import type { SaveDocumentV14 } from "./SaveDocumentV14";
 import type { SaveDocumentV15 } from "./SaveDocumentV15";
 import type { SaveDocumentV16 } from "./SaveDocumentV16";
 import type { SaveDocumentV17 } from "./SaveDocumentV17";
+import type { SaveDocumentV18 } from "./SaveDocumentV18";
 
 export const isConsistentSave = (
 	document:
@@ -61,10 +66,21 @@ export const isConsistentSave = (
 		| SaveDocumentV14
 		| SaveDocumentV15
 		| SaveDocumentV16
-		| SaveDocumentV17,
+		| SaveDocumentV17
+		| SaveDocumentV18,
 ): boolean => {
 	const { state, configuration: config } = document;
 	const { run, quest } = state;
+	for (const [slot, item] of Object.entries(state.equipment)) {
+		if (
+			!Object.hasOwn(EQUIPMENT_SLOT_LABELS, slot) ||
+			(item !== null &&
+				(typeof item !== "object" ||
+					!Object.hasOwn(ITEM_DEFINITIONS, item.kind)))
+		)
+			return false;
+	}
+
 	if (bagSlots(state.bag).length > (document.version >= 11 ? BAG_CAPACITY : 20))
 		return false;
 	if ("gold" in state && quest.victory && quest.victory.gold !== state.gold)
@@ -204,7 +220,11 @@ export const isConsistentSave = (
 					!floor ||
 					sealedEliteTiles(
 						{ ...floor, terrain: floor.terrain.map((row) => row.split("")) },
-						objects,
+						objects.map((object) =>
+							object.kind === "elite-door"
+								? { ...object, activated: false }
+								: object,
+						),
 					).has(`${object.coordinate.row}:${object.coordinate.col}`)
 				)
 					return false;

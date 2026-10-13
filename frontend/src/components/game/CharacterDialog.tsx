@@ -209,6 +209,13 @@ const CharacterDialog = ({
 										{selected && selection ? (
 											<div ref={detailsRef}>
 												<ItemDetails
+													bag={bag}
+													onCancel={() => {
+														setSelection(null);
+														bagHeadingRef.current?.focus({
+															preventScroll: true,
+														});
+													}}
 													item={selected}
 													equipment={equipment}
 													potionHotbar={potionHotbar}

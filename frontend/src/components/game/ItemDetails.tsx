@@ -1,6 +1,7 @@
 import { useId } from "react";
 import { Button } from "@/components/ui/button";
 import type { PlayerAction } from "../../domain/game/PlayerActions";
+import type { Bag } from "../../domain/items/Bag";
 import type { Equipment } from "../../domain/items/Equipment";
 import {
 	EQUIPMENT_SLOT_LABELS,
@@ -10,12 +11,19 @@ import {
 import { compareEquipment } from "../../domain/items/EquipmentComparison";
 import { ITEM_DEFINITIONS, type ItemInstance } from "../../domain/items/Item";
 import {
+	itemArmor,
+	itemAttackBonus,
+	itemName,
+} from "../../domain/items/ItemValues";
+import {
 	HOTBAR_SLOTS,
 	type PotionHotbar,
 } from "../../domain/items/PotionHotbar";
+import EnchantmentTargets from "./EnchantmentTargets";
 import EquipmentComparisonView from "./EquipmentComparisonView";
 
 const labels = {
+	enchantment: "Enchantment scroll",
 	quest: "Quest item",
 	ring: "Ring",
 	spellbook: "Spellbook",
@@ -27,6 +35,8 @@ const labels = {
 };
 const ItemDetails = ({
 	item,
+	bag = { items: [] },
+	onCancel,
 	equipment,
 	equippedSlot,
 	alive,
@@ -36,6 +46,8 @@ const ItemDetails = ({
 	assignmentsEnabled = true,
 }: {
 	item: ItemInstance;
+	bag?: Bag;
+	onCancel?: () => void;
 	equipment: Equipment;
 	equippedSlot?: EquipmentSlot;
 	alive: boolean;
@@ -64,7 +76,7 @@ const ItemDetails = ({
 			<h4 id={titleId} className="text-xs font-medium text-muted-foreground">
 				Item details
 			</h4>
-			<p className="font-medium">{details.name}</p>
+			<p className="font-medium">{itemName(item)}</p>
 			<p className="text-xs text-muted-foreground">{labels[details.type]}</p>
 			<p className="text-sm leading-relaxed text-muted-foreground">
 				{details.description}
@@ -76,13 +88,15 @@ const ItemDetails = ({
 						: "boost" in details
 							? "+2 temporary attribute for 6 turns; refreshes instead of stacking"
 							: `Recovery up to ${details.recovery.amount} ${details.recovery.resource}`
-					: details.type === "weapon"
-						? `Attack bonus +${details.attackBonus}`
-						: details.type === "ring" && "stats" in details
-							? Object.entries(details.stats)
-									.map(([stat, bonus]) => `+${bonus} ${stat}`)
-									.join(" · ")
-							: `Armor ${details.armor}`}
+					: details.type === "enchantment"
+						? "Guaranteed +1; maximum +3 per item"
+						: details.type === "weapon"
+							? `Attack bonus +${itemAttackBonus(item)}`
+							: details.type === "ring" && "stats" in details
+								? Object.entries(details.stats)
+										.map(([stat, bonus]) => `+${bonus} ${stat}`)
+										.join(" · ")
+								: `Armor ${itemArmor(item)}`}
 			</p>
 			{"stats" in details && details.type !== "ring" && (
 				<p className="text-xs font-medium">
@@ -139,6 +153,16 @@ const ItemDetails = ({
 					</>
 				)}
 			</div>
+			{details.type === "enchantment" && !equippedSlot && (
+				<EnchantmentTargets
+					scrollId={item.id}
+					equipment={equipment}
+					bag={bag}
+					alive={alive}
+					onAction={act}
+					onCancel={onCancel ?? afterAction}
+				/>
+			)}
 			{details.type === "potion" && !equippedSlot && (
 				<div className="grid gap-2 border-t pt-3">
 					<p className="text-xs text-muted-foreground">

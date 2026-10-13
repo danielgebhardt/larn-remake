@@ -9,11 +9,11 @@ import type { QuestState } from "../game/Adventure";
 import type { PlayerStats } from "../game/PlayerStats";
 import type { Progression } from "../game/Progression";
 import type { SpellKind } from "../game/Spells";
-import type { Bag } from "../items/Bag";
-import type { Equipment } from "../items/Equipment";
-import type { FloorItem } from "../items/FloorItems";
+import type { ItemInstance } from "../items/Item";
 import type { PotionHotbar } from "../items/PotionHotbar";
 import type { Monster } from "../monsters/Monster";
+
+export type SavedItemV1 = Pick<ItemInstance, "id" | "kind">;
 
 // Select persisted fields explicitly: adding GameState or Monster fields must
 // not silently redefine v1. Required new runtime state needs a versioned adapter.
@@ -44,10 +44,16 @@ export type SaveDocumentV1 = {
 		monstersDefeated: number;
 		player: PlayerStats;
 		progression: Progression;
-		equipment: Pick<Equipment, "mainHand" | "offHand" | "chest" | "head">;
-		bag: Bag;
+		equipment: Readonly<
+			Record<"mainHand" | "offHand" | "chest" | "head", SavedItemV1 | null>
+		>;
+		bag: Readonly<{ items: readonly SavedItemV1[] }>;
 		potionHotbar: PotionHotbar;
-		floorItems: readonly FloorItem[];
+		floorItems: readonly {
+			item: SavedItemV1;
+			floorNumber: number;
+			coordinate: Coordinate;
+		}[];
 		monsters: readonly SavedMonsterV1[];
 		activityHistory: ActivityHistory;
 	};

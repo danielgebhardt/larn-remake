@@ -20,6 +20,7 @@ import type { SaveDocumentV14 } from "./SaveDocumentV14";
 import type { SaveDocumentV15 } from "./SaveDocumentV15";
 import type { SaveDocumentV16 } from "./SaveDocumentV16";
 import type { SaveDocumentV17 } from "./SaveDocumentV17";
+import type { SaveDocumentV18 } from "./SaveDocumentV18";
 
 // Only migrate a structurally and semantically valid v1 snapshot. Preserve
 // played data; legacy monsters have no prepared attack to carry forward.
@@ -236,7 +237,7 @@ const migratePlayedSaveToV16 = (
 	};
 };
 
-export const migratePlayedSave = (
+const migratePlayedSaveToV17 = (
 	document: Parameters<typeof migratePlayedSaveToV16>[0] | SaveDocumentV17,
 ): SaveDocumentV17 => {
 	if (document.version === 17) return document;
@@ -255,5 +256,34 @@ export const migratePlayedSave = (
 		...previous,
 		version: 17,
 		state: { ...previous.state, objects, merchantStock: createMerchantStock() },
+	};
+};
+
+export const migratePlayedSave = (
+	document: Parameters<typeof migratePlayedSaveToV17>[0] | SaveDocumentV18,
+): SaveDocumentV18 => {
+	if (document.version === 18) return document;
+	const previous = migratePlayedSaveToV17(document);
+	const legacyItem = (
+		item: SaveDocumentV17["state"]["bag"]["items"][number],
+	) => ({ id: item.id, kind: item.kind });
+	const equipment = Object.fromEntries(
+		Object.entries(previous.state.equipment).map(([slot, item]) => [
+			slot,
+			item ? legacyItem(item) : null,
+		]),
+	) as SaveDocumentV18["state"]["equipment"];
+	return {
+		...previous,
+		version: 18,
+		state: {
+			...previous.state,
+			equipment,
+			bag: { items: previous.state.bag.items.map(legacyItem) },
+			floorItems: previous.state.floorItems.map((entry) => ({
+				...entry,
+				item: legacyItem(entry.item),
+			})),
+		},
 	};
 };

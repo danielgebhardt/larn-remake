@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { BAG_CAPACITY, type Bag, bagSlots } from "../../domain/items/Bag";
 import type { Equipment } from "../../domain/items/Equipment";
 import { compareEquipment } from "../../domain/items/EquipmentComparison";
-import { ITEM_DEFINITIONS } from "../../domain/items/Item";
+import { itemName } from "../../domain/items/ItemValues";
 import ItemIcon from "../items/ItemIcon";
 import {
 	comparisonDescription,
@@ -64,7 +64,7 @@ const BagContents = ({
 								<Button
 									type="button"
 									variant="outline"
-									aria-label={`${ITEM_DEFINITIONS[item.kind].name}, slot ${index + 1}`}
+									aria-label={`${itemName(item)}, slot ${index + 1}`}
 									aria-pressed={selectedId === item.id}
 									aria-describedby={
 										count > 1
@@ -80,8 +80,13 @@ const BagContents = ({
 										<ItemIcon kind={item.kind} />
 									</span>
 									<span className="line-clamp-2 min-h-0 text-[9px] leading-[10px]">
-										{ITEM_DEFINITIONS[item.kind].name}
+										{itemName(item)}
 									</span>
+									{item.enchantment && (
+										<span className="absolute right-0.5 top-0.5 rounded bg-background px-0.5 text-[9px] font-semibold">
+											+{item.enchantment}
+										</span>
+									)}
 									{count > 1 && (
 										<span
 											id={`${descriptionId}-quantity`}

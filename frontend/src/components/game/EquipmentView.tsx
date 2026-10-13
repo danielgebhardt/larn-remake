@@ -5,7 +5,7 @@ import {
 	type Equipment,
 	type EquipmentSlot,
 } from "../../domain/items/Equipment";
-import { ITEM_DEFINITIONS } from "../../domain/items/Item";
+import { itemName } from "../../domain/items/ItemValues";
 import ItemIcon from "../items/ItemIcon";
 
 const slots = [
@@ -58,7 +58,7 @@ const EquipmentView = ({
 							<Button
 								type="button"
 								variant="outline"
-								aria-label={`${label}: ${equipment[key] ? ITEM_DEFINITIONS[equipment[key].kind].name : "empty"}`}
+								aria-label={`${label}: ${equipment[key] ? itemName(equipment[key]) : "empty"}`}
 								aria-pressed={
 									selectedId === equipment[key]?.id && selectedId !== null
 								}
@@ -70,9 +70,7 @@ const EquipmentView = ({
 										<span className="size-5">
 											<ItemIcon kind={equipment[key].kind} />
 										</span>
-										<span className="text-xs">
-											{ITEM_DEFINITIONS[equipment[key].kind].name}
-										</span>
+										<span className="text-xs">{itemName(equipment[key])}</span>
 									</>
 								) : (
 									<span className="text-xs text-muted-foreground">

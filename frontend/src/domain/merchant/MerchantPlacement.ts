@@ -49,7 +49,13 @@ export const placeMerchants = (
 				)
 				.map((o) => coordinateKey(o.coordinate)),
 		);
-		const sealed = sealedEliteTiles(floor, objects);
+		// An opened optional chamber must not become a merchant location either.
+		const sealed = sealedEliteTiles(
+			floor,
+			objects.map((object) =>
+				object.kind === "elite-door" ? { ...object, activated: false } : object,
+			),
+		);
 		const reachable = new Set<string>(),
 			queue = required.length ? [required[0]] : [];
 		for (let index = 0; index < queue.length; index++) {

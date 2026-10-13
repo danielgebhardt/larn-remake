@@ -1,6 +1,6 @@
 import type { Equipment } from "../items/Equipment";
 import { equipmentBonuses } from "../items/EquipmentBonuses";
-import { ITEM_DEFINITIONS } from "../items/Item";
+import { itemArmor, itemAttackBonus } from "../items/ItemValues";
 import { deriveAttributes } from "./Attributes";
 import { playerEffectBonuses } from "./EffectBonuses";
 import { BASE_PLAYER_ATTACK_DAMAGE } from "./PlayerStats";
@@ -17,9 +17,7 @@ export const deriveCombatStats = (
 		effects,
 		equipment,
 	).strengthModifier;
-	const weaponBonus = equipment.mainHand
-		? ITEM_DEFINITIONS[equipment.mainHand.kind].attackBonus
-		: 0;
+	const weaponBonus = itemAttackBonus(equipment.mainHand);
 	const armor = Object.values(armorContributions(equipment)).reduce<number>(
 		(sum, value) => sum + value,
 		0,
@@ -42,9 +40,7 @@ export const resolveIncomingDamage = (
 ): number => Math.max(1, incoming - armor);
 
 export const armorContributions = (equipment: Equipment) => ({
-	shield: equipment.offHand
-		? ITEM_DEFINITIONS[equipment.offHand.kind].armor
-		: 0,
-	chest: equipment.chest ? ITEM_DEFINITIONS[equipment.chest.kind].armor : 0,
-	head: equipment.head ? ITEM_DEFINITIONS[equipment.head.kind].armor : 0,
+	shield: itemArmor(equipment.offHand),
+	chest: itemArmor(equipment.chest),
+	head: itemArmor(equipment.head),
 });

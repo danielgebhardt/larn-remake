@@ -21,3 +21,8 @@ An unseen actor reaching its remembered tile searches there for three eligible p
 ## #236 — Visible awareness explanations
 
 Help's visible creature guide groups instance awareness counts by kind: Unaware, Pursuing and Searching, alongside a short explanation of remembered sight and disengagement. It lists only living actors in current player sight. After a committed Home action, a presentation projection adds a short activity entry only when a currently visible actor changes awareness state; unchanged pursuit steps, hidden actors, inactive floors, death and victory add no such entries. The reducer has no access to player fog preferences, so observation is projected after current exploration is recomputed rather than leaking hidden transitions into history. Recorded observable entries persist with the existing bounded activity log. Controlled tests cover visible searching, hidden kinds, no step spam, inactive floors and transition messages. Browser fixture verified Searching: 1 and the explanation in Help; screenshot `/tmp/larn-visible-awareness-review.png`.
+
+
+## #237 — Pursuit persistence and replay
+
+The save format was versioned alongside awareness in #234. This story completes integration coverage rather than adding a second representation of awareness. Generated 60×60 adventures exercise identical committed actions after save/load during pursuit and searching, a closed-door chase with a nearly exhausted blocked budget, inactive-floor pausing, and fresh seeded replay. Existing arrival/occupancy and legacy migration checks remain in the regression suite. The four added tests pass; the commit hook runs the full frontend suite and build.

@@ -2,7 +2,11 @@ import { Button } from "@/components/ui/button";
 import { MANA_RECOVERY_INTERVAL } from "../../domain/game/Mana";
 import type { PlayerAction } from "../../domain/game/PlayerActions";
 import type { Progression } from "../../domain/game/Progression";
-import { SPELL_SLOTS, type SpellHotbar } from "../../domain/game/SpellHotbar";
+import {
+	SPELL_SLOT_KEYS,
+	SPELL_SLOTS,
+	type SpellHotbar,
+} from "../../domain/game/SpellHotbar";
 import {
 	SPELL_DEFINITIONS,
 	type SpellKind,
@@ -46,9 +50,10 @@ const SpellsView = ({
 			</div>
 			<section aria-label="Spell shortcuts" className="rounded-lg border p-3">
 				<p className="mb-2 text-xs text-muted-foreground">
-					Four spell shortcuts use keys 5–8. Assign below; changing shortcuts is
-					free. Choose Assign 5–8 on a spell to replace that shortcut. The
-					active assignment says Assigned. Clear a slot above to remove it.
+					Six spell shortcuts use keys 5–9 and 0. Assign below; changing
+					shortcuts is free. Choose Assign 5–9 or 0 on a spell to replace that
+					shortcut. The active assignment says Assigned. Clear a slot above to
+					remove it.
 				</p>
 				<div className="flex flex-wrap gap-2">
 					{SPELL_SLOTS.map((slot) => (
@@ -62,7 +67,7 @@ const SpellsView = ({
 								onAction({ type: "assign-spell", slot, spell: null })
 							}
 						>
-							{slot + 4}:{" "}
+							{SPELL_SLOT_KEYS[slot]}:{" "}
 							{slots[slot - 1]
 								? SPELL_DEFINITIONS[slots[slot - 1] as SpellKind].name
 								: "Empty"}{" "}
@@ -131,7 +136,7 @@ const SpellsView = ({
 								{SPELL_SLOTS.map((slot) => (
 									<Button
 										key={slot}
-										size="sm"
+										size="xs"
 										variant={slots[slot - 1] === spell ? "default" : "outline"}
 										disabled={!assignmentsEnabled}
 										aria-pressed={slots[slot - 1] === spell}
@@ -141,8 +146,8 @@ const SpellsView = ({
 										}
 									>
 										{slots[slot - 1] === spell
-											? `Assigned ${slot + 4}`
-											: `Assign ${slot + 4}`}
+											? `Assigned ${SPELL_SLOT_KEYS[slot]}`
+											: `Assign ${SPELL_SLOT_KEYS[slot]}`}
 									</Button>
 								))}
 							</fieldset>

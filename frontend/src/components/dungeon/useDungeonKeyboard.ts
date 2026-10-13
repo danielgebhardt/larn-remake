@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import type { MovementDirection } from "../../domain/dungeon/DungeonRun.ts";
-import type { SpellSlot } from "../../domain/game/SpellHotbar";
+import { type SpellSlot, spellSlotForKey } from "../../domain/game/SpellHotbar";
 import type { SpellKind } from "../../domain/game/Spells";
 import { HOTBAR_SLOTS, type HotbarSlot } from "../../domain/items/PotionHotbar";
 import { isCharacterShortcut } from "../game/CharacterShortcut";
@@ -118,10 +118,10 @@ export const useDungeonKeyboard = ({
 					event.target.closest(FOCUSED_CONTROLS))
 			)
 				return;
-			const spellSlot = Number(event.key) - 4;
-			if (spellSlot >= 1 && spellSlot <= 4 && onSpellSlotRequested) {
+			const spellSlot = spellSlotForKey(event.key);
+			if (spellSlot !== undefined && onSpellSlotRequested) {
 				event.preventDefault();
-				if (!event.repeat) onSpellSlotRequested(spellSlot as SpellSlot);
+				if (!event.repeat) onSpellSlotRequested(spellSlot);
 				return;
 			}
 			const potionSlot = HOTBAR_SLOTS.find(

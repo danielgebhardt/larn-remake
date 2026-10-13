@@ -82,7 +82,11 @@ it("saves gold and migrates pre-gold adventures with zero rather than rerolling 
 			JSON.stringify({
 				...doc,
 				version: 9,
-				state: { ...doc.state, gold: undefined },
+				state: {
+					...doc.state,
+					spellHotbar: doc.state.spellHotbar.slice(0, 4),
+					gold: undefined,
+				},
 			}),
 		),
 	).toMatchObject({ ok: true, value: { state: { gold: 0 } } });

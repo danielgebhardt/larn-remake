@@ -8,7 +8,7 @@ import type { SpellKind } from "../domain/game/Spells";
 const known: SpellKind[] = ["magic-missile", "heal", "frost-bolt"];
 const props = {
 	knownSpells: known,
-	slots: ["magic-missile", "heal", null, null] as SpellHotbar,
+	slots: ["magic-missile", "heal", null, null, null, null] as SpellHotbar,
 	assignmentsEnabled: true,
 	mana: 10,
 	progression: { experience: 0 },
@@ -42,7 +42,7 @@ describe("Compact spell library", () => {
 		view.rerender(
 			<SpellsView
 				{...props}
-				slots={[null, "heal", "magic-missile", null]}
+				slots={[null, "heal", "magic-missile", null, null, null]}
 				onAction={onAction}
 			/>,
 		);

@@ -21,7 +21,11 @@ import {
 	Zap,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import type { SpellHotbar } from "../../domain/game/SpellHotbar";
+import {
+	SPELL_SLOT_KEYS,
+	SPELL_SLOTS,
+	type SpellHotbar,
+} from "../../domain/game/SpellHotbar";
 import { SPELL_DEFINITIONS, type SpellKind } from "../../domain/game/Spells";
 
 export const SPELL_ICONS = {
@@ -61,7 +65,7 @@ const SpellHotbarView = ({
 }) => (
 	<section
 		aria-label="Spell hotbar"
-		className="flex items-start gap-1.5 border-l border-border pl-3"
+		className="flex min-w-0 max-w-full flex-wrap items-start gap-1.5 border-l border-border pl-3"
 	>
 		{slots.map((spell, index) => {
 			if (!spell || !knownSpells.includes(spell))
@@ -73,7 +77,7 @@ const SpellHotbarView = ({
 							className="relative flex size-12 items-center justify-center rounded-lg border border-dashed text-muted-foreground"
 						>
 							<kbd className="absolute top-0.5 left-1 text-[10px]">
-								{index + 5}
+								{SPELL_SLOT_KEYS[SPELL_SLOTS[index]]}
 							</kbd>
 							—
 						</span>
@@ -93,7 +97,7 @@ const SpellHotbarView = ({
 					<Button
 						variant="outline"
 						aria-label={label}
-						aria-keyshortcuts={String(index + 5)}
+						aria-keyshortcuts={SPELL_SLOT_KEYS[SPELL_SLOTS[index]]}
 						title={label}
 						aria-pressed={
 							definition.mode === "targeted" ? targeting === spell : undefined
@@ -107,7 +111,7 @@ const SpellHotbarView = ({
 					>
 						<Icon aria-hidden="true" className="size-5" />
 						<kbd className="absolute top-0.5 left-1 text-[10px] text-muted-foreground">
-							{index + 5}
+							{SPELL_SLOT_KEYS[SPELL_SLOTS[index]]}
 						</kbd>
 						<span
 							aria-hidden="true"

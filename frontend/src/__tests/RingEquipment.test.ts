@@ -75,6 +75,7 @@ it("migrates version-five equipment to empty ring slots and persists equipped ri
 		version: 5,
 		state: {
 			...saved.state,
+			spellHotbar: saved.state.spellHotbar.slice(0, 4),
 			equipment: {
 				mainHand: saved.state.equipment.mainHand,
 				offHand: saved.state.equipment.offHand,

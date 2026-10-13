@@ -1,6 +1,6 @@
 # Alpha inventory and visual usability polish
 
-Branch: `codex/alpha-inventory-polish`. Epic #216; stories #217–222, #224 and #225. One tested commit per story, awaiting developer acceptance. No push/merge/deployment.
+Branch: `codex/alpha-inventory-polish`. Epic #216; stories #217–225. One tested commit per story, awaiting developer acceptance. No push/merge/deployment.
 
 ## #217 — Potion stacks and 27 slots
 
@@ -57,3 +57,11 @@ Wearable pickups go directly to an empty compatible slot, with rings preferring 
 Tests first failed for automatic placement and full-bag chooser eligibility. Coverage includes every equipment category, ring ordering/full slots, full-bag direct equip, duplicate ownership, unchanged health/mana on capacity growth, same-turn armor mitigation, immutable input and numbered keyboard pickup. Existing occupied-slot pickup, potion, spellbook and quest tests remain relevant.
 
 Browser verification picked up a Leather cap and Copper ring using G and numbered choices with 27 occupied bag slots. Head/left-ring equipment updated immediately; pickup/equip messages shared turns 1 and 2 respectively, and bag capacity stayed 27/27. The chest-capacity regression now explicitly fills compatible equipment slots; comparison UI tests recognize automatic pickup equip and verify comparisons again after unequipping.
+
+## #223 — Six spell shortcuts
+
+Potion keys remain 1–4; spell slots map explicitly to 5, 6, 7, 8, 9 and 0 through one shared domain mapping. Keyboard input uses exact key matching and retains paused/focused/repeated/modified input guards. Hotbar keycaps, shortcut accessibility metadata and library assignments use the same mapping; selected assignments retain their gold color. Compact assignment buttons wrap within each card, and the hotbar wraps at narrow widths. Z/H shortcuts and modal numbered pickup/object choices are unchanged.
+
+Save v12 validates exactly six slots with ordinary known-spell and uniqueness checks. Validated v4–v11 saves preserve their original four assignments and append two empty slots; pre-assignment saves retain their previous initialization behavior before this expansion. Historical shape validators remain fixed at four. Current-format invalid-length/duplicate/unlearned regressions, legacy/current round trips, keys 9/0 guards, slot-six clicking and complete keyboard cast cases cover the expanded contract. Current-version expectations and explicit current fixtures are updated; the captured v1 fixture remains untouched.
+
+Legacy migration fixtures derived from the current writer now explicitly restore their source format's four-slot shape before testing older fields. The source v11 regression rejects six slots rather than truncating an invalid document. Browser verified gold Assigned 9/0 choices and all six keycaps; the 390px hotbar has equal client/scroll width (316px).

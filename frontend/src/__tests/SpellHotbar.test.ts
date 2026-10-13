@@ -28,21 +28,37 @@ it("assigns known spells without turns and moves an existing assignment instead 
 		"heal",
 		null,
 		null,
+		null,
+		null,
 	]);
 	const moved = resolvePlayerAction(assigned.state, {
 		type: "assign-spell",
 		slot: 4,
 		spell: "ember-bolt",
 	});
-	expect(moved.state.spellHotbar).toEqual([null, "heal", null, "ember-bolt"]);
+	expect(moved.state.spellHotbar).toEqual([
+		null,
+		"heal",
+		null,
+		"ember-bolt",
+		null,
+		null,
+	]);
 	expect(
 		resolvePlayerAction(moved.state, {
 			type: "assign-spell",
 			slot: 4,
 			spell: null,
 		}).state.spellHotbar,
-	).toEqual([null, "heal", null, null]);
-	expect(state.spellHotbar).toEqual(["magic-missile", "heal", null, null]);
+	).toEqual([null, "heal", null, null, null, null]);
+	expect(state.spellHotbar).toEqual([
+		"magic-missile",
+		"heal",
+		null,
+		null,
+		null,
+		null,
+	]);
 });
 it("rejects an unlearned spell without changing state or spending a turn", () => {
 	const state = createGameState(createCorridorEncounter());
@@ -64,6 +80,8 @@ it("round trips custom assignments and migrates v3 knowledge into default slots"
 	expect(migrated.value.state.spellHotbar).toEqual([
 		"magic-missile",
 		"heal",
+		null,
+		null,
 		null,
 		null,
 	]);
@@ -90,14 +108,16 @@ it("round trips custom assignments and migrates v3 knowledge into default slots"
 		null,
 		null,
 		"heal",
+		null,
+		null,
 	]);
 });
 
 it.each([
 	["wrong length", ["heal"]],
-	["duplicate assignment", ["heal", "heal", null, null]],
-	["unknown spell", ["unknown", null, null, null]],
-	["unlearned spell", ["ember-bolt", null, null, null]],
+	["duplicate assignment", ["heal", "heal", null, null, null, null]],
+	["unknown spell", ["unknown", null, null, null, null, null]],
+	["unlearned spell", ["ember-bolt", null, null, null, null, null]],
 ])("rejects saved shortcuts with %s", (_, slots) => {
 	const document = savedAdventure();
 	expect(

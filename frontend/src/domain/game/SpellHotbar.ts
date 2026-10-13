@@ -1,7 +1,17 @@
 import type { SpellKind } from "./Spells";
 
-export const SPELL_SLOTS = [1, 2, 3, 4] as const;
+export const SPELL_SLOTS = [1, 2, 3, 4, 5, 6] as const;
 export type SpellSlot = (typeof SPELL_SLOTS)[number];
+export const SPELL_SLOT_KEYS: Record<SpellSlot, string> = {
+	1: "5",
+	2: "6",
+	3: "7",
+	4: "8",
+	5: "9",
+	6: "0",
+};
+export const spellSlotForKey = (key: string): SpellSlot | undefined =>
+	SPELL_SLOTS.find((slot) => SPELL_SLOT_KEYS[slot] === key);
 export type SpellHotbar = readonly (SpellKind | null)[];
 export type SpellAssignmentAction = {
 	type: "assign-spell";
@@ -16,7 +26,7 @@ export const assignSpell = (
 	action: SpellAssignmentAction,
 ): SpellHotbar | { error: string } => {
 	if (!SPELL_SLOTS.includes(action.slot))
-		return { error: "Choose a spell slot from 1 to 4." };
+		return { error: "Choose a spell slot from 1 to 6." };
 	if (action.spell !== null && !known.includes(action.spell))
 		return { error: "You have not learned that spell." };
 	const next = slots.map((spell, index) =>

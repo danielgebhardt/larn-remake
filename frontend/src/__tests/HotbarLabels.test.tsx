@@ -1,10 +1,27 @@
 import { render, screen, within } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 import PotionHotbarView from "../components/game/PotionHotbarView";
 import SpellHotbarView from "../components/game/SpellHotbarView";
 import { createBag } from "../domain/items/Bag";
 
 describe("Visible hotbar labels", () => {
+	it("labels the sixth spell key as 0 and clicking it activates that spell", async () => {
+		const activate = vi.fn();
+		render(
+			<SpellHotbarView
+				knownSpells={["heal"]}
+				slots={[null, null, null, null, null, "heal"]}
+				enabled
+				onActivate={activate}
+			/>,
+		);
+		const button = screen.getByRole("button", { name: "Heal, 4 mana" });
+		expect(button).toHaveAttribute("aria-keyshortcuts", "0");
+		expect(within(button).getByText("0", { selector: "kbd" })).toBeVisible();
+		await userEvent.setup().click(button);
+		expect(activate).toHaveBeenCalledExactlyOnceWith("heal");
+	});
 	it("identifies potion kinds while keeping key numbers and carried counts", () => {
 		render(
 			<PotionHotbarView
@@ -36,7 +53,7 @@ describe("Visible hotbar labels", () => {
 		render(
 			<SpellHotbarView
 				knownSpells={["magic-missile", "heal", "sonic-spear"]}
-				slots={["magic-missile", "heal", "sonic-spear", null]}
+				slots={["magic-missile", "heal", "sonic-spear", null, null, null]}
 				enabled
 				onActivate={vi.fn()}
 			/>,

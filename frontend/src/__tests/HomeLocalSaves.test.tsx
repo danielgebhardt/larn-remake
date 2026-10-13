@@ -235,7 +235,7 @@ describe("Confirmed local Save and Load", () => {
 			progression: { experience: 44 },
 			mana: 5,
 			knownSpells: ["heal"] as const,
-			spellHotbar: ["heal", null, null, null] as const,
+			spellHotbar: ["heal", null, null, null, null, null] as const,
 		};
 		const document = createSaveDocument(
 			state,

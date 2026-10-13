@@ -124,6 +124,7 @@ it("migrates old injury metadata to an explicit unknown time and rejects future 
 		version: 6,
 		state: {
 			...saved.state,
+			spellHotbar: saved.state.spellHotbar.slice(0, 4),
 			monsters: saved.state.monsters.map(
 				({ lastDamagedTurn: _old, ...actor }) => actor,
 			),

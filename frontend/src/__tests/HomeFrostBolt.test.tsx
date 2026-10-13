@@ -23,7 +23,7 @@ it("casts Frost Bolt from a slot and displays a visible remaining condition", as
 	vi.spyOn(GameState, "createGameState").mockImplementation((run) => ({
 		...create(run),
 		knownSpells: ["magic-missile", "heal", "frost-bolt"],
-		spellHotbar: ["magic-missile", "heal", "frost-bolt", null],
+		spellHotbar: ["magic-missile", "heal", "frost-bolt", null, null, null],
 	}));
 	render(<Home />, { wrapper: ThemeProvider });
 	const user = userEvent.setup();

@@ -121,7 +121,11 @@ describe("Potion stacks and 27 bag slots", () => {
 		const legacy = {
 			...current,
 			version: 10,
-			state: { ...current.state, bag: { items: copies("mana-potion", 20) } },
+			state: {
+				...current.state,
+				spellHotbar: current.state.spellHotbar.slice(0, 4),
+				bag: { items: copies("mana-potion", 20) },
+			},
 		};
 		const parsed = parseSave(JSON.stringify(legacy));
 		expect(parsed.ok).toBe(true);

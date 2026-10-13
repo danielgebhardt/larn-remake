@@ -326,8 +326,8 @@ const DungeonHelp = ({
 					and insufficient mana cost no turn.
 				</p>
 				<p>
-					Spell shortcuts 5–8 activate the four slots assigned in Character →
-					Spells. Assignments are free. Intelligence improves spell damage,
+					Spell shortcuts 5–9 and 0 activate the six slots assigned in Character
+					→ Spells. Assignments are free. Intelligence improves spell damage,
 					healing, and maximum mana. The Spells tab shows current effects.
 					Future spells come from found spellbooks, never automatic level
 					unlocks.

@@ -48,3 +48,9 @@ Six recommended 60×60×20 seeds yielded:
 The existing 3,700-XP level-20 threshold meets the late-adventure goal in this ordinary baseline. Thresholds, automatic growth, enemy rewards and level cap are retained; no save migration or wound/capacity change is needed. More optional challenges could accelerate this, so compare human floor-level reports before changing thresholds. Short adventures are not guaranteed to reach the cap.
 
 Supply totals across the same seeds were 295–450 health and 293–353 mana, with 3–18 antidotes; these are collectible potential, not resources available before each encounter. The low-antidote seed is a useful human playtest case.
+
+## #271 — Actionable threat cues
+
+Visible prepared charges, heavy strikes, alarms and recovery phases show the source's visible location and concrete next-action counterplay beside existing conditions. Area countdowns retain their existing display. Hidden/dead sources remain filtered, and hidden target coordinates are not disclosed. Your poison chip explains one damage after monsters per committed turn and antidote timing. The visible-creature guide clarifies ranged distance/cover, enemy magic and prepared-strike interruption. Game rules remain unchanged.
+
+Readable UI tests cover source visibility, dead sources, poison timing and counterplay. A legacy v15 charge fixture imported in the browser displays the cue correctly; the Help sheet remains usable with no turn spent.

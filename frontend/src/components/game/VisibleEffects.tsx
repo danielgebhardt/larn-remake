@@ -10,6 +10,20 @@ import {
 
 const effectLabel = (effect: TimedEffect) =>
 	`${EFFECT_DEFINITIONS[effect.kind].name} · ${effect.remaining} ${effect.remaining === 1 ? "phase" : "phases"} remaining`;
+const intentAdvice = (actor: Monster): string | null => {
+	switch (actor.intent.type) {
+		case "preparing-charge":
+			return "Sidestep the marked line before its next action; Sleep or Fear interrupts, Web stops the charge.";
+		case "recovering-charge":
+			return "Recovering: its next action is spent recovering. Use the opening.";
+		case "preparing-attack":
+			return "Move off the marked tile before its next action; Sleep or Fear cancels the heavy strike.";
+		case "preparing-alarm":
+			return "Alarm on its next action: kill it or use Sleep or Fear. Web does not silence it.";
+		default:
+			return null;
+	}
+};
 const VisibleEffects = ({
 	effects,
 	monsters,
@@ -38,9 +52,34 @@ const VisibleEffects = ({
 			? [{ actor, intent: actor.intent }]
 			: [],
 	);
-	if (!entries.length && !own.length && !threats.length) return null;
+	const prepared = monsters.filter(
+		(actor) =>
+			actor.health > 0 &&
+			intentAdvice(actor) &&
+			(visible === undefined ||
+				visible[actor.coordinate.row]?.[actor.coordinate.col]),
+	);
+	if (!entries.length && !own.length && !threats.length && !prepared.length)
+		return null;
 	return (
 		<div className="mb-2 grid gap-1 text-xs">
+			{prepared.length > 0 && (
+				<ul
+					aria-label="Visible threats"
+					className="flex flex-wrap justify-center gap-2"
+				>
+					{prepared.map((actor) => (
+						<li
+							key={actor.id}
+							className="rounded-md border border-amber-500/40 bg-amber-500/10 px-2 py-1 text-amber-900 dark:text-amber-200"
+						>
+							{MONSTER_DEFINITIONS[actor.kind].name} at row{" "}
+							{actor.coordinate.row}, column {actor.coordinate.col}:{" "}
+							{intentAdvice(actor)}
+						</li>
+					))}
+				</ul>
+			)}
 			{threats.length > 0 && (
 				<ul
 					aria-label="Incoming area attacks"
@@ -73,6 +112,8 @@ const VisibleEffects = ({
 							}
 						>
 							{effectLabel(effect)}
+							{effect.kind === "poisoned" &&
+								" · 1 damage after monsters each committed turn. Antidote removes current poison before that tick."}
 						</li>
 					))}
 				</ul>
@@ -88,6 +129,8 @@ const VisibleEffects = ({
 							className="rounded-md border border-cyan-500/40 bg-cyan-500/10 px-2 py-1 text-cyan-800 dark:text-cyan-200"
 						>
 							{MONSTER_DEFINITIONS[actor.kind].name}: {effectLabel(effect)}
+							{effect.kind === "poisoned" &&
+								" · 1 damage after monsters each committed turn. Antidote removes current poison before that tick."}
 						</li>
 					))}
 				</ul>

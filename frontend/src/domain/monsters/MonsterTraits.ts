@@ -10,14 +10,16 @@ export const monsterTraits = (kind: MonsterKind): readonly string[] => {
 	if (definition.actionInterval && definition.actionInterval > 1)
 		traits.push(`Acts every ${definition.actionInterval} turns.`);
 	if (definition.preparesAttack)
-		traits.push("Heavy strike: fixed tile, one response action to dodge.");
+		traits.push(
+			"Heavy strike: fixed tile, one response action to dodge. Sleep or Fear cancels preparation; Web stops movement but not adjacent attacks.",
+		);
 	if (definition.enemySpells)
 		traits.push(
-			`Spells: ${definition.enemySpells.map((spell) => SPELL_DEFINITIONS[spell].name).join(", ")}. One cast every ${definition.spellInterval ?? 3} turns; physical armor does not block magic.`,
+			`Spells: ${definition.enemySpells.map((spell) => SPELL_DEFINITIONS[spell].name).join(", ")}. One cast every ${definition.spellInterval ?? 3} turns; physical armor does not block magic. Break wall/door sight or leave spell range to avoid a new cast.`,
 		);
 	else if (definition.rangedAttackRange)
 		traits.push(
-			`Ranged shots up to ${definition.rangedAttackRange} tiles; adjacent melee.`,
+			`Ranged shots up to ${definition.rangedAttackRange} tiles (horizontal and vertical steps combined); adjacent melee. Walls and closed doors break its shot.`,
 		);
 	if (definition.regeneration)
 		traits.push(

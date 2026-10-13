@@ -250,14 +250,17 @@ const eventFields = {
 	"monster-loot": { monster: monsterKind, item: itemKind },
 	"items-seen": { items: array(itemKind, 1) },
 	"floor-changed": { fromFloor: floorNumber, toFloor: floorNumber },
-} satisfies Record<ActivityEvent["type"], Record<string, Schema>>;
+} satisfies Record<
+	Exclude<ActivityEvent["type"], "monster-door-opened">,
+	Record<string, Schema>
+>;
 const event: Schema = (value) =>
 	record(value) &&
 	typeof value.type === "string" &&
 	Object.hasOwn(eventFields, value.type) &&
 	object({
 		turn: natural,
-		...eventFields[value.type as ActivityEvent["type"]],
+		...eventFields[value.type as keyof typeof eventFields],
 	})(value);
 const configuration = object({
 	rows: integer(CONFIGURATION_LIMITS.rows.min, CONFIGURATION_LIMITS.rows.max),

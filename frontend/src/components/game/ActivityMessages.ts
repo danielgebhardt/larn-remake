@@ -10,6 +10,8 @@ import { describeObject } from "../../domain/objects/ObjectDescriptions";
 export const formatActivityEvent = (event: ActivityEvent): string => {
 	const prefix = `Turn ${event.turn} — `;
 	switch (event.type) {
+		case "monster-door-opened":
+			return `${prefix}The ${MONSTER_DEFINITIONS[event.monster].name} opens a door, spending its action.`;
 		case "equipment-enchanted":
 			return `${prefix}Enchanted ${ITEM_DEFINITIONS[event.item].name} to +${event.enchantment}.`;
 		case "item-boosted":

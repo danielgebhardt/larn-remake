@@ -51,6 +51,7 @@ export const visibleThreatHistory = (
 	);
 	const retained = newEntries.filter(({ event }) => {
 		if (
+			event.type !== "monster-door-opened" &&
 			event.type !== "monster-charge-prepared" &&
 			event.type !== "monster-charge-ended" &&
 			event.type !== "monster-alarm-prepared" &&

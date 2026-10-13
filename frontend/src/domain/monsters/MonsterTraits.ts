@@ -3,6 +3,10 @@ import { MONSTER_DEFINITIONS, type MonsterKind } from "./Monster";
 export const monsterTraits = (kind: MonsterKind): readonly string[] => {
 	const definition = MONSTER_DEFINITIONS[kind];
 	const traits: string[] = [];
+	if (definition.opensDoors)
+		traits.push(
+			"Can open ordinary doors while pursuing its last seen target. Opening uses its whole action; elite gates stay closed. Closing a door still breaks sight and buys a response turn.",
+		);
 	if (kind === "iron-champion")
 		traits.push(
 			"Optional elite: stronger health and a guaranteed depth-eligible equipment reward. Arcane magic is resisted; cold is effective.",

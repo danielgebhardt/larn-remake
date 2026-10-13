@@ -10,14 +10,14 @@ import type { GameState } from "../game/GameState";
 import { levelForExperience } from "../game/Progression";
 import type { ItemInstance } from "../items/Item";
 import { navigationRun } from "../objects/NavigationTerrain";
-import type { SaveDocumentV18 } from "./SaveDocumentV18";
+import type { SaveDocumentV19 } from "./SaveDocumentV19";
 import { validateSaveDocument } from "./SaveValidation";
 
-export const SAVE_FORMAT_VERSION = 18;
+export const SAVE_FORMAT_VERSION = 19;
 // Bound imported input before parsing. A maximum-size snapshot is measured in the review.
 export const MAX_SAVE_BYTES = 4 * 1024 * 1024;
 
-export type SaveDocument = SaveDocumentV18;
+export type SaveDocument = SaveDocumentV19;
 export type RestoredAdventure = {
 	state: GameState;
 	exploration: ExplorationState;

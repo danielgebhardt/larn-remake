@@ -54,6 +54,7 @@ export type MonsterDefinition = {
 	spawnWeight: number;
 	dropChance: number;
 	lootPreferences: Partial<Record<ItemKind, number>>;
+	opensDoors?: boolean;
 	alarmRadius?: number;
 	stationary?: boolean;
 	chargeRange?: number;
@@ -102,6 +103,8 @@ export const validateMonsterDefinition = (
 		areaAttack,
 	} = definition;
 	if (
+		(definition.opensDoors !== undefined &&
+			typeof definition.opensDoors !== "boolean") ||
 		(definition.stationary !== undefined &&
 			typeof definition.stationary !== "boolean") ||
 		(definition.alarmRadius !== undefined &&
@@ -253,6 +256,7 @@ const monsterCatalog = {
 		lootPreferences: {},
 	},
 	orc: {
+		opensDoors: true,
 		name: "orc",
 		experienceReward: 10,
 		maxHealth: 7,
@@ -381,6 +385,7 @@ const monsterCatalog = {
 		lootPreferences: {},
 	},
 	cultist: {
+		opensDoors: true,
 		name: "cultist",
 		minFloor: 7,
 		maxFloor: 18,
@@ -481,6 +486,7 @@ const monsterCatalog = {
 		},
 	},
 	necromancer: {
+		opensDoors: true,
 		resists: ["shadow"],
 		name: "necromancer",
 		minFloor: 15,

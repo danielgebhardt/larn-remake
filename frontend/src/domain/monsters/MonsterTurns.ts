@@ -27,6 +27,7 @@ import { resolveMonsterAlarm } from "./MonsterAlarm";
 import { resolveMonsterArea } from "./MonsterAreaAttack";
 import { advanceUnseenPursuit } from "./MonsterAwareness";
 import { resolveMonsterCharge } from "./MonsterCharge";
+import { monsterDoorToOpen } from "./MonsterDoors";
 import { orthogonalDistance } from "./MonsterLocations";
 import { detectsPlayer, selectPursuitStep } from "./MonsterPursuit";
 import { selectRetreatStep } from "./MonsterRetreat";
@@ -38,7 +39,8 @@ export const resolveMonsterPhase = (
 	rollSource: AttackRollSource = createAttackRolls,
 ): GameState => {
 	if (state.quest.victory) return state;
-	const navigation = navigationRun(state);
+	let objects = state.objects;
+	let navigation = navigationRun(state);
 	const pursuitRules = pursuitRulesFor(state);
 	let player = state.player;
 	let monsters = state.monsters;
@@ -125,6 +127,41 @@ export const resolveMonsterPhase = (
 				monsters = monsters.map((actor) =>
 					actor.id === monster.id ? monster : actor,
 				);
+			}
+		}
+		if (
+			monster.intent.type === "idle" &&
+			!hasMonsterEffect(state, monster, "rooted") &&
+			!profile.stationary
+		) {
+			const door = monsterDoorToOpen({ ...state, objects }, monster, monsters);
+			if (door) {
+				objects = objects.map((object) =>
+					object.id === door.id ? { ...object, activated: true } : object,
+				);
+				navigation = navigationRun({ run: state.run, objects });
+				const memory = monster.awareness;
+				if (memory?.type === "pursuing") {
+					const remaining = memory.remaining - 1;
+					monster = {
+						...monster,
+						awareness:
+							remaining > 0
+								? { ...memory, remaining, blocked: 0 }
+								: { type: "idle" },
+					};
+					monsters = monsters.map((actor) =>
+						actor.id === monster.id ? monster : actor,
+					);
+				}
+				events.push({
+					type: "monster-door-opened",
+					monster: monster.kind,
+					actorId: monster.id,
+					objectId: door.id,
+					turn: state.turn,
+				});
+				continue;
 			}
 		}
 		if (!detected && monster.intent.type === "idle") {
@@ -355,10 +392,16 @@ export const resolveMonsterPhase = (
 		if (player.health === 0)
 			events.push({ type: "player-died", turn: state.turn });
 	}
-	if (events.length === 0 && monsters === state.monsters) return state;
+	if (
+		events.length === 0 &&
+		monsters === state.monsters &&
+		objects === state.objects
+	)
+		return state;
 	return {
 		...state,
 		player,
+		objects,
 		monsters,
 		effects,
 		activityHistory: appendActivityEvents(state.activityHistory, events),

@@ -17,3 +17,9 @@ The policy knows unexplored geometry and chooses a limited set of actions. It do
 ### Human playtest template
 
 Record release/commit, seed, dimensions/depth and a save near a concern. For each floor/return visit note entry/exit turn, level/XP, health/mana, fights, useful upgrades, potions used/remaining, merchant purchases, and whether exploration or combat felt repetitive. Note deliberate avoided encounters. Human observations are needed alongside seeded reports before broad supply or XP changes.
+
+## #267 — Depth-sensitive equipment
+
+Ordinary found/drop selection discounts plain equipment by `1 / (1 + 2 × same-slot value gap)` relative to the strongest currently eligible plain alternative. The adjusted plain-equipment band is normalized back to its original total weight. Potions, rings, scrolls and stat-bearing tradeoffs keep their original probability weights. Monster preferences still apply, and all eligible alternatives retain a positive chance. Elite reward rules and actual saved items are unchanged.
+
+A matched six-seed draw comparison (0, 1, 123, 987, 42, 4294967295; 1,000 found draws per seed/floor) at floor 8 reduced iron swords from 315 to 99, while battle axes increased from 165 to 300 and plate armor from 132 to 244. This isolates selection probabilities, not actual useful upgrades in a human run; individual outcomes are not guaranteed. All potion counts in that comparison remained identical. Replay generation changes, while loaded played loot remains authoritative.

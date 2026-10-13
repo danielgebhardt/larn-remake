@@ -143,3 +143,11 @@ A Buy button or 1–4 buys exactly one bottle from shared stock. The action chec
 The dialog remains open and updates resources/counts after a trade. A fatal monster response ends browsing and opens the existing death dialog; the completed purchase is retained in the run state.
 
 Validation: successful/repeated transfers, distinct IDs, hotbar assignment, every rejection, full-stack capacity, disabled saved merchants, one enemy response and fatal purchase ownership; Home covers both number/mouse purchase, updated stock/gold, focus and death closure.
+
+## #262 — Nominal carried-equipment sales
+
+Sell transfers one selected bag-owned equipment instance out of the adventure and adds its displayed nominal gold value. Matching copies are distinct; only the chosen ID is removed. Worn gear must be unequipped first, and potions/books/cure are rejected. Shared supply stock is untouched, there is no buyback, and repeated requests for a sold ID are free rejections. Successful sales use the same one-turn action boundary as purchases, including potentially fatal monster responses.
+
+After Enter/click sells an item, keyboard focus moves to the next available equipment button, or the Sell tab when none remain. This avoids losing keyboard control when the focused row disappears. The purchase death test now explicitly waits for dialog focus before typing, removing its initial-focus race.
+
+Validation: item ownership and duplicates, values/gold, stock preservation, excluded categories, reach/equipped rejection, fatal response; Home verifies keyboard sales, remaining selection, empty-tab focus and map restoration.

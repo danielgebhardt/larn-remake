@@ -729,6 +729,10 @@ const Home = ({
 			/>
 			<MerchantDialog
 				open={merchantId !== null && canPlay}
+				onSell={(itemId) => {
+					if (merchantId)
+						handleActionRequested({ type: "sell", merchantId, itemId });
+				}}
 				onBuy={(kind) => {
 					if (merchantId)
 						handleActionRequested({ type: "buy", merchantId, kind });

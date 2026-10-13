@@ -124,6 +124,7 @@ const eventFields = {
 	"chest-opened": { item: itemKind },
 	"gold-collected": { amount: integer(1) },
 	"merchant-bought": { item: itemKind, gold: integer(1) },
+	"merchant-sold": { item: itemKind, gold: integer(1) },
 	"player-condition-applied": {
 		condition: oneOf(Object.keys(EFFECT_DEFINITIONS)),
 		duration: integer(1, 100),

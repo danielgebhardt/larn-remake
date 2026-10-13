@@ -4,7 +4,11 @@ import { canAddToBag, createBag } from "../items/Bag";
 import { assignPickedUpPotion } from "../items/PotionHotbar";
 import { orthogonalDistance } from "../monsters/MonsterLocations";
 import { merchantsEnabled } from "./MerchantAvailability";
-import { MERCHANT_OFFERS, type MerchantSupply } from "./MerchantRules";
+import {
+	equipmentSalePrice,
+	MERCHANT_OFFERS,
+	type MerchantSupply,
+} from "./MerchantRules";
 export type BuyAction = {
 	type: "buy";
 	merchantId: string;
@@ -66,6 +70,33 @@ export const buyPotion = (
 				gold: price,
 				turn: state.turn,
 			},
+		]),
+	};
+};
+
+export type SellAction = { type: "sell"; merchantId: string; itemId: string };
+export const sellEquipment = (
+	state: GameState,
+	action: SellAction,
+): GameState | { error: string } => {
+	if (!canReachMerchant(state, action.merchantId))
+		return { error: "No merchant within reach." };
+	const item = state.bag.items.find((copy) => copy.id === action.itemId);
+	if (!item)
+		return {
+			error: "That equipment is not in your bag. Unequip worn gear first.",
+		};
+	const gold = equipmentSalePrice(item);
+	if (gold === null)
+		return { error: "The merchant buys only carried equipment." };
+	if (!Number.isSafeInteger(state.gold + gold))
+		return { error: "You cannot carry more gold." };
+	return {
+		...state,
+		gold: state.gold + gold,
+		bag: createBag(state.bag.items.filter((copy) => copy.id !== item.id)),
+		activityHistory: appendActivityEvents(state.activityHistory, [
+			{ type: "merchant-sold", item: item.kind, gold, turn: state.turn },
 		]),
 	};
 };

@@ -21,7 +21,12 @@ import {
 	type HotbarAction,
 	hotbarSlotContents,
 } from "../items/PotionHotbar";
-import { type BuyAction, buyPotion } from "../merchant/MerchantTrades";
+import {
+	type BuyAction,
+	buyPotion,
+	type SellAction,
+	sellEquipment,
+} from "../merchant/MerchantTrades";
 import type { Monster } from "../monsters/Monster.ts";
 import { resolveMonsterPhase } from "../monsters/MonsterTurns";
 import { triggerArrivalTrap } from "../objects/DungeonTraps";
@@ -54,6 +59,7 @@ import {
 import { advanceTimedEffects } from "./TimedEffects";
 export type PlayerAction =
 	| BuyAction
+	| SellAction
 	| InteractAction
 	| { type: "move"; direction: MovementDirection }
 	| { type: "wait" }
@@ -175,6 +181,7 @@ const resolvePlayerEffect = (
 ): GameState | { error: string } | undefined => {
 	const turn = state.turn;
 	if (action.type === "buy") return buyPotion(state, action);
+	if (action.type === "sell") return sellEquipment(state, action);
 	if (action.type === "interact") return interactObject(state, action);
 	if (action.type === "cast") {
 		const cast = castSpell(state, action, rollSource);

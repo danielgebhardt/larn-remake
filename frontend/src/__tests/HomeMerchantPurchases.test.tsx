@@ -72,7 +72,16 @@ it("closes the merchant when buying gives an adjacent enemy a fatal response", a
 	});
 	const user = renderShop(true);
 	await user.keyboard("e");
-	await screen.findByRole("dialog", { name: "Wandering potion merchant" });
+	const dialog = await screen.findByRole("dialog", {
+		name: "Wandering potion merchant",
+	});
+	await waitFor(() =>
+		expect(
+			within(dialog).getByRole("heading", {
+				name: "Wandering potion merchant",
+			}),
+		).toHaveFocus(),
+	);
 	await user.keyboard("1");
 	await screen.findByRole("dialog", { name: "You died" });
 	expect(

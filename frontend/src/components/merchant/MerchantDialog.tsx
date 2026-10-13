@@ -1,6 +1,6 @@
 import { Dialog } from "@base-ui/react/dialog";
 import { Tabs } from "@base-ui/react/tabs";
-import { type RefObject, useRef, useState } from "react";
+import { type RefObject, useLayoutEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import type { GameState } from "../../domain/game/GameState";
 import { ITEM_DEFINITIONS } from "../../domain/items/Item";
@@ -32,6 +32,15 @@ const MerchantDialog = ({
 }: Props) => {
 	const titleRef = useRef<HTMLHeadingElement>(null),
 		[tab, setTab] = useState<"buy" | "sell">("buy");
+	const firstSale = useRef<HTMLButtonElement>(null),
+		sellTab = useRef<HTMLButtonElement>(null),
+		[focusAfterSale, setFocusAfterSale] = useState(false);
+	useLayoutEffect(() => {
+		if (open && focusAfterSale) {
+			(firstSale.current ?? sellTab.current)?.focus();
+			setFocusAfterSale(false);
+		}
+	}, [open, focusAfterSale]);
 	const supplies = Object.keys(MERCHANT_OFFERS) as MerchantSupply[];
 	const gear = state.bag.items.filter(
 		(item) => equipmentSalePrice(item) !== null,
@@ -118,6 +127,7 @@ const MerchantDialog = ({
 							</Tabs.Tab>
 							<Tabs.Tab
 								value="sell"
+								ref={sellTab}
 								className="rounded-t px-4 py-2 font-semibold data-[active]:border-b-2 data-[active]:border-primary"
 							>
 								Sell
@@ -162,13 +172,17 @@ const MerchantDialog = ({
 							</p>
 							{gear.length ? (
 								<ul className="grid gap-2 sm:grid-cols-2">
-									{gear.map((item) => (
+									{gear.map((item, index) => (
 										<li key={item.id}>
 											<Button
 												variant="outline"
 												className="h-auto w-full justify-start gap-3 whitespace-normal p-3 text-left"
+												ref={index === 0 ? firstSale : undefined}
 												disabled={!onSell}
-												onClick={() => onSell?.(item.id)}
+												onClick={() => {
+													onSell?.(item.id);
+													setFocusAfterSale(true);
+												}}
 											>
 												<span className="size-6 shrink-0">
 													<ItemIcon kind={item.kind} />

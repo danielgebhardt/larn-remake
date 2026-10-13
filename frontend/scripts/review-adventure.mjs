@@ -83,6 +83,9 @@ try {
 	const { chooseSpellAwareAction } = await server.ssrLoadModule(
 		"/scripts/review-policy.mjs",
 	);
+	const { createPacingReview, recordPacingTurn } = await server.ssrLoadModule(
+		"/scripts/review-pacing.mjs",
+	);
 	const {
 		createReviewMetrics,
 		observeReviewEquipment,
@@ -140,6 +143,7 @@ try {
 			};
 			const escapeReview = createEscapeReview();
 			const metrics = createReviewMetrics();
+			const pacing = createPacingReview(state);
 			const observedEquipment = new Set();
 			const tacticalMemory = {};
 			let potions = 0;
@@ -271,6 +275,7 @@ try {
 						`Policy ${options.policy} rejected action at seed ${seed}, turn ${state.turn}: ${JSON.stringify(action)} (${result.error ?? "no committed turn"})`,
 					);
 				recordReviewTurn(metrics, state, action, result.state);
+				recordPacingTurn(pacing, state, action, result.state);
 				recordEscapeReview(escapeReview, state, action, result.state);
 				state = result.state;
 				if (consumed) {
@@ -297,6 +302,7 @@ try {
 			else if (state.player.health <= 0) reason = "died";
 			const result = {
 				policy: options.policy,
+				pacing,
 				casts,
 				potionUses,
 				mana: state.mana,

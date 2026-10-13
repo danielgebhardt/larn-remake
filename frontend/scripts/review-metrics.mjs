@@ -7,6 +7,7 @@ import { navigationRun } from "../src/domain/objects/NavigationTerrain";
 
 const incoming = new Set([
 	"monster-hit",
+	"monster-charge-hit",
 	"monster-shot-hit",
 	"monster-heavy-hit",
 	"monster-spell-hit",

@@ -208,10 +208,13 @@ describe("Shared merchant economy continuation", () => {
 		expect(returned.objects).toBe(state.objects);
 	});
 	it("rejects imported merchants inside an elite chamber even behind an opened gate", () => {
+		const chamberConfiguration = {
+			...DEFAULT_RUN_CONFIGURATION,
+			rows: 60,
+			cols: 60,
+		};
 		const base = createGameState(
-			connectDungeonFloors(
-				generateDungeonRun(123, 20, DEFAULT_RUN_CONFIGURATION),
-			),
+			connectDungeonFloors(generateDungeonRun(123, 20, chamberConfiguration)),
 		);
 		const encounters = addOptionalEliteRooms(base, { chance: 1 });
 		const gate = encounters.objects.find(
@@ -244,7 +247,7 @@ describe("Shared merchant economy continuation", () => {
 		const document = createSaveDocument(
 			state,
 			updateExploration(navigationRun(state), 8),
-			DEFAULT_RUN_CONFIGURATION,
+			chamberConfiguration,
 			DEFAULT_FOG_CONFIGURATION,
 		);
 		expect(parseSave(serializeSave(document)).ok).toBe(false);

@@ -7,10 +7,10 @@ import { resetHomeTestState, stubDungeonRun } from "./HomeTestHelpers";
 import { createCorridorEncounter } from "./MonsterEncounterTestHelpers";
 
 afterEach(resetHomeTestState);
-it("recommends a sixty-square twenty-floor adventure", () => {
+it("recommends a forty-square twenty-floor adventure", () => {
 	expect(DEFAULT_RUN_CONFIGURATION).toMatchObject({
-		rows: 60,
-		cols: 60,
+		rows: 40,
+		cols: 40,
 		floorCount: 20,
 	});
 });
@@ -22,13 +22,13 @@ it("uses the recommended configuration on Begin and retains it for random restar
 	expect(generate).toHaveBeenLastCalledWith(
 		expect.any(Number),
 		20,
-		expect.objectContaining({ rows: 60, cols: 60 }),
+		expect.objectContaining({ rows: 40, cols: 40 }),
 	);
 	await user.click(screen.getByRole("button", { name: "New Dungeon" }));
 	expect(generate).toHaveBeenLastCalledWith(
 		expect.any(Number),
 		20,
-		expect.objectContaining({ rows: 60, cols: 60 }),
+		expect.objectContaining({ rows: 40, cols: 40 }),
 	);
 	expect(screen.getByLabelText("Dungeon map", { exact: true })).toHaveFocus();
 });

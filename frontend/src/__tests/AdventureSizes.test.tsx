@@ -71,7 +71,7 @@ describe("Welcome map-size choices", () => {
 		const user = userEvent.setup();
 		const { generate } = stubDungeonRun(createCorridorEncounter());
 		render(<App />);
-		expect(screen.getByRole("radio", { name: /Large/ })).toBeChecked();
+		expect(screen.getByRole("radio", { name: /Medium/ })).toBeChecked();
 		await user.click(screen.getByRole("radio", { name: /Small/ }));
 		await user.keyboard("{ArrowRight}");
 		expect(screen.getByRole("radio", { name: /Medium/ })).toBeChecked();

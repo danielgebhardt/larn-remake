@@ -33,7 +33,7 @@ test.beforeEach(async ({ page }) => {
 test("welcome choices and keyboard Settings apply return control to the map", async ({
 	page,
 }) => {
-	await expect(page.getByRole("radio", { name: /Large/ })).toBeChecked();
+	await expect(page.getByRole("radio", { name: /Medium/ })).toBeChecked();
 	await page.getByRole("radio", { name: /Small/ }).check();
 	await page.getByRole("radio", { name: /Harder/ }).check();
 	await page

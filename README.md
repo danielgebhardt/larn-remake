@@ -182,7 +182,7 @@ To replay a dungeon, open **Settings**, enter a seed in **Dungeon seed**, and se
 
 The map automatically scrolls just enough to keep the player visible, with roughly one tile of surrounding space where possible. Following works horizontally and vertically, after stairs or a fresh run, and when the map viewport resizes. You can still scroll manually to inspect the map; ordinary rerenders, Settings, and appearance changes leave that view alone. The next successful move or floor/run change resumes following. Blocked movement does not scroll, and following does not move focus or scroll the outer page.
 
-**Dungeon configuration** in Settings lets you choose 10–100 rows, 10–100 columns, and 5–20 floors. Defaults are 60 × 60 with 20 floors, with minimum partition size 8 and room padding 1. **Start from seed** applies the seed and configuration together, starting a new run on floor 1. Editing or dismissing settings retains drafts without changing the run. **New Dungeon** uses the last successfully applied configuration and resets drafts to it. These settings last for this session; only appearance is saved across reloads.
+**Dungeon configuration** in Settings lets you choose 10–100 rows, 10–100 columns, and 5–20 floors. Defaults are Medium (40 × 40) with 20 floors, with minimum partition size 8 and room padding 1. **Start from seed** applies the seed and configuration together, starting a new run on floor 1. Editing or dismissing settings retains drafts without changing the run. **New Dungeon** uses the last successfully applied configuration and resets drafts to it. These settings last for this session; only appearance is saved across reloads.
 
 Inputs require decimal whole numbers. Invalid fields show feedback without replacing the run. Generation failures show a retry message and preserve the current run, active configuration, and draft.
 
@@ -209,7 +209,7 @@ To demonstrate the exploration milestone:
 3. Open **Settings**, enter the noted seed, and start from it to recreate the complete run at its original start.
 4. Select **New Dungeon**, then explore again. Subsequent transitions use the new run's floors.
 
-Floor 1 has no up stair, and the deepest floor has no down stair. Floor count is configurable in Settings, from five to twenty floors; the recommended default is twenty 60×60 floors. Town and broader progression remain future work; local save/resume is implemented.
+Floor 1 has no up stair, and the deepest floor has no down stair. Floor count is configurable in Settings, from five to twenty floors; the recommended default is twenty 40×40 floors. Town and broader progression remain future work; local save/resume is implemented.
 
 ## Configuration
 

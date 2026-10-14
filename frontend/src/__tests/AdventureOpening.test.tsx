@@ -34,8 +34,8 @@ it("begins a randomly seeded adventure and focuses the map", async () => {
 		.click(screen.getByRole("button", { name: "Begin Adventure" }));
 	expect(generate).toHaveBeenCalledWith(
 		2147483648,
-		expect.any(Number),
-		expect.any(Object),
+		20,
+		expect.objectContaining({ rows: 40, cols: 40 }),
 	);
 	expect(
 		screen.queryByRole("dialog", { name: "A journey for the cure" }),

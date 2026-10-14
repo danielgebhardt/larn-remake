@@ -39,3 +39,10 @@ Save format remains v20: floor, kind, current health, actor ID and preparation a
 - The commit hook verifies formatting/lint, the full frontend suite and production build.
 
 The separate developer request to default to Medium is implemented in its own subsequent commit on this branch.
+
+
+## #307: Medium as the default
+
+The developer explicitly chose Medium, superseding the backlog story's earlier conditional default decision. `DEFAULT_RUN_CONFIGURATION` now uses 40 rows / 40 columns, retaining twenty floors and Normal difficulty. The welcome screen derives its selected preset from this shared configuration. Small (20×20), Large (60×60) and custom Settings remain available; saved/replayed configuration remains authoritative. Historical 60×60 diagnostic results are retained as larger reference/stress evidence, not relabeled as Medium results.
+
+Welcome/default-generation tests failed before the change, then passed with the same seeded start/focus and independent size/difficulty controls. Population, rewards, progression and other generation parameters are unchanged; comparative human pacing/balance work is not claimed complete by this default preference.

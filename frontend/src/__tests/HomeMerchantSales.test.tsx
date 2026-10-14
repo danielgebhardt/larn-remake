@@ -8,7 +8,7 @@ import { createCorridorEncounter } from "./MonsterEncounterTestHelpers";
 import Home from "./TestHome";
 
 afterEach(resetHomeTestState);
-it("sells selected carried gear with Enter and focuses the next item, then the empty Sell tab", async () => {
+it("keeps a sold placeholder and focuses Sell so another sale needs a deliberate selection", async () => {
 	stubDungeonRun(createCorridorEncounter());
 	const create = GameState.createGameState;
 	vi.spyOn(GameState, "createGameState").mockImplementationOnce((run) => ({
@@ -60,11 +60,16 @@ it("sells selected carried gear with Enter and focuses the next item, then the e
 	sword.focus();
 	await user.keyboard("{Enter}");
 	expect(within(dialog).getByText("Gold 720")).toBeVisible();
-	expect(within(dialog).queryByText("Iron sword")).not.toBeInTheDocument();
+	expect(within(dialog).getByText("Sold: Iron sword")).toBeVisible();
+	await waitFor(() =>
+		expect(within(dialog).getByRole("tab", { name: "Sell" })).toHaveFocus(),
+	);
+	await user.keyboard("{Enter}");
+	expect(screen.getByLabelText("Turn count")).toHaveTextContent("Turn 1");
 	const shield = within(dialog).getByRole("button", {
 		name: /Wooden shield.*Sell for 20 gold/,
 	});
-	await waitFor(() => expect(shield).toHaveFocus());
+	shield.focus();
 	await user.keyboard("{Enter}");
 	expect(within(dialog).getByText("Gold 740")).toBeVisible();
 	expect(

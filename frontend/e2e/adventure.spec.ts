@@ -378,9 +378,55 @@ test("merchant comparisons open with Enter after import and only selling spends 
 	await expect(merchant.getByText("Gold 720", { exact: true })).toBeVisible();
 	await expect(turns(page)).toHaveText("Turn 1");
 	await expect(
-		merchant.getByRole("button", {
-			name: "Ring of Intelligence · Sell for 30 gold",
-			exact: true,
-		}),
+		merchant.getByRole("tab", { name: "Sell", exact: true }),
 	).toBeFocused();
+});
+
+test("merchant bounds and unsold positions stay stable, and repeated clicks cannot sell the next item", async ({
+	page,
+}, testInfo) => {
+	await importAdventure(page, "merchant-many");
+	await page.keyboard.press("e");
+	await page.keyboard.press("s");
+	const merchant = page.getByRole("dialog", {
+		name: "Wandering potion merchant",
+		exact: true,
+	});
+	const panel = merchant.getByRole("tabpanel", { name: "Sell", exact: true });
+	const close = merchant.getByRole("button", { name: "Close", exact: true });
+	const sales = merchant.getByRole("button", {
+		name: "Short sword · Sell for 20 gold",
+		exact: true,
+	});
+	const bounds = await merchant.boundingBox();
+	const panelBounds = await panel.boundingBox();
+	const closeBounds = await close.boundingBox();
+	const first = await sales.nth(0).boundingBox();
+	const second = await sales.nth(1).boundingBox();
+	if (!first) throw new Error("Expected the first sale button");
+	await sales.nth(0).click();
+	await expect(turns(page)).toHaveText("Turn 1");
+	expect(await sales.nth(0).boundingBox()).toEqual(second);
+	await page.mouse.click(first.x + first.width / 2, first.y + first.height / 2);
+	await expect(turns(page)).toHaveText("Turn 1");
+	for (let turn = 2; turn <= 20; turn++) {
+		await sales.nth(0).click();
+		await expect(turns(page)).toHaveText(`Turn ${turn}`);
+		expect(await merchant.boundingBox()).toEqual(bounds);
+		expect(await panel.boundingBox()).toEqual(panelBounds);
+		expect(await close.boundingBox()).toEqual(closeBounds);
+	}
+	await expect(
+		merchant.getByText("No carried equipment to sell."),
+	).toBeVisible();
+	await expect(
+		merchant.getByRole("tab", { name: "Sell", exact: true }),
+	).toBeFocused();
+	await page.screenshot({ path: testInfo.outputPath("merchant-empty.png") });
+	await page.keyboard.press("Escape");
+	await expect(map(page)).toBeFocused();
+	await page.keyboard.press("e");
+	await page.keyboard.press("s");
+	await expect(merchant.getByText("Sold: Short sword")).toHaveCount(0);
+	expect(await merchant.boundingBox()).toEqual(bounds);
 });

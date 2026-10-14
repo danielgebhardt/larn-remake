@@ -143,6 +143,19 @@ export default async function prepareFixtures() {
 			["poisoned", poisoned, configuration],
 			["stacks", stacks, configuration],
 			["merchant", merchantState, merchantConfiguration],
+			[
+				"merchant-many",
+				{
+					...merchantState,
+					bag: {
+						items: Array.from({ length: 20 }, (_, index) => ({
+							id: `sale:${index}`,
+							kind: "short-sword",
+						})),
+					},
+				},
+				merchantConfiguration,
+			],
 		]) {
 			const exploration = updateExploration(navigationRun(state), fog.radius);
 			const text = serializeSave(

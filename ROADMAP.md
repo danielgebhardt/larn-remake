@@ -84,7 +84,8 @@ Current save format is **v19**: validated enemy door-opening history is added, w
 | Priority | Story | Purpose |
 | --- | --- | --- |
 | First | [#319 — Stable consumable stacks](https://github.com/danielgebhardt/larn-remake/issues/319) | Stop remaining scroll/potion stacks moving after partial consumption; verify interleaved copies and selection continuity. |
-| First | [#317 — Stable merchant Sell panel](https://github.com/danielgebhardt/larn-remake/issues/317) | Prevent shrinking layouts and unintended consecutive sales; verify actual pointer/focus behavior. |
+| First | [#317 — Stable merchant Sell panel](https://github.com/danielgebhardt/larn-remake/issues/317) | Implemented for review: fixed bounds, sold placeholders and deliberate next-sale focus. [Review](docs/merchant-selling-review.md). |
+| Alongside #317 | [#322 — Sell all Lower equipment](https://github.com/danielgebhardt/larn-remake/issues/322) | Authorized companion: bulk sell only red/Lower carried gear, retaining normal per-item turns and excluding tradeoffs. |
 | Next | [#316 — Starter potion defaults](https://github.com/danielgebhardt/larn-remake/issues/316) | One Healing Potion on 1 and one Mana Potion on 2, freely reassignable; existing saves retain their actual state. |
 | Next | [#318 — Spell potency comparisons](https://github.com/danielgebhardt/larn-remake/issues/318) | Show practical Intelligence-derived damage/healing effects consistently in Character and merchant. |
 | Small cleanup | [#314 — Scroll configuration](https://github.com/danielgebhardt/larn-remake/issues/314) | Centralize margins while preserving the current five tiles on both axes; notes' horizontal four differs from current source. |

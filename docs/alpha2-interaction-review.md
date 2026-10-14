@@ -17,3 +17,13 @@ Selected potion-assignment number buttons now use the same primary variant as as
 ## Throne and chest silhouettes — #310
 
 Custom 24px SVGs replace the similar Armchair/Archive pair: a crowned high-backed throne with legs, and a curved-lid, strapped/locked chest. An opened chest uses a raised lid instead of the archive-X glyph. The shared renderer retains the stone palette and spent opacity, so map, Help and catalog all use the same assets without separate icon copies. Three failing visual-state regressions now pass; they check selected SVG identity/state and the shared viewbox/accessibility rather than freezing path strings. Actual 24px/48px catalog previews were reviewed in dark and light before committing. No terrain, placement, object descriptions or interaction behavior changes are introduced by this story.
+
+## Save/Load facelift and load-only opening — #298
+
+The sheet adds a modest primary-tinted header/browser-slot card, a distinct file-transfer card/icon and a slightly wider 448px desktop panel to reduce wrapping. Shared controls derive save/export availability from the existing snapshot capability: before play those actions are absent, the trigger says Load an existing save, and the sheet title is Load adventure. In-game Save/Load retains all four actions. The saved summary, confirmation dialogs, storage protection, input validation, import cancellation and actual restore/map focus rules are unchanged.
+
+The five opening-load tests failed before the new interface and pass afterward, including empty/corrupt browser slots, confirmed/canceled local loading, absent save/export controls and file import with immediate G/H. Focused opening/local-save/file checks pass 3 files / 21 tests. The four production browser flows now exercise the load-only opening and all pass in 4.6 seconds. Dark/light browser review at 1280×720 confirms a 447px-wide sheet with no internal scrolling. The temporary review imported fixtures without writing the browser save slot, and Dark appearance was restored.
+
+## Review handoff
+
+Four requested stories have separate initial commits. The remaining alpha-feedback stories stay Backlog and epic #293 remains partially implemented. No spell/stat/XP/loot/difficulty/density or save-schema changes were introduced. Full frontend formatting, tests, strict TypeScript and production builds run for every commit; the final UI also passes the separate production-browser suite. Developer acceptance, publishing this branch and merge remain pending.

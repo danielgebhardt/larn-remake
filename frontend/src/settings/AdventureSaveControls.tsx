@@ -1,5 +1,5 @@
 import { Dialog } from "@base-ui/react/dialog";
-import { Download, FolderOpen, Save, Upload } from "lucide-react";
+import { Download, FileJson, FolderOpen, Save, Upload } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { type SaveDocument, saveSummary } from "../domain/saves/SaveFormat";
@@ -99,88 +99,111 @@ const AdventureSaveControls = ({
 		setPending(null);
 	};
 	return (
-		<section aria-label="Adventure saves" className="grid gap-3 border-t pt-4">
-			<h3 className="font-medium">Save and load</h3>
-			<p className="text-xs text-muted-foreground">
-				{createSnapshot
-					? "One manual save in this browser. Saving replaces this slot; loading replaces your current adventure."
-					: "Resume an adventure saved in this browser or import a backup. Begin an adventure before saving or exporting."}
-			</p>
-			<div className="rounded-lg border bg-muted/20 p-3 text-xs">
-				{saved ? (
-					<>
-						<p>{saveSummary(saved)}</p>
-						<time
-							dateTime={saved.savedAt}
-							className="mt-1 block text-muted-foreground"
+		<section aria-label="Adventure saves" className="grid gap-4">
+			<section
+				aria-label="Browser save"
+				className="grid gap-3 rounded-xl border border-primary/20 bg-primary/5 p-4"
+			>
+				<h3 className="flex items-center gap-2 font-medium">
+					<FolderOpen aria-hidden="true" className="size-4 text-primary" />
+					Browser save
+				</h3>
+				<p className="text-xs leading-relaxed text-muted-foreground">
+					{createSnapshot
+						? "One save on this device. Saving replaces this slot; loading replaces your current adventure."
+						: "Resume the adventure saved in this browser."}
+				</p>
+				<div className="rounded-lg border bg-background/70 p-3 text-xs leading-relaxed">
+					{saved ? (
+						<>
+							<p className="font-medium">{saveSummary(saved)}</p>
+							<time
+								dateTime={saved.savedAt}
+								className="mt-1 block text-muted-foreground"
+							>
+								{new Date(saved.savedAt).toLocaleString()}
+							</time>
+						</>
+					) : (
+						<p>{slot.ok ? "No saved adventure yet." : slot.error}</p>
+					)}
+				</div>
+				<div className={createSnapshot ? "grid grid-cols-2 gap-2" : "grid"}>
+					{createSnapshot && (
+						<Button
+							disabled={importing}
+							onClick={(event) => requestSave(event.currentTarget)}
 						>
-							{new Date(saved.savedAt).toLocaleString()}
-						</time>
-					</>
-				) : (
-					<p>{slot.ok ? "No saved adventure yet." : slot.error}</p>
-				)}
-			</div>
-			<div className="grid grid-cols-2 gap-2">
-				<Button
-					variant="outline"
-					disabled={!createSnapshot || importing}
-					onClick={(event) => requestSave(event.currentTarget)}
-				>
-					<Save aria-hidden="true" />
-					Save adventure
-				</Button>
-				<Button
-					variant="outline"
-					disabled={!saved || importing}
-					onClick={(event) => requestLoad(event.currentTarget)}
-				>
-					<FolderOpen aria-hidden="true" />
-					Load adventure
-				</Button>
-			</div>
-			<div className="grid grid-cols-2 gap-2">
-				<Button
-					variant="outline"
-					disabled={!createSnapshot || importing}
-					onClick={exportFile}
-				>
-					<Download aria-hidden="true" />
-					Export file
-				</Button>
-				<Button
-					variant="outline"
+							<Save aria-hidden="true" />
+							Save adventure
+						</Button>
+					)}
+					<Button
+						variant={createSnapshot ? "outline" : "default"}
+						disabled={!saved || importing}
+						onClick={(event) => requestLoad(event.currentTarget)}
+					>
+						<FolderOpen aria-hidden="true" />
+						Load adventure
+					</Button>
+				</div>
+			</section>
+			<section
+				aria-label="Save files"
+				className="grid gap-3 rounded-xl border bg-muted/15 p-4"
+			>
+				<h3 className="flex items-center gap-2 font-medium">
+					<FileJson
+						aria-hidden="true"
+						className="size-4 text-sky-700 dark:text-sky-300"
+					/>
+					{createSnapshot ? "Save files" : "Import a save file"}
+				</h3>
+				<p className="text-xs leading-relaxed text-muted-foreground">
+					{createSnapshot
+						? "Download a backup, or bring an adventure from another device."
+						: "Choose an adventure file to continue where you left off."}
+				</p>
+				<div className={createSnapshot ? "grid grid-cols-2 gap-2" : "grid"}>
+					{createSnapshot && (
+						<Button variant="outline" disabled={importing} onClick={exportFile}>
+							<Download aria-hidden="true" />
+							Export file
+						</Button>
+					)}
+					<Button
+						variant="outline"
+						disabled={importing}
+						onClick={() => fileInput.current?.click()}
+					>
+						<Upload aria-hidden="true" />
+						{importing ? "Reading file…" : "Import file"}
+					</Button>
+				</div>
+				<input
+					ref={fileInput}
+					type="file"
+					accept=".json,application/json"
+					aria-label="Import adventure file"
+					hidden
 					disabled={importing}
-					onClick={() => fileInput.current?.click()}
-				>
-					<Upload aria-hidden="true" />
-					{importing ? "Reading file…" : "Import file"}
-				</Button>
-			</div>
-			<input
-				ref={fileInput}
-				type="file"
-				accept=".json,application/json"
-				aria-label="Import adventure file"
-				hidden
-				disabled={importing}
-				onChange={(event) => {
-					const file = event.currentTarget.files?.[0];
-					event.currentTarget.value = "";
-					if (file) void importFile(file);
-				}}
-			/>
-			<p className="text-xs text-muted-foreground">
-				Export a backup or import one to resume here. Import replaces the
-				current adventure immediately after validation; it does not change the
-				browser save slot.
-			</p>
-
+					onChange={(event) => {
+						const file = event.currentTarget.files?.[0];
+						event.currentTarget.value = "";
+						if (file) void importFile(file);
+					}}
+				/>
+				<p className="text-xs leading-relaxed text-muted-foreground">
+					{createSnapshot
+						? "Import replaces the current adventure after validation; it does not change the browser save slot."
+						: "Import does not change the browser save slot."}
+				</p>
+			</section>
 			{feedback && (
 				<p
 					role="status"
 					aria-label="Save feedback"
-					className="text-xs text-muted-foreground"
+					className="rounded-lg border bg-muted/30 p-3 text-xs leading-relaxed"
 				>
 					{feedback}
 				</p>

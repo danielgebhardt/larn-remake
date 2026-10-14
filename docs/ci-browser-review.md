@@ -10,11 +10,11 @@ The workflow runs for main/codex branch pushes, PRs targeting main, and manual d
 
 Official actions are pinned to release commit SHAs. PNPM store caching uses the root lockfile; Gradle uses the basic GitHub cache provider and its default read-only policy off the default branch. Jobs need only read access to repository contents. No deploy, secret, backend API integration or branch-protection change is introduced.
 
-Repository Actions are enabled and permit these actions. Validate YAML with actionlint and run the commands locally before review. **Local checks do not prove GitHub jobs are operational:** successful remote jobs must be recorded after the branch is pushed. Do not mark this story Done based only on a syntactically valid workflow.
+Repository Actions are enabled and permit these actions. Validate YAML with actionlint and run the commands locally before review. **Local checks alone do not prove GitHub jobs are operational.** The implementation was subsequently pushed with developer approval: [all three GitHub jobs passed on 865dca0](https://github.com/danielgebhardt/larn-remake/actions/runs/38479074641). Epic #277 and stories #289/#290 are In Review, with developer acceptance pending.
 
 References: [Node setup](https://github.com/actions/setup-node), [pnpm setup](https://github.com/pnpm/action-setup), [Java setup](https://github.com/actions/setup-java), [Gradle setup](https://github.com/gradle/actions/tree/main/setup-gradle), [Playwright test server](https://playwright.dev/docs/test-webserver).
 
-Local verification: actionlint 1.7.12 passes. A clean temporary workspace installs the root frozen lockfile with pnpm 11.25.0; this avoids replacing the developer’s dependency directory. Backend wrapper tests were rerun with two workers: both tests executed successfully. The story commit runs the complete frontend hook with `VITEST_MAX_WORKERS=2`; GitHub runner results remain pending branch publication. No test timeouts were raised.
+Local verification: actionlint 1.7.12 passes. A clean temporary workspace installs the root frozen lockfile with pnpm 11.25.0; this avoids replacing the developer’s dependency directory. Backend wrapper tests were rerun with two workers: both tests executed successfully. The story commit runs the complete frontend hook with `VITEST_MAX_WORKERS=2`; GitHub runner results are recorded in the linked successful run and the issue review sections. No test timeouts were raised.
 
 ## Controlled production-browser flows — #290
 
@@ -31,4 +31,4 @@ Global setup generates current save contracts through real domain creation/writi
 
 CI adds a Chromium job after frontend checks. It installs pinned-package headless Chromium plus Linux dependencies, builds/tests the application and retains reports/failure traces for seven days. Initial local failures were test assumptions: ordinary save-sheet closing restores the toolbar trigger, and the poison recap is capitalized. Those assertions were corrected after inspecting their failure reports; no game code or timeouts were changed.
 
-Local browser verification passes **4/4 flows in 4.6 seconds**, with the production build and expanded tooling/test typechecks passing. Actionlint passes the three-job workflow. The final story commit runs the complete frontend hook; remote jobs are still pending permission to publish the branch.
+Local browser verification passes **4/4 flows in 4.6 seconds**, with the production build and expanded tooling/test typechecks passing. Actionlint passes the three-job workflow. The final story commit runs the complete frontend hook; subsequent approved GitHub execution passes frontend lint/2,204 tests/types/build, Java tests and all four Linux Chromium flows (8.0 seconds).

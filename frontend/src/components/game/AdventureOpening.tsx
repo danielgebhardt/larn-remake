@@ -1,5 +1,5 @@
 import { Dialog } from "@base-ui/react/dialog";
-import { ScrollText, Shield } from "lucide-react";
+import { FolderOpen, ScrollText, Shield } from "lucide-react";
 import { useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetTrigger } from "@/components/ui/sheet";
@@ -98,7 +98,8 @@ const AdventureOpening = ({
 							<SheetTrigger
 								render={<Button variant="outline" className="mt-2 w-full" />}
 							>
-								Save/Load
+								<FolderOpen aria-hidden="true" className="text-primary" />
+								Load an existing save
 							</SheetTrigger>
 							<AdventureSaveSheet onRestore={onRestore} />
 						</Sheet>

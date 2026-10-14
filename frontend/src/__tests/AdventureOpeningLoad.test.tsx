@@ -15,9 +15,15 @@ it("loads the saved adventure directly from the opening without generating a new
 	const generate = vi.spyOn(DungeonRun, "generateDungeonRun");
 	render(<App />);
 	const user = userEvent.setup();
-	await user.click(screen.getByRole("button", { name: "Save/Load" }));
-	expect(screen.getByRole("button", { name: "Save adventure" })).toBeDisabled();
-	expect(screen.getByRole("button", { name: "Export file" })).toBeDisabled();
+	await user.click(
+		screen.getByRole("button", { name: "Load an existing save" }),
+	);
+	expect(
+		screen.queryByRole("button", { name: "Save adventure" }),
+	).not.toBeInTheDocument();
+	expect(
+		screen.queryByRole("button", { name: "Export file" }),
+	).not.toBeInTheDocument();
 	await user.click(screen.getByRole("button", { name: "Load adventure" }));
 	await user.click(await screen.findByRole("button", { name: "Confirm load" }));
 	await waitFor(() =>
@@ -40,7 +46,9 @@ it("returns from canceled loading to the opening and preserves the save slot", a
 	localStorage.setItem(LOCAL_SAVE_KEY, text);
 	render(<App />);
 	const user = userEvent.setup();
-	await user.click(screen.getByRole("button", { name: "Save/Load" }));
+	await user.click(
+		screen.getByRole("button", { name: "Load an existing save" }),
+	);
 	await user.click(screen.getByRole("button", { name: "Load adventure" }));
 	await user.click(await screen.findByRole("button", { name: /^Cancel$/ }));
 	await user.keyboard("{Escape}");
@@ -57,10 +65,54 @@ it("keeps the opening intact when the local save is corrupt", async () => {
 	render(<App />);
 	await userEvent
 		.setup()
-		.click(screen.getByRole("button", { name: "Save/Load" }));
+		.click(screen.getByRole("button", { name: "Load an existing save" }));
 	expect(
 		screen.getByRole("region", { name: "Adventure saves" }),
 	).toHaveTextContent("not a valid adventure save");
 	expect(screen.getByRole("button", { name: "Load adventure" })).toBeDisabled();
 	expect(screen.queryByRole("table")).not.toBeInTheDocument();
+});
+
+it("offers only loading and import before starting when the browser slot is empty", async () => {
+	render(<App />);
+	await userEvent
+		.setup()
+		.click(screen.getByRole("button", { name: "Load an existing save" }));
+	expect(screen.getByRole("dialog", { name: "Load adventure" })).toBeVisible();
+	expect(screen.getByRole("button", { name: "Load adventure" })).toBeDisabled();
+	expect(screen.getByRole("button", { name: "Import file" })).toBeEnabled();
+	expect(
+		screen.queryByRole("button", { name: "Save adventure" }),
+	).not.toBeInTheDocument();
+	expect(
+		screen.queryByRole("button", { name: "Export file" }),
+	).not.toBeInTheDocument();
+});
+it("imports from the load-only opening and restores immediate gameplay shortcuts", async () => {
+	const source = savedAdventureWithPickupAndHealing();
+	render(<App />);
+	const user = userEvent.setup();
+	await user.click(
+		screen.getByRole("button", { name: "Load an existing save" }),
+	);
+	await user.upload(
+		screen.getByLabelText("Import adventure file"),
+		new File([serializeSave(source)], "adventure.json", {
+			type: "application/json",
+		}),
+	);
+	await waitFor(() =>
+		expect(screen.getByLabelText("Dungeon map", { exact: true })).toHaveFocus(),
+	);
+	expect(
+		screen.queryByRole("dialog", { name: "Load adventure" }),
+	).not.toBeInTheDocument();
+	await user.keyboard("gh");
+	expect(screen.getByRole("log")).toHaveTextContent(
+		"You pick up Healing potion",
+	);
+	expect(screen.getByLabelText("Player health")).toHaveTextContent(
+		"Health 9 / 10",
+	);
+	expect(localStorage.getItem(LOCAL_SAVE_KEY)).toBeNull();
 });

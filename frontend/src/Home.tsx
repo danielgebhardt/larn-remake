@@ -220,7 +220,22 @@ const Home = ({
 		if (startRun(seed, parsed.value)) setSettingsOpen(false);
 	};
 
+	const isChestOnTile = (object: DungeonObject) =>
+		object.kind === "chest" &&
+		object.coordinate.row === run.playerCoordinate.row &&
+		object.coordinate.col === run.playerCoordinate.col;
 	const selectInteractionObject = (object: DungeonObject) => {
+		if (isChestOnTile(object)) {
+			if (!object.activated) {
+				handleActionRequested({ type: "interact", objectId: object.id });
+				setPickupOpen(true);
+			} else if (currentItems.length) {
+				setActionError("");
+				setPickupOpen(true);
+			} else handleActionRequested({ type: "interact", objectId: object.id });
+			setInteractionTargets([]);
+			return;
+		}
 		if (object.kind === "merchant") {
 			setMerchantId(object.id);
 			setInteractionTargets([]);
@@ -240,7 +255,10 @@ const Home = ({
 				exploration.visible[object.coordinate.row]?.[object.coordinate.col],
 		);
 		const usable = nearby.filter(
-			(object) => isDoor(object) || !object.activated,
+			(object) =>
+				isDoor(object) ||
+				!object.activated ||
+				(isChestOnTile(object) && currentItems.length > 0),
 		);
 		const selected = usable[0] ?? nearby[0];
 		if (usable.length > 1) setInteractionTargets(usable);
@@ -628,7 +646,7 @@ const Home = ({
 				mapRef={mapRef}
 			/>
 			<PickupDialog
-				open={pickupOpen}
+				open={pickupOpen && canPlay && currentItems.length > 0}
 				onOpenChange={setPickupOpen}
 				items={currentItems}
 				player={player}

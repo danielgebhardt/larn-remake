@@ -28,7 +28,7 @@ it("entering a spent chest describes its state once without another reward", () 
 		formatActivityEvent(entry.event),
 	);
 	expect(messages).toContain(
-		"Turn 1 — Opened chest. Already opened; any remaining reward is on the floor. Press G to collect items here.",
+		"Turn 1 — Opened chest. Already opened; any remaining reward is on the floor. Press E on its tile to choose loot, or G to collect items here.",
 	);
 	expect(arrived.floorItems).toEqual([]);
 	expect(

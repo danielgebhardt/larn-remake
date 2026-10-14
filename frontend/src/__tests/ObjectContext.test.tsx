@@ -21,7 +21,9 @@ it("explains a loaded spent chest and its remaining loot without needing a new a
 	expect(screen.getByLabelText("Nearby objects")).toHaveTextContent(
 		"Already opened; any remaining reward is on the floor",
 	);
-	expect(screen.getByLabelText("Nearby objects")).toHaveTextContent("Press G");
+	expect(screen.getByLabelText("Nearby objects")).toHaveTextContent(
+		"Press E on its tile",
+	);
 });
 it("does not reveal hidden or other-floor objects", () => {
 	const current = state();

@@ -35,9 +35,9 @@ const hints: Record<DungeonObjectKind, { fresh: string; spent: string }> = {
 	},
 	chest: {
 		fresh:
-			"Press E within reach to open. Its reward stays on the floor for G pickup.",
+			"Press E within reach to open. On the chest tile, E opens loot selection; G also collects floor items.",
 		spent:
-			"Already opened; any remaining reward is on the floor. Press G to collect items here.",
+			"Already opened; any remaining reward is on the floor. Press E on its tile to choose loot, or G to collect items here.",
 	},
 	trap: {
 		fresh:

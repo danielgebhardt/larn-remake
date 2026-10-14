@@ -62,7 +62,7 @@ export const formatActivityEvent = (event: ActivityEvent): string => {
 		case "trap-sprung":
 			return `${prefix}The trap springs for ${event.damage} damage.`;
 		case "chest-opened":
-			return `${prefix}You open the chest. ${ITEM_DEFINITIONS[event.item].name} is on the floor; walk onto it and press G to pick it up.`;
+			return `${prefix}You open the chest and find ${ITEM_DEFINITIONS[event.item].name}. Collect it from the chest tile with E or G.`;
 		case "gold-collected":
 			return `${prefix}You collect ${event.amount} gold.`;
 		case "attribute-gained":

@@ -570,3 +570,5 @@ Enemy maximum health and direct damage round to the nearest integer with a minim
 The welcome dialog offers Small (20×20), Medium (40×40), and Large (60×60) map dimensions. Large is the default. These choices preserve difficulty and floor count; custom dimensions and floor count remain editable in Settings.
 
 To audit matched difficulty seeds, run `node scripts/review-difficulty.mjs` from `frontend` (optional positional seeds). It checks 20×20×5 and 60×60×20 in all three modes, unchanged generated content, scaled actor health/physical ranges, return actors, and played save/turn continuation. This is a mechanics diagnostic, not a human win-rate simulation; see [the difficulty review guide](docs/difficulty-adventure-review.md).
+
+On a chest tile, E opens the chest and its numbered loot chooser. E can reopen remaining chest loot without spending another turn; each successful pickup still spends a turn. Adjacent opening leaves loot on the chest tile until you move onto it. G remains available for floor pickup. See [alpha run #2 interaction review](docs/alpha2-interaction-review.md).

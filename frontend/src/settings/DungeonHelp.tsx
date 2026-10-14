@@ -205,14 +205,16 @@ const DungeonHelp = ({
 						key. Closed doors block sight and spells. Most creatures cannot open
 						them. Orcs, cultists and necromancers can open ordinary doors while
 						pursuing a last seen target, spending their whole action; elite
-						gates remain player-only. E also opens nearby chests, leaving loot
-						on the floor for G pickup. Walking onto coins collects gold. Traps
-						are visible: avoid them, cross for 2–6 damage, or use E to attempt
-						disarm for one turn. Base disarm chance is 55%, +5% per Dexterity
-						modifier (maximum 95%); failure springs the trap. Spent traps cannot
-						hurt again. Fountains offer a safe sip or a stronger risky draw. E
-						opens their choices; number keys choose and Escape cancels for free.
-						Each chosen draw empties the fountain.
+						gates remain player-only. E also opens nearby chests. On a chest
+						tile, E opens its numbered loot selection; adjacent opening leaves
+						loot there until you move onto it. G also collects floor items.
+						Walking onto coins collects gold. Traps are visible: avoid them,
+						cross for 2–6 damage, or use E to attempt disarm for one turn. Base
+						disarm chance is 55%, +5% per Dexterity modifier (maximum 95%);
+						failure springs the trap. Spent traps cannot hurt again. Fountains
+						offer a safe sip or a stronger risky draw. E opens their choices;
+						number keys choose and Escape cancels for free. Each chosen draw
+						empties the fountain.
 					</li>
 					<li>
 						<span className="font-medium text-foreground">Quest.</span> Recover

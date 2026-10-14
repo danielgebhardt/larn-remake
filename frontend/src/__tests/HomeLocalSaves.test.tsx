@@ -255,6 +255,9 @@ describe("Confirmed local Save and Load", () => {
 			).not.toBeInTheDocument(),
 		);
 		expect(screen.getByLabelText("Player level")).toHaveTextContent("Level 3");
+		expect(screen.getByLabelText("Player experience")).toHaveTextContent(
+			"14 / 30 XP",
+		);
 		expect(screen.getByLabelText("Player mana")).toHaveTextContent(
 			"Mana 5 / 12",
 		);

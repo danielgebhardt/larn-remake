@@ -9,6 +9,7 @@ import {
 } from "../../domain/game/Progression";
 import type { TimedEffect } from "../../domain/game/TimedEffects";
 import type { Equipment } from "../../domain/items/Equipment";
+import ExperienceProgress from "./ExperienceProgress";
 import HealthDisplay, { isLowHealth } from "./HealthDisplay";
 import ManaDisplay from "./ManaDisplay";
 
@@ -161,6 +162,9 @@ const PlayerStatus = ({
 					<span className="sr-only">Level </span>
 					{levelForExperience(progression.experience)}
 				</output>
+				<div className="mt-1.5">
+					<ExperienceProgress progression={progression} compact />
+				</div>
 			</StatusCard>
 		</div>
 		{player.health === 0 && (

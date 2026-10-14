@@ -61,6 +61,9 @@ describe("Victory summary and ended-run controls", () => {
 		expect(screen.getByLabelText("Dungeon map", { exact: true })).toHaveFocus();
 		await user.keyboard("d g 1");
 		expect(screen.getByLabelText("Turn count")).toHaveTextContent("Turn 3");
+		expect(screen.getByLabelText("Player experience")).toHaveTextContent(
+			"0 / 10 XP",
+		);
 		expect(
 			screen.getByRole("button", { name: "Potion slot 1: empty" }),
 		).toBeDisabled();

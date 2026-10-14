@@ -62,3 +62,61 @@ describe("Player status panel", () => {
 		expect(screen.getByRole("alert")).toHaveTextContent("You died");
 	});
 });
+
+describe("HUD experience progress", () => {
+	it.each([
+		[0, 1, 0, 10],
+		[14, 2, 4, 20],
+		[35, 3, 5, 30],
+		[3420, 19, 100, 380],
+	])(
+		"shows within-level progress for %i total XP",
+		(experience, level, earned, needed) => {
+			render(<PlayerStatus {...props} progression={{ experience }} />);
+			expect(screen.getByLabelText("Player level")).toHaveTextContent(
+				`Level ${level}`,
+			);
+			expect(screen.getByLabelText("Player experience")).toHaveTextContent(
+				`${earned} / ${needed} XP`,
+			);
+			expect(screen.getByLabelText("Player experience")).not.toHaveTextContent(
+				"this level",
+			);
+			expect(
+				screen.getByRole("progressbar", { name: "Player experience progress" }),
+			).toHaveAttribute("value", String(earned));
+			expect(
+				screen.getByRole("progressbar", { name: "Player experience progress" }),
+			).toHaveAttribute("max", String(needed));
+		},
+	);
+	it("recomputes after several levels of XP arrive, then resets with a new run", () => {
+		const view = render(
+			<PlayerStatus {...props} progression={{ experience: 9 }} />,
+		);
+		view.rerender(<PlayerStatus {...props} progression={{ experience: 65 }} />);
+		expect(screen.getByLabelText("Player level")).toHaveTextContent("Level 4");
+		expect(screen.getByLabelText("Player experience")).toHaveTextContent(
+			"5 / 40 XP",
+		);
+		view.rerender(<PlayerStatus {...props} progression={{ experience: 0 }} />);
+		expect(screen.getByLabelText("Player level")).toHaveTextContent("Level 1");
+		expect(screen.getByLabelText("Player experience")).toHaveTextContent(
+			"0 / 10 XP",
+		);
+	});
+	it.each([3700, 3800])(
+		"retains %i total XP at the cap without a next-level bar",
+		(experience) => {
+			render(<PlayerStatus {...props} progression={{ experience }} />);
+			expect(screen.getByLabelText("Player level")).toHaveTextContent(
+				"Level 20",
+			);
+			expect(screen.getByText("Maximum level reached")).toBeVisible();
+			expect(screen.getByLabelText("Player experience")).toHaveTextContent(
+				`${experience} XP total`,
+			);
+			expect(screen.queryByRole("progressbar")).not.toBeInTheDocument();
+		},
+	);
+});

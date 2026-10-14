@@ -14,6 +14,9 @@ afterEach(resetHomeTestState);
 const deathMessage =
 	"You died. Start a new dungeon or replay the seed to try again.";
 const expectEndedRun = () => {
+	expect(screen.getByLabelText("Player experience")).toHaveTextContent(
+		"0 / 10 XP",
+	);
 	expect(screen.getByRole("alert")).toHaveTextContent(deathMessage);
 	expect(screen.getByLabelText("Player health")).toHaveTextContent(
 		"Health 0 / 10",
@@ -65,6 +68,9 @@ describe("Ending a run on player death", () => {
 				"Health 10 / 10",
 			);
 			expect(screen.getByLabelText("Turn count")).toHaveTextContent("Turn 0");
+			expect(screen.getByLabelText("Player experience")).toHaveTextContent(
+				"0 / 10 XP",
+			);
 			expect(screen.getByRole("log")).toHaveTextContent("No activity yet.");
 			expect(readDungeonCells()).toEqual(initialMap);
 			await user.keyboard("d");

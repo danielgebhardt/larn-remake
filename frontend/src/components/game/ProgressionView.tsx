@@ -2,14 +2,15 @@ import { Brain, Sparkles, Sword, Zap } from "lucide-react";
 import { deriveAttributes } from "../../domain/game/Attributes";
 import {
 	HEALTH_PER_LEVEL,
+	levelForExperience,
 	MAX_PLAYER_LEVEL,
 	type Progression,
-	progressionProgress,
 } from "../../domain/game/Progression";
 import type { TimedEffect } from "../../domain/game/TimedEffects";
 import type { Equipment } from "../../domain/items/Equipment";
 import { equipmentBonuses } from "../../domain/items/EquipmentBonuses";
 
+import ExperienceProgress from "./ExperienceProgress";
 import ManaDisplay from "./ManaDisplay";
 
 const ProgressionView = ({
@@ -23,7 +24,7 @@ const ProgressionView = ({
 	effects?: readonly TimedEffect[];
 	mana: number;
 }) => {
-	const { level, earned, needed, remaining } = progressionProgress(progression);
+	const level = levelForExperience(progression.experience);
 	const attributes = deriveAttributes(progression, effects, equipment);
 	return (
 		<section
@@ -53,27 +54,7 @@ const ProgressionView = ({
 					{progression.experience} XP total
 				</output>
 			</div>
-			{level === MAX_PLAYER_LEVEL ? (
-				<p className="text-xs text-muted-foreground">Maximum level reached</p>
-			) : (
-				<>
-					<progress
-						aria-label="Experience progress"
-						value={earned}
-						max={needed}
-						className="h-2 w-full overflow-hidden rounded-full appearance-none bg-muted [&::-webkit-progress-bar]:bg-muted [&::-webkit-progress-value]:rounded-full [&::-webkit-progress-value]:bg-primary [&::-moz-progress-bar]:bg-primary"
-					/>
-					<p className="text-xs tabular-nums text-muted-foreground">
-						{earned} / {needed} XP this level
-					</p>
-					<output
-						aria-label="Experience to next level"
-						className="text-xs text-muted-foreground"
-					>
-						{remaining} XP to level {level + 1}
-					</output>
-				</>
-			)}
+			<ExperienceProgress progression={progression} />
 			{effects.some(
 				(effect) =>
 					effect.actorId === "player" &&

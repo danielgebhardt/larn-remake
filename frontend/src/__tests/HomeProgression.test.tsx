@@ -40,8 +40,12 @@ describe("Progression on the play screen", () => {
 	it("updates level, health, and Character XP from a real kill, then resets on a new adventure", async () => {
 		const user = setup();
 		expect(screen.getByLabelText("Player level")).toHaveTextContent("Level 1");
+		expect(screen.getByLabelText("Player experience")).toHaveTextContent("XP");
 		await user.keyboard("d");
 		expect(screen.getByLabelText("Player level")).toHaveTextContent("Level 2");
+		expect(screen.getByLabelText("Player experience")).toHaveTextContent(
+			"4 / 20 XP",
+		);
 		expect(screen.getByLabelText("Player health")).toHaveTextContent(
 			"Health 12 / 12",
 		);
@@ -67,7 +71,11 @@ describe("Progression on the play screen", () => {
 		);
 		expect(screen.getByLabelText("Dungeon map", { exact: true })).toHaveFocus();
 		await user.click(screen.getByRole("button", { name: "New Dungeon" }));
+		expect(screen.getByLabelText("Player experience")).toHaveTextContent(
+			"0 / 10 XP",
+		);
 		expect(screen.getByLabelText("Player level")).toHaveTextContent("Level 1");
+		expect(screen.getByLabelText("Player experience")).toHaveTextContent("XP");
 		await user.keyboard("i");
 		expect(screen.getByLabelText("Total experience")).toHaveTextContent("0 XP");
 	});

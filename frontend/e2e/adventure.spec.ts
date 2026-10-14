@@ -182,6 +182,12 @@ test("merchant comparisons open with Enter after import and only selling spends 
 	page,
 }) => {
 	await importAdventure(page, "merchant");
+	await expect(
+		page.getByLabel("Player experience", { exact: true }),
+	).toContainText("0 / 30 XP");
+	await expect(
+		page.getByRole("progressbar", { name: "Player experience progress" }),
+	).toHaveAttribute("max", "30");
 	await page.keyboard.press("e");
 	const merchant = page.getByRole("dialog", {
 		name: "Wandering potion merchant",

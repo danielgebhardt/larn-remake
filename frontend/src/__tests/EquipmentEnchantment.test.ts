@@ -62,8 +62,8 @@ describe("Bounded equipment enchantment", () => {
 			const item = result.bag.items.find((i) => i.id === "bag:target");
 			if (!item) throw new Error("Expected target");
 			expect(item.enchantment).toBe(1);
-			expect(compareEquipment(item, state.equipment)?.carriedValue).toBe(
-				ITEM_DEFINITIONS[kind].armor + 1,
+			expect(compareEquipment(item, state)?.after.armor).toBe(
+				(kind === "wooden-shield" ? 0 : 1) + ITEM_DEFINITIONS[kind].armor + 1,
 			);
 		},
 	);

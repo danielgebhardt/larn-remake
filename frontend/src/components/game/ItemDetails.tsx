@@ -2,13 +2,15 @@ import { useId } from "react";
 import { Button } from "@/components/ui/button";
 import type { PlayerAction } from "../../domain/game/PlayerActions";
 import type { Bag } from "../../domain/items/Bag";
-import type { Equipment } from "../../domain/items/Equipment";
 import {
 	EQUIPMENT_SLOT_LABELS,
 	type EquipmentSlot,
 	equipmentSlotsFor,
 } from "../../domain/items/Equipment";
-import { compareEquipment } from "../../domain/items/EquipmentComparison";
+import {
+	compareEquipment,
+	type EquipmentComparisonContext,
+} from "../../domain/items/EquipmentComparison";
 import { ITEM_DEFINITIONS, type ItemInstance } from "../../domain/items/Item";
 import {
 	itemArmor,
@@ -37,7 +39,7 @@ const ItemDetails = ({
 	item,
 	bag = { items: [] },
 	onCancel,
-	equipment,
+	comparisonContext,
 	equippedSlot,
 	alive,
 	onAction,
@@ -48,7 +50,7 @@ const ItemDetails = ({
 	item: ItemInstance;
 	bag?: Bag;
 	onCancel?: () => void;
-	equipment: Equipment;
+	comparisonContext: EquipmentComparisonContext;
 	equippedSlot?: EquipmentSlot;
 	alive: boolean;
 	onAction: (action: PlayerAction) => void;
@@ -57,12 +59,13 @@ const ItemDetails = ({
 	assignmentsEnabled?: boolean;
 }) => {
 	const titleId = useId();
+	const { equipment } = comparisonContext;
 	const details = ITEM_DEFINITIONS[item.kind];
 	const slots = equipmentSlotsFor(item);
 	const comparisons = equippedSlot
 		? []
 		: slots
-				.map((slot) => compareEquipment(item, equipment, slot))
+				.map((slot) => compareEquipment(item, comparisonContext, slot))
 				.filter((comparison) => comparison !== null);
 	const act = (action: PlayerAction) => {
 		onAction(action);
@@ -111,6 +114,13 @@ const ItemDetails = ({
 					comparison={comparison}
 				/>
 			))}
+			{comparisons.length > 0 && (
+				<p className="text-xs text-muted-foreground">
+					Preview uses current active effects, before monsters act. Capacity
+					gains do not refill health or mana; removing capacity can clamp
+					current resources.
+				</p>
+			)}
 			<div className="flex flex-wrap gap-2">
 				{equippedSlot ? (
 					<Button

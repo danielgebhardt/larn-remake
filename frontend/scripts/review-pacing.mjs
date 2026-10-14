@@ -60,7 +60,7 @@ export const recordPacingTurn = (review, before, action, after) => {
 			Object.values(after.equipment).some(
 				(equipped) => equipped?.id === item.id,
 			) &&
-			compareEquipment(item, before.equipment)?.label === "Better"
+			compareEquipment(item, before)?.label === "Better"
 		)
 			current.usefulUpgrades++;
 	}

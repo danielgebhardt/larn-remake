@@ -2,14 +2,14 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { expect, it, vi } from "vitest";
 import ItemDetails from "../components/game/ItemDetails";
-import { createEquipment } from "../domain/items/Equipment";
+import { createComparisonContext } from "./EquipmentComparisonTestHelpers";
 
 it("lets the player choose either ring slot explicitly", async () => {
 	const onAction = vi.fn();
 	render(
 		<ItemDetails
 			item={{ id: "ring:1", kind: "copper-ring" }}
-			equipment={createEquipment()}
+			comparisonContext={createComparisonContext()}
 			alive
 			onAction={onAction}
 			afterAction={vi.fn()}
@@ -32,7 +32,7 @@ it("describes a magical ring's actual bonus instead of implying armor", () => {
 	render(
 		<ItemDetails
 			item={{ id: "ring:int", kind: "ring-intelligence" }}
-			equipment={createEquipment()}
+			comparisonContext={createComparisonContext()}
 			alive
 			onAction={vi.fn()}
 			afterAction={vi.fn()}

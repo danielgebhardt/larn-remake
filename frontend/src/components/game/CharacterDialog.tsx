@@ -74,6 +74,7 @@ const CharacterDialog = ({
 		| { source: "equipment"; slot: EquipmentSlot; id: string }
 		| null
 	>(null);
+	const comparisonContext = { equipment, player, progression, effects };
 	const bagHeadingRef = useRef<HTMLHeadingElement>(null);
 	const equipmentHeadingRef = useRef<HTMLHeadingElement>(null);
 	const selected =
@@ -197,7 +198,7 @@ const CharacterDialog = ({
 								<div className="grid content-start gap-2">
 									<BagContents
 										bag={bag}
-										equipment={equipment}
+										comparisonContext={comparisonContext}
 										selectedId={
 											selection?.source === "bag"
 												? (selected?.id ?? null)
@@ -217,7 +218,7 @@ const CharacterDialog = ({
 														});
 													}}
 													item={selected}
-													equipment={equipment}
+													comparisonContext={comparisonContext}
 													potionHotbar={potionHotbar}
 													assignmentsEnabled={!won}
 													equippedSlot={

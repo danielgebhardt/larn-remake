@@ -52,13 +52,13 @@ export function chooseSpellAwareAction(state, route) {
 	)
 		return { type: "consume", itemId: manaPotion.id };
 	const upgrade = state.bag.items.find(
-		(item) => compareEquipment(item, state.equipment)?.label === "Better",
+		(item) => compareEquipment(item, state)?.label === "Better",
 	);
 	if (upgrade)
 		return {
 			type: "equip",
 			itemId: upgrade.id,
-			slot: compareEquipment(upgrade, state.equipment).slot,
+			slot: compareEquipment(upgrade, state).slot,
 		};
 	const visible = calculateVisibility(
 		floor.terrain,
@@ -92,7 +92,7 @@ export function chooseSpellAwareAction(state, route) {
 			(entry.item.kind === "cure" ||
 				ITEM_DEFINITIONS[entry.item.kind].type === "spellbook" ||
 				ITEM_DEFINITIONS[entry.item.kind].type === "potion" ||
-				compareEquipment(entry.item, state.equipment)?.label === "Better"),
+				compareEquipment(entry.item, state)?.label === "Better"),
 	);
 	const here = useful.find(
 		(entry) =>

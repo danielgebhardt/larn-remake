@@ -2,6 +2,7 @@ import { screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import * as GameState from "../domain/game/GameState";
+import { createEquipment } from "../domain/items/Equipment";
 import {
 	renderHome,
 	resetHomeTestState,
@@ -10,7 +11,7 @@ import {
 import { createCorridorEncounter } from "./MonsterEncounterTestHelpers";
 import Home from "./TestHome";
 
-const setup = async () => {
+const setup = async (overrides: Partial<GameState.GameState> = {}) => {
 	stubDungeonRun(createCorridorEncounter());
 	const create = GameState.createGameState;
 	vi.spyOn(GameState, "createGameState").mockImplementationOnce((run) => {
@@ -30,6 +31,7 @@ const setup = async () => {
 					{ id: "potion", kind: "healing-potion" },
 				],
 			},
+			...overrides,
 		};
 	});
 	renderHome(<Home />);
@@ -45,9 +47,7 @@ describe("Equipment comparison in Character", () => {
 	it("shows color-independent comparisons and exact differences without spending turns", async () => {
 		const { user, panel } = await setup();
 		const lower = panel.getByRole("button", { name: "Short sword, slot 1" });
-		expect(lower).toHaveAccessibleDescription(
-			/Lower.*Attack bonus.*1.*equipped.*2/,
-		);
+		expect(lower).toHaveAccessibleDescription(/Lower.*Damage 2–4 → 1–3/);
 		expect(
 			panel.getByRole("button", { name: "Iron sword, slot 2" }),
 		).toHaveAccessibleDescription(/Same/);
@@ -59,7 +59,7 @@ describe("Equipment comparison in Character", () => {
 		).not.toHaveAttribute("aria-describedby");
 		await user.click(lower);
 		expect(panel.getByLabelText("Equipment comparison")).toHaveTextContent(
-			"Lower · Attack bonus 1 vs equipped 2 (−1)",
+			"Damage 2–4 → 1–3",
 		);
 		expect(lower).toHaveAttribute("aria-pressed", "true");
 		expect(lower).toHaveClass("border-red-500/70");
@@ -78,7 +78,7 @@ describe("Equipment comparison in Character", () => {
 			panel.getByRole("button", { name: "Leather cap, slot 3" }),
 		);
 		expect(panel.getByLabelText("Equipment comparison")).toHaveTextContent(
-			"Better · Armor 1 vs equipped 0 (+1)",
+			"Armor 1 → 2 (+1)",
 		);
 		await user.click(panel.getByRole("button", { name: "Equip in head" }));
 		await user.click(panel.getByRole("button", { name: "Head: Leather cap" }));
@@ -119,5 +119,62 @@ describe("Equipment comparison in Character", () => {
 		await user.click(screen.getByRole("button", { name: "Character" }));
 		expect(screen.getByText("Your bag is empty.")).toBeVisible();
 		expect(screen.getByLabelText("Turn count")).toHaveTextContent("Turn 0");
+	});
+	it("previews both rings using live character stats and effects without refilling or advancing", async () => {
+		const { user, panel } = await setup({
+			progression: { experience: 30 },
+			player: { health: 7, maxHealth: 14 },
+			mana: 3,
+			effects: [
+				{
+					actorId: "player",
+					floorNumber: null,
+					kind: "protected",
+					remaining: 4,
+				},
+			],
+			equipment: createEquipment(
+				{ id: "worn:sword", kind: "iron-sword" },
+				{ id: "worn:shield", kind: "wooden-shield" },
+				null,
+				null,
+				{ id: "worn:strength", kind: "ring-strength" },
+				{ id: "worn:mana", kind: "ring-mana" },
+			),
+			bag: { items: [{ id: "bag:int", kind: "ring-intelligence" }] },
+		});
+		const candidate = panel.getByRole("button", {
+			name: "Ring of Intelligence, slot 1",
+		});
+		candidate.focus();
+		await user.keyboard("{Enter}");
+		const [left, right] = panel.getAllByLabelText("Equipment comparison");
+		expect(left).toHaveTextContent("Tradeoff · Left ring");
+		expect(left).toHaveTextContent("Damage 4–6 → 3–5");
+		expect(left).toHaveTextContent("Maximum mana 16 → 18 (+2)");
+		expect(right).toHaveTextContent("Tradeoff · Right ring");
+		expect(right).toHaveTextContent("Maximum mana 16 → 14 (−2)");
+		expect(right).toHaveTextContent("Armor 3 → 3 (0)");
+		expect(
+			panel.getByText(/Capacity gains do not refill health or mana/),
+		).toBeVisible();
+		expect(panel.getByLabelText("Character health")).toHaveTextContent(
+			"Health 7 / 14",
+		);
+		expect(panel.getByLabelText("Character mana")).toHaveTextContent(
+			"Mana 3 / 16",
+		);
+		expect(screen.getByLabelText("Turn count")).toHaveTextContent("Turn 0");
+		await user.click(panel.getByRole("button", { name: "Equip in left ring" }));
+		expect(panel.getByLabelText("Character attack")).toHaveTextContent(
+			"Attack 3–5",
+		);
+		expect(panel.getByLabelText("Character health")).toHaveTextContent(
+			"Health 7 / 14",
+		);
+		expect(panel.getByLabelText("Character mana")).toHaveTextContent(
+			"Mana 3 / 18",
+		);
+		expect(screen.getByLabelText("Turn count")).toHaveTextContent("Turn 1");
 	});
 });

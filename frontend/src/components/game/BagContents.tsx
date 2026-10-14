@@ -2,8 +2,10 @@ import { Backpack } from "lucide-react";
 import { type ReactNode, type RefObject, useId } from "react";
 import { Button } from "@/components/ui/button";
 import { BAG_CAPACITY, type Bag, bagSlots } from "../../domain/items/Bag";
-import type { Equipment } from "../../domain/items/Equipment";
-import { compareEquipment } from "../../domain/items/EquipmentComparison";
+import {
+	compareEquipment,
+	type EquipmentComparisonContext,
+} from "../../domain/items/EquipmentComparison";
 import { itemName } from "../../domain/items/ItemValues";
 import ItemIcon from "../items/ItemIcon";
 import {
@@ -13,14 +15,14 @@ import {
 
 const BagContents = ({
 	bag,
-	equipment,
+	comparisonContext,
 	selectedId,
 	onSelect,
 	headingRef,
 	children,
 }: {
 	bag: Bag;
-	equipment: Equipment;
+	comparisonContext: EquipmentComparisonContext;
 	selectedId: string | null;
 	onSelect: (id: string) => void;
 	headingRef: RefObject<HTMLHeadingElement | null>;
@@ -56,7 +58,9 @@ const BagContents = ({
 				{Array.from({ length: BAG_CAPACITY }, (_, index) => {
 					const item = slots[index]?.item;
 					const count = slots[index]?.count ?? 0;
-					const comparison = item ? compareEquipment(item, equipment) : null;
+					const comparison = item
+						? compareEquipment(item, comparisonContext)
+						: null;
 					const descriptionId = `${comparisonId}-${index}`;
 					return (
 						<li key={item?.id ?? `empty:${index}`}>

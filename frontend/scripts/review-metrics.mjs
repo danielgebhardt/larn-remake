@@ -51,7 +51,7 @@ export const observeReviewEquipment = (metrics, state, seen) => {
 	for (const entry of state.floorItems) {
 		if (entry.floorNumber !== state.run.activeFloor || seen.has(entry.item.id))
 			continue;
-		const comparison = compareEquipment(entry.item, state.equipment);
+		const comparison = compareEquipment(entry.item, state);
 		if (!comparison) continue;
 		seen.add(entry.item.id);
 		metrics.equipmentReview.observed[comparison.label.toLowerCase()]++;
@@ -123,7 +123,7 @@ export const recordReviewTurn = (metrics, before, action, after) => {
 	}
 	if (action.type === "equip" && after.equipment !== before.equipment) {
 		const item = before.bag.items.find((item) => item.id === action.itemId);
-		if (item && compareEquipment(item, before.equipment)?.label === "Better")
+		if (item && compareEquipment(item, before)?.label === "Better")
 			metrics.equipmentReview.upgrades++;
 	}
 	if (action.type === "pickup" && before.floorItems !== after.floorItems) {
@@ -132,7 +132,7 @@ export const recordReviewTurn = (metrics, before, action, after) => {
 		)?.item;
 		if (item && equipmentSlotFor(item))
 			metrics.equipmentReview.pickedUp[
-				compareEquipment(item, before.equipment).label.toLowerCase()
+				compareEquipment(item, before).label.toLowerCase()
 			]++;
 	}
 };

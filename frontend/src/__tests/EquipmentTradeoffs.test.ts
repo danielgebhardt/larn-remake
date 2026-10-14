@@ -4,6 +4,8 @@ import { createEquipment } from "../domain/items/Equipment";
 import { compareEquipment } from "../domain/items/EquipmentComparison";
 import { eligibleLootKinds } from "../domain/items/Item";
 
+import { createComparisonContext } from "./EquipmentComparisonTestHelpers";
+
 const item = (
 	kind:
 		| "scholar-robe"
@@ -15,16 +17,13 @@ const item = (
 it("labels losing armor for Intelligence as a tradeoff and explains both values", () => {
 	const result = compareEquipment(
 		item("scholar-robe"),
-		createEquipment(null, null, item("plate-armor")),
+		createComparisonContext(createEquipment(null, null, item("plate-armor"))),
 	);
 	expect(result?.label).toBe("Tradeoff");
-	expect(result?.changes).toEqual(
-		expect.arrayContaining([
-			expect.objectContaining({ stat: "Armor", delta: -2 }),
-			expect.objectContaining({ stat: "Intelligence", delta: 2 }),
-			expect.objectContaining({ stat: "Mana capacity", delta: 2 }),
-		]),
-	);
+	expect(result).toMatchObject({
+		before: { armor: 3, intelligence: 10, maxMana: 10 },
+		after: { armor: 1, intelligence: 12, maxMana: 12 },
+	});
 });
 it("compares a ring against either explicit slot, preserving the other ring", () => {
 	const equipment = createEquipment(
@@ -36,19 +35,30 @@ it("compares a ring against either explicit slot, preserving the other ring", ()
 		null,
 	);
 	expect(
-		compareEquipment(item("ring-intelligence"), equipment, "leftRing")?.label,
+		compareEquipment(
+			item("ring-intelligence"),
+			createComparisonContext(equipment),
+			"leftRing",
+		)?.label,
 	).toBe("Tradeoff");
 	expect(
-		compareEquipment(item("ring-intelligence"), equipment, "rightRing")?.label,
+		compareEquipment(
+			item("ring-intelligence"),
+			createComparisonContext(equipment),
+			"rightRing",
+		)?.label,
 	).toBe("Better");
-	expect(compareEquipment(item("ring-intelligence"), equipment)?.slot).toBe(
-		"rightRing",
-	);
+	expect(
+		compareEquipment(
+			item("ring-intelligence"),
+			createComparisonContext(equipment),
+		)?.slot,
+	).toBe("rightRing");
 	expect(equipment.rightRing).toBeNull();
 });
 it("does not treat a ring as compatible with head armor", () =>
 	expect(
-		compareEquipment(item("copper-ring"), createEquipment(), "head"),
+		compareEquipment(item("copper-ring"), createComparisonContext(), "head"),
 	).toBeNull());
 it("removes obsolete basic equipment from deep found and dropped loot but keeps supplies", () => {
 	for (const source of ["found", "drop"] as const) {

@@ -10,7 +10,7 @@ import type { Progression } from "../../domain/game/Progression";
 import type { SpellHotbar } from "../../domain/game/SpellHotbar";
 import type { SpellKind } from "../../domain/game/Spells";
 import type { TimedEffect } from "../../domain/game/TimedEffects";
-import type { Bag } from "../../domain/items/Bag";
+import { type Bag, bagItemKey } from "../../domain/items/Bag";
 import type { Equipment, EquipmentSlot } from "../../domain/items/Equipment";
 import type { FloorItem } from "../../domain/items/FloorItems";
 import type { PotionHotbar } from "../../domain/items/PotionHotbar";
@@ -70,7 +70,7 @@ const CharacterDialog = ({
 	finalFocus,
 }: CharacterDialogProps) => {
 	const [selection, setSelection] = useState<
-		| { source: "bag"; id: string }
+		| { source: "bag"; key: string }
 		| { source: "equipment"; slot: EquipmentSlot; id: string }
 		| null
 	>(null);
@@ -79,16 +79,23 @@ const CharacterDialog = ({
 	const equipmentHeadingRef = useRef<HTMLHeadingElement>(null);
 	const selected =
 		selection?.source === "bag"
-			? bag.items.find((item) => item.id === selection.id)
+			? bag.items.find((item) => bagItemKey(item) === selection.key)
 			: selection?.source === "equipment" &&
 					equipment[selection.slot]?.id === selection.id
 				? equipment[selection.slot]
 				: null;
 	const detailsRef = useRef<HTMLDivElement>(null);
-	const selectedId = selected?.id;
 	useLayoutEffect(() => {
-		if (selectedId) detailsRef.current?.scrollIntoView?.({ block: "nearest" });
-	}, [selectedId]);
+		if (selection && !selected) setSelection(null);
+	}, [selection, selected]);
+	const selectedKey = selected
+		? selection?.source === "bag"
+			? selection.key
+			: selected.id
+		: null;
+	useLayoutEffect(() => {
+		if (selectedKey) detailsRef.current?.scrollIntoView?.({ block: "nearest" });
+	}, [selectedKey]);
 	const titleRef = useRef<HTMLHeadingElement>(null);
 	const events = history.entries.filter((entry) => entry.event.turn === turn);
 	return (
@@ -199,13 +206,11 @@ const CharacterDialog = ({
 									<BagContents
 										bag={bag}
 										comparisonContext={comparisonContext}
-										selectedId={
-											selection?.source === "bag"
-												? (selected?.id ?? null)
-												: null
+										selectedKey={
+											selection?.source === "bag" ? selectedKey : null
 										}
 										headingRef={bagHeadingRef}
-										onSelect={(id) => setSelection({ source: "bag", id })}
+										onSelect={(key) => setSelection({ source: "bag", key })}
 									>
 										{selected && selection ? (
 											<div ref={detailsRef}>

@@ -30,6 +30,137 @@ test.beforeEach(async ({ page }) => {
 	await page.goto("/"); // Playwright supplies a fresh browser context and storage for every test.
 });
 
+test("interleaved scroll stacks keep their coordinates and selected actions across three uses", async ({
+	page,
+}, testInfo) => {
+	await importAdventure(page, "stacks");
+	await page.keyboard.press("c");
+	const character = page.getByRole("dialog", {
+		name: "Character",
+		exact: true,
+	});
+	const scroll = character.getByRole("button", {
+		name: "Enchantment scroll, slot 1",
+		exact: true,
+	});
+	const sword = character.getByRole("button", {
+		name: "Iron sword +1, slot 2",
+		exact: true,
+	});
+	const mana = character.getByRole("button", {
+		name: "Mana potion, slot 3",
+		exact: true,
+	});
+	await page.screenshot({
+		path: testInfo.outputPath("stacks-grid-before.png"),
+	});
+	await scroll.click();
+	const scrollBounds = await scroll.boundingBox();
+	const swordBounds = await sword.boundingBox();
+	const manaBounds = await mana.boundingBox();
+	await page.screenshot({ path: testInfo.outputPath("stacks-before.png") });
+	for (const bonus of [1, 2, 3]) {
+		await character
+			.getByRole("button", {
+				name: `Enchant Main hand: Short sword${bonus > 1 ? ` +${bonus - 1}` : ""} to +${bonus}`,
+				exact: true,
+			})
+			.press("Enter");
+		await expect(turns(page)).toHaveText(`Turn ${bonus}`);
+		await expect(
+			character.getByRole("heading", { name: "Bag", exact: true }),
+		).toBeFocused();
+		if (bonus < 3) {
+			await expect(scroll).toHaveAttribute("aria-pressed", "true");
+			if (bonus === 1)
+				await expect(scroll).toHaveAccessibleDescription("2 carried");
+			expect(await scroll.boundingBox()).toEqual(scrollBounds);
+			expect(await sword.boundingBox()).toEqual(swordBounds);
+			expect(await mana.boundingBox()).toEqual(manaBounds);
+			await page.screenshot({
+				path: testInfo.outputPath(`stacks-${3 - bonus}-remaining.png`),
+			});
+			if (bonus === 2) {
+				await character
+					.getByRole("list", { name: "Carried items" })
+					.scrollIntoViewIfNeeded();
+				await page.screenshot({
+					path: testInfo.outputPath("stacks-grid-one-remaining.png"),
+				});
+			}
+		}
+	}
+	await expect(scroll).toBeHidden();
+	await expect(
+		character.getByRole("group", { name: "Choose equipment to enchant" }),
+	).toBeHidden();
+	await expect(
+		character.getByRole("button", {
+			name: "Iron sword +1, slot 1",
+			exact: true,
+		}),
+	).toBeVisible();
+	await page.keyboard.press("Escape");
+	await expect(map(page)).toBeFocused();
+});
+
+test("shortcut and Character potion use retain the stack, reject full mana freely, and clear final removal", async ({
+	page,
+}) => {
+	await importAdventure(page, "stacks");
+	await page.keyboard.press("1");
+	await expect(turns(page)).toHaveText("Turn 1");
+	await page.keyboard.press("c");
+	const character = page.getByRole("dialog", {
+		name: "Character",
+		exact: true,
+	});
+	const mana = character.getByRole("button", {
+		name: "Mana potion, slot 3",
+		exact: true,
+	});
+	await expect(mana).toHaveAccessibleDescription("2 carried");
+	await mana.click();
+	const bounds = await mana.boundingBox();
+	await character
+		.getByRole("button", { name: "Drink potion", exact: true })
+		.press("Enter");
+	await expect(turns(page)).toHaveText("Turn 2");
+	await expect(mana).toHaveAttribute("aria-pressed", "true");
+	expect(await mana.boundingBox()).toEqual(bounds);
+	await character
+		.getByRole("button", { name: "Drink potion", exact: true })
+		.click();
+	await expect(character.getByRole("alert")).toHaveText(
+		"You are already at full mana.",
+	);
+	await expect(turns(page)).toHaveText("Turn 2");
+	await character
+		.getByRole("button", { name: "Drop item", exact: true })
+		.click();
+	await expect(turns(page)).toHaveText("Turn 3");
+	await expect(
+		character.getByRole("button", { name: "Drink potion", exact: true }),
+	).toBeHidden();
+	await expect(
+		character.getByRole("button", {
+			name: "Tower shield, slot 3",
+			exact: true,
+		}),
+	).toBeVisible();
+	await page.keyboard.press("Escape");
+	await expect(map(page)).toBeFocused();
+	await page.keyboard.press("g");
+	await expect(turns(page)).toHaveText("Turn 4");
+	await page.keyboard.press("c");
+	await expect(
+		character.getByRole("button", { name: "Mana potion, slot 4", exact: true }),
+	).toHaveAttribute("aria-pressed", "false");
+	await expect(
+		character.getByRole("button", { name: "Drink potion", exact: true }),
+	).toBeHidden();
+});
+
 test("welcome choices and keyboard Settings apply return control to the map", async ({
 	page,
 }) => {

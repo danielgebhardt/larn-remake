@@ -1,7 +1,12 @@
 import { Backpack } from "lucide-react";
 import { type ReactNode, type RefObject, useId } from "react";
 import { Button } from "@/components/ui/button";
-import { BAG_CAPACITY, type Bag, bagSlots } from "../../domain/items/Bag";
+import {
+	BAG_CAPACITY,
+	type Bag,
+	bagItemKey,
+	bagSlots,
+} from "../../domain/items/Bag";
 import {
 	compareEquipment,
 	type EquipmentComparisonContext,
@@ -16,15 +21,15 @@ import {
 const BagContents = ({
 	bag,
 	comparisonContext,
-	selectedId,
+	selectedKey,
 	onSelect,
 	headingRef,
 	children,
 }: {
 	bag: Bag;
 	comparisonContext: EquipmentComparisonContext;
-	selectedId: string | null;
-	onSelect: (id: string) => void;
+	selectedKey: string | null;
+	onSelect: (key: string) => void;
 	headingRef: RefObject<HTMLHeadingElement | null>;
 	children: ReactNode;
 }) => {
@@ -63,13 +68,13 @@ const BagContents = ({
 						: null;
 					const descriptionId = `${comparisonId}-${index}`;
 					return (
-						<li key={item?.id ?? `empty:${index}`}>
+						<li key={item ? bagItemKey(item) : `empty:${index}`}>
 							{item ? (
 								<Button
 									type="button"
 									variant="outline"
 									aria-label={`${itemName(item)}, slot ${index + 1}`}
-									aria-pressed={selectedId === item.id}
+									aria-pressed={selectedKey === bagItemKey(item)}
 									aria-describedby={
 										count > 1
 											? `${descriptionId}-quantity`
@@ -77,7 +82,7 @@ const BagContents = ({
 												? descriptionId
 												: undefined
 									}
-									onClick={() => onSelect(item.id)}
+									onClick={() => onSelect(bagItemKey(item))}
 									className={`relative grid size-14 justify-items-center ${comparison ? "grid-rows-[1rem_1.25rem_0.625rem] gap-0" : "grid-rows-[1.25rem_1.25rem] gap-1"} whitespace-normal rounded-md p-1 aria-pressed:bg-primary/10 aria-pressed:ring-2 aria-pressed:ring-primary/60 aria-pressed:ring-offset-1 aria-pressed:ring-offset-card ${comparison ? comparisonStyles[comparison.label].border : ""}`}
 								>
 									<span className={comparison ? "size-4" : "size-5"}>

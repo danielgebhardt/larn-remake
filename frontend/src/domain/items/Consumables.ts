@@ -6,7 +6,7 @@ import {
 	type PlayerEffectKind,
 	refreshPlayerEffect,
 } from "../game/TimedEffects";
-import { type Bag, createBag } from "./Bag";
+import { type Bag, removeBagItem } from "./Bag";
 import { ITEM_DEFINITIONS, type ItemKind } from "./Item";
 
 export type ConsumeAction = { type: "consume"; itemId: string };
@@ -58,7 +58,7 @@ export const consumeItem = (
 			player,
 			mana,
 			effects,
-			bag: createBag(bag.items.filter((item) => item.id !== selected.id)),
+			bag: removeBagItem(bag, selected.id),
 			event: { type: "item-cleansed", item: selected.kind },
 		};
 	}
@@ -67,7 +67,7 @@ export const consumeItem = (
 			player,
 			mana,
 			effects: refreshPlayerEffect(state.effects, definition.boost),
-			bag: createBag(bag.items.filter((item) => item.id !== selected.id)),
+			bag: removeBagItem(bag, selected.id),
 			event: {
 				type: "item-boosted",
 				item: selected.kind,
@@ -92,7 +92,7 @@ export const consumeItem = (
 				? { ...player, health: player.health + recovered }
 				: player,
 		mana: resource === "mana" ? mana + recovered : mana,
-		bag: createBag(bag.items.filter((item) => item.id !== selected.id)),
+		bag: removeBagItem(bag, selected.id),
 		event: { type: "item-consumed", item: selected.kind, recovered },
 	};
 };

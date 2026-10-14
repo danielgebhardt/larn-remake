@@ -8,6 +8,61 @@ import { createCorridorEncounter } from "./MonsterEncounterTestHelpers";
 import Home from "./TestHome";
 
 afterEach(resetHomeTestState);
+it("keeps the selected scroll stack usable in its slot through 3 → 2 → 1 and clears it after the last use", async () => {
+	stubDungeonRun(createCorridorEncounter());
+	const create = GameState.createGameState;
+	vi.spyOn(GameState, "createGameState").mockImplementationOnce((run) => ({
+		...create(run),
+		monsters: [],
+		objects: [],
+		floorItems: [],
+		bag: {
+			items: [
+				{ id: "scroll:1", kind: "enchantment-scroll" },
+				{ id: "sword", kind: "iron-sword" },
+				{ id: "scroll:2", kind: "enchantment-scroll" },
+				{ id: "shield", kind: "tower-shield" },
+				{ id: "scroll:3", kind: "enchantment-scroll" },
+			],
+		},
+	}));
+	render(<Home />, { wrapper: ThemeProvider });
+	const user = userEvent.setup();
+	screen.getByLabelText("Dungeon map", { exact: true }).focus();
+	await user.keyboard("c");
+	const dialog = await screen.findByRole("dialog", { name: "Character" });
+	await user.click(
+		within(dialog).getByRole("button", { name: "Enchantment scroll, slot 1" }),
+	);
+	for (const bonus of [1, 2, 3]) {
+		await user.click(
+			within(dialog).getByRole("button", {
+				name: `Enchant Main hand: Short sword${bonus > 1 ? ` +${bonus - 1}` : ""} to +${bonus}`,
+			}),
+		);
+		expect(within(dialog).getByRole("heading", { name: "Bag" })).toHaveFocus();
+		if (bonus < 3) {
+			expect(
+				within(dialog).getByRole("button", {
+					name: "Enchantment scroll, slot 1",
+				}),
+			).toHaveAttribute("aria-pressed", "true");
+			expect(
+				within(dialog).getByRole("button", { name: "Iron sword, slot 2" }),
+			).toBeVisible();
+		} else {
+			expect(
+				within(dialog).queryByRole("group", {
+					name: "Choose equipment to enchant",
+				}),
+			).not.toBeInTheDocument();
+			expect(
+				within(dialog).getByRole("button", { name: "Iron sword, slot 1" }),
+			).toBeVisible();
+		}
+	}
+	expect(screen.getByLabelText("Turn count")).toHaveTextContent("Turn 3");
+});
 it("inspects/cancels freely and enchants a chosen equipped item with Enter, showing the bonus", async () => {
 	stubDungeonRun(createCorridorEncounter());
 	const create = GameState.createGameState;

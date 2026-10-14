@@ -1,6 +1,6 @@
 import { appendActivityEvents } from "../game/ActivityHistory";
 import type { GameState } from "../game/GameState";
-import { createBag } from "./Bag";
+import { createBag, removeBagItem } from "./Bag";
 import { EQUIPMENT_SLOT_LABELS, type EquipmentSlot } from "./Equipment";
 import type { ItemInstance } from "./Item";
 import { isEnchantableKind, MAX_ENCHANTMENT } from "./ItemValues";
@@ -46,9 +46,9 @@ export const enchantEquipment = (
 		...state,
 		equipment,
 		bag: createBag(
-			state.bag.items
-				.filter((i) => i.id !== scroll.id)
-				.map((i) => (i.id === target.id ? enhanced : i)),
+			removeBagItem(state.bag, scroll.id).items.map((i) =>
+				i.id === target.id ? enhanced : i,
+			),
 		),
 		activityHistory: appendActivityEvents(state.activityHistory, [
 			{

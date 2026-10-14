@@ -63,6 +63,27 @@ export default async function prepareFixtures() {
 				},
 			],
 		};
+		const stacks = {
+			...quiet,
+			mana: 0,
+			objects: [],
+			floorItems: quiet.floorItems.filter(
+				(entry) => entry.item.kind === "cure",
+			),
+			potionHotbar: ["mana-potion", null, null, null],
+			bag: {
+				items: [
+					{ id: "stack:scroll:1", kind: "enchantment-scroll" },
+					{ id: "stack:sword", kind: "iron-sword", enchantment: 1 },
+					{ id: "stack:mana:1", kind: "mana-potion" },
+					{ id: "stack:scroll:2", kind: "enchantment-scroll" },
+					{ id: "stack:shield", kind: "tower-shield" },
+					{ id: "stack:mana:2", kind: "mana-potion" },
+					{ id: "stack:scroll:3", kind: "enchantment-scroll" },
+					{ id: "stack:mana:3", kind: "mana-potion" },
+				],
+			},
+		};
 		const { createEquipment } = await load("/src/domain/items/Equipment.ts");
 		const merchantConfiguration = { ...configuration, floorCount: 10 };
 		const merchantFresh = createGameState(
@@ -120,6 +141,7 @@ export default async function prepareFixtures() {
 		for (const [name, state, config] of [
 			["ready", quiet, configuration],
 			["poisoned", poisoned, configuration],
+			["stacks", stacks, configuration],
 			["merchant", merchantState, merchantConfiguration],
 		]) {
 			const exploration = updateExploration(navigationRun(state), fog.radius);

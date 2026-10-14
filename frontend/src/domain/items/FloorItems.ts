@@ -1,7 +1,7 @@
 import type { Coordinate } from "../dungeon/DungeonTypes";
 import type { GameState } from "../game/GameState";
 import type { SpellKind } from "../game/Spells";
-import { type Bag, canAddToBag, createBag } from "./Bag";
+import { type Bag, canAddToBag, createBag, removeBagItem } from "./Bag";
 import {
 	type Equipment,
 	emptyEquipmentSlotFor,
@@ -106,7 +106,7 @@ export const transferFloorItem = (
 	if (state.floorItems.some((entry) => entry.item.id === item.id))
 		return { error: "That item is already on the floor." };
 	return {
-		bag: createBag(state.bag.items.filter((entry) => entry.id !== item.id)),
+		bag: removeBagItem(state.bag, item.id),
 		floorItems: [
 			...state.floorItems,
 			{

@@ -13,3 +13,7 @@ Six behavioral regressions cover keyboard/mouse, cancel/reopen without duplicate
 ## Potion assignment indicators — #300
 
 Selected potion-assignment number buttons now use the same primary variant as assigned spell buttons; other slots remain outlined. Existing pressed-state accessibility, free assignment/moving/clearing, stacking and zero-carried assignments are preserved. A current-assignment regression complements the existing move/clear/restart coverage; no CSS snapshot or new hotbar state is introduced. Focused assignment/hotbar/auto-assignment tests pass, and a browser-imported slot-2 assignment highlights the correct button without spending a turn.
+
+## Throne and chest silhouettes — #310
+
+Custom 24px SVGs replace the similar Armchair/Archive pair: a crowned high-backed throne with legs, and a curved-lid, strapped/locked chest. An opened chest uses a raised lid instead of the archive-X glyph. The shared renderer retains the stone palette and spent opacity, so map, Help and catalog all use the same assets without separate icon copies. Three failing visual-state regressions now pass; they check selected SVG identity/state and the shared viewbox/accessibility rather than freezing path strings. Actual 24px/48px catalog previews were reviewed in dark and light before committing. No terrain, placement, object descriptions or interaction behavior changes are introduced by this story.

@@ -1,7 +1,4 @@
 import {
-	Archive,
-	ArchiveX,
-	Armchair,
 	Coins,
 	DoorClosed,
 	DoorOpen,
@@ -19,6 +16,10 @@ import type {
 } from "../../domain/objects/DungeonObject";
 import FountainIcon from "./FountainIcon";
 import MerchantIcon from "./MerchantIcon";
+import ThroneIcon from "./ThroneIcon";
+import TreasureChestIcon, {
+	OpenedTreasureChestIcon,
+} from "./TreasureChestIcon";
 
 const icons: Record<
 	Exclude<DungeonObjectKind, "elite-door" | "merchant">,
@@ -28,10 +29,10 @@ const icons: Record<
 	reliquary: Gem,
 	archive: LibraryBig,
 	gold: Coins,
-	chest: Archive,
+	chest: TreasureChestIcon,
 	trap: TriangleAlert,
 	fountain: FountainIcon,
-	throne: Armchair,
+	throne: ThroneIcon,
 	shrine: Landmark,
 };
 const DungeonObjectIcon = ({ object }: { object: DungeonObject }) => {
@@ -53,7 +54,7 @@ const DungeonObjectIcon = ({ object }: { object: DungeonObject }) => {
 		object.kind === "door" && object.activated
 			? DoorOpen
 			: object.kind === "chest" && object.activated
-				? ArchiveX
+				? OpenedTreasureChestIcon
 				: icons[object.kind];
 	return (
 		<Icon

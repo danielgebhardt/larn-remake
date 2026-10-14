@@ -55,10 +55,8 @@ const SpellsView = ({
 			</div>
 			<section aria-label="Spell shortcuts" className="rounded-lg border p-3">
 				<p className="mb-2 text-xs text-muted-foreground">
-					Six spell shortcuts use keys 5–9 and 0. Assign below; changing
-					shortcuts is free. Choose Assign 5–9 or 0 on a spell to replace that
-					shortcut. The active assignment says Assigned. Clear a slot above to
-					remove it.
+					Choose a number on a spell to assign keys 5–9 or 0 for free.
+					Highlighted numbers show current assignments. Clear a shortcut below.
 				</p>
 				<div className="flex flex-wrap gap-2">
 					{SPELL_SLOTS.map((slot) => (
@@ -125,14 +123,14 @@ const SpellsView = ({
 								{potency.effect === "heal"
 									? `Heal up to ${potency.healing} health · ${definition.cost} mana`
 									: potency.effect === "condition"
-										? `${EFFECT_DEFINITIONS[potency.condition].name} · ${EFFECT_DEFINITIONS[potency.condition].duration} active phases · ${definition.cost} mana`
+										? `${EFFECT_DEFINITIONS[potency.condition].name} · ${EFFECT_DEFINITIONS[potency.condition].duration} ${definition.mode === "self" ? "committed turns" : "active phases"} · ${definition.cost} mana`
 										: potency.effect === "reposition"
 											? `Reposition · ${definition.cost} mana`
 											: `Damage ${potency.minimumDamage}–${potency.maximumDamage} · ${definition.cost} mana`}
 							</p>
 							<p className="text-xs text-muted-foreground">
 								{definition.mode === "self"
-									? "Self-cast"
+									? `Self-cast${"range" in definition ? ` · Range ${definition.range}` : ""}`
 									: `Targeted · Range ${definition.range}`}
 								{"radius" in definition ? ` · Radius ${definition.radius}` : ""}
 							</p>
@@ -141,6 +139,9 @@ const SpellsView = ({
 									{spellEffectDetails(definition)}
 								</p>
 							)}
+							<p className="text-xs leading-relaxed text-muted-foreground">
+								{definition.description}
+							</p>
 							<fieldset
 								aria-label={`Assign ${definition.name} shortcut`}
 								className="flex flex-wrap gap-1"
@@ -155,23 +156,15 @@ const SpellsView = ({
 										variant={slots[slot - 1] === spell ? "default" : "outline"}
 										disabled={!assignmentsEnabled}
 										aria-pressed={slots[slot - 1] === spell}
-										aria-label={`Assign ${definition.name} to spell slot ${slot}`}
+										aria-label={`Assign ${definition.name} to key ${SPELL_SLOT_KEYS[slot]}${slots[slot - 1] === spell ? " (assigned)" : ""}`}
 										onClick={() =>
 											onAction({ type: "assign-spell", slot, spell })
 										}
 									>
-										{slots[slot - 1] === spell
-											? `Assigned ${SPELL_SLOT_KEYS[slot]}`
-											: `Assign ${SPELL_SLOT_KEYS[slot]}`}
+										{SPELL_SLOT_KEYS[slot]}
 									</Button>
 								))}
 							</fieldset>
-							<details className="text-xs leading-relaxed text-muted-foreground">
-								<summary className="cursor-pointer font-medium">
-									Spell details
-								</summary>
-								<p className="mt-2">{definition.description}</p>
-							</details>
 						</section>
 					);
 				})}

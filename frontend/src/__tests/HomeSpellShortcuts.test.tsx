@@ -13,7 +13,7 @@ it.each([
 	[6, "0"],
 ] as const)(
 	"assigns a learned spell to slot %i and casts with key %s",
-	async (slot, key) => {
+	async (_slot, key) => {
 		const run = createCorridorEncounter();
 		stubDungeonRun(
 			run,
@@ -41,7 +41,7 @@ it.each([
 		await user.click(screen.getByRole("tab", { name: "Spells" }));
 		await user.click(
 			screen.getByRole("button", {
-				name: `Assign Ember Bolt to spell slot ${slot}`,
+				name: `Assign Ember Bolt to key ${key}`,
 			}),
 		);
 		expect(screen.getByLabelText("Turn count")).toHaveTextContent("Turn 1");

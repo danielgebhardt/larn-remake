@@ -177,3 +177,73 @@ test("a fatal committed turn opens defeat, freezes play and permits replay", asy
 	await page.keyboard.press("Space");
 	await expect(turns(page)).toHaveText("Turn 1");
 });
+
+test("merchant comparisons open with Enter after import and only selling spends a turn", async ({
+	page,
+}) => {
+	await importAdventure(page, "merchant");
+	await page.keyboard.press("e");
+	const merchant = page.getByRole("dialog", {
+		name: "Wandering potion merchant",
+		exact: true,
+	});
+	await expect(merchant).toBeVisible();
+	await page.keyboard.press("s");
+	const summary = merchant.getByText("Compare Ring of Intelligence", {
+		exact: true,
+	});
+	await summary.press("Enter");
+	const disclosure = merchant
+		.locator("details")
+		.filter({ hasText: "Compare Ring of Intelligence" });
+	await expect(disclosure).toHaveAttribute("open", "");
+	const previews = disclosure.getByLabel("Equipment comparison", {
+		exact: true,
+	});
+	await expect(previews).toHaveCount(2);
+	await expect(previews.nth(0)).toContainText("Tradeoff · Left ring");
+	await expect(previews.nth(0)).toContainText("Damage 4–6 → 3–5");
+	await expect(previews.nth(1)).toContainText("Maximum mana 16 → 14 (−2)");
+	await expect(turns(page)).toHaveText("Turn 0");
+	await expect(merchant.getByText("Gold 700", { exact: true })).toBeVisible();
+	await page.keyboard.press("Escape");
+	await expect(map(page)).toBeFocused();
+	await page.keyboard.press("c");
+	const character = page.getByRole("dialog", {
+		name: "Character",
+		exact: true,
+	});
+	await expect(
+		character.getByRole("button", {
+			name: "Left ring: Ring of Strength",
+			exact: true,
+		}),
+	).toBeVisible();
+	await expect(
+		character.getByLabel("Character mana", { exact: true }),
+	).toContainText("3 / 16");
+	await page.keyboard.press("c");
+	await expect(map(page)).toBeFocused();
+	await page.keyboard.press("e");
+	await page.keyboard.press("s");
+	await merchant
+		.getByRole("button", {
+			name: "Short sword · Sell for 20 gold",
+			exact: true,
+		})
+		.press("Enter");
+	await expect(
+		merchant.getByRole("button", {
+			name: "Short sword · Sell for 20 gold",
+			exact: true,
+		}),
+	).toBeHidden();
+	await expect(merchant.getByText("Gold 720", { exact: true })).toBeVisible();
+	await expect(turns(page)).toHaveText("Turn 1");
+	await expect(
+		merchant.getByRole("button", {
+			name: "Ring of Intelligence · Sell for 30 gold",
+			exact: true,
+		}),
+	).toBeFocused();
+});

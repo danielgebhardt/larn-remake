@@ -63,18 +63,71 @@ export default async function prepareFixtures() {
 				},
 			],
 		};
+		const { createEquipment } = await load("/src/domain/items/Equipment.ts");
+		const merchantConfiguration = { ...configuration, floorCount: 10 };
+		const merchantFresh = createGameState(
+			connectDungeonFloors(generateDungeonRun(123, 10, merchantConfiguration)),
+			configuration.difficulty,
+		);
+		const merchant = merchantFresh.objects.find(
+			(object) => object.kind === "merchant" && object.floorNumber === 5,
+		);
+		if (!merchant)
+			throw new Error("Expected the deterministic floor 5 merchant");
+		const merchantState = {
+			...merchantFresh,
+			run: {
+				...merchantFresh.run,
+				activeFloor: 5,
+				playerCoordinate: merchant.coordinate,
+			},
+			monsters: [],
+			objects: merchantFresh.objects.filter(
+				(object) => object.kind === "merchant",
+			),
+			floorItems: merchantFresh.floorItems.filter(
+				(entry) => entry.item.kind === "cure",
+			),
+			gold: 700,
+			progression: { experience: 30 },
+			player: { health: 7, maxHealth: 14 },
+			mana: 3,
+			effects: [
+				{
+					actorId: "player",
+					floorNumber: null,
+					kind: "protected",
+					remaining: 4,
+				},
+			],
+			equipment: createEquipment(
+				{ id: "worn:sword", kind: "iron-sword" },
+				{ id: "worn:shield", kind: "wooden-shield" },
+				{ id: "worn:plate", kind: "plate-armor" },
+				null,
+				{ id: "worn:strength", kind: "ring-strength" },
+				{ id: "worn:mana", kind: "ring-mana" },
+			),
+			bag: {
+				items: [
+					{ id: "bag:ring", kind: "ring-intelligence" },
+					{ id: "bag:sword", kind: "short-sword" },
+				],
+			},
+		};
 		const directory = new URL(".generated/", import.meta.url);
 		await mkdir(directory, { recursive: true });
-		for (const [name, state] of [
-			["ready", quiet],
-			["poisoned", poisoned],
+		for (const [name, state, config] of [
+			["ready", quiet, configuration],
+			["poisoned", poisoned, configuration],
+			["merchant", merchantState, merchantConfiguration],
 		]) {
 			const exploration = updateExploration(navigationRun(state), fog.radius);
 			const text = serializeSave(
 				createSaveDocument(
 					state,
 					exploration,
-					configuration,
+					config,
 					fog,
 					new Date("2026-10-13T12:00:00Z"),
 				),

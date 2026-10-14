@@ -7,10 +7,7 @@ import {
 	type EquipmentSlot,
 	equipmentSlotsFor,
 } from "../../domain/items/Equipment";
-import {
-	compareEquipment,
-	type EquipmentComparisonContext,
-} from "../../domain/items/EquipmentComparison";
+import type { EquipmentComparisonContext } from "../../domain/items/EquipmentComparison";
 import { ITEM_DEFINITIONS, type ItemInstance } from "../../domain/items/Item";
 import {
 	itemArmor,
@@ -22,7 +19,7 @@ import {
 	type PotionHotbar,
 } from "../../domain/items/PotionHotbar";
 import EnchantmentTargets from "./EnchantmentTargets";
-import EquipmentComparisonView from "./EquipmentComparisonView";
+import EquipmentPreviews from "./EquipmentPreviews";
 
 const labels = {
 	enchantment: "Enchantment scroll",
@@ -62,11 +59,6 @@ const ItemDetails = ({
 	const { equipment } = comparisonContext;
 	const details = ITEM_DEFINITIONS[item.kind];
 	const slots = equipmentSlotsFor(item);
-	const comparisons = equippedSlot
-		? []
-		: slots
-				.map((slot) => compareEquipment(item, comparisonContext, slot))
-				.filter((comparison) => comparison !== null);
 	const act = (action: PlayerAction) => {
 		onAction(action);
 		afterAction();
@@ -108,18 +100,8 @@ const ItemDetails = ({
 						.join(" · ")}
 				</p>
 			)}
-			{comparisons.map((comparison) => (
-				<EquipmentComparisonView
-					key={comparison.slot}
-					comparison={comparison}
-				/>
-			))}
-			{comparisons.length > 0 && (
-				<p className="text-xs text-muted-foreground">
-					Preview uses current active effects, before monsters act. Capacity
-					gains do not refill health or mana; removing capacity can clamp
-					current resources.
-				</p>
+			{!equippedSlot && (
+				<EquipmentPreviews item={item} context={comparisonContext} />
 			)}
 			<div className="flex flex-wrap gap-2">
 				{equippedSlot ? (

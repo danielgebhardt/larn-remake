@@ -45,6 +45,15 @@ it("sells selected carried gear with Enter and focuses the next item, then the e
 	expect(
 		within(dialog).queryByRole("button", { name: /Healing potion/ }),
 	).not.toBeInTheDocument();
+	expect(
+		within(dialog).getByRole("button", {
+			name: /Iron sword.*Sell for 20 gold/,
+		}),
+	).toHaveAccessibleDescription(/Better.*Damage 1–3 → 2–4/);
+	await user.click(within(dialog).getByText("Compare Iron sword"));
+	const summary = within(dialog).getByText("Compare Iron sword");
+	expect(summary.closest("details")).toHaveAttribute("open");
+	expect(screen.getByLabelText("Turn count")).toHaveTextContent("Turn 0");
 	const sword = within(dialog).getByRole("button", {
 		name: /Iron sword.*Sell for 20 gold/,
 	});

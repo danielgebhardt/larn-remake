@@ -1,8 +1,15 @@
 import { Dialog } from "@base-ui/react/dialog";
 import { Tabs } from "@base-ui/react/tabs";
-import { type RefObject, useLayoutEffect, useRef, useState } from "react";
+import {
+	type RefObject,
+	useId,
+	useLayoutEffect,
+	useRef,
+	useState,
+} from "react";
 import { Button } from "@/components/ui/button";
 import type { GameState } from "../../domain/game/GameState";
+import { compareEquipment } from "../../domain/items/EquipmentComparison";
 import { ITEM_DEFINITIONS } from "../../domain/items/Item";
 import { itemName } from "../../domain/items/ItemValues";
 import {
@@ -10,6 +17,11 @@ import {
 	MERCHANT_OFFERS,
 	type MerchantSupply,
 } from "../../domain/merchant/MerchantRules";
+import {
+	comparisonDescription,
+	comparisonStyles,
+} from "../game/EquipmentComparisonView";
+import EquipmentPreviews from "../game/EquipmentPreviews";
 import ItemIcon from "../items/ItemIcon";
 import MerchantIcon from "../objects/MerchantIcon";
 
@@ -43,6 +55,7 @@ const MerchantDialog = ({
 			setFocusAfterSale(false);
 		}
 	}, [open, focusAfterSale]);
+	const comparisonId = useId();
 	const supplies = Object.keys(MERCHANT_OFFERS) as MerchantSupply[];
 	const gear = state.bag.items.filter(
 		(item) => equipmentSalePrice(item) !== null,
@@ -179,30 +192,67 @@ const MerchantDialog = ({
 							</p>
 							{gear.length ? (
 								<ul className="grid gap-2 sm:grid-cols-2">
-									{gear.map((item, index) => (
-										<li key={item.id}>
-											<Button
-												variant="outline"
-												className="h-auto w-full justify-start gap-3 whitespace-normal p-3 text-left"
-												ref={index === 0 ? firstSale : undefined}
-												disabled={!onSell}
-												onClick={() => {
-													onSell?.(item.id);
-													setFocusAfterSale(true);
-												}}
+									{gear.map((item, index) => {
+										const comparison = compareEquipment(item, state);
+										const descriptionId = `${comparisonId}-${item.id}`;
+										return (
+											<li
+												key={item.id}
+												className="grid content-start gap-2 rounded-lg border bg-muted/20 p-2"
 											>
-												<span className="size-6 shrink-0">
-													<ItemIcon kind={item.kind} />
-												</span>
-												<span>
-													<span className="block">{itemName(item)}</span>
-													<span className="block text-xs text-muted-foreground">
-														Sell for {equipmentSalePrice(item)} gold
+												<Button
+													variant="outline"
+													className={`h-auto w-full justify-start gap-3 whitespace-normal p-3 text-left ${comparison ? comparisonStyles[comparison.label].border : ""}`}
+													aria-label={`${itemName(item)} · Sell for ${equipmentSalePrice(item)} gold`}
+													ref={index === 0 ? firstSale : undefined}
+													disabled={!onSell}
+													aria-describedby={
+														comparison ? descriptionId : undefined
+													}
+													onClick={() => {
+														onSell?.(item.id);
+														setFocusAfterSale(true);
+													}}
+												>
+													<span className="size-6 shrink-0">
+														<ItemIcon kind={item.kind} />
 													</span>
-												</span>
-											</Button>
-										</li>
-									))}
+													<span>
+														<span className="block">{itemName(item)}</span>
+														<span className="block text-xs text-muted-foreground">
+															Sell for {equipmentSalePrice(item)} gold
+														</span>
+														{comparison && (
+															<span
+																aria-hidden="true"
+																className={`block text-xs font-medium ${comparisonStyles[comparison.label].text}`}
+															>
+																{comparison.label}
+															</span>
+														)}
+													</span>
+												</Button>
+												{comparison && (
+													<>
+														<span id={descriptionId} className="sr-only">
+															{comparisonDescription(comparison)}
+														</span>
+														<details className="text-xs">
+															<summary className="cursor-pointer rounded px-1 py-1 text-muted-foreground">
+																Compare {itemName(item)}
+															</summary>
+															<div className="mt-2">
+																<EquipmentPreviews
+																	item={item}
+																	context={state}
+																/>
+															</div>
+														</details>
+													</>
+												)}
+											</li>
+										);
+									})}
 								</ul>
 							) : (
 								<p className="text-sm text-muted-foreground">

@@ -35,7 +35,7 @@ const champion = (floor = 8): Monster => ({
 describe("Optional iron champion and its equipment reward", () => {
 	it("is reserved for optional encounters and has a readable elemental tradeoff", () => {
 		expect(eligibleMonsterKinds(8)).not.toContain("iron-champion");
-		expect(MONSTER_DEFINITIONS["iron-champion"].maxHealth).toBe(32);
+		expect(MONSTER_DEFINITIONS["iron-champion"].maxHealth).toBe(72);
 		expect(resistedDamage("iron-champion", 10, "arcane")).toBe(5);
 		expect(resistedDamage("iron-champion", 10, "cold")).toBe(20);
 	});

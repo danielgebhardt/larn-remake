@@ -20,7 +20,11 @@ export const chooseEnemySpell = (
 	rolls: AttackRollSource,
 ): EnemySpellOutcome => {
 	const definition = MONSTER_DEFINITIONS[monster.kind];
-	const maxHealth = maximumMonsterHealth(monster.kind, state.difficulty);
+	const maxHealth = maximumMonsterHealth(
+		monster.kind,
+		state.difficulty,
+		monster.floorNumber,
+	);
 	const interval = definition.spellInterval ?? 3;
 	const index = Number(monster.id.split(":")[1]);
 	if ((state.turn - 1 + index - 1) % interval !== 0) return { type: "wait" };

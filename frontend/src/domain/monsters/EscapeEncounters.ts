@@ -91,7 +91,7 @@ export const generateEscapeEncounters = (
 			kind,
 			floorNumber,
 			coordinate,
-			health: maximumMonsterHealth(kind, state.difficulty),
+			health: maximumMonsterHealth(kind, state.difficulty, floorNumber),
 			intent: { type: "idle" },
 			awareness: { type: "idle" },
 			lastDamagedTurn: null,

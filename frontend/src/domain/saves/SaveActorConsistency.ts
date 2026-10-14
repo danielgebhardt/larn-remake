@@ -41,7 +41,11 @@ export const hasConsistentActors = (document: SaveSourceDocument): boolean => {
 					.get(entry.floorNumber)
 					?.some((location) => sameCoordinate(location, entry.coordinate)) &&
 				entry.health <=
-					maximumMonsterHealth(entry.kind, savedDifficulty(document)) &&
+					maximumMonsterHealth(
+						entry.kind,
+						savedDifficulty(document),
+						entry.floorNumber,
+					) &&
 				!(
 					"alarmUsed" in entry &&
 					entry.alarmUsed === true &&

@@ -31,7 +31,7 @@ import { monsterDoorToOpen } from "./MonsterDoors";
 import { orthogonalDistance } from "./MonsterLocations";
 import { detectsPlayer, selectPursuitStep } from "./MonsterPursuit";
 import { selectRetreatStep } from "./MonsterRetreat";
-import { maximumMonsterHealth } from "./MonsterStats";
+import { maximumMonsterHealth, monsterAttackDamage } from "./MonsterStats";
 import { pursuitRulesFor } from "./PursuitRules";
 
 // The player phase has already chosen the active floor and turn number.
@@ -76,7 +76,11 @@ export const resolveMonsterPhase = (
 		) {
 			const recovered = Math.min(
 				profile.regeneration,
-				maximumMonsterHealth(monster.kind, state.difficulty) - monster.health,
+				maximumMonsterHealth(
+					monster.kind,
+					state.difficulty,
+					monster.floorNumber,
+				) - monster.health,
 			);
 			if (recovered > 0) {
 				monster = { ...monster, health: monster.health + recovered };
@@ -343,7 +347,10 @@ export const resolveMonsterPhase = (
 			continue;
 		}
 		const outcome = resolveMeleeAttack(
-			attackProfile(definition.attackDamage, monsterHitThreshold),
+			attackProfile(
+				monsterAttackDamage(monster.kind, monster.floorNumber),
+				monsterHitThreshold,
+			),
 			rollSource({
 				seed: state.run.seed,
 				floorNumber: state.run.activeFloor,

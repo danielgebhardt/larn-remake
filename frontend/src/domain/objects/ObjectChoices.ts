@@ -2,6 +2,10 @@ import type { GameState } from "../game/GameState";
 import { createPlayerStats } from "../game/PlayerStats";
 import { createProgression } from "../game/Progression";
 import { createStartingEquipment } from "../items/Equipment";
+import {
+	maximumMonsterHealth,
+	monsterDamageRange,
+} from "../monsters/MonsterStats";
 import { fountainRestoration } from "./DungeonFountains";
 import type { DungeonObject } from "./DungeonObject";
 import { shrineTerms } from "./DungeonShrines";
@@ -13,7 +17,10 @@ export type InteractionChoice = Readonly<{
 }>;
 export const objectChoices = (
 	object: DungeonObject,
-	state?: Pick<GameState, "player" | "progression" | "equipment" | "effects">,
+	state?: Pick<
+		GameState,
+		"player" | "progression" | "equipment" | "effects" | "difficulty"
+	>,
 ): readonly InteractionChoice[] => {
 	if (object.kind === "fountain") {
 		const terms = fountainRestoration(
@@ -37,55 +44,66 @@ export const objectChoices = (
 			},
 		];
 	}
-	return object.kind === "elite-door" && !object.activated
+	if (object.kind === "elite-door" && !object.activated) {
+		const difficulty = state?.difficulty ?? 1;
+		const health = maximumMonsterHealth(
+			"iron-champion",
+			difficulty,
+			object.floorNumber,
+		);
+		const damage = monsterDamageRange(
+			"iron-champion",
+			difficulty,
+			object.floorNumber,
+		);
+		return [
+			{
+				value: "open-elite",
+				label: "Open the elite gate",
+				description: `Optional iron champion: maximum health ${health}, melee/charge damage ${damage.minDamage}–${damage.maxDamage} before armor. A telegraphed charge and recovery; resists arcane, vulnerable to cold. Defeat it for guaranteed depth-appropriate equipment, not necessarily an upgrade. Opening costs one turn; monsters act immediately. You can leave this chamber sealed, even during the hunted return.`,
+			},
+		];
+	}
+	return object.kind === "reliquary"
 		? [
 				{
-					value: "open-elite",
-					label: "Open the elite gate",
+					value: "unseal",
+					label: "Break the seal",
 					description:
-						"Optional iron champion: 32 health, a telegraphed charge and recovery; resists arcane, vulnerable to cold. Defeat it for guaranteed depth-appropriate equipment, not necessarily an upgrade. Opening costs one turn; monsters act immediately. You can leave this chamber sealed, even during the hunted return.",
+						"Take 3 damage, ignoring armor and potentially fatal, to release a rare ring. The reward stays on the floor for G pickup. One turn; one use.",
 				},
 			]
-		: object.kind === "reliquary"
+		: object.kind === "archive"
 			? [
 					{
-						value: "unseal",
-						label: "Break the seal",
+						value: "read",
+						label: "Search the archive",
 						description:
-							"Take 3 damage, ignoring armor and potentially fatal, to release a rare ring. The reward stays on the floor for G pickup. One turn; one use.",
+							"Release a depth-appropriate unknown book from this adventure’s spell pool, or a mana potion if none fits. Reward stays on the floor. One turn; one use.",
 					},
 				]
-			: object.kind === "archive"
+			: object.kind === "shrine"
 				? [
 						{
-							value: "read",
-							label: "Search the archive",
-							description:
-								"Release a depth-appropriate unknown book from this adventure’s spell pool, or a mana potion if none fits. Reward stays on the floor. One turn; one use.",
+							value: "offer",
+							label: `Offer ${shrineTerms(object).gold} gold`,
+							description: `Gain ${shrineTerms(object).experience} XP with normal automatic level growth. One turn; one offering per shrine. Gold is spent permanently.`,
 						},
 					]
-				: object.kind === "shrine"
+				: object.kind === "throne"
 					? [
 							{
-								value: "offer",
-								label: `Offer ${shrineTerms(object).gold} gold`,
-								description: `Gain ${shrineTerms(object).experience} XP with normal automatic level growth. One turn; one offering per shrine. Gold is spent permanently.`,
+								value: "sit",
+								label: "Sit on the throne",
+								description:
+									"40%: gain depth-scaled XP; 25%: restore up to 8 health/6 mana; 20%: take 2 damage and poison; 15%: relocate safely on this floor. One turn; spends the throne.",
+							},
+							{
+								value: "pry",
+								label: "Pry treasure",
+								description:
+									"70%: gain depth-scaled gold. Otherwise take 4–8 damage, potentially fatal. One turn; spends the throne.",
 							},
 						]
-					: object.kind === "throne"
-						? [
-								{
-									value: "sit",
-									label: "Sit on the throne",
-									description:
-										"40%: gain depth-scaled XP; 25%: restore up to 8 health/6 mana; 20%: take 2 damage and poison; 15%: relocate safely on this floor. One turn; spends the throne.",
-								},
-								{
-									value: "pry",
-									label: "Pry treasure",
-									description:
-										"70%: gain depth-scaled gold. Otherwise take 4–8 damage, potentially fatal. One turn; spends the throne.",
-								},
-							]
-						: [];
+					: [];
 };

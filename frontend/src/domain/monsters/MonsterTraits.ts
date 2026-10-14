@@ -9,7 +9,7 @@ export const monsterTraits = (kind: MonsterKind): readonly string[] => {
 		);
 	if (kind === "iron-champion")
 		traits.push(
-			"Optional elite: stronger health and a guaranteed depth-eligible equipment reward. Arcane magic is resisted; cold is effective.",
+			"Optional elite: health and melee/charge damage grow with floor depth. A guaranteed depth-eligible equipment reward. Arcane magic is resisted; cold is effective.",
 		);
 	if (definition.actionInterval && definition.actionInterval > 1)
 		traits.push(`Acts every ${definition.actionInterval} turns.`);

@@ -45,15 +45,18 @@ describe("Matched difficulty generation", () => {
 				} = normal;
 				expect(unchanged).toEqual(baseline); // Includes terrain, objects, loot, rewards and player resources.
 				expect(identities(monsters)).toEqual(identities(normalMonsters));
-				for (const actor of monsters)
-					expect(actor.health).toBe(
-						Math.max(
-							1,
-							Math.round(
-								MONSTER_DEFINITIONS[actor.kind].maxHealth * difficulty,
-							),
-						),
+				for (const actor of monsters) {
+					const original = normalMonsters.find(
+						(normalActor) => normalActor.id === actor.id,
 					);
+					if (!original)
+						throw new Error(
+							"Expected the same seeded actor at every difficulty",
+						);
+					expect(actor.health).toBe(
+						Math.max(1, Math.round(original.health * difficulty)),
+					);
+				}
 				const returning = generateEscapeEncounters(state, 1);
 				expect(identities(returning)).toEqual(identities(normalReturn));
 				for (const actor of returning)

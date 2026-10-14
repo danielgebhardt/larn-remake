@@ -98,7 +98,11 @@ export const createGameState = (
 				? encounters.monsters
 				: encounters.monsters.map((monster) => ({
 						...monster,
-						health: maximumMonsterHealth(monster.kind, difficulty),
+						health: maximumMonsterHealth(
+							monster.kind,
+							difficulty,
+							monster.floorNumber,
+						),
 					})),
 		activityHistory: createActivityHistory(),
 	};

@@ -3,11 +3,11 @@ import type { Coordinate } from "../dungeon/DungeonTypes";
 import type { Room } from "../dungeon/Room";
 import { createSeededRandom, hashStringToUint32 } from "../dungeon/Seed";
 import type { GameState } from "../game/GameState";
-import { MONSTER_DEFINITIONS } from "../monsters/Monster";
 import {
 	coordinateKey,
 	protectedFloorLocations,
 } from "../monsters/MonsterLocations";
+import { maximumMonsterHealth } from "../monsters/MonsterStats";
 import type { DungeonObject } from "./DungeonObject";
 
 type Geometry = Pick<DungeonFloor, "terrain" | "rooms">;
@@ -161,7 +161,7 @@ export const addOptionalEliteRooms = (
 				row: Math.floor((room.startRow + room.endRow) / 2),
 				col: Math.floor((room.startCol + room.endCol) / 2),
 			},
-			health: MONSTER_DEFINITIONS["iron-champion"].maxHealth,
+			health: maximumMonsterHealth("iron-champion", 1, floor.floorNumber),
 			lastDamagedTurn: null,
 			intent: { type: "idle" },
 			awareness: { type: "idle" },

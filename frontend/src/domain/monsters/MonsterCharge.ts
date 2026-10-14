@@ -14,6 +14,7 @@ import {
 	orthogonalDistance,
 	protectedFloorLocations,
 } from "./MonsterLocations";
+import { monsterAttackDamage } from "./MonsterStats";
 
 export const chargeLine = (
 	terrain: readonly (readonly string[])[],
@@ -133,7 +134,7 @@ export const resolveMonsterCharge = (
 		if (orthogonalDistance(point, state.run.playerCoordinate) === 0) {
 			const outcome = resolveMeleeAttack(
 				attackProfile(
-					MONSTER_DEFINITIONS[monster.kind].attackDamage,
+					monsterAttackDamage(monster.kind, monster.floorNumber),
 					deriveAccuracy(state.progression, state.effects, state.equipment)
 						.monsterHitThreshold,
 				),

@@ -46,6 +46,9 @@ const ObservedCreatures = ({
 			) : (
 				kinds.map((kind: MonsterKind) => {
 					const definition = MONSTER_DEFINITIONS[kind];
+					const floorNumber = observed.find(
+						(actor) => actor.kind === kind,
+					)?.floorNumber;
 					return (
 						<section key={kind} className="grid gap-2 border-t pt-3">
 							<h4 className="flex items-center gap-2 font-medium">
@@ -55,7 +58,8 @@ const ObservedCreatures = ({
 								{definition.name}
 							</h4>
 							<p className="text-xs text-muted-foreground">
-								Maximum health {maximumMonsterHealth(kind, difficulty)} ·{" "}
+								Maximum health{" "}
+								{maximumMonsterHealth(kind, difficulty, floorNumber)} ·{" "}
 								{definition.areaAttack
 									? `blast damage ${scaleEnemyValue(definition.areaAttack.minDamage, difficulty)}–${scaleEnemyValue(definition.areaAttack.maxDamage, difficulty)}`
 									: definition.enemySpells
@@ -66,7 +70,7 @@ const ObservedCreatures = ({
 													return `${damage.name} ${scaleEnemyValue(damage.minimumDamage, difficulty)}–${scaleEnemyValue(damage.maximumDamage, difficulty)}`;
 												})
 												.join("; ")}`
-										: `melee damage ${monsterDamageRange(kind, difficulty).minDamage}–${monsterDamageRange(kind, difficulty).maxDamage}`}
+										: `melee damage ${monsterDamageRange(kind, difficulty, floorNumber).minDamage}–${monsterDamageRange(kind, difficulty, floorNumber).maxDamage}`}
 							</p>
 							<p className="flex flex-wrap gap-x-3 text-xs text-muted-foreground">
 								{(

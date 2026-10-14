@@ -174,7 +174,9 @@ const ItemDetails = ({
 							<Button
 								key={slot}
 								type="button"
-								variant="outline"
+								variant={
+									potionHotbar[slot - 1] === item.kind ? "default" : "outline"
+								}
 								size="sm"
 								disabled={!assignmentsEnabled}
 								aria-label={`Assign to potion slot ${slot}`}

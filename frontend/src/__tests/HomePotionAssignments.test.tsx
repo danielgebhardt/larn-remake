@@ -11,12 +11,18 @@ import {
 import { createCorridorEncounter } from "./MonsterEncounterTestHelpers";
 import Home from "./TestHome";
 
-const setup = async () => {
+const setup = async (assignedSlot?: 1 | 2 | 3 | 4) => {
 	stubDungeonRun(createCorridorEncounter());
 	const create = GameState.createGameState;
 	vi.spyOn(GameState, "createGameState").mockImplementationOnce((run) => ({
 		...create(run),
 		player: { health: 7, maxHealth: 10 },
+		potionHotbar: [
+			assignedSlot === 1 ? "healing-potion" : null,
+			assignedSlot === 2 ? "healing-potion" : null,
+			assignedSlot === 3 ? "healing-potion" : null,
+			assignedSlot === 4 ? "healing-potion" : null,
+		],
 		bag: createBag([
 			{ id: "potion:1", kind: "healing-potion" },
 			{ id: "potion:2", kind: "healing-potion" },
@@ -45,6 +51,19 @@ const setup = async () => {
 };
 afterEach(resetHomeTestState);
 describe("Assigning potion shortcuts in Character", () => {
+	it("reflects an existing assignment when inspecting a carried potion", async () => {
+		const { panel } = await setup(3);
+		expect(
+			panel.getByRole("button", { name: "Assign to potion slot 3" }),
+		).toHaveAttribute("aria-pressed", "true");
+		expect(
+			panel.getByRole("button", { name: "Assign to potion slot 2" }),
+		).toHaveAttribute("aria-pressed", "false");
+		expect(panel.getByLabelText("Potion slot 3 assignment")).toHaveTextContent(
+			"Healing potion · 2 carried",
+		);
+		expect(screen.getByLabelText("Turn count")).toHaveTextContent("Turn 0");
+	});
 	it("assigns, moves, and clears a kind for free while showing the carried count", async () => {
 		const { user, panel } = await setup();
 		const assign = panel.getByRole("button", {

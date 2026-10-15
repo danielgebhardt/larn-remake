@@ -84,7 +84,7 @@ Current save format is **v19**: validated enemy door-opening history is added, w
 | Priority | Story | Purpose |
 | --- | --- | --- |
 | First | [#319 — Stable consumable stacks](https://github.com/danielgebhardt/larn-remake/issues/319) | Stop remaining scroll/potion stacks moving after partial consumption; verify interleaved copies and selection continuity. |
-| First | [#317 — Stable merchant Sell panel](https://github.com/danielgebhardt/larn-remake/issues/317) | Implemented for review: fixed bounds, sold placeholders and deliberate next-sale focus. [Review](docs/merchant-selling-review.md). |
+| First | [#317 — Stable merchant Sell panel](https://github.com/danielgebhardt/larn-remake/issues/317) | Implemented for review: stable sales, sold placeholders and deliberate focus; review follow-up adds compact responsive four-column desktop trading. [Review](docs/merchant-selling-review.md). |
 | Alongside #317 | [#322 — Sell all Lower equipment](https://github.com/danielgebhardt/larn-remake/issues/322) | Implemented for review: confirmed atomic sale of red/Lower carried gear for one turn; Same/Tradeoff/Better items remain. |
 | Merged / Done | [#316 — Starter potion defaults](https://github.com/danielgebhardt/larn-remake/issues/316) | New/replayed adventures start with one Healing Potion on 1 and one Mana Potion on 2, freely reassignable; existing saves retain their actual state. |
 | Implemented for review | [#318 — Spell potency comparisons](https://github.com/danielgebhardt/larn-remake/issues/318) | Shared Spell damage bonus and Heal bonus rows use the casting Intelligence modifier, including both ring destinations and active effects. No combat/save change. |

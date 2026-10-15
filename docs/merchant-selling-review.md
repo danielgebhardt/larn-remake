@@ -6,7 +6,7 @@ Branch: `codex/merchant-selling`. Each story has its own initial commit and awai
 
 The production browser reproduced an unsafe layout: selling the first of twenty items shifted the second item into the first button's position. The old dialog also used content-driven height and automatically focused the next sale button.
 
-The dialog now has fixed viewport-bounded height. Its header, gold, tabs and instructions remain outside the scrolling trading content. Sold equipment retains a disabled, inaccessible copy of its card solely to reserve the previous geometry, with a visible Sold placeholder. Its comparison expansion also retains its space. This transient list belongs to the open merchant UI; it is cleared on close, never saved, and never grants ownership or enables a sale. New carried equipment is appended if it appears while open.
+The Sell dialog has fixed viewport-bounded height. Its header, gold, tabs and instructions remain outside the scrolling trading content. Sold equipment retains a disabled, inaccessible copy of its card solely to reserve the previous geometry, with a visible Sold placeholder. Its comparison expansion also retains its space. This transient list belongs to the open merchant UI; it is cleared on close, never saved, and never grants ownership or enables a sale. New carried equipment is appended if it appears while open.
 
 After a sale, focus returns to Sell with scrolling suppressed. Another Enter cannot sell a different item; select the next item deliberately. A repeated pointer click hits the sold placeholder. Individual transactions still use their existing domain action, price, turn and monster response. Existing comparison calculations and Buy controls remain.
 
@@ -23,6 +23,12 @@ The UI first presents a confirmation showing count, gold and the single-turn cos
 Test-first evidence: the domain behavior initially failed because the bulk action did not advance a turn; the UI behavior failed on the missing bulk-sale control. Coverage includes mixed Lower/Same/Better/Tradeoff copies, duplicate swords with different enchantments, both ring destinations, changed loadout eligibility, atomic gold-overflow rejection, one adjacent enemy response, effects/recovery, fatal response and deterministic v20 save continuation. Browser checks cover cancellation, keyboard confirmation without accidental repeat activation, the displayed quote, retained non-Lower items, one committed turn, unchanged dialog/Close bounds and map focus restoration.
 
 ## Verification and review
+
+### Density review follow-up
+
+On `codex/the-last-ember`, the developer requested a more compact layout with four columns. The dialog is now at most 60rem wide, with four columns at desktop widths, two at medium widths and one on phones. Gold shares the tabs row; tighter padding and a single sale-card border reduce nesting. Buy fits its offers and omits the unused bulk-sale footer. Switching tabs can change the dialog height; purchases and Sell transactions preserve their respective geometry. Sell retains its fixed browsing area, sold placeholders and reserved confirmation footer, with more room for confirmation on phones. Existing comparison disclosures, deliberate confirmation focus and transaction rules remain.
+
+The browser regression first failed against the old two-column layout. Coverage now checks actual four-column card positions, compact Buy height, no horizontal overflow at 800px and 390px widths, reachable mobile offers, expanded comparisons and confirmation buttons. The existing twenty-sale and bulk-sale stability checks still pass. Desktop and mobile screenshots were visually reviewed; no domain or persistence changes were needed.
 
 Final checks: Biome, strict TypeScript, full Vitest suite and production build through the required commit hook, plus **nine production Chromium flows** at 1280×720. Browser saves are isolated generated fixtures. No backend behavior changed; no backend tests or human balance playtest were performed. The existing approximately 618 kB main-chunk warning remains.
 

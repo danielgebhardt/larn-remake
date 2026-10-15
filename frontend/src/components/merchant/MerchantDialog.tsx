@@ -96,7 +96,7 @@ const MerchantDialog = ({
 				<Dialog.Popup
 					initialFocus={titleRef}
 					finalFocus={mapRef}
-					className="fixed top-1/2 left-1/2 z-50 flex h-[min(44rem,calc(100dvh-2rem))] w-[min(48rem,calc(100vw-2rem))] -translate-x-1/2 -translate-y-1/2 flex-col gap-4 overflow-hidden rounded-xl border bg-card p-6 shadow-xl"
+					className={`fixed top-1/2 left-1/2 z-50 flex ${tab === "sell" ? "h-[calc(100dvh-2rem)] sm:h-[min(34rem,calc(100dvh-2rem))]" : "max-h-[calc(100dvh-2rem)]"} w-[min(60rem,calc(100vw-2rem))] -translate-x-1/2 -translate-y-1/2 flex-col gap-2 overflow-hidden rounded-xl border bg-card p-4 shadow-xl`}
 					onKeyDown={(event) => {
 						if (event.repeat || event.ctrlKey || event.metaKey || event.altKey)
 							return;
@@ -140,15 +140,14 @@ const MerchantDialog = ({
 								Wandering potion merchant
 							</Dialog.Title>
 							<Dialog.Description className="mt-1 text-sm text-muted-foreground">
-								One shared stock for this adventure. Browsing is free; every
-								successful trade takes a turn and monsters act.
+								Shared stock for this adventure. Browsing is free; each trade
+								takes one turn and monsters act.
 							</Dialog.Description>
 						</div>
 						<Dialog.Close render={<Button variant="outline" />}>
 							Close
 						</Dialog.Close>
 					</header>
-					<p className="shrink-0 font-semibold">Gold {state.gold}</p>
 					<Tabs.Root
 						value={tab}
 						onValueChange={(value) => {
@@ -157,10 +156,10 @@ const MerchantDialog = ({
 								setConfirmLowerSale(false);
 							}
 						}}
-						className="flex min-h-0 flex-1 flex-col gap-4"
+						className="flex min-h-0 flex-1 flex-col gap-2"
 					>
 						<Tabs.List
-							className="flex shrink-0 gap-2 border-b"
+							className="flex shrink-0 items-center gap-2 border-b"
 							aria-label="Merchant trading"
 						>
 							<Tabs.Tab
@@ -177,16 +176,19 @@ const MerchantDialog = ({
 							>
 								Sell
 							</Tabs.Tab>
+							<p className="ml-auto font-semibold tabular-nums">
+								Gold {state.gold}
+							</p>
 						</Tabs.List>
 						<Tabs.Panel
 							value="buy"
-							className="grid min-h-0 flex-1 content-start gap-3 overflow-y-auto sm:grid-cols-2"
+							className="grid min-h-0 flex-1 content-start gap-2 overflow-y-auto sm:grid-cols-2 lg:grid-cols-4"
 						>
 							{supplies.map((kind, index) => (
 								<Button
 									key={kind}
 									variant="outline"
-									className="h-auto items-center justify-start gap-3 whitespace-normal p-4 text-left"
+									className="relative grid h-auto min-w-0 content-start justify-items-start gap-2 whitespace-normal p-3 text-left"
 									disabled={
 										!onBuy ||
 										state.merchantStock[kind] === 0 ||
@@ -194,7 +196,9 @@ const MerchantDialog = ({
 									}
 									onClick={() => onBuy?.(kind)}
 								>
-									<kbd className="rounded border px-2 py-1">{index + 1}</kbd>
+									<kbd className="absolute top-3 right-3 rounded border px-1.5 text-xs text-muted-foreground">
+										{index + 1}
+									</kbd>
 									<span className="size-7 shrink-0">
 										<ItemIcon kind={kind} />
 									</span>
@@ -214,13 +218,12 @@ const MerchantDialog = ({
 							))}
 						</Tabs.Panel>
 						<Tabs.Panel value="sell" className="min-h-0 flex-1 overflow-y-auto">
-							<p className="mb-3 text-sm text-muted-foreground">
-								Unequip worn gear first. Only equipment in your bag can be sold;
-								potions, books and the ember stay yours. Sold slots stay in
-								place until you close the merchant.
+							<p className="mb-2 text-xs text-muted-foreground">
+								Unequip worn gear first. Sell carried equipment only; supplies
+								and the ember stay yours. Sold slots stay until you close.
 							</p>
 							{saleItems.length > 0 && (
-								<ul className="grid gap-2 sm:grid-cols-2">
+								<ul className="grid items-start gap-2 sm:grid-cols-2 lg:grid-cols-4">
 									{saleItems.map((original) => {
 										const current = gear.find(
 											(item) => item.id === original.id,
@@ -230,17 +233,14 @@ const MerchantDialog = ({
 										const comparison = compareEquipment(item, state);
 										const descriptionId = `${comparisonId}-${item.id}`;
 										return (
-											<li
-												key={item.id}
-												className="relative rounded-lg border bg-muted/20 p-2"
-											>
+											<li key={item.id} className="relative min-w-0 rounded-lg">
 												<div
 													aria-hidden={sold || undefined}
-													className={`grid content-start gap-2 ${sold ? "invisible pointer-events-none opacity-0" : ""}`}
+													className={`grid content-start gap-1 ${sold ? "invisible pointer-events-none opacity-0" : ""}`}
 												>
 													<Button
 														variant="outline"
-														className={`h-auto w-full justify-start gap-3 whitespace-normal p-3 text-left ${comparison ? comparisonStyles[comparison.label].border : ""}`}
+														className={`h-auto min-h-20 w-full justify-start gap-2 whitespace-normal p-2 text-left ${comparison ? comparisonStyles[comparison.label].border : ""}`}
 														aria-label={`${itemName(item)} · Sell for ${equipmentSalePrice(item)} gold`}
 														disabled={!onSell || sold}
 														aria-describedby={
@@ -256,7 +256,9 @@ const MerchantDialog = ({
 															<ItemIcon kind={item.kind} />
 														</span>
 														<span>
-															<span className="block">{itemName(item)}</span>
+															<span className="block break-words">
+																{itemName(item)}
+															</span>
 															<span className="block text-xs text-muted-foreground">
 																Sell for {equipmentSalePrice(item)} gold
 															</span>
@@ -276,7 +278,7 @@ const MerchantDialog = ({
 																{comparisonDescription(comparison)}
 															</span>
 															<details className="text-xs">
-																<summary className="cursor-pointer rounded px-1 py-1 text-muted-foreground">
+																<summary className="cursor-pointer rounded px-2 py-1 text-muted-foreground">
 																	Compare {itemName(item)}
 																</summary>
 																<div className="mt-2">
@@ -309,23 +311,31 @@ const MerchantDialog = ({
 							)}
 						</Tabs.Panel>
 					</Tabs.Root>
-					<div className="h-32 shrink-0 overflow-y-auto border-t pt-3">
+					<div
+						className={
+							tab === "sell"
+								? "h-28 shrink-0 overflow-y-auto border-t pt-2 sm:h-16"
+								: "hidden"
+						}
+					>
 						{tab === "sell" &&
 							(confirmLowerSale ? (
 								<fieldset
 									ref={confirmationRef}
 									tabIndex={-1}
 									aria-label="Confirm Lower equipment sale"
-									className="grid gap-2"
+									className="flex flex-wrap items-center justify-between gap-2"
 								>
-									<p className="text-sm">
-										Sell {lowerSale.items.length} Lower items for{" "}
-										{lowerSale.gold} gold?
-									</p>
-									<p className="text-xs text-muted-foreground">
-										The whole sale takes one turn, then monsters act once.
-									</p>
-									<div className="flex gap-2">
+									<div>
+										<p className="text-sm">
+											Sell {lowerSale.items.length} Lower items for{" "}
+											{lowerSale.gold} gold?
+										</p>
+										<p className="text-xs text-muted-foreground">
+											The whole sale takes one turn, then monsters act once.
+										</p>
+									</div>
+									<div className="flex flex-wrap gap-2">
 										<Button
 											disabled={!onSellLower || !lowerSale.items.length}
 											onClick={() => {
@@ -348,7 +358,7 @@ const MerchantDialog = ({
 									</div>
 								</fieldset>
 							) : (
-								<div className="grid justify-items-start gap-2">
+								<div className="flex flex-wrap items-center gap-x-4 gap-y-1">
 									<Button
 										variant="outline"
 										disabled={!onSellLower || !lowerSale.items.length}
@@ -358,13 +368,13 @@ const MerchantDialog = ({
 										{lowerSale.gold} gold
 									</Button>
 									<p className="text-xs text-muted-foreground">
-										Lower means red equipment that is worse than your worn gear.
-										Same and Tradeoff items stay yours.
+										Red/Lower gear only. Better, Same and Tradeoff items stay
+										yours.
 									</p>
 								</div>
 							))}
 					</div>
-					<div className="min-h-5 shrink-0">
+					<div className={error ? "shrink-0" : "hidden"}>
 						{error && (
 							<p role="alert" className="text-sm text-destructive">
 								{error}

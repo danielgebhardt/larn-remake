@@ -640,6 +640,81 @@ test("a fatal committed turn opens defeat, freezes play and permits replay", asy
 	await expect(turns(page)).toHaveText("Turn 1");
 });
 
+test("merchant uses four compact desktop columns and keeps narrow layouts within the dialog", async ({
+	page,
+}, testInfo) => {
+	await importAdventure(page, "merchant-many");
+	await page.keyboard.press("e");
+	const merchant = page.getByRole("dialog", {
+		name: "Wandering potion merchant",
+		exact: true,
+	});
+	const buy = merchant.getByRole("tabpanel", { name: "Buy", exact: true });
+	const offers = buy.getByRole("button");
+	const first = await offers.nth(0).boundingBox();
+	const fourth = await offers.nth(3).boundingBox();
+	if (!first || !fourth) throw new Error("Expected purchase cards");
+	expect(fourth.y).toBe(first.y);
+	expect(fourth.x).toBeGreaterThan(first.x + first.width * 2);
+	expect((await merchant.boundingBox())?.height).toBeLessThan(400);
+	await page.screenshot({
+		path: testInfo.outputPath("merchant-buy-desktop.png"),
+	});
+	await page.keyboard.press("s");
+	const sell = merchant.getByRole("tabpanel", { name: "Sell", exact: true });
+	const cards = sell.getByRole("listitem");
+	const firstSale = await cards.nth(0).boundingBox();
+	const fourthSale = await cards.nth(3).boundingBox();
+	if (!firstSale || !fourthSale) throw new Error("Expected sale cards");
+	expect(fourthSale.y).toBe(firstSale.y);
+	expect(fourthSale.x).toBeGreaterThan(firstSale.x + firstSale.width * 2);
+	await page.screenshot({
+		path: testInfo.outputPath("merchant-sell-desktop.png"),
+	});
+	for (const width of [800, 390]) {
+		await page.setViewportSize({ width, height: 667 });
+		for (const name of ["Buy", "Sell"]) {
+			await merchant.getByRole("tab", { name, exact: true }).click();
+			const panel = merchant.getByRole("tabpanel", { name, exact: true });
+			expect(
+				await panel.evaluate((node) => node.scrollWidth <= node.clientWidth),
+			).toBe(true);
+			await expect(
+				merchant.getByRole("button", { name: "Close", exact: true }),
+			).toBeInViewport({ ratio: 1 });
+			if (width === 390)
+				await page.screenshot({
+					path: testInfo.outputPath(
+						`merchant-${name.toLowerCase()}-mobile.png`,
+					),
+				});
+			if (name === "Buy") {
+				await panel.getByRole("button").last().scrollIntoViewIfNeeded();
+				await expect(panel.getByRole("button").last()).toBeInViewport({
+					ratio: 1,
+				});
+			}
+		}
+	}
+	await sell.locator("summary").first().click();
+	expect(
+		await sell.evaluate((node) => node.scrollWidth <= node.clientWidth),
+	).toBe(true);
+	await merchant.getByRole("button", { name: /Sell all Lower items/ }).click();
+	await expect(
+		merchant.getByRole("button", { name: "Confirm bulk sale", exact: true }),
+	).toBeInViewport({ ratio: 1 });
+	await expect(
+		merchant.getByRole("button", { name: "Cancel bulk sale", exact: true }),
+	).toBeInViewport({ ratio: 1 });
+	await merchant
+		.getByRole("button", { name: "Cancel bulk sale", exact: true })
+		.click();
+	await expect(turns(page)).toHaveText("Turn 0");
+	await page.keyboard.press("Escape");
+	await expect(map(page)).toBeFocused();
+});
+
 test("merchant comparisons open with Enter after import and only selling spends a turn", async ({
 	page,
 }, testInfo) => {

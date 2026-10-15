@@ -3,6 +3,7 @@ import { Trophy } from "lucide-react";
 import { type RefObject, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import type { VictorySummary } from "../../domain/game/Adventure";
+import { ADVENTURE_STORY } from "../../domain/game/AdventureStory";
 
 const VictoryDialog = ({
 	summary,
@@ -54,7 +55,7 @@ const VictoryDialog = ({
 						Adventure complete
 					</Dialog.Title>
 					<Dialog.Description className="mt-2 text-sm text-muted-foreground">
-						You returned safely with the cure. Your adventure is complete.
+						{ADVENTURE_STORY.victory}
 					</Dialog.Description>
 					<dl className="my-5 grid grid-cols-2 gap-3">
 						{values.map(([label, value]) => (

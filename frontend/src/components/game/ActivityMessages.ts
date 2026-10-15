@@ -1,4 +1,5 @@
 import type { ActivityEvent } from "../../domain/game/ActivityHistory.ts";
+import { ADVENTURE_STORY } from "../../domain/game/AdventureStory";
 import { SPELL_DEFINITIONS } from "../../domain/game/Spells";
 import { EFFECT_DEFINITIONS } from "../../domain/game/TimedEffects";
 import { EQUIPMENT_SLOT_LABELS } from "../../domain/items/Equipment";
@@ -34,7 +35,7 @@ export const formatActivityEvent = (event: ActivityEvent): string => {
 		case "monster-alarm-sounded":
 			return `${prefix}The ${MONSTER_DEFINITIONS[event.monster].name} sounds its alarm. Nearby creatures may investigate your last seen position.`;
 		case "escape-started":
-			return `${prefix}The cure awakens the dungeon. Enemies sense it through walls within ${ESCAPE_PURSUIT_RULES.cureSenseRadius} tiles. Keep moving toward the entrance on floor 1!`;
+			return `${prefix}${ADVENTURE_STORY.return} Enemies sense the ember through walls within ${ESCAPE_PURSUIT_RULES.cureSenseRadius} tiles. Keep moving toward the entrance on floor 1!`;
 		case "monster-awareness-changed": {
 			const definition = MONSTER_DEFINITIONS[event.monster];
 			let message = "gives up the search.";
@@ -73,9 +74,9 @@ export const formatActivityEvent = (event: ActivityEvent): string => {
 		case "level-gained":
 			return `${prefix}You reach level ${event.level}. Maximum and current health increase by ${event.healthGain}.`;
 		case "quest-completed":
-			return `${prefix}You return with the cure. Adventure complete!`;
+			return `${prefix}${ADVENTURE_STORY.victory}`;
 		case "entrance-reminder":
-			return `${prefix}The cure is still on floor ${event.goalFloor}. Return with it to leave.`;
+			return `${prefix}The last ember is still on floor ${event.goalFloor}. Return with it to leave.`;
 		case "floor-changed":
 			return `${prefix}You ${event.toFloor > event.fromFloor ? "descend" : "ascend"} to floor ${event.toFloor}.`;
 		case "monster-missed":
@@ -151,7 +152,7 @@ export const formatActivityEvent = (event: ActivityEvent): string => {
 			if (ITEM_DEFINITIONS[event.item].type === "spellbook")
 				return `${prefix}You read ${ITEM_DEFINITIONS[event.item].name} and learn its spell.`;
 			if (event.item === "cure")
-				return `${prefix}You recover the cure. Return to the entrance on floor 1.`;
+				return `${prefix}${ADVENTURE_STORY.pickup} Return to the entrance on floor 1.`;
 			return `${prefix}You pick up ${ITEM_DEFINITIONS[event.item].name}.`;
 		case "item-dropped":
 			return `${prefix}You drop ${ITEM_DEFINITIONS[event.item].name}.`;

@@ -152,8 +152,39 @@ export default async function prepareFixtures() {
 		};
 		const directory = new URL(".generated/", import.meta.url);
 		const escaping = createReviewEncounter(3, 1172903873);
+		const ember = quiet.floorItems.find((entry) => entry.item.kind === "cure");
+		if (!ember) throw new Error("Expected the quest item");
+		const entrance = quiet.quest.entrance;
+		const approach = [
+			[-1, 0],
+			[0, 1],
+			[1, 0],
+			[0, -1],
+		]
+			.map(([dr, dc]) => ({ row: entrance.row + dr, col: entrance.col + dc }))
+			.find((point) => run.floors[0].terrain[point.row]?.[point.col] === ".");
+		if (!approach) throw new Error("Expected an entrance approach");
 		await mkdir(directory, { recursive: true });
 		for (const [name, state, config] of [
+			[
+				"ember-pickup",
+				{
+					...quiet,
+					run: { ...run, activeFloor: 5, playerCoordinate: ember.coordinate },
+				},
+				configuration,
+			],
+			[
+				"ember-homecoming",
+				{
+					...quiet,
+					run: { ...run, playerCoordinate: approach },
+					floorItems: [],
+					quest: { ...quiet.quest, cureRecovered: true },
+					escape: { startedTurn: 0, activatedFloors: [1] },
+				},
+				configuration,
+			],
 			[
 				"escape",
 				{

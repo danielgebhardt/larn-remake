@@ -2,7 +2,6 @@ import {
 	Axe,
 	BookOpen,
 	Crown,
-	Gem,
 	HardHat,
 	ScrollText,
 	Shield,
@@ -16,6 +15,7 @@ import type { ComponentType, SVGProps } from "react";
 import { ITEM_DEFINITIONS, type ItemKind } from "../../domain/items/Item";
 import type { PotionKind } from "../../domain/items/PotionHotbar";
 import DragonMailIcon from "./DragonMailIcon";
+import EmberIcon from "./EmberIcon";
 import PotionIcon from "./PotionIcon";
 import RingIcon from "./RingIcon";
 
@@ -34,7 +34,7 @@ const icons: Record<
 	ComponentType<SVGProps<SVGSVGElement>>
 > = {
 	"enchantment-scroll": ScrollText,
-	cure: Gem,
+	cure: EmberIcon,
 	"short-sword": Sword,
 	"iron-sword": Sword,
 	"steel-sword": Sword,
@@ -64,7 +64,7 @@ const ItemIcon = ({ kind }: { kind: ItemKind }) => {
 		<Icon
 			aria-hidden="true"
 			focusable="false"
-			className={`size-full ${kind.startsWith("book-") ? "text-violet-700 dark:text-violet-300" : kind === "cure" ? "text-item-cure" : "text-item-gear"}`}
+			className={`size-full ${kind.startsWith("book-") ? "text-violet-700 dark:text-violet-300" : kind === "cure" ? "text-item-ember" : "text-item-gear"}`}
 		/>
 	);
 };

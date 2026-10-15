@@ -21,6 +21,17 @@ const props = {
 	floorItems: [item],
 };
 describe("Floor item symbols", () => {
+	it("shows the legacy quest item as a named amber ember SVG", () => {
+		render(
+			<DungeonLayout
+				{...props}
+				floorItems={[{ ...item, item: { id: "quest:cure", kind: "cure" } }]}
+			/>,
+		);
+		const cell = screen.getByLabelText("row1col2 - Last Ember");
+		expect(cell.querySelector("svg")).toHaveClass("text-item-ember");
+		expect(cell.querySelector("svg")).toHaveAttribute("viewBox", "0 0 24 24");
+	});
 	it("shows visible items and describes multiple items on the same tile", () => {
 		render(<DungeonLayout {...props} floorItems={pile} />);
 		expect(

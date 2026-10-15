@@ -24,8 +24,8 @@ describe("Header tests", () => {
 		render(<Header floorNumber={1} floorCount={3} onNewDungeon={() => {}} />);
 
 		expect(
-			screen.getByRole("heading", { name: "Larn Remake" }),
-		).toHaveTextContent("Larn Remake");
+			screen.getByRole("heading", { name: "The Last Ember" }),
+		).toHaveTextContent("The Last Ember");
 	});
 
 	it("displays the supplied floor number and floor count", () => {

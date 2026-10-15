@@ -23,6 +23,7 @@
 	--color-monster-cyan: var(--monster-cyan);
 	--color-map-threat: var(--map-threat);
 	--color-item-cure: var(--item-cure);
+	--color-item-ember: var(--item-ember);
 	--color-item-gear: var(--item-gear);
 	--color-item-potion: var(--item-potion);
 	--color-item-mana: var(--item-mana);
@@ -121,6 +122,7 @@
 	--map-threat: #b91c1c;
 	--item-gear: #a16207;
 	--item-cure: #1d4ed8;
+	--item-ember: #b45309;
 	--item-potion: #b91c1c;
 	--item-antidote: #15803d;
 	--item-mana: #2563eb;
@@ -176,6 +178,7 @@
 	--map-threat: #fb7185;
 	--item-gear: #fbbf24;
 	--item-cure: #93c5fd;
+	--item-ember: #fbbf24;
 	--item-potion: #f87171;
 	--item-antidote: #4ade80;
 	--item-mana: #60a5fa;

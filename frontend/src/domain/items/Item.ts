@@ -170,12 +170,12 @@ export const ITEM_DEFINITIONS = {
 		dropWeight: 1,
 	},
 	cure: {
-		name: "Cure",
+		name: "Last Ember",
 		type: "quest",
 		attackBonus: 0,
 		armor: 0,
 		description:
-			"The cure you came to recover. Carry it safely back to the entrance.",
+			"The last ember beneath the old ruins. Bring it home to rekindle your settlement’s dying beacon. Its keepers can sense its warmth.",
 		minFloor: 1,
 		maxFloor: MAX_FLOORS,
 		foundWeight: 0,

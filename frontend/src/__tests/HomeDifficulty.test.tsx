@@ -43,7 +43,7 @@ describe("Choosing adventure difficulty", () => {
 		await user.click(screen.getByRole("radio", { name: /Harder/ }));
 		await user.click(screen.getByRole("button", { name: "Begin Adventure" }));
 		expect(
-			screen.getByRole("dialog", { name: "A journey for the cure" }),
+			screen.getByRole("dialog", { name: "The Last Ember" }),
 		).toBeVisible();
 		expect(screen.getByRole("alert")).toHaveTextContent(/Could not start/);
 		expect(screen.getByRole("radio", { name: /Harder/ })).toBeChecked();

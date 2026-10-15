@@ -220,10 +220,10 @@ const DungeonHelp = ({
 					</li>
 					<li>
 						<span className="font-medium text-foreground">Quest.</span> Recover
-						the cure on the final floor with G, then return to the entrance on
-						floor 1. The protected quest pouch uses no bag slot; the cure cannot
-						be drunk or dropped. Step onto the entrance tile with the cure to
-						win. There is no time limit.
+						the ember on the final floor with G, then return to the entrance on
+						floor 1. The protected quest pouch uses no bag slot; the ember
+						cannot be drunk or dropped. Step onto the entrance tile with the
+						ember to win. There is no time limit.
 					</li>
 					<li>
 						<span className="font-medium text-foreground">Equipment.</span> Open
@@ -274,17 +274,17 @@ const DungeonHelp = ({
 			>
 				<h3 className="mb-2 font-medium">Hunted return</h3>
 				<p>
-					Recovering the cure awakens up to{" "}
+					Recovering the ember awakens up to{" "}
 					{ESCAPE_ENCOUNTER_RULES.maximumNewMonsters} endgame hunters near stair
 					routes on each return floor, drawn from the floor-
 					{ESCAPE_ENCOUNTER_RULES.monsterPoolFloor} pool. Small or crowded
-					floors may have fewer. All enemies on your active floor sense the cure
-					within {ESCAPE_PURSUIT_RULES.cureSenseRadius} horizontal/vertical
-					steps, even through walls, and track you while in range. Walls and
-					closed doors still block attacks and movement; creatures that normally
-					open ordinary doors can spend actions opening them. Sleep, Fear, Web
-					and normal telegraphs still work. Keep moving: revisiting or loading
-					never creates another wave.
+					floors may have fewer. All enemies on your active floor sense the
+					ember within {ESCAPE_PURSUIT_RULES.cureSenseRadius}{" "}
+					horizontal/vertical steps, even through walls, and track you while in
+					range. Walls and closed doors still block attacks and movement;
+					creatures that normally open ordinary doors can spend actions opening
+					them. Sleep, Fear, Web and normal telegraphs still work. Keep moving:
+					revisiting or loading never creates another wave.
 				</p>
 			</section>
 			<ObservedCreatures

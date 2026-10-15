@@ -1,7 +1,8 @@
 import { type JSX, useEffect, useState } from "react";
+import { ADVENTURE_STORY } from "./domain/game/AdventureStory";
 
 function APICheck(): JSX.Element {
-	const [initialText, setInitialText] = useState<string>("Larn Remake");
+	const [initialText, setInitialText] = useState<string>(ADVENTURE_STORY.title);
 	const [error, setError] = useState<string | null>(null);
 	useEffect(() => {
 		fetch("/initial")

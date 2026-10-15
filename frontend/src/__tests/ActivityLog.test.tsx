@@ -60,7 +60,7 @@ describe("Activity log presentation", () => {
 			"Turn 3 — Dexterity increases to 12.",
 			"Turn 3 — The orc hits you for 2 damage.",
 			"Turn 4 — You die.",
-			"Turn 5 — You return with the cure. Adventure complete!",
+			"Turn 5 — The beacon catches. Beyond the walls, the shapes retreat. By morning, someone has complained about the smoke.",
 		]);
 		expect(within(entries[1]).getByText(/You reach level 2/)).toHaveClass(
 			"font-semibold",
@@ -72,7 +72,7 @@ describe("Activity log presentation", () => {
 		expect(within(entries[4]).getByText(/You die/)).toHaveClass(
 			"text-destructive",
 		);
-		expect(within(entries[5]).getByText(/Adventure complete/)).toHaveClass(
+		expect(within(entries[5]).getByText(/The beacon catches/)).toHaveClass(
 			"font-semibold",
 		);
 		for (const index of [1, 2, 4, 5])

@@ -11,9 +11,12 @@ it("introduces the quest before generating or playing an adventure", async () =>
 	const generate = vi.spyOn(DungeonRun, "generateDungeonRun");
 	render(<App />);
 	const welcome = screen.getByRole("dialog", {
-		name: "A journey for the cure",
+		name: "The Last Ember",
 	});
-	expect(welcome).toHaveTextContent(/return.*cure/i);
+	expect(welcome).toHaveTextContent(
+		"The beacon above your settlement is dying.",
+	);
+	expect(welcome).toHaveTextContent("Their equipment may prove useful.");
 	expect(
 		within(welcome).getByRole("button", { name: "Begin Adventure" }),
 	).toBeVisible();
@@ -38,7 +41,7 @@ it("begins a randomly seeded adventure and focuses the map", async () => {
 		expect.objectContaining({ rows: 40, cols: 40 }),
 	);
 	expect(
-		screen.queryByRole("dialog", { name: "A journey for the cure" }),
+		screen.queryByRole("dialog", { name: "The Last Ember" }),
 	).not.toBeInTheDocument();
 	expect(screen.getByLabelText("Dungeon map", { exact: true })).toHaveFocus();
 });

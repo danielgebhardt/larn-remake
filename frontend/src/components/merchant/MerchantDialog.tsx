@@ -216,8 +216,8 @@ const MerchantDialog = ({
 						<Tabs.Panel value="sell" className="min-h-0 flex-1 overflow-y-auto">
 							<p className="mb-3 text-sm text-muted-foreground">
 								Unequip worn gear first. Only equipment in your bag can be sold;
-								potions, books and the cure stay yours. Sold slots stay in place
-								until you close the merchant.
+								potions, books and the ember stay yours. Sold slots stay in
+								place until you close the merchant.
 							</p>
 							{saleItems.length > 0 && (
 								<ul className="grid gap-2 sm:grid-cols-2">

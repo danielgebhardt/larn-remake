@@ -40,31 +40,35 @@ describe("Visible adventure objective", () => {
 			render(<Home />, { wrapper: ThemeProvider });
 			const user = userEvent.setup();
 			expect(screen.getByLabelText("Quest objective")).toHaveTextContent(
-				"Recover the cure on floor 3",
+				"Recover the last ember on floor 3",
 			);
 			await user.keyboard("d");
 			if (method === "keyboard") await user.keyboard("g");
 			else {
 				await user.click(screen.getByRole("button", { name: "Character" }));
 				await user.click(
-					screen.getByRole("button", { name: "Pick up Cure, item 1" }),
+					screen.getByRole("button", { name: "Pick up Last Ember, item 1" }),
 				);
 				await user.keyboard("{Escape}");
 			}
 			expect(screen.getByLabelText("Quest objective")).toHaveTextContent(
 				"Return to the entrance on floor 1",
 			);
-			expect(screen.getByRole("log")).toHaveTextContent("You recover the cure");
+			expect(screen.getByRole("log")).toHaveTextContent(
+				"The ember lifts easily from its cradle.",
+			);
 			await user.click(screen.getByRole("button", { name: "Character" }));
 			const panel = within(
 				await screen.findByRole("dialog", { name: "Character" }),
 			);
 			expect(panel.getByLabelText("Quest pouch")).toHaveTextContent(
-				"Cure protected",
+				"Ember protected",
 			);
 			expect(panel.getByLabelText("Bag capacity")).toHaveTextContent("2 / 27");
 			expect(
-				panel.queryByRole("button", { name: /Drink cure|Drop cure/ }),
+				panel.queryByRole("button", {
+					name: /Drink Last Ember|Drop Last Ember/,
+				}),
 			).not.toBeInTheDocument();
 		},
 	);

@@ -38,6 +38,9 @@ describe("Victory summary and ended-run controls", () => {
 	it("opens the summary automatically with final values and focus", async () => {
 		const { dialog } = await win();
 		const summary = within(dialog);
+		expect(dialog).toHaveTextContent(
+			"By morning, someone has complained about the smoke.",
+		);
 		expect(summary.getByLabelText("Victory seed")).toHaveTextContent("123");
 		expect(summary.getByLabelText("Victory turns")).toHaveTextContent("3");
 		expect(summary.getByLabelText("Victory level")).toHaveTextContent("1");
@@ -93,7 +96,7 @@ describe("Victory summary and ended-run controls", () => {
 				).not.toBeInTheDocument(),
 			);
 			expect(screen.getByLabelText("Quest objective")).toHaveTextContent(
-				"Recover the cure",
+				"Recover the last ember",
 			);
 			expect(screen.getByLabelText("Turn count")).toHaveTextContent("Turn 0");
 			expect(
@@ -112,7 +115,7 @@ describe("Victory summary and ended-run controls", () => {
 		expect(screen.getByRole("alert")).toHaveTextContent("Enter a whole number");
 		await user.keyboard("{Escape}");
 		expect(screen.getByLabelText("Quest objective")).toHaveTextContent(
-			"Adventure complete",
+			"Ember returned. The beacon burns again.",
 		);
 		await openSettings(user);
 		await user.clear(screen.getByRole("textbox", { name: "Dungeon seed" }));
@@ -123,7 +126,7 @@ describe("Victory summary and ended-run controls", () => {
 		await user.click(screen.getByRole("button", { name: "Start from seed" }));
 		await waitForSettingsClosed();
 		expect(screen.getByLabelText("Quest objective")).toHaveTextContent(
-			"Recover the cure",
+			"Recover the last ember",
 		);
 	});
 });

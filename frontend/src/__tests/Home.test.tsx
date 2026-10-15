@@ -43,7 +43,7 @@ describe("Home rendering and movement", () => {
 
 		const toolbar = screen.getByRole("banner");
 		expect(
-			within(toolbar).getByRole("heading", { name: "Larn Remake" }),
+			within(toolbar).getByRole("heading", { name: "The Last Ember" }),
 		).toBeVisible();
 		expect(
 			within(toolbar).getByRole("heading", { name: "Floor 1 of 3" }),
@@ -66,7 +66,9 @@ describe("Home rendering and movement", () => {
 	it("shows the header and main element", () => {
 		render(<Home />);
 
-		expect(screen.getByRole("heading", { name: "Larn Remake" })).toBeVisible();
+		expect(
+			screen.getByRole("heading", { name: "The Last Ember" }),
+		).toBeVisible();
 		expect(screen.getByRole("main")).toBeVisible();
 	});
 

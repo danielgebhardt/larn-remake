@@ -65,7 +65,7 @@ export const transferFloorItem = (
 		}
 		if (found.item.kind === "cure") {
 			if (state.quest.cureRecovered)
-				return { error: "You already recovered the cure." };
+				return { error: "You already recovered the ember." };
 			return {
 				bag: state.bag,
 				floorItems: state.floorItems.filter((entry) => entry !== found),

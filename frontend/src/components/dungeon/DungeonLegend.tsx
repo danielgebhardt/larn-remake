@@ -4,13 +4,15 @@ import {
 	STAIRS_DOWN,
 	STAIRS_UP,
 } from "../../domain/dungeon/Tiles.ts";
+import { ITEM_DEFINITIONS } from "../../domain/items/Item";
+import ItemIcon from "../items/ItemIcon";
 import TileIcon from "./TileIcon.tsx";
 
 const tileEntries = [
 	{
 		tile: ENTRANCE,
 		label: "Entrance",
-		description: "Return here with the cure to complete the adventure.",
+		description: "Return here with the ember to complete the adventure.",
 	},
 	{ tile: PLAYER, label: "Player", description: "Your current position." },
 	{
@@ -60,6 +62,17 @@ const DungeonLegend = () => (
 				</div>
 			</li>
 		))}
+		<li className="flex items-center gap-3">
+			<span className="block size-[var(--dungeon-tile-size)] shrink-0">
+				<ItemIcon kind="cure" />
+			</span>
+			<div>
+				<p className="font-medium">{ITEM_DEFINITIONS.cure.name}</p>
+				<p className="text-xs leading-relaxed text-muted-foreground">
+					Recover it from the deepest floor and bring its light home.
+				</p>
+			</div>
+		</li>
 		{fogEntries.map(({ label, className, description }) => (
 			<li key={label} className="flex items-center gap-3">
 				<span

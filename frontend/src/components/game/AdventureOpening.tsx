@@ -7,6 +7,7 @@ import {
 	DEFAULT_RUN_CONFIGURATION,
 	type RunConfiguration,
 } from "../../domain/dungeon/RunConfiguration";
+import { ADVENTURE_STORY } from "../../domain/game/AdventureStory";
 import type { SaveDocument } from "../../domain/saves/SaveFormat";
 import AdventureSaveSheet from "./AdventureSaveSheet";
 import DifficultyChoice from "./DifficultyChoice";
@@ -39,22 +40,24 @@ const AdventureOpening = ({
 							aria-hidden="true"
 							className="mb-2 size-9 text-primary"
 						/>
-						<p className="mb-2 text-xs font-medium uppercase tracking-widest text-muted-foreground">
-							Larn Remake
-						</p>
 						<Dialog.Title
 							ref={title}
 							tabIndex={-1}
 							className="text-2xl font-semibold outline-none"
 						>
-							A journey for the cure
+							{ADVENTURE_STORY.title}
 						</Dialog.Title>
 						<Dialog.Description className="mt-4 leading-relaxed text-muted-foreground">
-							A mysterious illness has reached your home. Far below, in the
-							forgotten halls of Larn, lies the cure. Descend into the dungeon,
-							recover it from the deepest floor, and return safely with the
-							cure.
+							{ADVENTURE_STORY.opening[0]}
 						</Dialog.Description>
+						{ADVENTURE_STORY.opening.slice(1).map((paragraph) => (
+							<p
+								key={paragraph}
+								className="mt-3 leading-relaxed text-muted-foreground"
+							>
+								{paragraph}
+							</p>
+						))}
 						<div className="my-3 flex gap-3 rounded-lg border bg-muted/30 p-4 text-sm">
 							<Shield
 								aria-hidden="true"
@@ -66,6 +69,9 @@ const AdventureOpening = ({
 								a safe return and a lost expedition.
 							</p>
 						</div>
+						<p className="mb-3 text-xs text-muted-foreground">
+							Inspired by the classic roguelike Larn.
+						</p>
 						<form
 							className="grid gap-3"
 							onSubmit={(event) => {

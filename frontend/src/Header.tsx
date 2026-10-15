@@ -1,6 +1,7 @@
 import { RefreshCw } from "lucide-react";
 import type { ReactNode } from "react";
 import { Button } from "@/components/ui/button";
+import { ADVENTURE_STORY } from "./domain/game/AdventureStory";
 
 type HeaderProps = {
 	floorNumber: number;
@@ -26,7 +27,9 @@ const Header = ({
 	return (
 		<header className="flex shrink-0 flex-wrap items-center gap-4 border-b border-border bg-card px-4 py-3 sm:px-6">
 			<div className="flex min-w-0 flex-1 flex-wrap items-baseline gap-x-4 gap-y-1">
-				<h1 className="text-lg font-semibold tracking-tight">Larn Remake</h1>
+				<h1 className="text-lg font-semibold tracking-tight">
+					{ADVENTURE_STORY.title}
+				</h1>
 				<h2 className="text-sm font-medium text-muted-foreground">
 					Floor {floorNumber} of {floorCount}
 				</h2>

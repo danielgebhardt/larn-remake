@@ -30,6 +30,96 @@ test.beforeEach(async ({ page }) => {
 	await page.goto("/"); // Playwright supplies a fresh browser context and storage for every test.
 });
 
+test("The Last Ember introduces its quest and presents the historical quest item as an ember", async ({
+	page,
+}, testInfo) => {
+	await expect(page).toHaveTitle("The Last Ember");
+	await expect(page.locator('meta[name="description"]')).toHaveAttribute(
+		"content",
+		/last ember/,
+	);
+	const opening = page.getByRole("dialog", {
+		name: "The Last Ember",
+		exact: true,
+	});
+	await expect(opening).toContainText(
+		"The beacon above your settlement is dying.",
+	);
+	await expect(opening).toContainText("Their equipment may prove useful.");
+	await expect(opening).toContainText(
+		"Inspired by the classic roguelike Larn.",
+	);
+	await page.screenshot({ path: testInfo.outputPath("opening.png") });
+	await page.setViewportSize({ width: 390, height: 667 });
+	await opening
+		.getByRole("button", { name: "Begin Adventure", exact: true })
+		.scrollIntoViewIfNeeded();
+	await expect(
+		opening.getByRole("button", { name: "Begin Adventure", exact: true }),
+	).toBeInViewport();
+	await page.setViewportSize({ width: 1280, height: 720 });
+	await importAdventure(page, "ember-pickup");
+	await page.keyboard.press("g");
+	await expect(page.getByRole("log")).toContainText(
+		"The ember lifts easily from its cradle.",
+	);
+	await expect(page.getByRole("log")).toContainText(
+		"Getting here was the quieter half of the journey.",
+	);
+	await page.keyboard.press("c");
+	const pouch = page.getByLabel("Quest pouch", { exact: true });
+	await expect(pouch).toContainText("Ember protected");
+	await expect(pouch.locator("svg")).toHaveClass(/text-item-ember/);
+	await pouch.screenshot({ path: testInfo.outputPath("ember.png") });
+	await page.keyboard.press("Escape");
+	await expect(map(page)).toBeFocused();
+	await expect(turns(page)).toHaveText("Turn 1");
+});
+
+test("returning the ember rekindles the beacon and preserves terminal victory behavior", async ({
+	page,
+}, testInfo) => {
+	await importAdventure(page, "ember-homecoming");
+	const position = await map(page)
+		.getByRole("cell", { name: / - player$/, exact: false })
+		.getAttribute("aria-label");
+	const entrance = await map(page)
+		.getByRole("cell", { name: / - entrance$/, exact: false })
+		.getAttribute("aria-label");
+	const parse = (label: string | null) => {
+		const match = label?.match(/row(\d+)col(\d+)/);
+		if (!match) throw new Error("Expected map coordinates");
+		return { row: Number(match[1]), col: Number(match[2]) };
+	};
+	const start = parse(position),
+		goal = parse(entrance);
+	await page.keyboard.press(
+		goal.row < start.row
+			? "w"
+			: goal.row > start.row
+				? "s"
+				: goal.col < start.col
+					? "a"
+					: "d",
+	);
+	const victory = page.getByRole("dialog", {
+		name: "Adventure complete",
+		exact: true,
+	});
+	await expect(victory).toContainText(
+		"The beacon catches. Beyond the walls, the shapes retreat.",
+	);
+	await expect(victory).toContainText(
+		"By morning, someone has complained about the smoke.",
+	);
+	await victory.screenshot({ path: testInfo.outputPath("victory.png") });
+	await page.keyboard.press("Escape");
+	await expect(map(page)).toBeFocused();
+	await expect(turns(page)).toHaveText("Turn 1");
+	await page.keyboard.press("Space");
+	await expect(turns(page)).toHaveText("Turn 1");
+});
+
 test("the hunted ascent announces endgame hunters and explains cure sensing without stealing map focus", async ({
 	page,
 }) => {

@@ -20,6 +20,7 @@ export default async function prepareFixtures() {
 			"/src/domain/dungeon/DungeonRun.ts",
 		);
 		const { createGameState } = await load("/src/domain/game/GameState.ts");
+		const { createReviewEncounter } = await load("/scripts/evasion-review.ts");
 		const { updateExploration } = await load(
 			"/src/domain/dungeon/Exploration.ts",
 		);
@@ -152,6 +153,11 @@ export default async function prepareFixtures() {
 		const directory = new URL(".generated/", import.meta.url);
 		await mkdir(directory, { recursive: true });
 		for (const [name, state, config] of [
+			[
+				"evasion",
+				createReviewEncounter(3, 1172903873),
+				DEFAULT_RUN_CONFIGURATION,
+			],
 			["ready", quiet, configuration],
 			["poisoned", poisoned, configuration],
 			["scrolling", scrolling, configuration],

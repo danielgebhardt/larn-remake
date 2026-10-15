@@ -1,5 +1,6 @@
 import { Brain, Sparkles, Sword, Zap } from "lucide-react";
 import { deriveAttributes } from "../../domain/game/Attributes";
+import { deriveAccuracy } from "../../domain/game/MeleeRules";
 import {
 	HEALTH_PER_LEVEL,
 	levelForExperience,
@@ -26,6 +27,7 @@ const ProgressionView = ({
 }) => {
 	const level = levelForExperience(progression.experience);
 	const attributes = deriveAttributes(progression, effects, equipment);
+	const accuracy = deriveAccuracy(progression, effects, equipment);
 	return (
 		<section
 			aria-label="Character progression"
@@ -106,8 +108,12 @@ const ProgressionView = ({
 						from 3
 					</p>
 					<p className="text-xs text-muted-foreground">
-						+{attributes.dexterityModifier * 5} points to hit / evade chance ·
-						grows at even levels
+						Hit {accuracy.playerHitChance}% · evade {accuracy.evadeChance}% ·
+						Dexterity grows at even levels.
+					</p>
+					<p className="text-xs text-muted-foreground">
+						Evasion gains 5 percentage points per 2 Dexterity through 20, then
+						per 4 Dexterity. Hit and evasion chances stay within 5–95%.
 					</p>
 					<p className="text-xs text-muted-foreground">
 						+{attributes.intelligenceModifier} spell damage / healing · +

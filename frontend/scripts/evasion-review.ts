@@ -1,4 +1,4 @@
-// Diagnostic encounters and a proposed curve. Nothing here is imported by the game.
+// Diagnostic comparison of the legacy linear curve and active diminished evasion. Nothing here is imported by the game.
 import type { DungeonFloor } from "../src/domain/dungeon/DungeonRun";
 import { deriveAttributes } from "../src/domain/game/Attributes";
 import {
@@ -39,16 +39,9 @@ const checkpoints = [
 	{ name: "recorded-20", experience: 4547, floor: 20, ordinary: "wyvern" },
 ] as const;
 
-// Retain the first five modifier points, then award one threshold step per two.
-// This is a candidate for developer review, NOT the active combat rule.
-export const candidateMonsterThreshold = (modifier: number): number =>
-	Math.max(
-		2,
-		Math.min(
-			20,
-			5 + Math.min(modifier, 5) + Math.floor(Math.max(0, modifier - 5) / 2),
-		),
-	);
+// Preserve the previous linear rule only for historical diagnostic comparisons.
+const legacyMonsterThreshold = (modifier: number): number =>
+	Math.max(2, Math.min(20, 5 + modifier));
 
 const floors: DungeonFloor[] = Array.from({ length: 20 }, (_, index) => ({
 	floorNumber: index + 1,
@@ -158,7 +151,7 @@ export const reviewPressure = (
 	kind: MonsterKind,
 	seed: number,
 	attempts: number,
-	candidate: boolean,
+	applied: boolean,
 	charge = false,
 ) => {
 	const attributes = deriveAttributes(
@@ -166,10 +159,10 @@ export const reviewPressure = (
 		state.effects,
 		state.equipment,
 	);
-	const threshold = candidate
-		? candidateMonsterThreshold(attributes.dexterityModifier)
-		: deriveAccuracy(state.progression, state.effects, state.equipment)
-				.monsterHitThreshold;
+	const threshold = applied
+		? deriveAccuracy(state.progression, state.effects, state.equipment)
+				.monsterHitThreshold
+		: legacyMonsterThreshold(attributes.dexterityModifier);
 	const { armor } = deriveCombatStats(
 		state.equipment,
 		state.progression,
@@ -232,7 +225,7 @@ export type ReviewPolicy =
 export const runReviewFight = (
 	seed: number,
 	policy: ReviewPolicy,
-	candidate: boolean,
+	applied: boolean,
 	rollSource: AttackRollSource = createAttackRolls,
 ) => {
 	let state = createReviewEncounter(2, seed);
@@ -270,8 +263,8 @@ export const runReviewFight = (
 			before.effects,
 			before.equipment,
 		).dexterityModifier;
-		// Adjust only incoming physical hit faces in this isolated experiment.
-		// The game still receives its original threshold; player/spell and damage rolls stay matched.
+		// Active encounters use unmodified rolls. Adjust incoming physical faces only
+		// when reconstructing the legacy curve; player and damage rolls stay matched.
 		const source: AttackRollSource = (context) => {
 			const rolls = rollSource(context);
 			if (context.targetId !== "player") return rolls;
@@ -284,10 +277,10 @@ export const runReviewFight = (
 						Math.max(
 							1,
 							rolls.d20() +
-								(candidate
-									? accuracy.monsterHitThreshold -
-										candidateMonsterThreshold(modifier)
-									: 0),
+								(applied
+									? 0
+									: accuracy.monsterHitThreshold -
+										legacyMonsterThreshold(modifier)),
 						),
 					),
 			};
@@ -345,7 +338,7 @@ export const runEvasionReview = () => ({
 	seeds: REVIEW_SEEDS,
 	attemptsPerStream: 2000,
 	scope:
-		"Synthetic Normal 40×40×20 encounters, not full-run win rates or a replay of the unavailable original save. Candidate affects diagnostic incoming physical rolls only; active gameplay is unchanged.",
+		"Synthetic Normal 40×40×20 encounters, not full-run win rates or a replay of the unavailable original save. Applied encounters use live rules and unmodified seeded rolls; only legacy physical hit faces are adapted for comparison.",
 	pressure: checkpoints.flatMap((point, checkpoint) =>
 		[
 			point.ordinary,
@@ -361,15 +354,15 @@ export const runEvasionReview = () => ({
 				armor: deriveCombatStats(state.equipment, state.progression).armor,
 				streams: REVIEW_SEEDS.map((seed) => ({
 					seed,
-					current: reviewPressure(state, kind, seed, 2000, false),
-					candidate: reviewPressure(state, kind, seed, 2000, true),
+					legacy: reviewPressure(state, kind, seed, 2000, false),
+					applied: reviewPressure(state, kind, seed, 2000, true),
 				})),
 				...(kind === "iron-champion"
 					? {
 							chargeStreams: REVIEW_SEEDS.map((seed) => ({
 								seed,
-								current: reviewPressure(state, kind, seed, 2000, false, true),
-								candidate: reviewPressure(state, kind, seed, 2000, true, true),
+								legacy: reviewPressure(state, kind, seed, 2000, false, true),
+								applied: reviewPressure(state, kind, seed, 2000, true, true),
 							})),
 						}
 					: {}),
@@ -390,12 +383,12 @@ export const runEvasionReview = () => ({
 				"fear",
 			] as const
 		).flatMap((policy) =>
-			[false, true].map((candidate) => {
-				const { state, ...metrics } = runReviewFight(seed, policy, candidate);
+			[false, true].map((applied) => {
+				const { state, ...metrics } = runReviewFight(seed, policy, applied);
 				return {
 					seed,
 					policy,
-					curve: candidate ? "candidate" : "current",
+					curve: applied ? "applied" : "legacy",
 					...metrics,
 					health: state.player.health,
 					remainingMonsterHealth: state.monsters[0]?.health ?? 0,

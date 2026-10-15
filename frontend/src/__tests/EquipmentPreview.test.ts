@@ -12,6 +12,38 @@ const item = (kind: ItemKind, enchantment?: number): ItemInstance => ({
 });
 
 describe("Practical loadout previews", () => {
+	it.each([false, true])(
+		"previews the actual evasion step when the other Dexterity ring is present: %s",
+		(otherRing) => {
+			const current = {
+				...context(
+					createEquipment(
+						null,
+						null,
+						null,
+						null,
+						null,
+						otherRing ? { id: "worn:dex-ring", kind: "ring-dexterity" } : null,
+					),
+				),
+				progression: { experience: 800 },
+			};
+			expect(
+				compareEquipment(item("ring-dexterity"), current, "leftRing"),
+			).toMatchObject({
+				before: {
+					dexterity: otherRing ? 22 : 20,
+					evadeChance: 45,
+					hitChance: 95,
+				},
+				after: {
+					dexterity: otherRing ? 24 : 22,
+					evadeChance: otherRing ? 50 : 45,
+					hitChance: 95,
+				},
+			});
+		},
+	);
 	it("shows an enchanted weapon's whole damage range at the current level", () => {
 		const current = {
 			...context(

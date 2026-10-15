@@ -37,6 +37,16 @@ const setup = (experience = 9) => {
 };
 afterEach(resetHomeTestState);
 describe("Progression on the play screen", () => {
+	it("shows capped hit chance and diminished evasion with an accurate growth explanation", async () => {
+		const user = setup(3800);
+		await user.keyboard("i");
+		expect(screen.getByLabelText("Character evasion")).toHaveTextContent(
+			"Evade 55%",
+		);
+		await user.click(screen.getByText("Stat bonuses and growth"));
+		expect(screen.getByText(/Hit 95% · evade 55%/)).toBeVisible();
+		expect(screen.getByText(/through 20, then per 4 Dexterity/)).toBeVisible();
+	});
 	it("updates level, health, and Character XP from a real kill, then resets on a new adventure", async () => {
 		const user = setup();
 		expect(screen.getByLabelText("Player level")).toHaveTextContent("Level 1");

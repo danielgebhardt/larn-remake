@@ -30,6 +30,35 @@ test.beforeEach(async ({ page }) => {
 	await page.goto("/"); // Playwright supplies a fresh browser context and storage for every test.
 });
 
+test("a loaded late-game character shows the applied evasion curve and returns map focus without spending a turn", async ({
+	page,
+}) => {
+	await importAdventure(page, "evasion");
+	await page.keyboard.press("c");
+	const character = page.getByRole("dialog", {
+		name: "Character",
+		exact: true,
+	});
+	await expect(
+		character.getByLabel("Character Dexterity", { exact: true }),
+	).toHaveText("Dexterity 34");
+	await expect(
+		character.getByLabel("Character evasion", { exact: true }),
+	).toHaveText("Evade 60%");
+	await expect(
+		character.getByLabel("Character hit chance", { exact: true }),
+	).toHaveText("Hit 95%");
+	await character.getByText("Stat bonuses and growth", { exact: true }).click();
+	await expect(character.getByText(/Hit 95% · evade 60%/)).toBeVisible();
+	await expect(
+		character.getByText(/through 20, then per 4 Dexterity/),
+	).toBeVisible();
+	await page.keyboard.press("Escape");
+	await expect(character).toBeHidden();
+	await expect(map(page)).toBeFocused();
+	await expect(turns(page)).toHaveText("Turn 6974");
+});
+
 test("map following keeps five-tile margins, preserves manual scrolling and centers in a tiny viewport", async ({
 	page,
 }) => {

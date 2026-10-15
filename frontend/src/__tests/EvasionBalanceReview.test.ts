@@ -1,7 +1,6 @@
 // @vitest-environment node
 import { describe, expect, it } from "vitest";
 import {
-	candidateMonsterThreshold,
 	createReviewEncounter,
 	reviewPressure,
 	runReviewFight,
@@ -28,8 +27,8 @@ import {
 
 describe("Run-three evasion balance evidence", () => {
 	it.each([
-		[2, 32, 75, 19, 11, 44],
-		[3, 34, 80, 21, 11, 48],
+		[2, 32, 60, 19, 11, 44],
+		[3, 34, 60, 21, 11, 48],
 	])(
 		"reproduces recorded checkpoint %i",
 		(checkpoint, dexterity, evasion, attack, armor, health) => {
@@ -53,35 +52,21 @@ describe("Run-three evasion balance evidence", () => {
 			expect(
 				deriveAccuracy(moved.progression, moved.effects, moved.equipment)
 					.evadeChance,
-			).toBe(75);
+			).toBe(60);
 		}
 	});
-	it.each([
-		[0, 5],
-		[5, 10],
-		[6, 10],
-		[7, 11],
-		[11, 13],
-		[12, 13],
-		[13, 14],
-	])(
-		"models diminishing returns for modifier %i only in diagnostics",
-		(modifier, threshold) => {
-			expect(candidateMonsterThreshold(modifier)).toBe(threshold);
-		},
-	);
 	it("measures all twenty hit faces and all damage outcomes without death censoring", () => {
 		const state = createReviewEncounter(2, 123);
-		const current = reviewPressure(state, "iron-champion", 123, 200, false);
-		const candidate = reviewPressure(state, "iron-champion", 123, 200, true);
-		expect(current.expectedDamagePerAttempt).toBe(4);
-		expect(candidate.expectedDamagePerAttempt).toBeCloseTo(6.4);
-		expect(current.evadeChance).toBe(75);
-		expect(candidate.evadeChance).toBe(60);
-		expect(candidate.hits).toBeGreaterThanOrEqual(current.hits);
-		expect(candidate.damage).toBeGreaterThanOrEqual(current.damage);
+		const legacy = reviewPressure(state, "iron-champion", 123, 200, false);
+		const applied = reviewPressure(state, "iron-champion", 123, 200, true);
+		expect(legacy.expectedDamagePerAttempt).toBe(4);
+		expect(applied.expectedDamagePerAttempt).toBeCloseTo(6.4);
+		expect(legacy.evadeChance).toBe(75);
+		expect(applied.evadeChance).toBe(60);
+		expect(applied.hits).toBeGreaterThanOrEqual(legacy.hits);
+		expect(applied.damage).toBeGreaterThanOrEqual(legacy.damage);
 		expect(reviewPressure(state, "iron-champion", 123, 200, false)).toEqual(
-			current,
+			legacy,
 		);
 	});
 	it.each([0, 1])(
@@ -93,15 +78,11 @@ describe("Run-three evasion balance evidence", () => {
 			);
 		},
 	);
-	it.each(["current", "candidate"] as const)(
+	it.each(["legacy", "applied"] as const)(
 		"retains charge sidesteps and control under the %s experiment",
 		(curve) => {
 			for (const policy of ["sidestep", "web", "sleep", "fear"] as const) {
-				const result = runReviewFight(
-					1172903873,
-					policy,
-					curve === "candidate",
-				);
+				const result = runReviewFight(1172903873, policy, curve === "applied");
 				expect(result.damageTaken, policy).toBe(0);
 				expect(result.state.player.health).toBe(44);
 				expect(result.state.monsters[0].intent.type).not.toBe(
@@ -110,14 +91,14 @@ describe("Run-three evasion balance evidence", () => {
 			}
 		},
 	);
-	it("applies the candidate's exact hit boundary to actual charges", () => {
-		for (const [candidate, expectedHits] of [
+	it("applies the active curve's exact hit boundary to actual charges", () => {
+		for (const [applied, expectedHits] of [
 			[false, 5],
 			[true, 8],
 		] as const) {
 			let hits = 0;
 			for (let face = 1; face <= 20; face++) {
-				const result = runReviewFight(123, "charge", candidate, () => ({
+				const result = runReviewFight(123, "charge", applied, () => ({
 					d20: () => face,
 					damage: (min) => min,
 				}));
@@ -174,7 +155,7 @@ describe("Run-three evasion balance evidence", () => {
 		});
 	});
 	it.each(["melee", "shot", "heavy", "charge"])(
-		"uses the shared 75% evasion gate for %s",
+		"uses the shared 60% evasion gate for %s",
 		(attack) => {
 			let landed = 0;
 			const before = createReviewEncounter(
@@ -207,7 +188,7 @@ describe("Run-three evasion balance evidence", () => {
 				}));
 				landed += Number(after.player.health < before.player.health);
 			}
-			expect(landed).toBe(5);
+			expect(landed).toBe(8);
 		},
 	);
 	it.each([false, true])(
@@ -248,6 +229,17 @@ describe("Run-three evasion balance evidence", () => {
 			const resumed = restoreSave(parsed.value).state;
 			expect(resumed.player).toEqual(initial.player);
 			expect(resumed.monsters).toMatchObject(initial.monsters);
+			expect(
+				deriveAccuracy(resumed.progression, resumed.effects, resumed.equipment)
+					.evadeChance,
+			).toBe(60);
+			// Saved wounds/preparation remain, but a 13 now lands under the approved curve.
+			expect(
+				resolvePlayerAction(resumed, { type: "wait" }, () => ({
+					d20: () => 13,
+					damage: (min) => min,
+				})).state.player.health,
+			).toBe(12);
 			expect(resolvePlayerAction(resumed, { type: "wait" })).toEqual(
 				resolvePlayerAction(initial, { type: "wait" }),
 			);

@@ -1,7 +1,7 @@
 // @vitest-environment node
 import { describe, expect, it } from "vitest";
 import { deriveAttributes } from "../domain/game/Attributes";
-import { createGameState } from "../domain/game/GameState";
+import { createGameState, type GameState } from "../domain/game/GameState";
 import {
 	accuracyThresholds,
 	attackProfile,
@@ -12,6 +12,67 @@ import { resolvePlayerAction } from "../domain/game/PlayerActions";
 import { createCorridorEncounter } from "./MonsterEncounterTestHelpers";
 
 describe("Earned Dexterity and melee accuracy", () => {
+	it.each([
+		[10, 20],
+		[14, 30],
+		[20, 45],
+		[21, 45],
+		[22, 45],
+		[23, 45],
+		[24, 50],
+		[26, 50],
+		[28, 55],
+		[30, 55],
+		[32, 60],
+		[34, 60],
+		[36, 65],
+		[60, 95],
+	])(
+		"gives Dexterity %i the approved %i percent evasion without changing player accuracy",
+		(dexterity, evasion) => {
+			const modifier = Math.floor((dexterity - 10) / 2);
+			const thresholds = accuracyThresholds(modifier);
+			expect((thresholds.monsterHitThreshold - 1) * 5).toBe(evasion);
+			expect((21 - thresholds.playerHitThreshold) * 5).toBe(
+				Math.min(95, 85 + modifier * 5),
+			);
+		},
+	);
+	it("combines a ring and temporary Dexterity across a diminished-return step, then expires it", () => {
+		const initial = createGameState(createCorridorEncounter());
+		let state: GameState = {
+			...initial,
+			progression: { experience: 800 },
+			monsters: [],
+			knownSpells: ["dexterity"],
+			equipment: {
+				...initial.equipment,
+				leftRing: { id: "dex-ring", kind: "ring-dexterity" as const },
+			},
+		};
+		expect(
+			deriveAccuracy(state.progression, [], state.equipment).evadeChance,
+		).toBe(45);
+		state = resolvePlayerAction(state, {
+			type: "cast",
+			spell: "dexterity",
+		}).state;
+		expect(
+			deriveAttributes(state.progression, state.effects, state.equipment)
+				.dexterity,
+		).toBe(24);
+		expect(
+			deriveAccuracy(state.progression, state.effects, state.equipment)
+				.evadeChance,
+		).toBe(50);
+		for (let turn = 0; turn < 5; turn++)
+			state = resolvePlayerAction(state, { type: "wait" }).state;
+		expect(state.effects).toEqual([]);
+		expect(
+			deriveAccuracy(state.progression, state.effects, state.equipment)
+				.evadeChance,
+		).toBe(45);
+	});
 	it.each([
 		[0, 10, 0],
 		[10, 12, 1],

@@ -34,11 +34,11 @@ const AdventureOpening = ({
 					<Dialog.Backdrop className="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs" />
 					<Dialog.Popup
 						initialFocus={title}
-						className="fixed top-1/2 left-1/2 z-50 w-[calc(100%-2rem)] max-w-2xl max-h-[calc(100dvh-2rem)] -translate-x-1/2 -translate-y-1/2 overflow-y-auto rounded-xl border bg-popover p-6 text-popover-foreground shadow-xl sm:p-6"
+						className="fixed top-1/2 left-1/2 z-50 w-[calc(100%-2rem)] max-w-2xl max-h-[calc(100dvh-2rem)] -translate-x-1/2 -translate-y-1/2 overflow-y-auto rounded-xl border bg-popover p-5 text-popover-foreground shadow-xl"
 					>
 						<ScrollText
 							aria-hidden="true"
-							className="mb-2 size-9 text-primary"
+							className="mb-2 size-7 text-primary"
 						/>
 						<Dialog.Title
 							ref={title}
@@ -47,18 +47,18 @@ const AdventureOpening = ({
 						>
 							{ADVENTURE_STORY.title}
 						</Dialog.Title>
-						<Dialog.Description className="mt-4 leading-relaxed text-muted-foreground">
+						<Dialog.Description className="mt-3 text-sm leading-relaxed text-muted-foreground">
 							{ADVENTURE_STORY.opening[0]}
 						</Dialog.Description>
 						{ADVENTURE_STORY.opening.slice(1).map((paragraph) => (
 							<p
 								key={paragraph}
-								className="mt-3 leading-relaxed text-muted-foreground"
+								className="mt-2 text-sm leading-relaxed text-muted-foreground"
 							>
 								{paragraph}
 							</p>
 						))}
-						<div className="my-3 flex gap-3 rounded-lg border bg-muted/30 p-4 text-sm">
+						<div className="my-2 flex gap-3 rounded-lg border bg-muted/30 p-3 text-sm">
 							<Shield
 								aria-hidden="true"
 								className="size-5 shrink-0 text-primary"
@@ -109,7 +109,7 @@ const AdventureOpening = ({
 							</SheetTrigger>
 							<AdventureSaveSheet onRestore={onRestore} />
 						</Sheet>
-						<p className="mt-3 text-center text-xs text-muted-foreground">
+						<p className="mt-2 text-center text-xs text-muted-foreground">
 							<output aria-label="Selected adventure size">
 								{configuration.rows} × {configuration.cols} tiles ·{" "}
 								{configuration.floorCount} floors

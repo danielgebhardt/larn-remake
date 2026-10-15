@@ -43,6 +43,12 @@ const numericRow = (
 	after: `${after}${percent ? "%" : ` (${difference(before, after)})`}`,
 	change: after - before,
 });
+const bonusRow = (label: string, before: number, after: number) => ({
+	label,
+	before: `${before >= 0 ? "+" : ""}${before}`,
+	after: `${after >= 0 ? "+" : ""}${after} (${difference(before, after)})`,
+	change: after - before,
+});
 const comparisonRows = ({ before, after }: EquipmentComparison) => [
 	numericRow("Maximum health", before.maxHealth, after.maxHealth),
 	numericRow("Maximum mana", before.maxMana, after.maxMana),
@@ -52,6 +58,8 @@ const comparisonRows = ({ before, after }: EquipmentComparison) => [
 		after: `${after.minDamage}–${after.maxDamage}`,
 		change: after.maxDamage - before.maxDamage,
 	},
+	bonusRow("Spell damage bonus", before.spellPowerBonus, after.spellPowerBonus),
+	bonusRow("Heal bonus", before.spellPowerBonus, after.spellPowerBonus),
 	numericRow("Armor", before.armor, after.armor),
 	numericRow("Hit chance", before.hitChance, after.hitChance, true),
 	numericRow("Evasion", before.evadeChance, after.evadeChance, true),

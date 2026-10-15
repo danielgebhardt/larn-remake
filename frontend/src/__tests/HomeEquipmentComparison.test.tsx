@@ -44,6 +44,36 @@ const setup = async (overrides: Partial<GameState.GameState> = {}) => {
 };
 afterEach(resetHomeTestState);
 describe("Equipment comparison in Character", () => {
+	it("shows Intelligence-derived spell and Heal bonuses for both ring destinations without an action", async () => {
+		const { user, panel } = await setup({
+			equipment: createEquipment(
+				null,
+				null,
+				null,
+				null,
+				{ id: "left", kind: "ring-intelligence" },
+				{ id: "right", kind: "ring-strength" },
+			),
+			bag: { items: [{ id: "candidate", kind: "ring-mana" }] },
+		});
+		await user.click(
+			panel.getByRole("button", { name: "Ring of Mana, slot 1" }),
+		);
+		const previews = panel.getAllByLabelText("Equipment comparison");
+		expect(previews[0]).toHaveTextContent("Spell damage bonus +1 → +0 (−1)");
+		expect(previews[0]).toHaveTextContent("Heal bonus +1 → +0 (−1)");
+		expect(previews[1]).toHaveTextContent("Spell damage bonus +1 → +1 (0)");
+		const loss = within(previews[0]).getByText(/^Spell damage bonus/);
+		expect(within(loss).getByText("+0 (−1)")).toHaveClass("text-red-700");
+		const unchanged = within(previews[1]).getByText(/^Spell damage bonus/);
+		expect(within(unchanged).getByText("+1 (0)")).toHaveClass(
+			"text-foreground",
+		);
+		expect(
+			panel.getByText(/Control, ongoing and movement effects/),
+		).toBeVisible();
+		expect(screen.getByLabelText("Turn count")).toHaveTextContent("Turn 0");
+	});
 	it("shows color-independent comparisons and exact differences without spending turns", async () => {
 		const { user, panel } = await setup();
 		const lower = panel.getByRole("button", { name: "Short sword, slot 1" });

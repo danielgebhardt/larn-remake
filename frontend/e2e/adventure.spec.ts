@@ -413,7 +413,7 @@ test("a fatal committed turn opens defeat, freezes play and permits replay", asy
 
 test("merchant comparisons open with Enter after import and only selling spends a turn", async ({
 	page,
-}) => {
+}, testInfo) => {
 	await importAdventure(page, "merchant");
 	await expect(
 		page.getByLabel("Player experience", { exact: true }),
@@ -442,7 +442,21 @@ test("merchant comparisons open with Enter after import and only selling spends 
 	await expect(previews).toHaveCount(2);
 	await expect(previews.nth(0)).toContainText("Tradeoff · Left ring");
 	await expect(previews.nth(0)).toContainText("Damage 4–6 → 3–5");
+	await expect(previews.nth(0)).toContainText(
+		"Spell damage bonus +1 → +2 (+1)",
+	);
+	await expect(previews.nth(0)).toContainText("Heal bonus +1 → +2 (+1)");
 	await expect(previews.nth(1)).toContainText("Maximum mana 16 → 14 (−2)");
+	await expect(previews.nth(1)).toContainText(
+		"Spell damage bonus +1 → +2 (+1)",
+	);
+	await previews
+		.nth(0)
+		.getByText(/^Spell damage bonus/)
+		.scrollIntoViewIfNeeded();
+	await page.screenshot({
+		path: testInfo.outputPath("merchant-spell-bonus.png"),
+	});
 	await expect(turns(page)).toHaveText("Turn 0");
 	await expect(merchant.getByText("Gold 700", { exact: true })).toBeVisible();
 	await page.keyboard.press("Escape");
@@ -461,6 +475,33 @@ test("merchant comparisons open with Enter after import and only selling spends 
 	await expect(
 		character.getByLabel("Character mana", { exact: true }),
 	).toContainText("3 / 16");
+	await character
+		.getByRole("button", { name: "Ring of Intelligence, slot 1", exact: true })
+		.click();
+	const characterPreviews = character.getByLabel("Equipment comparison", {
+		exact: true,
+	});
+	await expect(characterPreviews).toHaveCount(2);
+	await expect(characterPreviews.nth(0)).toContainText(
+		"Spell damage bonus +1 → +2 (+1)",
+	);
+	await expect(characterPreviews.nth(1)).toContainText(
+		"Heal bonus +1 → +2 (+1)",
+	);
+	await expect(
+		character.getByText(/Control, ongoing and movement effects/),
+	).toBeVisible();
+	await expect(turns(page)).toHaveText("Turn 0");
+	await expect(
+		character.getByLabel("Character mana", { exact: true }),
+	).toContainText("3 / 16");
+	await characterPreviews
+		.nth(0)
+		.getByText(/^Spell damage bonus/)
+		.scrollIntoViewIfNeeded();
+	await page.screenshot({
+		path: testInfo.outputPath("character-spell-bonus.png"),
+	});
 	await page.keyboard.press("c");
 	await expect(map(page)).toBeFocused();
 	await page.keyboard.press("e");

@@ -32,6 +32,7 @@ const loadoutStats = (
 			equipmentBonuses(equipment).health -
 			equipmentBonuses(context.equipment).health,
 		maxMana: maximumMana(progression, equipment, effects),
+		spellPowerBonus: attributes.intelligenceModifier,
 		minDamage: damage.minDamage,
 		maxDamage: damage.maxDamage,
 		armor: combat.armor,
@@ -42,11 +43,12 @@ const loadoutStats = (
 		intelligence: attributes.intelligence,
 	};
 };
-// Attributes remain secondary benefits (for example, Intelligence powers spells).
+// Keep raw attributes as secondary benefits, including points between modifier thresholds.
 // Include them so a capacity gain does not conceal an attribute loss.
 const comparedStats = [
 	"maxHealth",
 	"maxMana",
+	"spellPowerBonus",
 	"minDamage",
 	"maxDamage",
 	"armor",

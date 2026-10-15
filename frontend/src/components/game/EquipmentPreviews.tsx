@@ -26,6 +26,11 @@ const EquipmentPreviews = ({
 				/>
 			))}
 			<p className="text-xs text-muted-foreground">
+				Intelligence adds the displayed bonus to each damaging spell's own range
+				and to Heal. Control, ongoing and movement effects do not gain this
+				bonus. Target defenses and each spell's area rules still apply.
+			</p>
+			<p className="text-xs text-muted-foreground">
 				Preview uses current active effects, before monsters act. Capacity gains
 				do not refill health or mana; removing capacity can clamp current
 				resources.

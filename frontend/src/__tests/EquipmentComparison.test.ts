@@ -8,6 +8,16 @@ import { createComparisonContext } from "./EquipmentComparisonTestHelpers";
 
 const item = (kind: ItemKind) => ({ id: kind, kind });
 describe("Comparing gear with its compatible equipped slot", () => {
+	it("shows the Intelligence spell bonus gained by replacing armor with a scholar robe", () => {
+		const context = createComparisonContext(
+			createEquipment(null, null, item("plate-armor")),
+		);
+		expect(compareEquipment(item("scholar-robe"), context)).toMatchObject({
+			label: "Tradeoff",
+			before: { spellPowerBonus: 0, armor: 3 },
+			after: { spellPowerBonus: 1, armor: 1 },
+		});
+	});
 	it.each([
 		["iron-sword", "short-sword", "Better", 1, 2],
 		["iron-sword", "iron-sword", "Same", 2, 2],

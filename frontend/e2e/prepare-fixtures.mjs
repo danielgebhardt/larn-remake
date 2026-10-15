@@ -65,6 +65,17 @@ export default async function prepareFixtures() {
 				},
 			],
 		};
+		// Seed 123 has a room at these explicit coordinates, away from map edges.
+		if (run.floors[0].terrain[8][10] !== ".")
+			throw new Error("Expected the scrolling fixture's room tile");
+		const scrolling = {
+			...quiet,
+			run: { ...run, playerCoordinate: { row: 8, col: 10 } },
+			objects: [],
+			floorItems: quiet.floorItems.filter(
+				(entry) => entry.item.kind === "cure",
+			),
+		};
 		const stacks = {
 			...quiet,
 			mana: 0,
@@ -143,6 +154,7 @@ export default async function prepareFixtures() {
 		for (const [name, state, config] of [
 			["ready", quiet, configuration],
 			["poisoned", poisoned, configuration],
+			["scrolling", scrolling, configuration],
 			["stacks", stacks, configuration],
 			["merchant", merchantState, merchantConfiguration],
 			[

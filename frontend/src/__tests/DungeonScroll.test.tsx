@@ -3,6 +3,11 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import DungeonLayout from "../components/dungeon/DungeonLayout.tsx";
 import { FLOOR, WALL } from "../domain/dungeon/Tiles.ts";
 
+const margins = vi.hoisted(() => ({ horizontal: 5, vertical: 5 }));
+vi.mock("../settings/UIConfiguration", () => ({
+	PLAYER_FOLLOW_MARGINS_TILES: margins,
+}));
+
 describe("dungeon viewport following", () => {
 	let width: number;
 	let height: number;
@@ -11,6 +16,8 @@ describe("dungeon viewport following", () => {
 	const terrain = Array.from({ length: 20 }, () => Array(30).fill(FLOOR));
 	const noop = () => {};
 	beforeEach(() => {
+		margins.horizontal = 5;
+		margins.vertical = 5;
 		width = 120;
 		height = 96;
 		disconnect.mockClear();
@@ -53,6 +60,22 @@ describe("dungeon viewport following", () => {
 				disconnect = disconnect;
 			},
 		);
+	});
+	it("uses independently configured horizontal and vertical tile margins", () => {
+		width = 240;
+		height = 240;
+		margins.horizontal = 2;
+		margins.vertical = 3;
+		render(
+			<DungeonLayout
+				dungeon={terrain}
+				playerPosition={{ row: 10, col: 15 }}
+				onMoveRequested={noop}
+			/>,
+		);
+		const viewport = screen.getByRole("region", { name: "Dungeon map" });
+		expect(viewport.scrollLeft).toBe(192); // 360 + 24 + 48 − 240
+		expect(viewport.scrollTop).toBe(96); // 240 + 24 + 72 − 240
 	});
 	afterEach(() => {
 		vi.restoreAllMocks();

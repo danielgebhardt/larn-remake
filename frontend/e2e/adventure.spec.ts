@@ -30,6 +30,88 @@ test.beforeEach(async ({ page }) => {
 	await page.goto("/"); // Playwright supplies a fresh browser context and storage for every test.
 });
 
+test("map following keeps five-tile margins, preserves manual scrolling and centers in a tiny viewport", async ({
+	page,
+}) => {
+	await importAdventure(page, "scrolling");
+	const viewport = map(page);
+	const player = page.getByRole("cell", {
+		name: "row8col10 - player",
+		exact: true,
+	});
+	const outerScroll = await viewport.evaluate((element) => ({
+		x: element.ownerDocument.defaultView?.scrollX,
+		y: element.ownerDocument.defaultView?.scrollY,
+	}));
+	await viewport.evaluate((element) => {
+		element.style.flex = "none";
+		element.style.width = "360px";
+		element.style.height = "300px";
+	});
+	// Flush the layout/ResizeObserver cycle before setting the manual reading position.
+	await viewport.evaluate((element) => {
+		const view = element.ownerDocument.defaultView;
+		if (!view) throw new Error("Expected the map to have a browser window");
+		return new Promise<void>((resolve) =>
+			view.requestAnimationFrame(() =>
+				view.requestAnimationFrame(() => resolve()),
+			),
+		);
+	});
+	const manual = await viewport.evaluate((element) => {
+		element.scrollLeft = element.scrollWidth;
+		element.scrollTop = element.scrollHeight;
+		return { left: element.scrollLeft, top: element.scrollTop };
+	});
+	await page.keyboard.press("Space");
+	await expect(turns(page)).toHaveText("Turn 1");
+	expect(
+		await viewport.evaluate((element) => ({
+			left: element.scrollLeft,
+			top: element.scrollTop,
+		})),
+	).toEqual(manual);
+	await viewport.evaluate((element) => {
+		element.style.width = "359px";
+		element.style.height = "299px";
+	});
+	await expect
+		.poll(async () => {
+			const view = await viewport.boundingBox();
+			const tile = await player.boundingBox();
+			if (!view || !tile) return null;
+			return {
+				horizontal: (tile.x - view.x) / tile.width,
+				vertical: (tile.y - view.y) / tile.height,
+			};
+		})
+		.toEqual({ horizontal: 5, vertical: 5 });
+	await viewport.evaluate((element) => {
+		element.style.width = "120px";
+		element.style.height = "96px";
+	});
+	await expect
+		.poll(async () => {
+			const view = await viewport.boundingBox();
+			const tile = await player.boundingBox();
+			if (!view || !tile) return null;
+			return {
+				x: tile.x + tile.width / 2 - view.x,
+				y: tile.y + tile.height / 2 - view.y,
+			};
+		})
+		.toEqual({ x: 60, y: 48 });
+	await expect(player).toBeInViewport({ ratio: 1 });
+	await expect(viewport).toBeFocused();
+	expect(
+		await viewport.evaluate((element) => ({
+			x: element.ownerDocument.defaultView?.scrollX,
+			y: element.ownerDocument.defaultView?.scrollY,
+		})),
+	).toEqual(outerScroll);
+	await expect(turns(page)).toHaveText("Turn 1");
+});
+
 test("fresh starts, New Dungeon and seed replay restore starter potions without locking their shortcuts", async ({
 	page,
 }) => {

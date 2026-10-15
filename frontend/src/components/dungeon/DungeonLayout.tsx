@@ -15,6 +15,7 @@ import { MONSTER_DEFINITIONS } from "../../domain/monsters/Monster";
 import type { Monster } from "../../domain/monsters/Monster.ts";
 import { chargeLine } from "../../domain/monsters/MonsterCharge";
 import type { DungeonObject } from "../../domain/objects/DungeonObject";
+import { PLAYER_FOLLOW_MARGINS_TILES } from "../../settings/UIConfiguration";
 import DungeonRow from "./DungeonRow.tsx";
 import { getScrollOffset } from "./MapScroll.ts";
 import {
@@ -186,7 +187,7 @@ const DungeonLayout = ({
 			tileStart:
 				tile.left - view.left - viewport.clientLeft + viewport.scrollLeft,
 			tileSize: tile.width,
-			margin: tile.width * 5,
+			margin: tile.width * PLAYER_FOLLOW_MARGINS_TILES.horizontal,
 		});
 		const top = getScrollOffset({
 			offset: viewport.scrollTop,
@@ -194,7 +195,7 @@ const DungeonLayout = ({
 			contentSize: viewport.scrollHeight,
 			tileStart: tile.top - view.top - viewport.clientTop + viewport.scrollTop,
 			tileSize: tile.height,
-			margin: tile.height * 5,
+			margin: tile.height * PLAYER_FOLLOW_MARGINS_TILES.vertical,
 		});
 		if (left !== viewport.scrollLeft) viewport.scrollLeft = left;
 		if (top !== viewport.scrollTop) viewport.scrollTop = top;

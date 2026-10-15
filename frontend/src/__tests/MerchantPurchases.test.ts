@@ -9,6 +9,8 @@ import { createCorridorEncounter } from "./MonsterEncounterTestHelpers";
 const shop = () => ({
 	...createGameState(createCorridorEncounter()),
 	gold: 2000,
+	bag: createBag(),
+	potionHotbar: [null, null, null, null] as const,
 	monsters: [],
 	floorItems: [],
 	objects: [

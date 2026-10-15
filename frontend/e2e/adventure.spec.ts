@@ -30,6 +30,102 @@ test.beforeEach(async ({ page }) => {
 	await page.goto("/"); // Playwright supplies a fresh browser context and storage for every test.
 });
 
+test("fresh starts, New Dungeon and seed replay restore starter potions without locking their shortcuts", async ({
+	page,
+}) => {
+	await page.getByRole("radio", { name: /Small/ }).check();
+	await page
+		.getByRole("button", { name: "Begin Adventure", exact: true })
+		.click();
+	await expect(
+		page.getByRole("button", {
+			name: "Potion slot 1: Healing potion, 1 carried",
+			exact: true,
+		}),
+	).toBeVisible();
+	await expect(
+		page.getByRole("button", {
+			name: "Potion slot 2: Mana potion, 1 carried",
+			exact: true,
+		}),
+	).toBeVisible();
+	await page.keyboard.press("1");
+	await page.keyboard.press("2");
+	await expect(turns(page)).toHaveText("Turn 0");
+	await page.keyboard.press("c");
+	const character = page.getByRole("dialog", {
+		name: "Character",
+		exact: true,
+	});
+	await character
+		.getByRole("button", { name: "Healing potion, slot 1", exact: true })
+		.click();
+	await character
+		.getByRole("button", { name: "Assign to potion slot 4", exact: true })
+		.click();
+	await page.keyboard.press("Escape");
+	await expect(map(page)).toBeFocused();
+	await expect(
+		page.getByRole("button", { name: "Potion slot 1: empty", exact: true }),
+	).toBeVisible();
+	await expect(
+		page.getByRole("button", {
+			name: "Potion slot 4: Healing potion, 1 carried",
+			exact: true,
+		}),
+	).toBeVisible();
+	await page.getByRole("button", { name: "New Dungeon", exact: true }).click();
+	await expect(
+		page.getByRole("button", {
+			name: "Potion slot 1: Healing potion, 1 carried",
+			exact: true,
+		}),
+	).toBeVisible();
+	await expect(
+		page.getByRole("button", {
+			name: "Potion slot 2: Mana potion, 1 carried",
+			exact: true,
+		}),
+	).toBeVisible();
+	await map(page).focus();
+	await page.keyboard.press("c");
+	await character
+		.getByRole("button", { name: "Mana potion, slot 2", exact: true })
+		.click();
+	await character
+		.getByRole("button", { name: "Assign to potion slot 3", exact: true })
+		.click();
+	await page.keyboard.press("Escape");
+	await page.getByRole("button", { name: "Settings", exact: true }).click();
+	const settings = page.getByRole("dialog", { name: "Settings", exact: true });
+	await settings
+		.getByRole("textbox", { name: "Dungeon seed", exact: true })
+		.fill("123");
+	await settings
+		.getByRole("button", { name: "Start from seed", exact: true })
+		.click();
+	await expect(map(page)).toBeFocused();
+	await expect(turns(page)).toHaveText("Turn 0");
+	await expect(
+		page.getByRole("button", {
+			name: "Potion slot 1: Healing potion, 1 carried",
+			exact: true,
+		}),
+	).toBeVisible();
+	await expect(
+		page.getByRole("button", {
+			name: "Potion slot 2: Mana potion, 1 carried",
+			exact: true,
+		}),
+	).toBeVisible();
+	await expect(
+		page.getByRole("button", { name: "Potion slot 3: empty", exact: true }),
+	).toBeVisible();
+	await expect(
+		page.getByRole("button", { name: "Potion slot 4: empty", exact: true }),
+	).toBeVisible();
+});
+
 test("interleaved scroll stacks keep their coordinates and selected actions across three uses", async ({
 	page,
 }, testInfo) => {
@@ -209,6 +305,12 @@ test("file import supports pickup and both hotbars without clicking the dungeon"
 	page,
 }) => {
 	await importAdventure(page);
+	await expect(
+		page.getByRole("button", { name: "Potion slot 1: empty", exact: true }),
+	).toBeVisible();
+	await expect(
+		page.getByRole("button", { name: "Potion slot 2: empty", exact: true }),
+	).toBeVisible();
 	await expect(
 		page.getByLabel("Adventure difficulty", { exact: true }),
 	).toHaveText("Harder");

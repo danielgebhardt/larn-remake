@@ -30,6 +30,8 @@ const renderPickupRun = (
 	const create = GameState.createGameState;
 	vi.spyOn(GameState, "createGameState").mockImplementationOnce((run) => ({
 		...create(run),
+		bag: createBag(),
+		potionHotbar: [null, null, null, null],
 		floorItems: items,
 		...overrides,
 	}));

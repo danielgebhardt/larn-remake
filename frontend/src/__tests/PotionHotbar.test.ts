@@ -11,6 +11,7 @@ const second = { id: "potion:2", kind: "healing-potion" } as const;
 const game = () => ({
 	...createGameState(createCorridorEncounter()),
 	monsters: [],
+	potionHotbar: [null, null, null, null] as const,
 	player: { health: 1, maxHealth: 10 },
 	bag: createBag([potion, second]),
 });
@@ -22,7 +23,7 @@ const assigned = () =>
 	}).state;
 
 describe("Potion hotbar assignments", () => {
-	it("starts with four empty run-local slots", () => {
+	it("supports four empty slots when no potions are assigned", () => {
 		expect(game().potionHotbar).toEqual([null, null, null, null]);
 	});
 	it("assigns without transferring ownership, spending a turn, or waking monsters", () => {
@@ -105,8 +106,8 @@ describe("Potion hotbar assignments", () => {
 	it("resets assignments on replay", () => {
 		const before = assigned();
 		expect(createGameState(before.run).potionHotbar).toEqual([
-			null,
-			null,
+			"healing-potion",
+			"mana-potion",
 			null,
 			null,
 		]);

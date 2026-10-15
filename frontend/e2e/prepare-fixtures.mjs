@@ -41,6 +41,8 @@ export default async function prepareFixtures() {
 		const fresh = createGameState(run, configuration.difficulty);
 		const quiet = {
 			...fresh,
+			bag: { items: [] },
+			potionHotbar: [null, null, null, null],
 			monsters: [],
 			player: { ...fresh.player, health: 1 },
 			floorItems: [

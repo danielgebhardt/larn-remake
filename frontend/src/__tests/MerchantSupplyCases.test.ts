@@ -32,6 +32,7 @@ describe("Merchant safety net on a complete recommended adventure", () => {
 		state = {
 			...state,
 			monsters: [],
+			bag: { items: [] },
 			floorItems: state.floorItems.filter((i) => i.item.kind === "cure"),
 			gold: 6000,
 			run: {

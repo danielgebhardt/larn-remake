@@ -92,8 +92,8 @@ describe("Healing potions in Character", () => {
 			"Health 10 / 10",
 		);
 		expect(
-			fresh.queryByRole("button", { name: /Healing potion, slot/ }),
-		).not.toBeInTheDocument();
+			fresh.getByRole("button", { name: "Healing potion, slot 1" }),
+		).toBeVisible();
 	});
 	it("shows a full-health rejection while retaining both potions and turn count", async () => {
 		const user = renderPotionRun(10);

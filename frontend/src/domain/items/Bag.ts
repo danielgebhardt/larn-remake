@@ -38,7 +38,11 @@ export const createBag = (items: readonly ItemInstance[] = []): Bag => {
 		throw new Error("The same item cannot occupy multiple bag slots.");
 	return { items: [...items] };
 };
-export const createStartingBag = (): Bag => createBag();
+export const createStartingBag = (): Bag =>
+	createBag([
+		{ id: "starting:healing-potion", kind: "healing-potion" },
+		{ id: "starting:mana-potion", kind: "mana-potion" },
+	]);
 
 export const removeBagItem = (bag: Bag, itemId: string): Bag => {
 	const index = bag.items.findIndex((item) => item.id === itemId);

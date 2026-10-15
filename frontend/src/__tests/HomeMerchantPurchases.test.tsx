@@ -62,7 +62,7 @@ it("numbered buying updates gold, stock and potion shortcut without closing the 
 		expect(screen.getByLabelText("Dungeon map", { exact: true })).toHaveFocus(),
 	);
 	expect(
-		screen.getByRole("button", { name: /Healing potion.*1 carried/ }),
+		screen.getByRole("button", { name: /Healing potion.*2 carried/ }),
 	).toBeVisible();
 });
 it("closes the merchant when buying gives an adjacent enemy a fatal response", async () => {

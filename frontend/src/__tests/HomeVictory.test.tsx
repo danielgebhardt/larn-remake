@@ -65,7 +65,9 @@ describe("Victory summary and ended-run controls", () => {
 			"0 / 10 XP",
 		);
 		expect(
-			screen.getByRole("button", { name: "Potion slot 1: empty" }),
+			screen.getByRole("button", {
+				name: "Potion slot 1: Healing potion, 1 carried",
+			}),
 		).toBeDisabled();
 		await user.click(screen.getByRole("button", { name: "Character" }));
 		await user.click(

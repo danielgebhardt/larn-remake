@@ -10,6 +10,7 @@ import { createCorridorEncounter } from "./MonsterEncounterTestHelpers";
 const pickupState = (kind: ItemKind): GameState => ({
 	...createGameState(createCorridorEncounter()),
 	equipment: createEquipment(),
+	bag: createBag(),
 	monsters: [],
 	floorItems: [
 		{

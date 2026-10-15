@@ -4,7 +4,10 @@ import { spawnRunQuestItems } from "../items/CurePlacement";
 import { createStartingEquipment, type Equipment } from "../items/Equipment";
 import type { FloorItem } from "../items/FloorItems";
 import { spawnRunItems } from "../items/ItemPlacement";
-import { createPotionHotbar, type PotionHotbar } from "../items/PotionHotbar";
+import {
+	createStartingPotionHotbar,
+	type PotionHotbar,
+} from "../items/PotionHotbar";
 import { spawnRunSpellbooks } from "../items/SpellbookPlacement";
 import { placeMerchants } from "../merchant/MerchantPlacement";
 import {
@@ -91,7 +94,7 @@ export const createGameState = (
 		progression: createProgression(),
 		equipment: createStartingEquipment(),
 		bag: createStartingBag(),
-		potionHotbar: createPotionHotbar(),
+		potionHotbar: createStartingPotionHotbar(),
 		floorItems,
 		monsters:
 			difficulty === 1

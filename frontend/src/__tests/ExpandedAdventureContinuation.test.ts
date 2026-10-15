@@ -40,7 +40,10 @@ describe("Generated expanded adventure continuation", () => {
 			expect(
 				initial.monsters.filter((actor) => actor.kind !== "iron-champion"),
 			).toHaveLength(240);
-			expect(initial.bag.items).toEqual([]);
+			expect(initial.bag.items.map((item) => item.kind)).toEqual([
+				"healing-potion",
+				"mana-potion",
+			]);
 			// An earned late-game character keeps this continuation check alive while
 			// real generated actors, discoveries and deterministic rolls remain intact.
 			let original = awardExperience(initial, experienceThreshold(20));

@@ -12,6 +12,8 @@ const pickupState = () => {
 	return {
 		...state,
 		monsters: [],
+		bag: createBag(),
+		potionHotbar: [null, null, null, null] as const,
 		floorItems: [
 			{ item: potion, floorNumber: 1, coordinate: state.run.playerCoordinate },
 		],

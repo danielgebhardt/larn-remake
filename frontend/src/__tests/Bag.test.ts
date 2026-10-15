@@ -49,9 +49,12 @@ describe("Bag capacity and ownership", () => {
 });
 
 describe("Starting and retained bags", () => {
-	it("starts with an empty bag while keeping the equipped sword and shield", () => {
+	it("starts with healing and mana potions while keeping the equipped sword and shield", () => {
 		const game = createGameState(createThreeFloorTraversalRun());
-		expect(game.bag.items).toEqual([]);
+		expect(game.bag.items.map((item) => item.kind)).toEqual([
+			"healing-potion",
+			"mana-potion",
+		]);
 		expect(game.equipment.mainHand?.kind).toBe("short-sword");
 		expect(game.equipment.offHand?.kind).toBe("wooden-shield");
 	});
@@ -60,9 +63,11 @@ describe("Starting and retained bags", () => {
 		const next = createStartingBag();
 		expect(next).toEqual(first);
 		expect(next.items).not.toBe(first.items);
-		expect(next.items).toEqual([]);
+		expect(next.items).toHaveLength(2);
+		expect(next.items[0]).not.toBe(first.items[0]);
+		expect(next.items[1]).not.toBe(first.items[1]);
 	});
-	it("empties the bag on replay without changing the previous bag", () => {
+	it("restores starter contents on replay without changing the previous bag", () => {
 		const original = createGameState(createThreeFloorTraversalRun());
 		const changed = { ...original, bag: bagWithSpareGear() };
 		expect(createGameState(changed.run).bag).toEqual(original.bag);

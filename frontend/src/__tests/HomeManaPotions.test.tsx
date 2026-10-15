@@ -43,10 +43,10 @@ describe("Mana potion controls", () => {
 		await user.keyboard("gi");
 		const dialog = await screen.findByRole("dialog", { name: "Character" });
 		await user.click(
-			within(dialog).getByRole("button", { name: "Mana potion, slot 1" }),
+			within(dialog).getByRole("button", { name: "Mana potion, slot 2" }),
 		);
 		expect(within(dialog).getByText("Recovery up to 5 mana")).toBeVisible();
-		await user.keyboard("i1");
+		await user.keyboard("i2");
 		expect(screen.getByLabelText("Player mana")).toHaveTextContent(
 			"Mana 7 / 10",
 		);
@@ -56,7 +56,7 @@ describe("Mana potion controls", () => {
 		);
 		expect(
 			screen.getByRole("button", {
-				name: "Potion slot 1: Mana potion, 0 carried",
+				name: "Potion slot 2: Mana potion, 1 carried",
 			}),
 		).toBeVisible();
 	});

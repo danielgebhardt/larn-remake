@@ -22,6 +22,12 @@ export type HotbarAction =
 	| HotbarAssignmentAction
 	| { type: "use-hotbar"; slot: HotbarSlot };
 export const createPotionHotbar = (): PotionHotbar => [null, null, null, null];
+export const createStartingPotionHotbar = (): PotionHotbar => [
+	"healing-potion",
+	"mana-potion",
+	null,
+	null,
+];
 const isPotionKind = (kind: ItemKind): kind is PotionKind =>
 	ITEM_DEFINITIONS[kind].type === "potion";
 

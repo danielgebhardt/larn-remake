@@ -26,6 +26,7 @@ const setup = (
 		const state = {
 			...create(run),
 			player: { health, maxHealth: 10 },
+			potionHotbar: [null, null, null, null] as const,
 			bag: createBag(
 				Array.from({ length: count }, (_, index) => ({
 					id: `potion:${index}`,
@@ -144,17 +145,27 @@ describe("Potion hotbar gameplay", () => {
 		).toBeDisabled();
 		expect(screen.getByLabelText("Turn count")).toHaveTextContent("Turn 0");
 	});
-	it("clears visible assignments on New Dungeon", async () => {
+	it("restores starter supplies and shortcuts on New Dungeon", async () => {
 		const user = setup();
 		await user.click(screen.getByRole("button", { name: "New Dungeon" }));
-		for (const slot of HOTBAR_SLOTS)
+		for (const slot of [3, 4])
 			expect(
 				screen.getByRole("button", { name: `Potion slot ${slot}: empty` }),
 			).toBeVisible();
+		expect(
+			screen.getByRole("button", {
+				name: "Potion slot 1: Healing potion, 1 carried",
+			}),
+		).toBeVisible();
+		expect(
+			screen.getByRole("button", {
+				name: "Potion slot 2: Mana potion, 1 carried",
+			}),
+		).toBeVisible();
 		await user.keyboard("i");
 		await screen.findByRole("dialog", { name: "Character" });
 		expect(screen.getByLabelText("Potion slot 1 assignment")).toHaveTextContent(
-			"Empty",
+			"Healing potion",
 		);
 		await user.keyboard("{Escape}");
 		await waitFor(() =>

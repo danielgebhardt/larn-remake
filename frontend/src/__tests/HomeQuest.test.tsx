@@ -62,7 +62,7 @@ describe("Visible adventure objective", () => {
 			expect(panel.getByLabelText("Quest pouch")).toHaveTextContent(
 				"Cure protected",
 			);
-			expect(panel.getByLabelText("Bag capacity")).toHaveTextContent("0 / 27");
+			expect(panel.getByLabelText("Bag capacity")).toHaveTextContent("2 / 27");
 			expect(
 				panel.queryByRole("button", { name: /Drink cure|Drop cure/ }),
 			).not.toBeInTheDocument();

@@ -97,7 +97,9 @@ describe("Spell targeting controls", () => {
 			screen.getByRole("button", { name: "Target goblin at row 1, column 3" }),
 		).toHaveAttribute("aria-pressed", "true");
 		expect(
-			screen.getByRole("button", { name: "Potion slot 1: empty" }),
+			screen.getByRole("button", {
+				name: "Potion slot 1: Healing potion, 1 carried",
+			}),
 		).toBeDisabled();
 		expect(screen.getByRole("button", { name: "Heal, 4 mana" })).toBeDisabled();
 		await user.keyboard("g 1w");

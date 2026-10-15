@@ -117,7 +117,10 @@ describe("Equipment comparison in Character", () => {
 		await user.keyboard("c");
 		await user.click(screen.getByRole("button", { name: "New Dungeon" }));
 		await user.click(screen.getByRole("button", { name: "Character" }));
-		expect(screen.getByText("Your bag is empty.")).toBeVisible();
+		expect(screen.getByLabelText("Bag capacity")).toHaveTextContent("2 / 27");
+		expect(
+			screen.queryByRole("button", { name: /Leather cap, slot/ }),
+		).not.toBeInTheDocument();
 		expect(screen.getByLabelText("Turn count")).toHaveTextContent("Turn 0");
 	});
 	it("previews both rings using live character stats and effects without refilling or advancing", async () => {

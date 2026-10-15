@@ -70,13 +70,13 @@ describe("Changing gear in Character", () => {
 		expect(panel.getByLabelText("Character attack")).toHaveTextContent(
 			"Attack 1–2",
 		);
-		expect(panel.getByLabelText("Bag capacity")).toHaveTextContent("1 / 27");
+		expect(panel.getByLabelText("Bag capacity")).toHaveTextContent("3 / 27");
 		expect(panel.getByRole("heading", { name: "Equipment" })).toHaveFocus();
 		expect(
 			panel.getByRole("status", { name: "Character activity" }),
 		).toHaveTextContent("You put Short sword in your bag.");
 		await user.click(
-			panel.getByRole("button", { name: "Short sword, slot 1" }),
+			panel.getByRole("button", { name: "Short sword, slot 3" }),
 		);
 		const equip = panel.getByRole("button", { name: "Equip in main hand" });
 		equip.focus();
@@ -84,7 +84,7 @@ describe("Changing gear in Character", () => {
 		expect(panel.getByLabelText("Character attack")).toHaveTextContent(
 			"Attack 1–3",
 		);
-		expect(panel.getByLabelText("Bag capacity")).toHaveTextContent("0 / 27");
+		expect(panel.getByLabelText("Bag capacity")).toHaveTextContent("2 / 27");
 		expect(screen.getByLabelText("Turn count")).toHaveTextContent("Turn 2");
 	});
 	it("explains a full-bag rejection without changing values or the turn", async () => {

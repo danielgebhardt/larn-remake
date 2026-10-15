@@ -18,6 +18,7 @@ const initial = (): GameState => {
 	return {
 		...state,
 		monsters: spawnRunMonsters(run, 3),
+		potionHotbar: [null, null, null, null],
 		bag: createBag([
 			...state.bag.items,
 			{ id: "potion", kind: "healing-potion" },

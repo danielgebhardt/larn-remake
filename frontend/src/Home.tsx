@@ -609,6 +609,10 @@ const Home = ({
 			/>
 			<MerchantDialog
 				open={merchantId !== null && canPlay}
+				onSellLower={() => {
+					if (merchantId)
+						handleActionRequested({ type: "sell-lower", merchantId });
+				}}
 				onSell={(itemId) => {
 					if (merchantId)
 						handleActionRequested({ type: "sell", merchantId, itemId });

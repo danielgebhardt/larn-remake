@@ -144,6 +144,28 @@ export default async function prepareFixtures() {
 			["stacks", stacks, configuration],
 			["merchant", merchantState, merchantConfiguration],
 			[
+				"merchant-bulk",
+				{
+					...merchantState,
+					equipment: {
+						...merchantState.equipment,
+						mainHand: { id: "worn:sword", kind: "iron-sword", enchantment: 1 },
+					},
+					bag: {
+						items: [
+							{ id: "bulk:lower:1", kind: "short-sword" },
+							{ id: "bulk:same", kind: "iron-sword", enchantment: 1 },
+							{ id: "bulk:better", kind: "short-sword", enchantment: 3 },
+							{ id: "bulk:tradeoff", kind: "scholar-robe" },
+							{ id: "bulk:ring", kind: "ring-intelligence" },
+							{ id: "bulk:lower:2", kind: "short-sword", enchantment: 1 },
+							{ id: "bulk:potion", kind: "healing-potion" },
+						],
+					},
+				},
+				merchantConfiguration,
+			],
+			[
 				"merchant-many",
 				{
 					...merchantState,

@@ -12,6 +12,7 @@ import type { GameState } from "../../domain/game/GameState";
 import { compareEquipment } from "../../domain/items/EquipmentComparison";
 import { ITEM_DEFINITIONS, type ItemInstance } from "../../domain/items/Item";
 import { itemName } from "../../domain/items/ItemValues";
+import { lowerEquipmentSale } from "../../domain/merchant/LowerEquipmentSales";
 import {
 	equipmentSalePrice,
 	MERCHANT_OFFERS,
@@ -33,6 +34,7 @@ type Props = {
 	mapRef: RefObject<HTMLElement | null>;
 	onBuy?: (kind: MerchantSupply) => void;
 	onSell?: (itemId: string) => void;
+	onSellLower?: () => void;
 };
 const MerchantDialog = ({
 	open,
@@ -42,7 +44,18 @@ const MerchantDialog = ({
 	mapRef,
 	onBuy,
 	onSell,
+	onSellLower,
 }: Props) => {
+	const [confirmLowerSale, setConfirmLowerSale] = useState(false);
+	const confirmationRef = useRef<HTMLFieldSetElement>(null);
+	const lowerSale = lowerEquipmentSale(state);
+	useLayoutEffect(() => {
+		if (open && confirmLowerSale)
+			confirmationRef.current?.focus({ preventScroll: true });
+	}, [open, confirmLowerSale]);
+	useLayoutEffect(() => {
+		if (!open) setConfirmLowerSale(false);
+	}, [open]);
 	const titleRef = useRef<HTMLHeadingElement>(null),
 		[tab, setTab] = useState<"buy" | "sell">("buy");
 	const buyTab = useRef<HTMLButtonElement>(null),
@@ -92,6 +105,7 @@ const MerchantDialog = ({
 							event.preventDefault();
 							event.stopPropagation();
 							setTab(key === "b" ? "buy" : "sell");
+							setConfirmLowerSale(false);
 							(key === "b" ? buyTab.current : sellTab.current)?.focus();
 						}
 						const index = Number(key) - 1;
@@ -138,7 +152,10 @@ const MerchantDialog = ({
 					<Tabs.Root
 						value={tab}
 						onValueChange={(value) => {
-							if (value === "buy" || value === "sell") setTab(value);
+							if (value === "buy" || value === "sell") {
+								setTab(value);
+								setConfirmLowerSale(false);
+							}
 						}}
 						className="flex min-h-0 flex-1 flex-col gap-4"
 					>
@@ -219,7 +236,7 @@ const MerchantDialog = ({
 											>
 												<div
 													aria-hidden={sold || undefined}
-													className={`grid content-start gap-2 ${sold ? "invisible" : ""}`}
+													className={`grid content-start gap-2 ${sold ? "invisible pointer-events-none opacity-0" : ""}`}
 												>
 													<Button
 														variant="outline"
@@ -231,6 +248,7 @@ const MerchantDialog = ({
 														}
 														onClick={() => {
 															onSell?.(item.id);
+															setConfirmLowerSale(false);
 															setFocusAfterSale(true);
 														}}
 													>
@@ -291,6 +309,61 @@ const MerchantDialog = ({
 							)}
 						</Tabs.Panel>
 					</Tabs.Root>
+					<div className="h-32 shrink-0 overflow-y-auto border-t pt-3">
+						{tab === "sell" &&
+							(confirmLowerSale ? (
+								<fieldset
+									ref={confirmationRef}
+									tabIndex={-1}
+									aria-label="Confirm Lower equipment sale"
+									className="grid gap-2"
+								>
+									<p className="text-sm">
+										Sell {lowerSale.items.length} Lower items for{" "}
+										{lowerSale.gold} gold?
+									</p>
+									<p className="text-xs text-muted-foreground">
+										The whole sale takes one turn, then monsters act once.
+									</p>
+									<div className="flex gap-2">
+										<Button
+											disabled={!onSellLower || !lowerSale.items.length}
+											onClick={() => {
+												onSellLower?.();
+												setConfirmLowerSale(false);
+												setFocusAfterSale(true);
+											}}
+										>
+											Confirm bulk sale
+										</Button>
+										<Button
+											variant="outline"
+											onClick={() => {
+												setConfirmLowerSale(false);
+												setFocusAfterSale(true);
+											}}
+										>
+											Cancel bulk sale
+										</Button>
+									</div>
+								</fieldset>
+							) : (
+								<div className="grid justify-items-start gap-2">
+									<Button
+										variant="outline"
+										disabled={!onSellLower || !lowerSale.items.length}
+										onClick={() => setConfirmLowerSale(true)}
+									>
+										Sell all Lower items ({lowerSale.items.length}) ·{" "}
+										{lowerSale.gold} gold
+									</Button>
+									<p className="text-xs text-muted-foreground">
+										Lower means red equipment that is worse than your worn gear.
+										Same and Tradeoff items stay yours.
+									</p>
+								</div>
+							))}
+					</div>
 					<div className="min-h-5 shrink-0">
 						{error && (
 							<p role="alert" className="text-sm text-destructive">

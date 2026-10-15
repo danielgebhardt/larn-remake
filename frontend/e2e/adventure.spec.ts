@@ -430,3 +430,73 @@ test("merchant bounds and unsold positions stay stable, and repeated clicks cann
 	await expect(merchant.getByText("Sold: Short sword")).toHaveCount(0);
 	expect(await merchant.boundingBox()).toEqual(bounds);
 });
+
+test("bulk selling confirms only Lower gear and commits one turn without moving the merchant controls", async ({
+	page,
+}, testInfo) => {
+	await importAdventure(page, "merchant-bulk");
+	await page.keyboard.press("e");
+	await page.keyboard.press("s");
+	const merchant = page.getByRole("dialog", {
+		name: "Wandering potion merchant",
+		exact: true,
+	});
+	const bounds = await merchant.boundingBox();
+	const close = merchant.getByRole("button", { name: "Close", exact: true });
+	const closeBounds = await close.boundingBox();
+	const bulk = merchant.getByRole("button", {
+		name: "Sell all Lower items (2) · 45 gold",
+		exact: true,
+	});
+	await bulk.press("Enter");
+	await expect(
+		merchant.getByRole("group", { name: "Confirm Lower equipment sale" }),
+	).toBeFocused();
+	await page.keyboard.press("Enter");
+	await expect(turns(page)).toHaveText("Turn 0");
+	await merchant
+		.getByRole("button", { name: "Cancel bulk sale", exact: true })
+		.click();
+	await expect(turns(page)).toHaveText("Turn 0");
+	await bulk.press("Enter");
+	await page.keyboard.press("Tab");
+	await expect(
+		merchant.getByRole("button", { name: "Confirm bulk sale", exact: true }),
+	).toBeFocused();
+	await page.keyboard.press("Enter");
+	await expect(turns(page)).toHaveText("Turn 1");
+	await expect(merchant.getByText("Gold 745", { exact: true })).toBeVisible();
+	await expect(
+		merchant.getByRole("button", {
+			name: "Sell all Lower items (0) · 0 gold",
+			exact: true,
+		}),
+	).toBeDisabled();
+	await expect(
+		merchant.getByRole("button", {
+			name: "Iron sword +1 · Sell for 25 gold",
+			exact: true,
+		}),
+	).toHaveCount(1);
+	await expect(
+		merchant.getByRole("button", {
+			name: "Short sword +3 · Sell for 35 gold",
+			exact: true,
+		}),
+	).toHaveCount(1);
+	await expect(
+		merchant.getByRole("button", { name: /Scholar robe.*Sell for/ }),
+	).toHaveCount(1);
+	await expect(
+		merchant.getByRole("button", { name: /Ring of Intelligence.*Sell for/ }),
+	).toHaveCount(1);
+	expect(await merchant.boundingBox()).toEqual(bounds);
+	expect(await close.boundingBox()).toEqual(closeBounds);
+	await page.keyboard.press("Enter");
+	await expect(turns(page)).toHaveText("Turn 1");
+	await page.screenshot({
+		path: testInfo.outputPath("merchant-bulk-sold.png"),
+	});
+	await page.keyboard.press("Escape");
+	await expect(map(page)).toBeFocused();
+});

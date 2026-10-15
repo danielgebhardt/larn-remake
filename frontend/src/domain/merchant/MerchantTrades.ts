@@ -3,6 +3,7 @@ import type { GameState } from "../game/GameState";
 import { canAddToBag, createBag } from "../items/Bag";
 import { assignPickedUpPotion } from "../items/PotionHotbar";
 import { orthogonalDistance } from "../monsters/MonsterLocations";
+import { lowerEquipmentSale } from "./LowerEquipmentSales";
 import { merchantsEnabled } from "./MerchantAvailability";
 import {
 	equipmentSalePrice,
@@ -75,6 +76,33 @@ export const buyPotion = (
 };
 
 export type SellAction = { type: "sell"; merchantId: string; itemId: string };
+export type SellLowerAction = { type: "sell-lower"; merchantId: string };
+export const sellLowerEquipment = (
+	state: GameState,
+	action: SellLowerAction,
+): GameState | { error: string } => {
+	if (!canReachMerchant(state, action.merchantId))
+		return { error: "No merchant within reach." };
+	const sale = lowerEquipmentSale(state);
+	if (!sale.items.length) return { error: "No Lower equipment to sell." };
+	if (!Number.isSafeInteger(state.gold + sale.gold))
+		return { error: "You cannot carry more gold." };
+	const soldIds = new Set(sale.items.map((item) => item.id));
+	return {
+		...state,
+		gold: state.gold + sale.gold,
+		bag: createBag(state.bag.items.filter((item) => !soldIds.has(item.id))),
+		activityHistory: appendActivityEvents(
+			state.activityHistory,
+			sale.items.map((item) => ({
+				type: "merchant-sold" as const,
+				item: item.kind,
+				gold: equipmentSalePrice(item) ?? 0,
+				turn: state.turn,
+			})),
+		),
+	};
+};
 export const sellEquipment = (
 	state: GameState,
 	action: SellAction,

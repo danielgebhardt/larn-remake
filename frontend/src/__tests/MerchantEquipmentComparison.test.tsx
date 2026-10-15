@@ -35,9 +35,10 @@ const merchantState = (): GameState => ({
 });
 const setup = async (state = merchantState()) => {
 	const onSell = vi.fn(),
+		onSellLower = vi.fn(),
 		onClose = vi.fn(),
 		mapRef = createRef<HTMLElement>();
-	const props = { open: true, state, onSell, onClose, mapRef };
+	const props = { open: true, state, onSell, onSellLower, onClose, mapRef };
 	const view = render(<MerchantDialog {...props} />);
 	const user = userEvent.setup();
 	await user.click(screen.getByRole("tab", { name: "Sell" }));
@@ -45,12 +46,38 @@ const setup = async (state = merchantState()) => {
 		...view,
 		user,
 		onSell,
+		onSellLower,
 		props,
 		panel: within(screen.getByRole("tabpanel", { name: "Sell" })),
 	};
 };
 
 describe("Equipment decisions at the merchant", () => {
+	it("quotes Lower sales, cancels freely and needs a deliberate confirmation", async () => {
+		const { user, onSellLower, onSell } = await setup();
+		await user.click(
+			screen.getByRole("button", {
+				name: "Sell all Lower items (1) · 20 gold",
+			}),
+		);
+		expect(onSellLower).not.toHaveBeenCalled();
+		expect(
+			screen.getByRole("group", { name: "Confirm Lower equipment sale" }),
+		).toHaveTextContent(/whole sale takes one turn/);
+		await user.click(screen.getByRole("button", { name: "Cancel bulk sale" }));
+		expect(onSellLower).not.toHaveBeenCalled();
+		await user.click(
+			screen.getByRole("button", {
+				name: "Sell all Lower items (1) · 20 gold",
+			}),
+		);
+		await user.click(screen.getByRole("button", { name: "Confirm bulk sale" }));
+		expect(onSellLower).toHaveBeenCalledTimes(1);
+		expect(onSell).not.toHaveBeenCalled();
+		expect(
+			screen.queryByRole("button", { name: "Confirm bulk sale" }),
+		).not.toBeInTheDocument();
+	});
 	it("marks every carried equipment choice without hiding inferior items or selling worn gear", async () => {
 		const { panel } = await setup();
 		expect(

@@ -29,7 +29,9 @@ import {
 	type BuyAction,
 	buyPotion,
 	type SellAction,
+	type SellLowerAction,
 	sellEquipment,
+	sellLowerEquipment,
 } from "../merchant/MerchantTrades";
 import type { Monster } from "../monsters/Monster.ts";
 import { resolveMonsterPhase } from "../monsters/MonsterTurns";
@@ -65,6 +67,7 @@ export type PlayerAction =
 	| EnchantAction
 	| BuyAction
 	| SellAction
+	| SellLowerAction
 	| InteractAction
 	| { type: "move"; direction: MovementDirection }
 	| { type: "wait" }
@@ -188,6 +191,7 @@ const resolvePlayerEffect = (
 	if (action.type === "enchant") return enchantEquipment(state, action);
 	if (action.type === "buy") return buyPotion(state, action);
 	if (action.type === "sell") return sellEquipment(state, action);
+	if (action.type === "sell-lower") return sellLowerEquipment(state, action);
 	if (action.type === "interact") return interactObject(state, action);
 	if (action.type === "cast") {
 		const cast = castSpell(state, action, rollSource);

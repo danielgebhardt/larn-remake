@@ -30,6 +30,28 @@ test.beforeEach(async ({ page }) => {
 	await page.goto("/"); // Playwright supplies a fresh browser context and storage for every test.
 });
 
+test("the hunted ascent announces endgame hunters and explains cure sensing without stealing map focus", async ({
+	page,
+}) => {
+	await importAdventure(page, "escape");
+	await page.keyboard.press("a");
+	await expect(turns(page)).toHaveText("Turn 6975");
+	await expect(
+		page.getByText(/The hunted return reaches floor 19/),
+	).toBeVisible();
+	await expect(map(page)).toBeFocused();
+	await page.getByRole("button", { name: "Help", exact: true }).click();
+	const hunted = page.getByRole("region", {
+		name: "Hunted return",
+		exact: true,
+	});
+	await expect(hunted).toContainText("up to 4 endgame hunters");
+	await expect(hunted).toContainText("within 24 horizontal/vertical steps");
+	await page.keyboard.press("Escape");
+	await expect(map(page)).toBeFocused();
+	await expect(turns(page)).toHaveText("Turn 6975");
+});
+
 test("a loaded late-game character shows the applied evasion curve and returns map focus without spending a turn", async ({
 	page,
 }) => {

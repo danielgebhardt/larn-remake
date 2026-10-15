@@ -4,6 +4,7 @@ import { EFFECT_DEFINITIONS } from "../../domain/game/TimedEffects";
 import { EQUIPMENT_SLOT_LABELS } from "../../domain/items/Equipment";
 import { ITEM_DEFINITIONS } from "../../domain/items/Item";
 import { MONSTER_DEFINITIONS } from "../../domain/monsters/Monster";
+import { ESCAPE_PURSUIT_RULES } from "../../domain/monsters/PursuitRules";
 import { OBJECT_DEFINITIONS } from "../../domain/objects/DungeonObject";
 import { describeObject } from "../../domain/objects/ObjectDescriptions";
 
@@ -21,7 +22,7 @@ export const formatActivityEvent = (event: ActivityEvent): string => {
 		case "merchant-bought":
 			return `${prefix}Bought ${ITEM_DEFINITIONS[event.item].name} for ${event.gold} gold.`;
 		case "escape-floor-activated":
-			return `${prefix}The hunted return reaches floor ${event.floorNumber}.`;
+			return `${prefix}The hunted return reaches floor ${event.floorNumber}. Endgame hunters converge near the stair routes.`;
 		case "monster-charge-prepared":
 			return `${prefix}The ${MONSTER_DEFINITIONS[event.monster].name} lowers its horns. Sidestep the marked charge line!`;
 		case "monster-charge-hit":
@@ -33,7 +34,7 @@ export const formatActivityEvent = (event: ActivityEvent): string => {
 		case "monster-alarm-sounded":
 			return `${prefix}The ${MONSTER_DEFINITIONS[event.monster].name} sounds its alarm. Nearby creatures may investigate your last seen position.`;
 		case "escape-started":
-			return `${prefix}The cure awakens the dungeon. You are hunted: return to the entrance on floor 1.`;
+			return `${prefix}The cure awakens the dungeon. Enemies sense it through walls within ${ESCAPE_PURSUIT_RULES.cureSenseRadius} tiles. Keep moving toward the entrance on floor 1!`;
 		case "monster-awareness-changed": {
 			const definition = MONSTER_DEFINITIONS[event.monster];
 			let message = "gives up the search.";

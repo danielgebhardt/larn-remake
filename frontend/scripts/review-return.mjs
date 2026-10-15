@@ -1,4 +1,6 @@
 // Controlled cleared-descent return. Fixed resources; not a human win-rate test.
+
+import { execFileSync } from "node:child_process";
 import { createServer } from "vite";
 import {
 	createEscapeReview,
@@ -9,25 +11,51 @@ import { parseReviewOptions, REVIEW_USAGE } from "./review-options.mjs";
 import { createRoutes } from "./review-routing.mjs";
 
 let options;
+const directAscent = process.argv.includes("--direct-ascent");
+const legacyReturn = process.argv.includes("--legacy-return");
 const server = await createServer({
 	configFile: false,
 	server: { middlewareMode: true, hmr: false, ws: false },
 	optimizeDeps: { noDiscovery: true, entries: [] },
 	appType: "custom",
-	plugins: [escapePressurePlugin(() => options)],
+	plugins: [
+		{
+			name: "legacy-return-comparison",
+			enforce: "pre",
+			transform(_code, id) {
+				const source = id.match(
+					/\/src\/domain\/monsters\/(EscapeEncounters|PursuitRules|MonsterPursuit|MonsterTurns)\.ts$/,
+				);
+				if (legacyReturn && source)
+					return execFileSync(
+						"git",
+						["show", `33207d1:frontend/src/domain/monsters/${source[1]}.ts`],
+						{ encoding: "utf8" },
+					);
+			},
+		},
+		escapePressurePlugin(() => options),
+	],
 });
 try {
 	const load = (path) => server.ssrLoadModule(path);
 	const { DEFAULT_RUN_CONFIGURATION: defaults, CONFIGURATION_LIMITS: limits } =
 		await load("/src/domain/dungeon/RunConfiguration.ts");
 	options = parseReviewOptions(
-		process.argv.slice(2),
+		process.argv
+			.slice(2)
+			.filter(
+				(argument) =>
+					!["--direct-ascent", "--legacy-return"].includes(argument),
+			),
 		defaults,
 		limits,
 		0xffffffff,
 	);
 	if (options.help) {
-		console.log(REVIEW_USAGE);
+		console.log(
+			`${REVIEW_USAGE}\nReturn-only: --direct-ascent prioritizes stairs; --legacy-return compares rules from commit 33207d1 (requires that Git history).`,
+		);
 	} else {
 		const { generateDungeonRun, connectDungeonFloors } = await load(
 			"/src/domain/dungeon/DungeonRun.ts",
@@ -44,6 +72,10 @@ try {
 		const { resolvePlayerAction } = await load(
 			"/src/domain/game/PlayerActions.ts",
 		);
+		const { createAttackRolls } = await load(
+			"/src/domain/game/CombatRandomness.ts",
+		);
+		const { hasLineOfSight } = await load("/src/domain/dungeon/Visibility.ts");
 		const { chooseTacticalAwareAction } = await load(
 			"/scripts/review-tactics.mjs",
 		);
@@ -110,6 +142,8 @@ try {
 			};
 			const review = createEscapeReview(),
 				memory = {};
+			const encountered = new Set(),
+				engaged = new Set();
 			let reason = "action limit";
 			for (let index = 0; index < options.maxActions; index++) {
 				if (state.quest.victory) {
@@ -120,16 +154,52 @@ try {
 					reason = "died";
 					break;
 				}
-				const action = chooseTacticalAwareAction(
-					state,
-					createRoutes(reviewRoutingFloor(state), state.run.playerCoordinate),
-					memory,
+				const routes = createRoutes(
+					reviewRoutingFloor(state),
+					state.run.playerCoordinate,
 				);
+				let action = chooseTacticalAwareAction(state, routes, memory);
+				if (
+					directAscent &&
+					action?.type !== "consume" &&
+					!(action?.type === "cast" && action.spell === "heal")
+				) {
+					const target =
+						state.run.activeFloor === 1
+							? state.quest.entrance
+							: state.run.floors[state.run.activeFloor - 1].upStair?.coordinate;
+					const direction = target && routes(target)?.[0];
+					if (direction) action = { type: "move", direction };
+				}
 				if (!action) {
 					reason = "no route";
 					break;
 				}
-				const resolution = resolvePlayerAction(state, action);
+				for (const actor of state.monsters) {
+					if (
+						actor.floorNumber === state.run.activeFloor &&
+						Math.hypot(
+							actor.coordinate.row - state.run.playerCoordinate.row,
+							actor.coordinate.col - state.run.playerCoordinate.col,
+						) <= 8 &&
+						hasLineOfSight(
+							state.run.floors[state.run.activeFloor - 1].terrain,
+							actor.coordinate,
+							state.run.playerCoordinate,
+						)
+					)
+						encountered.add(actor.id);
+				}
+				if (action.type === "cast" && action.targetId)
+					engaged.add(action.targetId);
+				const resolution = resolvePlayerAction(state, action, (context) => {
+					engaged.add(
+						context.targetId === "player"
+							? context.attackerId.split(":").slice(0, 2).join(":")
+							: context.targetId,
+					);
+					return createAttackRolls(context);
+				});
 				if (!resolution.turnAdvanced)
 					throw new Error(
 						`Rejected action ${JSON.stringify(action)}: ${resolution.error ?? ""}`,
@@ -142,6 +212,8 @@ try {
 			console.log(
 				JSON.stringify({
 					scenario: "controlled cleared-descent return",
+					policy: directAscent ? "direct-ascent" : "tactical-clear",
+					returnRules: legacyReturn ? "33207d1" : "current",
 					seed,
 					configuration,
 					escapePressure: !options.disableEscapePressure,
@@ -153,6 +225,8 @@ try {
 					experience: state.progression.experience,
 					gold: state.gold,
 					...review,
+					encounteredEnemies: encountered.size,
+					engagedEnemies: engaged.size,
 				}),
 			);
 		}

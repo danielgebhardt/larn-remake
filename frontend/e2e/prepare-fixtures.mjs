@@ -151,8 +151,21 @@ export default async function prepareFixtures() {
 			},
 		};
 		const directory = new URL(".generated/", import.meta.url);
+		const escaping = createReviewEncounter(3, 1172903873);
 		await mkdir(directory, { recursive: true });
 		for (const [name, state, config] of [
+			[
+				"escape",
+				{
+					...escaping,
+					monsters: [],
+					run: { ...escaping.run, playerCoordinate: { row: 1, col: 2 } },
+					quest: { ...escaping.quest, cureRecovered: true },
+					escape: { startedTurn: escaping.turn, activatedFloors: [] },
+					floorItems: [],
+				},
+				DEFAULT_RUN_CONFIGURATION,
+			],
 			[
 				"evasion",
 				createReviewEncounter(3, 1172903873),

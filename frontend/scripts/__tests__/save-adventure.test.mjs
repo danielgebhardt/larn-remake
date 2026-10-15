@@ -20,6 +20,7 @@ import {
 	readLocalSave,
 	writeLocalSave,
 } from "../../src/persistence/LocalAdventureSave";
+import { createReviewEncounter } from "../evasion-review";
 import { chooseSpellAwareAction } from "../review-policy.mjs";
 import { createRoutes } from "../review-routing.mjs";
 
@@ -68,8 +69,16 @@ const act = (adventure, action) => {
 describe("Saving and resuming real adventures", () => {
 	it("finishes identically after a mid-adventure save on floor 2, including victory and discovery", () => {
 		let original = start();
-		// This continuation test uses a carried upgrade to exercise a victorious saved run.
-		original.state = { ...original.state, bag: bagWithSpareGear() };
+		// Persistence, not low-level balance: return waves now contain endgame hunters.
+		const prepared = createReviewEncounter(3, 0);
+		original.state = {
+			...original.state,
+			progression: prepared.progression,
+			player: prepared.player,
+			mana: prepared.mana,
+			equipment: prepared.equipment,
+			bag: bagWithSpareGear(),
+		};
 		let loaded = null;
 		for (
 			let actionCount = 0;

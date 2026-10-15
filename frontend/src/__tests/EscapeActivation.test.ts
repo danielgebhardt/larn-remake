@@ -7,6 +7,8 @@ import {
 import { activateEscapeFloor } from "../domain/game/Escape";
 import { createGameState } from "../domain/game/GameState";
 import { resolvePlayerAction } from "../domain/game/PlayerActions";
+import { maximumMonsterHealth } from "../domain/monsters/MonsterStats";
+import { resolveMonsterPhase } from "../domain/monsters/MonsterTurns";
 import { COMPACT_TEST_CONFIGURATION } from "./TestRunConfiguration";
 
 const returnedAdventure = () => {
@@ -33,6 +35,33 @@ const returnedAdventure = () => {
 	};
 };
 describe("Once-per-floor escape activation", () => {
+	it.each([0.75, 1, 1.25] as const)(
+		"gives a wounded, empty-mana arrival a response before the new hunters attack at difficulty %s",
+		(difficulty) => {
+			const initial = returnedAdventure();
+			const state = activateEscapeFloor(
+				{
+					...initial,
+					difficulty,
+					monsters: [],
+					player: { ...initial.player, health: 1 },
+					mana: 0,
+				},
+				5,
+			);
+			expect(state.monsters).toHaveLength(4);
+			for (const monster of state.monsters)
+				expect(monster.health).toBe(
+					maximumMonsterHealth(monster.kind, difficulty, 4),
+				);
+			const after = resolveMonsterPhase({ ...state, turn: 1 }, () => ({
+				d20: () => 20,
+				damage: (_min, max) => max,
+			}));
+			expect(after.player.health).toBe(1);
+			expect(after.run.playerCoordinate).toEqual(initial.run.playerCoordinate);
+		},
+	);
 	it("adds one wave on ascent while retaining survivors and terrain", () => {
 		const before = returnedAdventure();
 		const after = activateEscapeFloor(before, 5);

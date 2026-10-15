@@ -27,9 +27,9 @@ import { resolveMonsterAlarm } from "./MonsterAlarm";
 import { resolveMonsterArea } from "./MonsterAreaAttack";
 import { advanceUnseenPursuit } from "./MonsterAwareness";
 import { resolveMonsterCharge } from "./MonsterCharge";
-import { monsterDoorToOpen } from "./MonsterDoors";
+import { doorPlanningRun, monsterDoorToOpen } from "./MonsterDoors";
 import { orthogonalDistance } from "./MonsterLocations";
-import { detectsPlayer, selectPursuitStep } from "./MonsterPursuit";
+import { detectsPlayer, selectPursuitStep, sensesCure } from "./MonsterPursuit";
 import { selectRetreatStep } from "./MonsterRetreat";
 import { maximumMonsterHealth, monsterAttackDamage } from "./MonsterStats";
 import { pursuitRulesFor } from "./PursuitRules";
@@ -110,7 +110,8 @@ export const resolveMonsterPhase = (
 			continue;
 		}
 		const detected = detectsPlayer(navigation, monster, pursuitRules);
-		if (detected) {
+		const sensed = sensesCure(navigation, monster, pursuitRules);
+		if (detected || sensed) {
 			const target = state.run.playerCoordinate;
 			const remembered = monster.awareness;
 			if (
@@ -170,14 +171,30 @@ export const resolveMonsterPhase = (
 			}
 		}
 		if (!detected && monster.intent.type === "idle") {
-			const next = advanceUnseenPursuit(
-				navigation,
-				monster,
-				monsters,
-				pursuitRules,
+			const rooted =
 				hasMonsterEffect(state, monster, "rooted") ||
-					profile.stationary === true,
-			);
+				profile.stationary === true;
+			const coordinate =
+				sensed && !rooted
+					? selectPursuitStep(
+							profile.opensDoors
+								? doorPlanningRun({ run: state.run, objects })
+								: navigation,
+							monster,
+							monsters,
+						)
+					: undefined;
+			const next = sensed
+				? coordinate
+					? { ...monster, coordinate }
+					: monster
+				: advanceUnseenPursuit(
+						navigation,
+						monster,
+						monsters,
+						pursuitRules,
+						rooted,
+					);
 			if (next !== monster)
 				monsters = monsters.map((actor) =>
 					actor.id === monster.id ? next : actor,

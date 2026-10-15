@@ -5,8 +5,18 @@ import { MONSTER_DEFINITIONS, type Monster } from "./Monster";
 import { orthogonalDistance } from "./MonsterLocations";
 import { selectPursuitStep } from "./MonsterPursuit";
 
+export const doorPlanningRun = (state: Pick<GameState, "run" | "objects">) =>
+	navigationRun({
+		run: state.run,
+		objects: state.objects.map((object) =>
+			object.kind === "door" && !object.activated
+				? { ...object, activated: true }
+				: object,
+		),
+	});
+
 // Consider an ordinary door only on the next shortest remembered route. This
-// permits planning through doors, never sensing a player through a closed door.
+// permits planning through ordinary doors without opening a sealed elite gate.
 export const monsterDoorToOpen = (
 	state: GameState,
 	monster: Monster,
@@ -35,14 +45,7 @@ export const monsterDoorToOpen = (
 			),
 	);
 	if (!adjacent.length) return undefined;
-	const planned = navigationRun({
-		run: state.run,
-		objects: state.objects.map((object) =>
-			object.kind === "door" && !object.activated
-				? { ...object, activated: true }
-				: object,
-		),
-	});
+	const planned = doorPlanningRun(state);
 	const step = selectPursuitStep(
 		planned,
 		monster,

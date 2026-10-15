@@ -2,7 +2,12 @@ import type { Coordinate } from "../dungeon/DungeonTypes";
 import { createSeededRandom, hashStringToUint32 } from "../dungeon/Seed";
 import type { GameState } from "../game/GameState";
 import { sealedEliteTiles } from "../objects/OptionalEliteRooms";
-import { type Monster, selectMonsterKind } from "./Monster";
+import { approachDistances } from "./EscapeApproaches";
+import {
+	MONSTER_DEFINITIONS,
+	type Monster,
+	selectMonsterKind,
+} from "./Monster";
 import {
 	coordinateKey,
 	orthogonalDistance,
@@ -16,6 +21,9 @@ export const ESCAPE_ENCOUNTER_RULES = {
 	maximumNewMonsters: 4,
 	maximumLivingMonsters: 16,
 	firstSpawnIndex: 10001,
+	monsterPoolFloor: 20,
+	preferredApproachDistance: 10,
+	placementChoices: 12,
 } as const;
 
 // Build only the requested return floor. The cure floor has no second wave.
@@ -44,13 +52,25 @@ export const generateEscapeEncounters = (
 			.filter((entry) => entry.floorNumber === floorNumber)
 			.map((entry) => coordinateKey(entry.coordinate)),
 	);
-	for (const key of sealedEliteTiles(floor, state.objects)) occupied.add(key);
+	const sealed = sealedEliteTiles(floor, state.objects);
+	for (const key of sealed) occupied.add(key);
+	const arrival = floor.downStair?.coordinate;
+	const exit =
+		floor.upStair?.coordinate ??
+		(floorNumber === 1 ? state.quest.entrance : undefined);
+	if (!arrival || !exit) return [];
+	const fromArrival = approachDistances(floor, arrival, sealed);
+	const fromExit = approachDistances(floor, exit, sealed);
+	const routeLength = fromArrival.get(coordinateKey(exit));
+	if (routeLength === undefined) return [];
 	const candidates: Coordinate[] = [];
 	for (const [row, tiles] of floor.terrain.entries())
 		for (const [col, tile] of tiles.entries()) {
 			const point = { row, col };
 			if (
 				tile === "." &&
+				fromArrival.has(coordinateKey(point)) &&
+				fromExit.has(coordinateKey(point)) &&
 				!occupied.has(coordinateKey(point)) &&
 				protectedTiles.every(
 					(protectedTile) =>
@@ -72,12 +92,8 @@ export const generateEscapeEncounters = (
 		const random = createSeededRandom(
 			hashStringToUint32(`${state.run.seed}:${floorNumber}:escape:${index}`),
 		);
-		const [coordinate] = candidates.splice(
-			Math.floor(random() * candidates.length),
-			1,
-		);
 		const kind = selectMonsterKind(
-			floorNumber,
+			rules.monsterPoolFloor,
 			createSeededRandom(
 				hashStringToUint32(
 					`${state.run.seed}:${floorNumber}:escape-kinds:${index}`,
@@ -85,6 +101,37 @@ export const generateEscapeEncounters = (
 			),
 		);
 		if (!kind) break;
+		// Ranged hunters cannot fire on the arrival action. Telegraphs still get a response.
+		const buffer = Math.max(
+			rules.arrivalBuffer,
+			MONSTER_DEFINITIONS[kind].rangedAttackRange ?? 0,
+		);
+		const anchor = index % 2 === 1 ? fromArrival : fromExit;
+		const score = (point: Coordinate) => {
+			const key = coordinateKey(point);
+			return (
+				2 *
+					((fromArrival.get(key) ?? 0) +
+						(fromExit.get(key) ?? 0) -
+						routeLength) +
+				Math.abs((anchor.get(key) ?? 0) - rules.preferredApproachDistance)
+			);
+		};
+		const choices = candidates
+			.filter(
+				(point) =>
+					protectedTiles.every(
+						(tile) => orthogonalDistance(point, tile) > buffer,
+					) &&
+					actors.every(
+						(actor) => orthogonalDistance(actor.coordinate, point) >= 3,
+					),
+			)
+			.sort((a, b) => score(a) - score(b) || a.row - b.row || a.col - b.col)
+			.slice(0, rules.placementChoices);
+		if (!choices.length) continue;
+		const coordinate = choices[Math.floor(random() * choices.length)];
+		candidates.splice(candidates.indexOf(coordinate), 1);
 		while (existingIds.has(`${floorNumber}:${spawnIndex}`)) spawnIndex++;
 		actors.push({
 			id: `${floorNumber}:${spawnIndex++}`,

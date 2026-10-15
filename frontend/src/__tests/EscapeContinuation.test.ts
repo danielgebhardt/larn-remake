@@ -37,19 +37,25 @@ describe("Resuming an awakened return floor", () => {
 			},
 			5,
 		);
+		const pursuing = resolvePlayerAction(escaping, { type: "wait" }).state;
+		expect(
+			pursuing.monsters.some(
+				(monster) => monster.awareness?.type === "pursuing",
+			),
+		).toBe(true);
 		const document = createSaveDocument(
-			escaping,
-			updateExploration(escaping.run, 8),
+			pursuing,
+			updateExploration(pursuing.run, 8),
 			configuration,
 			DEFAULT_FOG_CONFIGURATION,
 		);
 		const parsed = parseSave(serializeSave(document));
 		if (!parsed.ok) throw new Error(parsed.error);
 		const loaded = restoreSave(parsed.value).state;
-		expect(loaded).toEqual(escaping);
+		expect(loaded).toEqual(pursuing);
 		expect(activateEscapeFloor(loaded, 5)).toBe(loaded);
 		expect(resolvePlayerAction(loaded, { type: "wait" }).state).toEqual(
-			resolvePlayerAction(escaping, { type: "wait" }).state,
+			resolvePlayerAction(pursuing, { type: "wait" }).state,
 		);
 		expect(createGameState(fresh.run).escape).toBeNull();
 	});

@@ -38,7 +38,7 @@ describe("Deterministic return-floor encounters", () => {
 		const shorter = adventure(60, 10);
 		expect(generateEscapeEncounters(shorter, 5)).toEqual(actors);
 	});
-	it("reserves stair buffers, existing actors, objects, loot, and depth eligibility", () => {
+	it("reserves stair buffers, actors, objects and loot while drawing from the floor-20 pool", () => {
 		const state = adventure();
 		const actors = generateEscapeEncounters(state, 5);
 		const protectedTiles = protectedFloorLocations(state.run, 5);
@@ -48,6 +48,20 @@ describe("Deterministic return-floor encounters", () => {
 			...state.floorItems,
 		].filter((entry) => entry.floorNumber === 5);
 		for (const actor of actors) {
+			expect(
+				Math.min(
+					...protectedTiles.map((point) =>
+						orthogonalDistance(point, actor.coordinate),
+					),
+				),
+			).toBeLessThanOrEqual(20);
+			expect(
+				protectedTiles.every(
+					(point) =>
+						orthogonalDistance(point, actor.coordinate) >
+						(MONSTER_DEFINITIONS[actor.kind].rangedAttackRange ?? 0),
+				),
+			).toBe(true);
 			expect(
 				protectedTiles.every(
 					(point) => orthogonalDistance(point, actor.coordinate) > 3,
@@ -61,9 +75,9 @@ describe("Deterministic return-floor encounters", () => {
 			expect(state.monsters.some((existing) => existing.id === actor.id)).toBe(
 				false,
 			);
-			expect(MONSTER_DEFINITIONS[actor.kind].minFloor).toBeLessThanOrEqual(5);
+			expect(MONSTER_DEFINITIONS[actor.kind].minFloor).toBeLessThanOrEqual(20);
 			expect(MONSTER_DEFINITIONS[actor.kind].maxFloor).toBeGreaterThanOrEqual(
-				5,
+				20,
 			);
 		}
 		expect(

@@ -131,6 +131,43 @@ try {
 		};
 		return measure(name, () => resolveMonsterPhase(state), monsters.length);
 	});
+	const sensedRun = {
+		...run,
+		floors: run.floors.map((floor) =>
+			floor.floorNumber === 10
+				? {
+						...floor,
+						terrain: terrain.map((row, index) =>
+							row.map((tile, col) =>
+								col === 40 && index >= 44 && index <= 56 ? "#" : tile,
+							),
+						),
+					}
+				: floor,
+		),
+	};
+	const sensed = {
+		...initial,
+		run: sensedRun,
+		objects: [],
+		turn: 1,
+		quest: { ...initial.quest, cureRecovered: true },
+		escape: { startedTurn: 0, activatedFloors: [10] },
+		monsters: Array.from({ length: 16 }, (_, index) => ({
+			...actor(index, "wraith", {
+				row: 47 + Math.floor(index / 4),
+				col: 30 + (index % 4),
+			}),
+			health: 18,
+		})),
+	};
+	results.push(
+		measure(
+			"escape-sensing-through-wall-16",
+			() => resolveMonsterPhase(sensed),
+			16,
+		),
+	);
 	const doorState = {
 		...initial,
 		run,

@@ -11,6 +11,16 @@ import {
 
 import { PURSUIT_RULES, type PursuitRules } from "./PursuitRules";
 
+// The cure can be sensed through walls; this grants pursuit, never attack sight.
+export const sensesCure = (
+	run: DungeonRun,
+	monster: Monster,
+	rules: Readonly<PursuitRules>,
+): boolean =>
+	monster.floorNumber === run.activeFloor &&
+	orthogonalDistance(monster.coordinate, run.playerCoordinate) <=
+		(rules.cureSenseRadius ?? -1);
+
 export const detectsPlayer = (
 	run: DungeonRun,
 	monster: Monster,

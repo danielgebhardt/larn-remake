@@ -27,8 +27,10 @@ import {
 } from "../domain/game/MeleeRules";
 import { HEALTH_PER_LEVEL, MAX_PLAYER_LEVEL } from "../domain/game/Progression";
 import { SPELL_DEFINITIONS } from "../domain/game/Spells";
+import { ESCAPE_ENCOUNTER_RULES } from "../domain/monsters/EscapeEncounters";
 import type { Monster } from "../domain/monsters/Monster";
 import { MONSTER_DEFINITIONS } from "../domain/monsters/Monster";
+import { ESCAPE_PURSUIT_RULES } from "../domain/monsters/PursuitRules";
 
 const Keycap = ({
 	children,
@@ -272,10 +274,17 @@ const DungeonHelp = ({
 			>
 				<h3 className="mb-2 font-medium">Hunted return</h3>
 				<p>
-					Recovering the cure awakens a finite group of enemies on each floor as
-					you climb toward the entrance. Surviving enemies also detect you
-					farther away and pursue longer. Walls and closed doors still break
-					sight. Revisiting a floor never creates another wave.
+					Recovering the cure awakens up to{" "}
+					{ESCAPE_ENCOUNTER_RULES.maximumNewMonsters} endgame hunters near stair
+					routes on each return floor, drawn from the floor-
+					{ESCAPE_ENCOUNTER_RULES.monsterPoolFloor} pool. Small or crowded
+					floors may have fewer. All enemies on your active floor sense the cure
+					within {ESCAPE_PURSUIT_RULES.cureSenseRadius} horizontal/vertical
+					steps, even through walls, and track you while in range. Walls and
+					closed doors still block attacks and movement; creatures that normally
+					open ordinary doors can spend actions opening them. Sleep, Fear, Web
+					and normal telegraphs still work. Keep moving: revisiting or loading
+					never creates another wave.
 				</p>
 			</section>
 			<ObservedCreatures

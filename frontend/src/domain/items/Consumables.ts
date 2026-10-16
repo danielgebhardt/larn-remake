@@ -2,7 +2,6 @@ import type { GameState } from "../game/GameState";
 import { maximumMana } from "../game/Mana";
 import type { PlayerStats } from "../game/PlayerStats";
 import {
-	EFFECT_DEFINITIONS,
 	type PlayerEffectKind,
 	refreshPlayerEffect,
 } from "../game/TimedEffects";
@@ -66,13 +65,19 @@ export const consumeItem = (
 		return {
 			player,
 			mana,
-			effects: refreshPlayerEffect(state.effects, definition.boost),
+			effects: refreshPlayerEffect(state.effects, definition.boost, 6),
 			bag: removeBagItem(bag, selected.id),
 			event: {
 				type: "item-boosted",
 				item: selected.kind,
 				condition: definition.boost,
-				duration: EFFECT_DEFINITIONS[definition.boost].duration,
+				duration: Math.max(
+					6,
+					state.effects.find(
+						(effect) =>
+							effect.actorId === "player" && effect.kind === definition.boost,
+					)?.remaining ?? 0,
+				),
 			},
 		};
 	const { resource, amount } = definition.recovery;

@@ -212,3 +212,6 @@ Earlier appearances of stronger monster kinds are a separate [Backlog experiment
 ## Alpha run #2 feedback
 
 [Epic #293](https://github.com/danielgebhardt/larn-remake/issues/293) captures all 17 observations. The first eight usability stories (#296, #298, #300, #310, #301, #303, #295 and #299) were merged into main. Optional champion tuning #304 and the developer-selected Medium default #307 are implemented on `codex/elite-champion-tuning` for review; seven stories remain Backlog. The default-size request narrowed #307 to configuration/UI consistency; comparative pacing/balance experiments remain later work. See [the champion/default review](docs/elite-champion-review.md), [spell/HUD review](docs/spell-hud-polish-review.md), [equipment review](docs/equipment-stat-review.md) and [interaction review](docs/alpha2-interaction-review.md).
+
+
+**#302 is implemented for developer review** on `codex/spell-balance-pass`: stronger learned attacks, dangerous radius-three Fireball, scaling Renewal/poison, twenty-turn spell buffs, longer Blink, and a shared 3–6-book discovery budget. Heal/Magic Missile and control spells retain their baseline roles; enemy spell damage is isolated from player buffs. Current saves emit v22 and preserve earlier played state. See [the spell balance review](docs/spell-balance-review.md). Human balance acceptance remains pending.

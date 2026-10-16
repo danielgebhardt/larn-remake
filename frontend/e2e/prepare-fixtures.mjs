@@ -321,8 +321,72 @@ export default async function prepareFixtures() {
 				],
 			},
 		};
+		const reserved = [
+			run.playerCoordinate,
+			run.floors[0].downStair?.coordinate,
+		].filter(Boolean);
+		let blastPair;
+		for (let row = 1; row < 19 && !blastPair; row++) {
+			for (let col = 1; col < 17; col++) {
+				const points = [0, 1, 2].map((offset) => ({ row, col: col + offset }));
+				if (
+					points.every(
+						(point) =>
+							run.floors[0].terrain[point.row][point.col] === "." &&
+							!reserved.some((x) => x.row === point.row && x.col === point.col),
+					)
+				) {
+					blastPair = [points[0], points[2]];
+					break;
+				}
+			}
+		}
+		if (!blastPair) throw new Error("Expected a clear Fireball encounter");
+		const spellBalance = {
+			...quiet,
+			objects: [],
+			floorItems: quiet.floorItems.filter((x) => x.item.kind === "cure"),
+			run: { ...run, playerCoordinate: blastPair[0] },
+			player: { health: 10, maxHealth: 10 },
+			mana: 10,
+			knownSpells: [
+				"magic-missile",
+				"heal",
+				"fireball",
+				"renewal",
+				"protection",
+				"dexterity",
+				"strength",
+				"poison-dart",
+				"sonic-spear",
+			],
+			spellHotbar: [
+				"fireball",
+				"renewal",
+				"protection",
+				"dexterity",
+				"strength",
+				"poison-dart",
+			],
+			monsters: [
+				{
+					id: "1:1",
+					kind: "orc",
+					floorNumber: 1,
+					coordinate: blastPair[1],
+					health: 7,
+					intent: { type: "idle" },
+				},
+			],
+		};
 		await mkdir(directory, { recursive: true });
 		for (const [name, state, config, fixtureFog = fog] of [
+			["spell-balance", spellBalance, configuration],
+			[
+				"spell-balance-fatal",
+				{ ...spellBalance, player: { health: 1, maxHealth: 10 } },
+				configuration,
+			],
 			["exit-scrolls", exitScrollState, configuration],
 			[
 				"exit-scrolls-ember",

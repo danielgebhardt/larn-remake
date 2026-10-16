@@ -60,18 +60,16 @@ describe("Equipment comparison in Character", () => {
 			panel.getByRole("button", { name: "Ring of Mana, slot 1" }),
 		);
 		const previews = panel.getAllByLabelText("Equipment comparison");
-		expect(previews[0]).toHaveTextContent("Spell damage bonus +1 → +0 (−1)");
+		expect(previews[0]).toHaveTextContent("Base spell modifier +1 → +0 (−1)");
 		expect(previews[0]).toHaveTextContent("Heal bonus +1 → +0 (−1)");
-		expect(previews[1]).toHaveTextContent("Spell damage bonus +1 → +1 (0)");
-		const loss = within(previews[0]).getByText(/^Spell damage bonus/);
+		expect(previews[1]).toHaveTextContent("Base spell modifier +1 → +1 (0)");
+		const loss = within(previews[0]).getByText(/^Base spell modifier/);
 		expect(within(loss).getByText("+0 (−1)")).toHaveClass("text-red-700");
-		const unchanged = within(previews[1]).getByText(/^Spell damage bonus/);
+		const unchanged = within(previews[1]).getByText(/^Base spell modifier/);
 		expect(within(unchanged).getByText("+1 (0)")).toHaveClass(
 			"text-foreground",
 		);
-		expect(
-			panel.getByText(/Control, ongoing and movement effects/),
-		).toBeVisible();
+		expect(panel.getByText(/Control and movement effects/)).toBeVisible();
 		expect(screen.getByLabelText("Turn count")).toHaveTextContent("Turn 0");
 	});
 	it("shows color-independent comparisons and exact differences without spending turns", async () => {

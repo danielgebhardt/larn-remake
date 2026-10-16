@@ -372,8 +372,12 @@ const DungeonHelp = ({
 					Spell shortcuts 5–9 and 0 activate the six slots assigned in Character
 					→ Spells. Assignments are free. Intelligence improves spell damage,
 					healing, and maximum mana. The Spells tab shows current effects.
-					Future spells come from found spellbooks, never automatic level
-					unlocks.
+					Fireball hits its center hardest and splashes at half strength,
+					including damage to you inside its wall-aware radius-three blast.
+					Check the targeting warning before casting. Three to six distinct
+					spellbooks are selected per full-depth adventure; archives relocate a
+					remaining book rather than duplicate it. Future spells come from found
+					spellbooks, never automatic level unlocks.
 				</p>
 			</section>
 			<section

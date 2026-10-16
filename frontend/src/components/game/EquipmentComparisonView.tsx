@@ -58,7 +58,11 @@ const comparisonRows = ({ before, after }: EquipmentComparison) => [
 		after: `${after.minDamage}–${after.maxDamage}`,
 		change: after.maxDamage - before.maxDamage,
 	},
-	bonusRow("Spell damage bonus", before.spellPowerBonus, after.spellPowerBonus),
+	bonusRow(
+		"Base spell modifier",
+		before.spellPowerBonus,
+		after.spellPowerBonus,
+	),
 	bonusRow("Heal bonus", before.spellPowerBonus, after.spellPowerBonus),
 	numericRow("Armor", before.armor, after.armor),
 	numericRow("Hit chance", before.hitChance, after.hitChance, true),

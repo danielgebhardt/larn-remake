@@ -65,7 +65,7 @@ describe("Earned Dexterity and melee accuracy", () => {
 			deriveAccuracy(state.progression, state.effects, state.equipment)
 				.evadeChance,
 		).toBe(50);
-		for (let turn = 0; turn < 5; turn++)
+		for (let turn = 0; turn < 19; turn++)
 			state = resolvePlayerAction(state, { type: "wait" }).state;
 		expect(state.effects).toEqual([]);
 		expect(

@@ -50,15 +50,16 @@ it("Fireball damages only the chosen area in stable actor order and pays once", 
 		},
 	);
 	if (!("state" in result)) throw new Error(result.error);
-	expect(result.state.monsters.map((m) => m.health)).toEqual([1, 1, 7]);
-	expect(resolvedIds).toEqual(["1:1", "1:2"]);
-	expect(result.state.mana).toBe(initial.mana - 8);
-	expect(result.state.player.health).toBe(initial.player.health);
+	expect(result.state.monsters).toEqual([]);
+	expect(resolvedIds).toEqual(["1:1", "1:2", "1:3", "player"]);
+	expect(result.state.mana).toBe(initial.mana - 8 + 2); // Ordinary level-up mana from three kills.
+	// Three kills gain levels before the blast reaches the caster.
+	expect(result.state.player.health).toBe(6);
 	expect(
 		result.state.activityHistory.entries.flatMap((e) =>
 			e.event.type === "spell-hit" ? [e.event.damage] : [],
 		),
-	).toEqual([6, 6]);
+	).toEqual([8, 16, 8]);
 });
 it("Frost Nova self-casts around the player and slows survivors before retaliation", () => {
 	const initial = arena();
@@ -117,7 +118,7 @@ it("Frost Nova splash stops behind a wall and multi-kills reward each enemy once
 		rolls,
 	).state;
 	expect(killed.turn).toBe(1);
-	expect(killed.monstersDefeated).toBe(2);
-	expect(killed.progression.experience).toBe(20);
-	expect(killed.monsters).toHaveLength(1);
+	expect(killed.monstersDefeated).toBe(3);
+	expect(killed.progression.experience).toBe(30);
+	expect(killed.monsters).toHaveLength(0);
 });

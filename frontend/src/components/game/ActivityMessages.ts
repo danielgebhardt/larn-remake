@@ -129,6 +129,8 @@ export const formatActivityEvent = (event: ActivityEvent): string => {
 			return `${prefix}You escape the ${MONSTER_DEFINITIONS[event.monster].name}'s ${event.element} blast.`;
 		case "door-changed":
 			return `${prefix}You ${event.opened ? "open" : "close"} the door.`;
+		case "player-spell-hit":
+			return `${prefix}Your ${SPELL_DEFINITIONS[event.spell].name} blast hits you for ${event.damage} damage.`;
 		case "spell-healed":
 			return `${prefix}${SPELL_DEFINITIONS[event.spell].name} restores ${event.recovered} health.`;
 		case "spell-hit":

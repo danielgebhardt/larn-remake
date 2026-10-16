@@ -9,6 +9,7 @@ import type { SpellKind } from "./Spells";
 import type { EffectKind } from "./TimedEffects";
 
 export type ActivityEvent = { turn: number } & (
+	| { type: "player-spell-hit"; spell: SpellKind; damage: number }
 	| {
 			type: "monster-door-opened";
 			monster: MonsterKind;

@@ -19,7 +19,7 @@ export const selectedRunSpellbooks = (run: DungeonRun): readonly ItemKind[] => {
 	const countRandom = createSeededRandom(
 		hashStringToUint32(`${run.seed}:spellbooks:count`),
 	);
-	const count = Math.min(pool.length, 5 + Math.floor(countRandom() * 6));
+	const count = Math.min(pool.length, 3 + Math.floor(countRandom() * 4));
 	const selected: ItemKind[] = [];
 	for (let index = 0; index < count; index++) {
 		const [kind] = pool.splice(Math.floor(choose() * pool.length), 1);

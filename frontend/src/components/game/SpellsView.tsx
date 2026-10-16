@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { MANA_RECOVERY_INTERVAL } from "../../domain/game/Mana";
+import { ongoingSpellPotency } from "../../domain/game/OngoingSpellPotency";
 import type { PlayerAction } from "../../domain/game/PlayerActions";
 import type { Progression } from "../../domain/game/Progression";
 import { spellEffectDetails } from "../../domain/game/SpellDetails";
@@ -106,6 +107,7 @@ const SpellsView = ({
 						effects,
 					);
 					const Icon = SPELL_ICONS[spell];
+					const ongoing = ongoingSpellPotency(progression, equipment, effects);
 					return (
 						<section
 							key={spell}
@@ -142,6 +144,19 @@ const SpellsView = ({
 							<p className="text-xs leading-relaxed text-muted-foreground">
 								{definition.description}
 							</p>
+							{spell === "renewal" && (
+								<p className="text-xs">
+									Currently {ongoing.renewalHealing} health per turn · up to{" "}
+									{ongoing.renewalHealing * 4} total.
+								</p>
+							)}
+							{spell === "poison-dart" && (
+								<p className="text-xs">
+									Currently {ongoing.poisonDamage} poison damage per phase
+									before resistance · up to {ongoing.poisonDamage * 3} ongoing
+									damage.
+								</p>
+							)}
 							<fieldset
 								aria-label={`Assign ${definition.name} shortcut`}
 								className="flex flex-wrap gap-1"

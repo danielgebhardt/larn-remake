@@ -138,7 +138,7 @@ it("rounds odd Intelligence down through the same modifier used by actual spells
 	}
 });
 
-it("does not imply increased control or ongoing healing from the offensive and Heal bonus", () => {
+it("keeps control fixed while ongoing healing uses its separate half-modifier formula", () => {
 	const context = createComparisonContext();
 	const robe = { id: "robe", kind: "scholar-robe" } as const;
 	const after = replaceEquipmentSlot(context.equipment, "chest", robe);

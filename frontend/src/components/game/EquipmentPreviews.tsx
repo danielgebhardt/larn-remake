@@ -26,9 +26,10 @@ const EquipmentPreviews = ({
 				/>
 			))}
 			<p className="text-xs text-muted-foreground">
-				Intelligence adds the displayed bonus to each damaging spell's own range
-				and to Heal. Control, ongoing and movement effects do not gain this
-				bonus. Target defenses and each spell's area rules still apply.
+				The base spell modifier adds to Heal and ordinary spell damage. Heavy
+				attacks add twice this modifier; Renewal and poison add half, rounded
+				down. Control and movement effects do not scale. Spell cards show
+				current amounts; target defenses and area rules still apply.
 			</p>
 			<p className="text-xs text-muted-foreground">
 				Preview uses current active effects, before monsters act. Capacity gains

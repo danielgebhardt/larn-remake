@@ -68,7 +68,13 @@ export const repositionSpell = (
 			`${state.run.seed}:${state.run.activeFloor}:${state.turn}:spell:${spell}:${target?.id ?? "player"}:destination`,
 		),
 	);
-	const coordinate = candidates[Math.floor(random() * candidates.length)];
+	const distant = target
+		? []
+		: candidates.filter(
+				(point) => orthogonalDistance(state.run.playerCoordinate, point) >= 4,
+			);
+	const pool = distant.length ? distant : candidates;
+	const coordinate = pool[Math.floor(random() * pool.length)];
 	let next: GameState = {
 		...state,
 		mana: state.mana - cost,

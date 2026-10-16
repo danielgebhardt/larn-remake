@@ -16,7 +16,7 @@ import { savedAdventure } from "./SaveTestHelpers";
 
 const lowRolls = () => ({ d20: () => 20, damage: (min: number) => min });
 it.each(["protection", "strength", "dexterity"] as const)(
-	"applies %s separately from earned stats and expires after six committed phases",
+	"applies %s separately from earned stats and expires after twenty committed phases",
 	(spell) => {
 		const state = {
 			...createGameState(createCorridorEncounter()),
@@ -47,7 +47,7 @@ it.each(["protection", "strength", "dexterity"] as const)(
 			attack: spell === "strength" ? 3 : 2,
 			armor: spell === "protection" ? 3 : 1,
 		});
-		for (let turn = 0; turn < 5; turn++)
+		for (let turn = 0; turn < 19; turn++)
 			enhanced = resolvePlayerAction(
 				enhanced,
 				{ type: "wait" },
@@ -149,7 +149,7 @@ it("saved enhancements continue with their remaining duration without changing e
 	const resumed = restoreSave(parsed.value).state;
 	expect(resumed.effects).toEqual(enhanced.effects);
 	const next = resolvePlayerAction(resumed, { type: "wait" }, lowRolls).state;
-	expect(next.effects[0].remaining).toBe(4);
+	expect(next.effects[0].remaining).toBe(18);
 	expect(next.progression).toEqual(initial.progression);
 	expect(deriveAttributes(next.progression, next.effects).strength).toBe(12);
 });

@@ -48,7 +48,11 @@ export const chooseEnemySpell = (
 		damageSpells[
 			Math.floor((state.turn - 1 + index - 1) / interval) % damageSpells.length
 		];
-	const profile = SPELL_DEFINITIONS[spell];
+	// Player balance changes must not silently strengthen enemy spell damage.
+	const profile = {
+		"ember-bolt": { minimumDamage: 3, maximumDamage: 7 },
+		shock: { minimumDamage: 5, maximumDamage: 8 },
+	}[spell];
 	const rawDamage = rolls({
 		seed: state.run.seed,
 		floorNumber: state.run.activeFloor,

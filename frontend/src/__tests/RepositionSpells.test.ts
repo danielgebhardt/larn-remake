@@ -35,7 +35,7 @@ it("Blink chooses a repeatable nearby unoccupied destination and spends one norm
 			initial.run.playerCoordinate,
 			first.state.run.playerCoordinate,
 		),
-	).toBeLessThanOrEqual(3);
+	).toBeLessThanOrEqual(10);
 	expect(protectedFloorLocations(initial.run, 1)).not.toContainEqual(
 		first.state.run.playerCoordinate,
 	);

@@ -23,8 +23,8 @@ it("places each selected book once within its floor band without changing ordina
 			definition.type === "spellbook" &&
 			definition.minFloor <= run.floors.length,
 	).length;
-	expect(books.length).toBeGreaterThanOrEqual(Math.min(5, eligible));
-	expect(books.length).toBeLessThanOrEqual(Math.min(10, eligible));
+	expect(books.length).toBeGreaterThanOrEqual(Math.min(3, eligible));
+	expect(books.length).toBeLessThanOrEqual(Math.min(6, eligible));
 	expect(createGameState(run)).toEqual(state);
 	expect(
 		state.floorItems.filter(
@@ -86,8 +86,8 @@ it("bounds selected books to the currently implemented eligible pool on a short 
 			definition.type === "spellbook" &&
 			definition.minFloor <= run.floors.length,
 	).length;
-	expect(books.length).toBeGreaterThanOrEqual(Math.min(5, eligible));
-	expect(books.length).toBeLessThanOrEqual(Math.min(10, eligible));
+	expect(books.length).toBeGreaterThanOrEqual(Math.min(3, eligible));
+	expect(books.length).toBeLessThanOrEqual(Math.min(6, eligible));
 	expect(new Set(books.map((entry) => entry.item.kind)).size).toBe(
 		books.length,
 	);

@@ -8,9 +8,9 @@ import { createCorridorEncounter } from "./MonsterEncounterTestHelpers";
 const lowRolls = () => ({ d20: () => 20, damage: (min: number) => min });
 
 it.each([
-	["shock", 5, 5],
-	["stone-lance", 6, 6],
-	["sonic-spear", 8, 8],
+	["shock", 5, 10],
+	["stone-lance", 6, 12],
+	["sonic-spear", 7, 18],
 	["drain-life", 6, 4],
 ] as const)(
 	"casts %s with its own cost and damage profile in exactly one turn",

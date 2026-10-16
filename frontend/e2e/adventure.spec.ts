@@ -1234,3 +1234,56 @@ test("bulk selling confirms only Lower gear and commits one turn without moving 
 	await page.keyboard.press("Escape");
 	await expect(map(page)).toBeFocused();
 });
+
+test("improved spell cards and Fireball preview explain splash risk before a committed cast", async ({
+	page,
+}, testInfo) => {
+	await importAdventure(page, "spell-balance");
+	await page.keyboard.press("i");
+	const character = page.getByRole("dialog", {
+		name: "Character",
+		exact: true,
+	});
+	await character.getByRole("tab", { name: "Spells", exact: true }).click();
+	await expect(
+		character.getByRole("region", { name: "Fireball", exact: true }),
+	).toContainText("16–24");
+	await expect(
+		character.getByRole("region", { name: "Protection", exact: true }),
+	).toContainText("20 committed turns");
+	await expect(
+		character.getByRole("region", { name: "Renewal", exact: true }),
+	).toContainText("Currently 2 health per turn");
+	await page.setViewportSize({ width: 390, height: 667 });
+	expect(
+		await character.evaluate((node) => node.scrollWidth <= node.clientWidth),
+	).toBe(true);
+	await page.keyboard.press("Escape");
+	await page.keyboard.press("5");
+	await expect(
+		page.getByText(/Warning: you are inside the blast/),
+	).toBeVisible();
+	await page.screenshot({
+		path: testInfo.outputPath("fireball-warning-mobile.png"),
+	});
+	await page.keyboard.press("Escape");
+	await expect(turns(page)).toHaveText("Turn 0");
+	await page.keyboard.press("5");
+	await page.keyboard.press("Enter");
+	await expect(turns(page)).toHaveText("Turn 1");
+	await expect(page.getByRole("log")).toContainText("Fireball blast hits you");
+	await expect(map(page)).toBeFocused();
+});
+
+test("fatal Fireball self-damage opens defeat with the blast in its recap", async ({
+	page,
+}) => {
+	await importAdventure(page, "spell-balance-fatal");
+	await page.keyboard.press("5");
+	await page.keyboard.press("Enter");
+	const death = page.getByRole("dialog", { name: "You died", exact: true });
+	await expect(death).toBeVisible();
+	await expect(death).toContainText("Fireball blast hits you");
+	await page.keyboard.press("ArrowRight");
+	await expect(turns(page)).toHaveText("Turn 1");
+});

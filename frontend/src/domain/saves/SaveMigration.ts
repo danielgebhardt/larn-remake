@@ -310,9 +310,18 @@ const migratePlayedSaveToV20 = (
 	};
 };
 
-export const migratePlayedSave = (
+const migratePlayedSaveToV21 = (
 	document: Parameters<typeof migratePlayedSaveToV20>[0] | SaveDocumentV21,
 ): SaveDocumentV21 =>
 	document.version === 21
 		? document
 		: { ...migratePlayedSaveToV20(document), version: 21 };
+
+export const migratePlayedSave = (
+	document:
+		| Parameters<typeof migratePlayedSaveToV21>[0]
+		| import("./SaveDocumentV22").SaveDocumentV22,
+): import("./SaveDocumentV22").SaveDocumentV22 =>
+	document.version === 22
+		? document
+		: { ...migratePlayedSaveToV21(document), version: 22 };

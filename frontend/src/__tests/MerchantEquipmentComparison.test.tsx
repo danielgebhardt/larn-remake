@@ -113,9 +113,9 @@ describe("Equipment decisions at the merchant", () => {
 		expect(previews[0]).toHaveTextContent("Tradeoff · Left ring");
 		expect(previews[0]).toHaveTextContent("Damage 5–7 → 4–6");
 		expect(previews[0]).toHaveTextContent("Maximum mana 16 → 18 (+2)");
-		expect(previews[0]).toHaveTextContent("Spell damage bonus +1 → +2 (+1)");
+		expect(previews[0]).toHaveTextContent("Base spell modifier +1 → +2 (+1)");
 		expect(previews[0]).toHaveTextContent("Heal bonus +1 → +2 (+1)");
-		const spellRow = within(previews[0]).getByText(/^Spell damage bonus/);
+		const spellRow = within(previews[0]).getByText(/^Base spell modifier/);
 		expect(within(spellRow).getByText("+2 (+1)")).toHaveClass("text-green-700");
 		expect(previews[1]).toHaveTextContent("Tradeoff · Right ring");
 		expect(previews[1]).toHaveTextContent("Maximum mana 16 → 14 (−2)");
@@ -142,7 +142,7 @@ describe("Equipment decisions at the merchant", () => {
 			"Armor 6 → 4 (−2)",
 		);
 		expect(robe.getByLabelText("Equipment comparison")).toHaveTextContent(
-			"Spell damage bonus +1 → +2 (+1)",
+			"Base spell modifier +1 → +2 (+1)",
 		);
 		const changed: GameState = {
 			...props.state,
@@ -171,7 +171,7 @@ describe("Equipment decisions at the merchant", () => {
 			"Hit chance 95% → 95%",
 		);
 		expect(robe.getByLabelText("Equipment comparison")).toHaveTextContent(
-			"Spell damage bonus +2 → +3 (+1)",
+			"Base spell modifier +2 → +3 (+1)",
 		);
 		expect(
 			panel.queryByRole("button", { name: /Short sword.*Sell for 20 gold/ }),

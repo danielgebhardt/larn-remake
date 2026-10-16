@@ -465,7 +465,7 @@ export const ITEM_DEFINITIONS = {
 		attackBonus: 0,
 		armor: 0,
 		description:
-			"Pick up to learn Ember Bolt: 4 mana, range 4, 3–7 damage plus Intelligence. Reading uses one turn and no bag slot.",
+			"Pick up to learn Ember Bolt: 4 mana, range 4, 8–12 damage plus twice the Intelligence modifier. Reading uses one turn and no bag slot.",
 		minFloor: 1,
 		maxFloor: 5,
 		foundWeight: 0,
@@ -491,7 +491,7 @@ export const ITEM_DEFINITIONS = {
 		attackBonus: 0,
 		armor: 0,
 		description:
-			"Pick up to learn Shock: 5 mana, range 5, 5–8 damage plus Intelligence. A focused jolt with stronger damage than Magic Missile at a higher mana cost. Reading uses one turn and no bag slot.",
+			"Pick up to learn Shock: 5 mana, range 5, 10–16 damage plus twice the Intelligence modifier. A focused jolt with stronger damage than Magic Missile at a higher mana cost. Reading uses one turn and no bag slot.",
 		minFloor: 3,
 		maxFloor: 9,
 		foundWeight: 0,
@@ -504,7 +504,7 @@ export const ITEM_DEFINITIONS = {
 		attackBonus: 0,
 		armor: 0,
 		description:
-			"Pick up to learn Stone Lance: 6 mana, range 7, 6–10 damage plus Intelligence. A heavy stone projectile with a longer reach and substantial mana cost. Reading uses one turn and no bag slot.",
+			"Pick up to learn Stone Lance: 6 mana, range 7, 12–18 damage plus twice the Intelligence modifier. A heavy stone projectile with a longer reach and substantial mana cost. Reading uses one turn and no bag slot.",
 		minFloor: 5,
 		maxFloor: 12,
 		foundWeight: 0,
@@ -517,7 +517,7 @@ export const ITEM_DEFINITIONS = {
 		attackBonus: 0,
 		armor: 0,
 		description:
-			"Pick up to learn Sonic Spear: 8 mana, range 8, 8–13 damage plus Intelligence. A powerful long-range strike for the deeper dungeon. Reading uses one turn and no bag slot.",
+			"Pick up to learn Sonic Spear: 7 mana, range 8, 18–26 damage plus twice the Intelligence modifier. A powerful long-range strike for the deeper dungeon. Reading uses one turn and no bag slot.",
 		minFloor: 10,
 		maxFloor: 20,
 		foundWeight: 0,
@@ -584,7 +584,7 @@ export const ITEM_DEFINITIONS = {
 		attackBonus: 0,
 		armor: 0,
 		description:
-			"Learn Poison Dart: 4 mana, range 5, 1–2 initial damage plus Intelligence, then 2 poison damage for three active phases. Reading uses one turn and no bag slot.",
+			"Learn Poison Dart: 4 mana, range 8, 2–4 initial damage plus Intelligence modifier, then 4 + half the current Intelligence modifier (rounded down) poison damage for three active phases. Reading uses one turn and no bag slot.",
 		minFloor: 4,
 		maxFloor: 13,
 		foundWeight: 0,
@@ -597,7 +597,7 @@ export const ITEM_DEFINITIONS = {
 		attackBonus: 0,
 		armor: 0,
 		description:
-			"Learn Renewal: 5 mana, restores 2 health after retaliation for four turns. A fatal hit still kills you. Reading uses one turn and no bag slot.",
+			"Learn Renewal: 5 mana, restores 2 + half the current Intelligence modifier (rounded down) health after retaliation for four turns. A fatal hit still kills you. Reading uses one turn and no bag slot.",
 		minFloor: 3,
 		maxFloor: 12,
 		foundWeight: 0,
@@ -610,7 +610,7 @@ export const ITEM_DEFINITIONS = {
 		attackBonus: 0,
 		armor: 0,
 		description:
-			"Learn Protection: 3 mana. Gain 2 armor for six committed turns, including this turn. Reading uses one turn and no bag slot.",
+			"Learn Protection: 3 mana. Gain 2 armor for twenty committed turns, including this turn. Reading uses one turn and no bag slot.",
 		minFloor: 3,
 		maxFloor: 12,
 		foundWeight: 0,
@@ -623,7 +623,7 @@ export const ITEM_DEFINITIONS = {
 		attackBonus: 0,
 		armor: 0,
 		description:
-			"Learn Strength: 4 mana. Gain 2 Strength for six committed turns, improving melee damage. Reading uses one turn and no bag slot.",
+			"Learn Strength: 4 mana. Gain 2 Strength for twenty committed turns, improving melee damage. Reading uses one turn and no bag slot.",
 		minFloor: 5,
 		maxFloor: 15,
 		foundWeight: 0,
@@ -636,7 +636,7 @@ export const ITEM_DEFINITIONS = {
 		attackBonus: 0,
 		armor: 0,
 		description:
-			"Learn Dexterity: 4 mana. Gain 2 Dexterity for six committed turns, improving hit and evasion chances. Reading uses one turn and no bag slot.",
+			"Learn Dexterity: 4 mana. Gain 2 Dexterity for twenty committed turns, improving hit and evasion chances. Reading uses one turn and no bag slot.",
 		minFloor: 5,
 		maxFloor: 15,
 		foundWeight: 0,
@@ -649,7 +649,7 @@ export const ITEM_DEFINITIONS = {
 		attackBonus: 0,
 		armor: 0,
 		description:
-			"Learn Blink: 4 mana. Move to a safe nearby tile within three steps. Reading uses one turn and no bag slot.",
+			"Learn Blink: 4 mana. Move to a safe nearby tile four to ten steps away (closer fallback if necessary). Reading uses one turn and no bag slot.",
 		minFloor: 4,
 		maxFloor: 14,
 		foundWeight: 0,
@@ -675,7 +675,7 @@ export const ITEM_DEFINITIONS = {
 		attackBonus: 0,
 		armor: 0,
 		description:
-			"Learn Fireball: 8 mana. Range 6, radius 1, damage 6–10 plus Intelligence. Enemies only; walls block the blast. Reading uses one turn and no bag slot.",
+			"Learn Fireball: 8 mana. Range 6, radius 3. Center damage 16–24 plus twice the Intelligence modifier; half splash damage to other enemies AND YOU. Walls block the blast. Reading uses one turn and no bag slot.",
 		minFloor: 9,
 		maxFloor: 20,
 		foundWeight: 0,

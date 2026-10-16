@@ -1,7 +1,10 @@
 import type { VisibilityGrid } from "../dungeon/Visibility";
 import { MONSTER_DEFINITIONS, type Monster } from "../monsters/Monster";
 import { resistedDamage } from "../monsters/MonsterResistance";
+import { navigationRun } from "../objects/NavigationTerrain";
+import { areaDamageRange, spellArea } from "./AreaSpells";
 import type { GameState } from "./GameState";
+import { ongoingSpellPotency } from "./OngoingSpellPotency";
 import { isSpellTarget } from "./SpellCasting";
 import {
 	SPELL_DEFINITIONS,
@@ -36,6 +39,10 @@ export const spellEffectDetails = (definition: SpellDefinition): string => {
 		parts.push(
 			"Restores health equal to actual damage dealt, up to missing health.",
 		);
+	if (definition.splashMultiplier !== undefined)
+		parts.push(
+			"Full damage at center; half splash damage, rounded down. The blast can hit you and bypasses your armor.",
+		);
 	return parts.join(" · ");
 };
 export const spellTargetDetails = (
@@ -59,6 +66,10 @@ export const spellTargetDetails = (
 		state.effects,
 	);
 	const parts = [spellEffectDetails(definition)];
+	if (spell === "poison-dart")
+		parts.push(
+			`Poison ${resistedDamage(target.kind, ongoingSpellPotency(state.progression, state.equipment, state.effects).poisonDamage, "poison")} per active phase to this target, after its response`,
+		);
 	if (potency.effect === "damage" && definition.effect === "damage") {
 		const element = definition.element ?? "arcane";
 		parts[0] = parts[0].replace(`${element} damage`, "").replace(/^ · /, "");
@@ -71,6 +82,31 @@ export const spellTargetDetails = (
 				? `${element} weakness`
 				: `normal ${element} damage`;
 		parts.unshift(`Damage ${minimum}–${maximum} to this target · ${defense}`);
+		if ("splashMultiplier" in definition && "radius" in definition) {
+			const splash = areaDamageRange(
+				potency.minimumDamage,
+				potency.maximumDamage,
+				definition.splashMultiplier,
+			);
+			parts.push(
+				`Splash ${splash.minimumDamage}–${splash.maximumDamage} before enemy resistance`,
+			);
+			const area = spellArea(
+				navigationRun(state).floors[state.run.activeFloor - 1].terrain,
+				target.coordinate,
+				definition.radius,
+			);
+			if (
+				area.some(
+					(point) =>
+						point.row === state.run.playerCoordinate.row &&
+						point.col === state.run.playerCoordinate.col,
+				)
+			)
+				parts.push(
+					`Warning: you are inside the blast and take ${splash.minimumDamage}–${splash.maximumDamage} damage`,
+				);
+		}
 	}
 	const conditions = state.effects
 		.filter((effect) => effect.actorId === target.id)

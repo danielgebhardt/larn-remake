@@ -23,7 +23,15 @@ export const openDiscovery = (
 				definition.type === "spellbook" &&
 				definition.minFloor <= object.floorNumber &&
 				definition.maxFloor >= object.floorNumber &&
-				!state.knownSpells.includes(definition.teaches)
+				!state.knownSpells.includes(definition.teaches) &&
+				!state.floorItems.some(
+					(entry) =>
+						entry.item.kind === kind && entry.item.id.endsWith(":reward"),
+				) &&
+				state.floorItems.some(
+					(entry) =>
+						entry.item.kind === kind && !entry.item.id.endsWith(":reward"),
+				)
 			);
 		});
 		const random = createSeededRandom(
@@ -51,7 +59,12 @@ export const openDiscovery = (
 	return {
 		...next,
 		floorItems: [
-			...next.floorItems,
+			// Transfer the existing floor copy into the archive reward.
+			...next.floorItems.filter(
+				(entry) =>
+					entry.item.kind !== kind ||
+					ITEM_DEFINITIONS[kind].type !== "spellbook",
+			),
 			{
 				item: { id: `${object.id}:reward`, kind },
 				floorNumber: object.floorNumber,

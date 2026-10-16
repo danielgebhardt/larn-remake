@@ -22,7 +22,7 @@ it("Poison Dart ticks after monster actions and rewards its eventual kill exactl
 				kind: "orc" as const,
 				floorNumber: 1,
 				coordinate: { row: 1, col: 3 },
-				health: 7,
+				health: 14,
 				intent: { type: "idle" as const },
 			},
 		],
@@ -32,10 +32,10 @@ it("Poison Dart ticks after monster actions and rewards its eventual kill exactl
 		{ type: "cast", spell: "poison-dart", targetId: "1:1" },
 		lowRolls,
 	).state;
-	expect(state.monsters[0].health).toBe(4);
+	expect(state.monsters[0].health).toBe(8);
 	expect(state.effects[0].remaining).toBe(2);
 	state = resolvePlayerAction(state, { type: "wait" }, lowRolls).state;
-	expect(state.monsters[0].health).toBe(2);
+	expect(state.monsters[0].health).toBe(4);
 	state = resolvePlayerAction(state, { type: "wait" }, lowRolls).state;
 	expect(state.monsters).toEqual([]);
 	expect(state.effects).toEqual([]);

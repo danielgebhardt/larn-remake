@@ -3,6 +3,7 @@ import { appendActivityEvents } from "./ActivityHistory";
 import type { GameState } from "./GameState";
 import { maximumMana } from "./Mana";
 import { damageMonster } from "./MonsterDamage";
+import { ongoingSpellPotency } from "./OngoingSpellPotency";
 
 export const EFFECT_DEFINITIONS = {
 	enlightened: { name: "Intelligence", duration: 6 },
@@ -13,13 +14,13 @@ export const EFFECT_DEFINITIONS = {
 	poisoned: {
 		name: "Poisoned",
 		duration: 3,
-		monsterDamage: 2,
+		monsterDamage: 4,
 		playerDamage: 1,
 	},
 	renewing: { name: "Renewal", duration: 4 },
-	protected: { name: "Protection", duration: 6 },
-	strengthened: { name: "Strength", duration: 6 },
-	nimble: { name: "Dexterity", duration: 6 },
+	protected: { name: "Protection", duration: 20 },
+	strengthened: { name: "Strength", duration: 20 },
+	nimble: { name: "Dexterity", duration: 20 },
 } as const;
 export const PLAYER_EFFECT_KINDS = [
 	"renewing",
@@ -94,6 +95,11 @@ export const monsterSkipsAction = (
 // Removing a killed actor also removes its effects; inactive actors retain timers.
 export const advanceTimedEffects = (state: GameState): GameState => {
 	let next = state;
+	const ongoing = ongoingSpellPotency(
+		state.progression,
+		state.equipment,
+		state.effects,
+	);
 	let changed = false;
 	const effects: TimedEffect[] = [];
 	// Stable actor order: monster poison before player Renewal, after retaliation.
@@ -119,15 +125,10 @@ export const advanceTimedEffects = (state: GameState): GameState => {
 		}
 		changed = true;
 		if (next.player.health > 0 && effect.kind === "poisoned" && actor)
-			next = damageMonster(
-				next,
-				actor,
-				EFFECT_DEFINITIONS.poisoned.monsterDamage,
-				{
-					type: "condition-hit",
-					condition: "poisoned",
-				},
-			);
+			next = damageMonster(next, actor, ongoing.poisonDamage, {
+				type: "condition-hit",
+				condition: "poisoned",
+			});
 		if (next.player.health > 0 && isPlayer && effect.kind === "poisoned") {
 			const damage = Math.min(
 				next.player.health,
@@ -151,7 +152,10 @@ export const advanceTimedEffects = (state: GameState): GameState => {
 			};
 		}
 		if (next.player.health > 0 && isPlayer && effect.kind === "renewing") {
-			const recovered = Math.min(2, next.player.maxHealth - next.player.health);
+			const recovered = Math.min(
+				ongoing.renewalHealing,
+				next.player.maxHealth - next.player.health,
+			);
 			if (recovered > 0)
 				next = {
 					...next,
@@ -213,6 +217,7 @@ export const hasMonsterEffect = (
 export const refreshPlayerEffect = (
 	effects: readonly TimedEffect[],
 	kind: PlayerEffectKind,
+	duration: number = EFFECT_DEFINITIONS[kind].duration,
 ): readonly TimedEffect[] => [
 	...effects.filter(
 		(effect) => effect.actorId !== "player" || effect.kind !== kind,
@@ -221,6 +226,11 @@ export const refreshPlayerEffect = (
 		actorId: "player",
 		floorNumber: null,
 		kind,
-		remaining: EFFECT_DEFINITIONS[kind].duration,
+		remaining: Math.max(
+			duration,
+			effects.find(
+				(effect) => effect.actorId === "player" && effect.kind === kind,
+			)?.remaining ?? 0,
+		),
 	},
 ];

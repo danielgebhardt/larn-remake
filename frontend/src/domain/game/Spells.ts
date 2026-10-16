@@ -4,7 +4,13 @@ import type { DamageElement } from "./DamageElements";
 import type { Progression } from "./Progression";
 import type { EffectKind, PlayerEffectKind, TimedEffect } from "./TimedEffects";
 
-type SpellDetails = { name: string; cost: number; description: string };
+type SpellDetails = {
+	name: string;
+	cost: number;
+	description: string;
+	intelligenceScaling?: number;
+	splashMultiplier?: number;
+};
 export type SpellDefinition = SpellDetails &
 	(
 		| {
@@ -53,16 +59,17 @@ export const SPELL_DEFINITIONS = {
 			"A homing bolt that always hits one monster within range and clear line of sight.",
 	},
 	"ember-bolt": {
+		intelligenceScaling: 2,
 		element: "fire",
 		name: "Ember Bolt",
 		mode: "targeted",
 		effect: "damage",
 		cost: 4,
 		range: 4,
-		minimumDamage: 3,
-		maximumDamage: 7,
+		minimumDamage: 8,
+		maximumDamage: 12,
 		description:
-			"A short-range burst of flame. More forceful than Magic Missile, but costs more mana.",
+			"A powerful short-range burst of flame. Adds twice your Intelligence modifier.",
 	},
 	"frost-bolt": {
 		element: "cold",
@@ -78,39 +85,43 @@ export const SPELL_DEFINITIONS = {
 			"Chill one monster for three active phases. It skips alternating actions, starting with this cast; recasting refreshes the slow.",
 	},
 	shock: {
+		intelligenceScaling: 2,
 		element: "lightning",
 		name: "Shock",
 		mode: "targeted",
 		effect: "damage",
 		cost: 5,
 		range: 5,
-		minimumDamage: 5,
-		maximumDamage: 8,
+		minimumDamage: 10,
+		maximumDamage: 16,
 		description:
-			"A focused jolt with stronger damage than Magic Missile at a higher mana cost.",
+			"A heavy lightning strike. Adds twice your Intelligence modifier; no stun.",
 	},
 	"stone-lance": {
+		intelligenceScaling: 2,
 		element: "physical",
 		name: "Stone Lance",
 		mode: "targeted",
 		effect: "damage",
 		cost: 6,
 		range: 7,
-		minimumDamage: 6,
-		maximumDamage: 10,
+		minimumDamage: 12,
+		maximumDamage: 18,
 		description:
-			"A heavy stone projectile with a longer reach and substantial mana cost.",
+			"A heavy single-target projectile with long reach. Adds twice your Intelligence modifier.",
 	},
 	"sonic-spear": {
+		intelligenceScaling: 2,
 		element: "sonic",
 		name: "Sonic Spear",
 		mode: "targeted",
 		effect: "damage",
-		cost: 8,
+		cost: 7,
 		range: 8,
-		minimumDamage: 8,
-		maximumDamage: 13,
-		description: "A powerful long-range strike for the deeper dungeon.",
+		minimumDamage: 18,
+		maximumDamage: 26,
+		description:
+			"A powerful long-range finisher. Adds twice your Intelligence modifier.",
 	},
 	"drain-life": {
 		element: "shadow",
@@ -164,11 +175,11 @@ export const SPELL_DEFINITIONS = {
 		effect: "damage",
 		condition: "poisoned",
 		cost: 4,
-		range: 5,
-		minimumDamage: 1,
-		maximumDamage: 2,
+		range: 8,
+		minimumDamage: 2,
+		maximumDamage: 4,
 		description:
-			"Deal a small initial hit and poison a monster for three active phases. Poison deals 2 damage after its action; refreshing never stacks.",
+			"Deal a small initial hit and poison a monster for three active phases. Poison deals 4 + half your current Intelligence modifier (rounded down) damage after its action; refreshing never stacks.",
 	},
 	renewal: {
 		name: "Renewal",
@@ -177,7 +188,7 @@ export const SPELL_DEFINITIONS = {
 		condition: "renewing",
 		cost: 5,
 		description:
-			"Restore 2 health after monsters act for four committed turns, including this turn. Does not save you from a fatal hit.",
+			"Restore 2 + half your current Intelligence modifier (rounded down) health after monsters act for four committed turns, including this turn. Does not save you from a fatal hit.",
 	},
 	protection: {
 		name: "Protection",
@@ -186,7 +197,7 @@ export const SPELL_DEFINITIONS = {
 		condition: "protected",
 		cost: 3,
 		description:
-			"Gain 2 armor for six committed turns, including this turn. Recasting refreshes the duration without stacking.",
+			"Gain 2 armor for twenty committed turns, including this turn. Recasting refreshes the duration without stacking.",
 	},
 	strength: {
 		name: "Strength",
@@ -195,7 +206,7 @@ export const SPELL_DEFINITIONS = {
 		condition: "strengthened",
 		cost: 4,
 		description:
-			"Gain 2 Strength for six committed turns, improving melee damage. Recasting refreshes the duration without stacking.",
+			"Gain 2 Strength for twenty committed turns, improving melee damage. Recasting refreshes the duration without stacking.",
 	},
 	dexterity: {
 		name: "Dexterity",
@@ -204,16 +215,16 @@ export const SPELL_DEFINITIONS = {
 		condition: "nimble",
 		cost: 4,
 		description:
-			"Gain 2 Dexterity for six committed turns, improving hit and evasion chances. Recasting refreshes the duration without stacking.",
+			"Gain 2 Dexterity for twenty committed turns, improving hit and evasion chances. Recasting refreshes the duration without stacking.",
 	},
 	blink: {
 		name: "Blink",
 		mode: "self",
 		effect: "reposition",
-		range: 3,
+		range: 10,
 		cost: 4,
 		description:
-			"Blink to a seeded safe tile within three steps. Walls, actors and stair arrivals are excluded. No destination costs nothing.",
+			"Blink to a seeded tile four to ten steps away, or closer if none fits. Walls, actors and stair arrivals are excluded. No destination costs nothing.",
 	},
 	"teleport-away": {
 		name: "Teleport Away",
@@ -225,17 +236,19 @@ export const SPELL_DEFINITIONS = {
 			"Send one monster to a seeded safe tile farther from you on this floor. Keeps its health and conditions, cancels its prepared attack.",
 	},
 	fireball: {
+		splashMultiplier: 0.5,
+		intelligenceScaling: 2,
 		element: "fire",
 		name: "Fireball",
 		mode: "targeted",
 		effect: "damage",
 		cost: 8,
 		range: 6,
-		radius: 1,
-		minimumDamage: 6,
-		maximumDamage: 10,
+		radius: 3,
+		minimumDamage: 16,
+		maximumDamage: 24,
 		description:
-			"Explode around one monster, hitting enemies within one step of it. Walls block the blast; no friendly fire. One turn and one mana cost.",
+			"A radius-three fire blast. Full damage at the center; half damage, rounded down, to other enemies AND YOU. Walls block the blast. Adds twice your Intelligence modifier before splash reduction.",
 	},
 	"frost-nova": {
 		element: "cold",
@@ -287,8 +300,12 @@ export const spellPotency = (
 		case "damage":
 			return {
 				effect: "damage",
-				minimumDamage: definition.minimumDamage + modifier,
-				maximumDamage: definition.maximumDamage + modifier,
+				minimumDamage:
+					definition.minimumDamage +
+					modifier * (definition.intelligenceScaling ?? 1),
+				maximumDamage:
+					definition.maximumDamage +
+					modifier * (definition.intelligenceScaling ?? 1),
 			} as const;
 		case "condition":
 			return { effect: "condition", condition: definition.condition } as const;

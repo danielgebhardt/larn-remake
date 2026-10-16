@@ -6,11 +6,21 @@ import {
 	orthogonalDistance,
 } from "../monsters/MonsterLocations";
 import { navigationRun } from "../objects/NavigationTerrain";
+import { appendActivityEvents } from "./ActivityHistory";
 import type { AttackRollSource } from "./CombatRandomness";
 import type { GameState } from "./GameState";
 import { damageMonster } from "./MonsterDamage";
 import { SPELL_DEFINITIONS, type SpellKind, spellPotency } from "./Spells";
 import { applyTimedEffect } from "./TimedEffects";
+
+export const areaDamageRange = (
+	minimumDamage: number,
+	maximumDamage: number,
+	multiplier = 1,
+) => ({
+	minimumDamage: Math.max(1, Math.floor(minimumDamage * multiplier)),
+	maximumDamage: Math.max(1, Math.floor(maximumDamage * multiplier)),
+});
 
 // The resolver and preview use the same wall-aware footprint.
 export const spellArea = (
@@ -77,17 +87,56 @@ export const castAreaSpell = (
 	let next = { ...state, mana: state.mana - definition.cost };
 	// Potency is fixed before any kills can increase the caster's level.
 	for (const target of targets) {
+		const multiplier =
+			"splashMultiplier" in definition &&
+			coordinateKey(target.coordinate) !== coordinateKey(center)
+				? definition.splashMultiplier
+				: 1;
+		const range = areaDamageRange(
+			potency.minimumDamage,
+			potency.maximumDamage,
+			multiplier,
+		);
 		const damage = rolls({
 			seed: state.run.seed,
 			floorNumber: state.run.activeFloor,
 			turn: state.turn,
 			attackerId: `player:spell:${spell}`,
 			targetId: target.id,
-		}).damage(potency.minimumDamage, potency.maximumDamage);
+		}).damage(range.minimumDamage, range.maximumDamage);
 		next = damageMonster(next, target, damage, { type: "spell-hit", spell });
 		const survivor = next.monsters.find((monster) => monster.id === target.id);
 		if (survivor && "condition" in definition)
 			next = applyTimedEffect(next, survivor, definition.condition);
+	}
+	if (
+		"splashMultiplier" in definition &&
+		area.has(coordinateKey(state.run.playerCoordinate))
+	) {
+		const range = areaDamageRange(
+			potency.minimumDamage,
+			potency.maximumDamage,
+			definition.splashMultiplier,
+		);
+		const rolled = rolls({
+			seed: state.run.seed,
+			floorNumber: state.run.activeFloor,
+			turn: state.turn,
+			attackerId: `player:spell:${spell}`,
+			targetId: "player",
+		}).damage(range.minimumDamage, range.maximumDamage);
+		const damage = Math.min(next.player.health, rolled);
+		const health = next.player.health - damage;
+		next = {
+			...next,
+			player: { ...next.player, health },
+			activityHistory: appendActivityEvents(next.activityHistory, [
+				{ type: "player-spell-hit", spell, damage, turn: state.turn },
+				...(health === 0
+					? [{ type: "player-died" as const, turn: state.turn }]
+					: []),
+			]),
+		};
 	}
 	return { state: next };
 };

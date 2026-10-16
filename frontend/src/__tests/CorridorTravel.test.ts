@@ -1,0 +1,225 @@
+import { expect, it } from "vitest";
+import { updateExploration } from "../domain/dungeon/Exploration";
+import { FLOOR } from "../domain/dungeon/Tiles";
+import {
+	corridorStep,
+	corridorStopAfterStep,
+	corridorView,
+} from "../domain/game/CorridorTravel";
+import type { GameState } from "../domain/game/GameState";
+import { resolvePlayerAction } from "../domain/game/PlayerActions";
+import { navigationRun } from "../domain/objects/NavigationTerrain";
+import { quietCorridor } from "./CorridorTravelTestHelpers";
+
+const view = (state: GameState, fog = false) =>
+	corridorView(state, updateExploration(navigationRun(state), 4), fog);
+const carve = (state: GameState, ...tiles: [number, number][]) => ({
+	...state,
+	run: {
+		...state.run,
+		floors: state.run.floors.map((floor) => ({
+			...floor,
+			terrain: floor.terrain.map((row, r) =>
+				row.map((tile, c) =>
+					tiles.some(([tr, tc]) => tr === r && tc === c) ? FLOOR : tile,
+				),
+			),
+		})),
+	},
+});
+
+it("allows ordinary known corridor steps and follows a single bend without changing state", () => {
+	const state = quietCorridor();
+	const before = JSON.stringify(state);
+	expect(corridorStep(view(state), "right")).toEqual({ direction: "right" });
+	expect(JSON.stringify(state)).toBe(before);
+	const bent = carve(
+		{ ...state, run: { ...state.run, playerCoordinate: { row: 2, col: 22 } } },
+		[1, 22],
+		[0, 22],
+	);
+	expect(corridorStep(view(bent), "right", { row: 2, col: 21 })).toEqual({
+		direction: "up",
+	});
+});
+it("stops before blocked terrain, junctions, room mouths and unexplored neighbors", () => {
+	const state = quietCorridor();
+	expect(corridorStep(view(state), "up")).toEqual({ stop: "blocked" });
+	expect(corridorStep(view(carve(state, [1, 5])), "right")).toEqual({
+		stop: "junction",
+	});
+	expect(corridorStep(view(carve(state, [1, 4], [1, 5])), "right")).toEqual({
+		stop: "room",
+	});
+	const projected = view(state);
+	const terrain = projected.terrain.map((row) => [...row]);
+	terrain[1][5] = undefined;
+	expect(corridorStep({ ...projected, terrain }, "right")).toEqual({
+		stop: "unexplored",
+	});
+});
+it.each([
+	"door",
+	"elite-door",
+	"trap",
+	"chest",
+	"gold",
+	"merchant",
+	"fountain",
+] as const)("stops before %s without interacting", (kind) => {
+	const state = {
+		...quietCorridor(),
+		objects: [
+			{
+				id: "object",
+				kind,
+				floorNumber: 1,
+				coordinate: { row: 2, col: 5 },
+				activated: false,
+			},
+		],
+	};
+	expect(corridorStep(view(state), "right")).toEqual({ stop: "object" });
+	expect(state.objects[0].activated).toBe(false);
+});
+it("stops before loot, stairs and the entrance, including occupied starting tiles", () => {
+	const state = quietCorridor();
+	expect(
+		corridorStep(
+			view({
+				...state,
+				floorItems: [
+					{
+						item: { id: "loot", kind: "healing-potion" },
+						floorNumber: 1,
+						coordinate: { row: 2, col: 5 },
+					},
+				],
+			}),
+			"right",
+		),
+	).toEqual({ stop: "loot" });
+	const stair = {
+		coordinate: { row: 2, col: 5 },
+		destinationFloor: 2,
+		arrivalCoordinate: { row: 2, col: 1 },
+	};
+	const stairs = {
+		...state,
+		run: {
+			...state.run,
+			floors: [{ ...state.run.floors[0], downStair: stair }],
+		},
+	};
+	expect(corridorStep(view(stairs), "right")).toEqual({ stop: "landmark" });
+	expect(
+		corridorStep(
+			view({
+				...state,
+				quest: { ...state.quest, entrance: state.run.playerCoordinate },
+			}),
+			"right",
+		),
+	).toEqual({ stop: "landmark" });
+});
+it("denies harmful conditions and ended adventures, and sees no hidden monster or loot", () => {
+	const state = quietCorridor();
+	const hidden = {
+		...state,
+		monsters: [
+			{
+				id: "hidden",
+				kind: "goblin" as const,
+				health: 5,
+				floorNumber: 1,
+				coordinate: { row: 2, col: 18 },
+				intent: { type: "idle" as const },
+			},
+		],
+		floorItems: [
+			{
+				item: { id: "hidden-loot", kind: "healing-potion" as const },
+				floorNumber: 1,
+				coordinate: { row: 2, col: 18 },
+			},
+		],
+	};
+	expect(corridorStep(view(hidden, true), "right")).toEqual(
+		corridorStep(view(state, true), "right"),
+	);
+	expect(corridorStep(view(hidden), "right")).toEqual({ stop: "threat" });
+	expect(
+		corridorStep(
+			view({
+				...state,
+				effects: [
+					{
+						actorId: "player",
+						floorNumber: null,
+						kind: "poisoned",
+						remaining: 3,
+					},
+				],
+			}),
+			"right",
+		),
+	).toEqual({ stop: "condition" });
+	expect(
+		corridorStep(
+			view({ ...state, player: { ...state.player, health: 0 } }),
+			"right",
+		),
+	).toEqual({ stop: "ended" });
+});
+it("stops on newly visible decisions, damage even when healed, conditions and floor changes", () => {
+	const before = view(quietCorridor());
+	expect(
+		corridorStopAfterStep(before, {
+			...before,
+			visiblePoints: [...before.visiblePoints, { row: 2, col: 8 }],
+			turn: 1,
+		}),
+	).toBe("discovery");
+	expect(
+		corridorStopAfterStep(before, { ...before, damaged: true, turn: 1 }),
+	).toBe("damage");
+	expect(
+		corridorStopAfterStep(before, { ...before, harmful: true, turn: 1 }),
+	).toBe("condition");
+	expect(
+		corridorStopAfterStep(before, { ...before, floorNumber: 2, turn: 1 }),
+	).toBe("floor");
+});
+it("resolves every allowed step through the normal turn boundary; denial resolves nothing", () => {
+	let state = { ...quietCorridor(), turn: 28, mana: 0 };
+	let manual = state;
+	for (let i = 0; i < 3; i++) {
+		const decision = corridorStep(view(state), "right");
+		expect(decision).toEqual({ direction: "right" });
+		if ("direction" in decision)
+			state = resolvePlayerAction(state, {
+				type: "move",
+				direction: decision.direction,
+			}).state;
+		manual = resolvePlayerAction(manual, {
+			type: "move",
+			direction: "right",
+		}).state;
+	}
+	expect(state).toEqual(manual);
+	expect(state.turn).toBe(31);
+	expect(state.mana).toBeGreaterThan(0);
+	const poisoned = {
+		...state,
+		effects: [
+			{
+				actorId: "player",
+				floorNumber: null,
+				kind: "poisoned" as const,
+				remaining: 3,
+			},
+		],
+	};
+	expect(corridorStep(view(poisoned), "right")).toEqual({ stop: "condition" });
+	expect(poisoned.turn).toBe(31);
+});

@@ -146,12 +146,20 @@ Look specifically for bag frustration after stacking, usefulness of deep-floor l
 - **Performance:** retain large-map movement regressions. Measure startup before further lazy loading; the approximately 600kB main chunk currently produces a non-blocking build warning. Measure pursuit, targeting and saves if new behavior makes them slow.
 - **Persistence:** version changed saved contracts and retain captured legacy fixtures. Named save slots can follow demonstrated demand; autosave/IndexedDB should follow measured need, not replace working manual saves by default.
 
+## Expanded future backlog — town, uniques and escape scrolls
+
+Planning only; these stories do not authorize implementation or change the active corridor-work order.
+
+- [#323 — Rare seed-determined unique catalog](https://github.com/danielgebhardt/larn-remake/issues/323): original named discoveries, targeting no more than 20% of seeds containing any unique, deterministic eligibility/selection/placement, and saved actual ownership.
+- [#324 — Exit-dungeon scrolls](https://github.com/danielgebhardt/larn-remake/issues/324): deterministic safe arrival beside the floor-1 entrance, blocked while carrying the ember, with no-cost rejection and normal committed-action rules.
+- [#325 — Level 0 beacon town](https://github.com/danielgebhardt/larn-remake/issues/325): 18 native child stories, #326–343. Beacon square, dungeon approach, market street, sanctuary/library lane and forge/storage courtyard form a coherent authored layout. Foundation: rules/homecoming #326, layout #327, location #328, travel #329, navigation #330, economy #331. Services: potion #332, armor #333, weapon #334, scroll #335, library #336, healer #337, forge #338, stash #339 and optional gold vault #340. Lore #341, saves #342 and full-journey review #343 complete the plan. Start with one useful service; later shops remain backlog until selected. No implicit stock refills, free recovery loops, ember-storage bypass, cross-run banking or hidden change to victory.
+
 ## Later gameplay directions
 
 After the pacing/tactical milestones:
 
 1. Starting classes with different initial attributes and automatic growth, rather than manual point allocation. Keep base growth separate from equipment/permanent effects.
-2. Town services and a modest gold economy, expanded only after the first service proves useful.
+2. Level 0 beacon town #325 and its staged service backlog, expanded only after the first service proves useful.
 3. More varied special rooms/discoveries that create visible decisions, not merely longer catalogs.
 4. Selective gear/stat effects, two-handed weapons or extra equipment slots when concrete content warrants their ownership and UI rules.
 5. Eight-direction movement only with explicit player/enemy adjacency, corner-cutting, pathfinding, vision and targeting rules.
@@ -166,7 +174,7 @@ Use [Larn's monsters](https://larn.fandom.com/wiki/Monsters), [spells](https://l
 - Manual stat distribution, large skill trees, classes and a broad modifier engine introduced together.
 - Respawning, reinforcement schedules, complex speed/initiative, summons and sophisticated AI without a concrete tactical need.
 - Multiplayer, backend saves, accounts and automatic cloud synchronization.
-- Banks, interest, taxes and a large town before one useful service exists.
+- Town implementation beyond the selected first useful service; optional gold-vault #340 remains deferred. Interest, taxes and cross-run banking are outside the town plan.
 - Equal balance guarantees across every supported size or exhaustive device/browser testing.
 
 ## Completed milestone history

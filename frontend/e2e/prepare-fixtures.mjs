@@ -214,6 +214,79 @@ export default async function prepareFixtures() {
 		}
 		if (!corridorState)
 			throw new Error("Expected a quiet corridor for travel verification");
+		// A validated maximum-size adventure isolates map following and input
+		// responsiveness from random rooms, loot and enemy placement.
+		const largeConfiguration = {
+			...DEFAULT_RUN_CONFIGURATION,
+			rows: 100,
+			cols: 100,
+			floorCount: 20,
+		};
+		const largeRoom = { startRow: 50, endRow: 50, startCol: 1, endCol: 98 };
+		const largeRun = {
+			seed: 123,
+			activeFloor: 2,
+			playerCoordinate: { row: 50, col: 40 },
+			floors: Array.from({ length: 20 }, (_, index) => ({
+				floorNumber: index + 1,
+				terrain: Array.from({ length: 100 }, (_, row) =>
+					Array.from({ length: 100 }, (_, col) =>
+						row === 50 && col >= 1 && col <= 98 ? "." : "#",
+					),
+				),
+				rooms: [largeRoom],
+				corridors: [],
+				partitions: {
+					region: { startRow: 0, endRow: 99, startCol: 0, endCol: 99 },
+					room: largeRoom,
+				},
+				upStair:
+					index > 0
+						? {
+								coordinate: { row: 50, col: 2 },
+								destinationFloor: index,
+								arrivalCoordinate: { row: 50, col: 90 },
+							}
+						: undefined,
+				downStair:
+					index < 19
+						? {
+								coordinate: { row: 50, col: 90 },
+								destinationFloor: index + 2,
+								arrivalCoordinate: { row: 50, col: 2 },
+							}
+						: undefined,
+			})),
+		};
+		const largeFresh = createGameState(largeRun);
+		const largeCorridor = {
+			...largeFresh,
+			objects: [],
+			monsters: [],
+			floorItems: largeFresh.floorItems.filter((x) => x.item.kind === "cure"),
+		};
+		const fatalCorridor = {
+			...largeCorridor,
+			run: { ...largeRun, activeFloor: 14 },
+			player: { ...largeFresh.player, health: 1 },
+			monsters: [
+				{
+					id: "14:1",
+					kind: "salamander",
+					floorNumber: 14,
+					coordinate: { row: 50, col: 46 },
+					health: 24,
+					lastDamagedTurn: null,
+					intent: {
+						type: "preparing-area",
+						target: { row: 50, col: 41 },
+						radius: 1,
+						element: "fire",
+						remaining: 1,
+					},
+				},
+			],
+		};
 		const directory = new URL(".generated/", import.meta.url);
 		const escaping = createReviewEncounter(3, 1172903873);
 		const ember = quiet.floorItems.find((entry) => entry.item.kind === "cure");
@@ -230,6 +303,13 @@ export default async function prepareFixtures() {
 		if (!approach) throw new Error("Expected an entrance approach");
 		await mkdir(directory, { recursive: true });
 		for (const [name, state, config, fixtureFog = fog] of [
+			["corridor-large", largeCorridor, largeConfiguration],
+			[
+				"corridor-fatal",
+				fatalCorridor,
+				largeConfiguration,
+				{ ...fog, enabled: true, radius: 4 },
+			],
 			["corridor", corridorState, configuration],
 			["corridor-fog", corridorState, configuration, { ...fog, enabled: true }],
 			[

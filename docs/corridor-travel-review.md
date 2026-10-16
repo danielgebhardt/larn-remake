@@ -1,4 +1,4 @@
-# Safe corridor travel — #286 and #287
+# Safe corridor travel — #286–288
 
 ## #286: observable eligibility and stop policy
 
@@ -18,6 +18,19 @@ The controller is transient React state/ref ownership. The ref invalidates a que
 
 The visible status cue reports direction selection, running and the stop reason without adding activity events or saved instructions. Help documents the command and conservative limits. Map projection is computed only while running, avoiding an additional full-grid projection during ordinary manual play.
 
-Controller tests exercise paced steps, free selection/cancel/denial, repeat protection, manual movement and other gameplay-key interruption, pointer/focus/blur/visibility changes and input disable/re-enable. Production browser flows exercise actual movement, automatic room stop, free cancellation, menus, restored saves, focus and fog-enabled discovery. The existing save/terminal/browser suite is retained. The broader seed/lifecycle/performance matrix in #288 remains a separate backlog story; human usability acceptance is still required. The conservative geometric room rule can stop early in widened corridors, and any visible living creature blocks running even if currently idle or controlled.
+Controller tests exercise paced steps, free selection/cancel/denial, repeat protection, manual movement and other gameplay-key interruption, pointer/focus/blur/visibility changes and input disable/re-enable. Production browser flows exercise actual movement, automatic room stop, free cancellation, menus, restored saves, focus and fog-enabled discovery. The existing save/terminal/browser suite is retained. The #288 continuation/lifecycle/performance verification below extends this coverage; human usability acceptance is still required. The conservative geometric room rule can stop early in widened corridors, and any visible living creature blocks running even if currently idle or controlled.
 
 Review follow-up: any keydown cancels an active run in the capture phase, before modifier/focused-control filters. The canceled event is tracked weakly so R stops instead of rearming; other keys retain normal input handling. Repeated keys also interrupt. Direction selection still accepts its chosen direction and Escape remains available. Regression coverage includes modifiers, Tab, unbound/function keys, R, repeated R/arrows and modified shortcuts; the production browser verifies Shift cancellation.
+
+
+## #288: continuation, lifecycle and maximum-size verification
+
+This story adds tests and review evidence; no production gameplay or persistence changes were needed. A small integration harness composes the real adventure-session, corridor-controller and keyboard hooks. It adds no production state-inspection API. Its five-floor fixture passes the ordinary save parser before use.
+
+For seeds 123, 987 and 1172903873, three timed corridor steps are compared after every step with the same manual moves: complete game state, activity history and exploration memory match. The sequence crosses turn 30, proving ordinary mana recovery, advances Renewal healing, expires an active hidden pursuer's blocked memory at a protected stair, and preserves the inactive floor's actor and poison timer. Separate real-phase scenarios reveal a ranged attacker or a prepared area attack, take damage, or die; no second queued action occurs. Route scenarios stop at doors, traps, loot, stairs and junctions, while poison denies starting. Ember return stops before the hand-in tile; one manual step commits real victory and no travel resumes afterward.
+
+A mid-run snapshot is serialized, validated, restored and remounted. It retains actual played state and exploration, stays idle, and produces the same next manual step as uninterrupted saved-state continuation. Tests also invalidate queued steps on input disable/re-enable, restart and unmount. The production-browser flows cover the actual Home menus: saving while running, confirmed load, a new adventure, a fatal ordinary phase and replay all retain the intended turn boundaries without resuming movement.
+
+The maximum-size browser fixture has twenty 100×100 floors, reciprocal stairs, a real quest item and an explicitly quiet long corridor. It is validated through the normal save parser. Running advances at least twelve turns within the browser's normal assertion window, horizontal following advances, the player remains inside the map viewport, outer-page scrolling stays at zero, and Control cancels with no later turn. A screenshot was visually reviewed. The browser report records cancellation latency and scroll positions for diagnosis, without imposing a hardware-specific microbenchmark or claiming universal performance. This controlled corridor is not a representative full-population combat benchmark.
+
+Human feedback so far requested any-key cancellation; #287's follow-up implements it, including modifiers and repeats. Wider human usability acceptance remains pending. Conservative limitations remain: any visible creature blocks running; widened corridors can count as room mouths; the runner cannot predict hidden attacks and an ordinary step can take damage or die before it stops. No automatic exploration, unseen-threat advantage or balance claim is introduced by these checks.

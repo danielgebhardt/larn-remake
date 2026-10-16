@@ -100,7 +100,7 @@ Current save format is **v19**: validated enemy door-opening history is added, w
 
 ## Current implementation and next program
 
-The developer agreed to this order after merging the engineering and visual polish. Stories are linked as native sub-issues. Difficulty epic #213 and CI/browser epic #277 are closed and merged. All three GitHub runner jobs passed on the CI implementation. Corridor eligibility #286 and keyboard controller #287 are implemented for review; broader continuation verification #288 remains backlog. Starting classes, town services and cold-start measurement remain later work.
+The developer agreed to this order after merging the engineering and visual polish. Stories are linked as native sub-issues. Difficulty epic #213 and CI/browser epic #277 are closed and merged. All three GitHub runner jobs passed on the CI implementation. Corridor eligibility #286, keyboard controller #287 and continuation/lifecycle verification #288 are implemented for review; human usability acceptance remains pending. Starting classes, town services and cold-start measurement remain later work.
 
 | Order | Epic | Outcome |
 | --- | --- | --- |
@@ -120,13 +120,13 @@ The developer agreed to this order after merging the engineering and visual poli
 
 Persistence and UI are implemented together: v20 stores active difficulty, and valid v1–v19 saves restore Normal. Review evidence and limitations are recorded in [the epic review guide](docs/difficulty-adventure-review.md). Changing one combat multiplier does not authorize simultaneous supply/XP/density tuning.
 
-### Interruptible safe corridor travel — #286/#287 implemented for review
+### Interruptible safe corridor travel — #286–288 implemented for review
 
-[Engineering review](docs/corridor-travel-review.md) records the conservative observable policy, 120ms ordinary steps, cancellation and remaining #288 verification.
+[Engineering review](docs/corridor-travel-review.md) records the conservative observable policy, 120ms ordinary steps, cancellation and #288 continuation/lifecycle/maximum-size verification.
 
 1. **[#286](https://github.com/danielgebhardt/larn-remake/issues/286): eligibility and interruption policy — implemented for review.** Use player-visible/remembered information. Stop at threats, junctions, rooms, doors, stairs, loot, objects and meaningful newly revealed content; stop after damage/harmful conditions. No hidden knowledge, auto-combat, pickup, door opening or automatic exploration.
 2. **[#287](https://github.com/danielgebhardt/larn-remake/issues/287): keyboard/controller — implemented for review.** R followed by Arrow/WASD starts one-step-at-a-time travel at 120ms per ordinary turn; Escape cancels. Keep each action visible and interruptible, and cancel on manual action, modal/focus change, new/load/replay, death or victory. Closing menus must not resume it.
-3. **[#288](https://github.com/danielgebhardt/larn-remake/issues/288): continuation/lifecycle verification.** Compare manual and corridor steps for turns, actors, recovery and discovery. Check large-map following/responsiveness and queued-step cancellation. Travel instructions are transient and do not resume after loading a save.
+3. **[#288](https://github.com/danielgebhardt/larn-remake/issues/288): continuation/lifecycle verification — implemented for review.** Three-seed per-step state/discovery equivalence, live danger/decision boundaries, validated mid-run saves and cancellation across restart/terminal states. Production browser checks include twenty 100×100 floors, following, cancellation, confirmed save/load, new adventure and fatal-step replay. Travel instructions remain transient; human usability acceptance is pending.
 
 ### CI and browser smoke coverage — two stories
 

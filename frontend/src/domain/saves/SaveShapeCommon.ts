@@ -251,7 +251,7 @@ const eventFields = {
 	"items-seen": { items: array(itemKind, 1) },
 	"floor-changed": { fromFloor: floorNumber, toFloor: floorNumber },
 } satisfies Record<
-	Exclude<ActivityEvent["type"], "monster-door-opened">,
+	Exclude<ActivityEvent["type"], "monster-door-opened" | "exit-scroll-used">,
 	Record<string, Schema>
 >;
 const event: Schema = (value) =>

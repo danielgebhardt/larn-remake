@@ -77,6 +77,8 @@ export const formatActivityEvent = (event: ActivityEvent): string => {
 			return `${prefix}${ADVENTURE_STORY.victory}`;
 		case "entrance-reminder":
 			return `${prefix}The last ember is still on floor ${event.goalFloor}. Return with it to leave.`;
+		case "exit-scroll-used":
+			return `${prefix}You read an exit scroll and return from floor ${event.fromFloor} to the entrance approach on floor 1.`;
 		case "floor-changed":
 			return `${prefix}You ${event.toFloor > event.fromFloor ? "descend" : "ascend"} to floor ${event.toFloor}.`;
 		case "monster-missed":

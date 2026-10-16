@@ -7,7 +7,9 @@ export type Bag = Readonly<{ items: readonly ItemInstance[] }>;
 export type BagSlot = Readonly<{ item: ItemInstance; count: number }>;
 
 const isStackable = (item: ItemInstance): boolean =>
-	["potion", "enchantment"].includes(ITEM_DEFINITIONS[item.kind].type);
+	["potion", "enchantment", "scroll"].includes(
+		ITEM_DEFINITIONS[item.kind].type,
+	);
 
 // A stack keeps its UI identity when its representative physical copy changes.
 export const bagItemKey = (item: ItemInstance): string =>

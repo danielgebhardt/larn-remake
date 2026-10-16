@@ -12,6 +12,7 @@ import type { Coordinate, Dungeon } from "../domain/dungeon/DungeonTypes.ts";
 import { DEFAULT_FOG_CONFIGURATION } from "../domain/dungeon/RunConfiguration";
 import * as CombatRandomness from "../domain/game/CombatRandomness";
 import * as CurePlacement from "../domain/items/CurePlacement";
+import * as ExitScrollPlacement from "../domain/items/ExitScrollPlacement";
 import type { FloorItem } from "../domain/items/FloorItems";
 import * as ItemPlacement from "../domain/items/ItemPlacement";
 import * as MonsterDrops from "../domain/items/MonsterDrops";
@@ -44,6 +45,7 @@ export const renderHome = (ui: ReactElement<ComponentProps<typeof Home>>) => {
 	vi.spyOn(CurePlacement, "spawnRunQuestItems").mockReturnValue([]);
 	vi.spyOn(MonsterPlacement, "spawnRunMonsters").mockReturnValue([]);
 	vi.spyOn(ItemPlacement, "spawnRunItems").mockReturnValue([]);
+	vi.spyOn(ExitScrollPlacement, "spawnRunExitScrolls").mockReturnValue([]);
 	vi.spyOn(SpellbookPlacement, "spawnRunSpellbooks").mockReturnValue([]);
 	vi.spyOn(ObjectPlacement, "spawnRunObjects").mockReturnValue([]);
 	return renderUI(
@@ -148,6 +150,9 @@ export const stubDungeonRun = (
 	monsters: readonly Monster[] = [],
 	floorItems: readonly FloorItem[] = [],
 ) => ({
+	exitScrolls: vi
+		.spyOn(ExitScrollPlacement, "spawnRunExitScrolls")
+		.mockReturnValue([]),
 	objects: vi.spyOn(ObjectPlacement, "spawnRunObjects").mockReturnValue([]),
 	books: vi.spyOn(SpellbookPlacement, "spawnRunSpellbooks").mockReturnValue([]),
 	questItems: vi.spyOn(CurePlacement, "spawnRunQuestItems").mockReturnValue([]),

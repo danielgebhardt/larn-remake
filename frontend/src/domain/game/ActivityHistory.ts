@@ -167,6 +167,7 @@ export type ActivityEvent = { turn: number } & (
 	| { type: "monster-loot"; monster: MonsterKind; item: ItemKind }
 	| { type: "items-seen"; items: readonly ItemKind[] }
 	| { type: "floor-changed"; fromFloor: number; toFloor: number }
+	| { type: "exit-scroll-used"; fromFloor: number }
 );
 
 export type ActivityEntry = { id: number; event: ActivityEvent };

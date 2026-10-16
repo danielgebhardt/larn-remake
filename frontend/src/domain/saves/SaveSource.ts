@@ -18,6 +18,7 @@ import { isSaveDocumentV17 } from "./SaveShapeV17";
 import { isSaveDocumentV18 } from "./SaveShapeV18";
 import { isSaveDocumentV19 } from "./SaveShapeV19";
 import { isSaveDocumentV20 } from "./SaveShapeV20";
+import { isSaveDocumentV21 } from "./SaveShapeV21";
 
 // Dispatch and the supported source union derive from the same registry.
 // Historical guards retain their own contracts and normalization adapters.
@@ -42,6 +43,7 @@ const sourceGuards = {
 	18: isSaveDocumentV18,
 	19: isSaveDocumentV19,
 	20: isSaveDocumentV20,
+	21: isSaveDocumentV21,
 } as const;
 type GuardDocument<T> = T extends (value: unknown) => value is infer Document
 	? Document
@@ -62,5 +64,24 @@ export const hasSupportedSaveVersion = (
 
 export const isSaveSourceDocument = (
 	value: unknown,
-): value is SaveSourceDocument =>
-	hasSupportedSaveVersion(value) && sourceGuards[value.version](value);
+): value is SaveSourceDocument => {
+	if (!hasSupportedSaveVersion(value) || !sourceGuards[value.version](value))
+		return false;
+	const document = value as SaveSourceDocument;
+	if (document.version >= 21) return true;
+	// Historical versions cannot claim ownership of newly introduced content.
+	const items = [
+		...document.state.bag.items,
+		...Object.values(document.state.equipment).filter((x) => x !== null),
+		...document.state.floorItems.map((x) => x.item),
+	];
+	return (
+		!items.some((x) => x.kind === "exit-scroll") &&
+		!document.state.activityHistory.entries.some(
+			({ event }) =>
+				event.type === "exit-scroll-used" ||
+				("item" in event && event.item === "exit-scroll") ||
+				(event.type === "items-seen" && event.items.includes("exit-scroll")),
+		)
+	);
+};

@@ -8,6 +8,7 @@ import {
 	equipmentSlotsFor,
 } from "../../domain/items/Equipment";
 import type { EquipmentComparisonContext } from "../../domain/items/EquipmentComparison";
+import { EXIT_SCROLL_EMBER_RESTRICTION } from "../../domain/items/ExitDungeonScroll";
 import { ITEM_DEFINITIONS, type ItemInstance } from "../../domain/items/Item";
 import {
 	itemArmor,
@@ -23,6 +24,7 @@ import EquipmentPreviews from "./EquipmentPreviews";
 
 const labels = {
 	enchantment: "Enchantment scroll",
+	scroll: "Travel scroll",
 	quest: "Quest item",
 	ring: "Ring",
 	spellbook: "Spellbook",
@@ -43,6 +45,7 @@ const ItemDetails = ({
 	afterAction,
 	potionHotbar,
 	assignmentsEnabled = true,
+	carryingEmber = false,
 }: {
 	item: ItemInstance;
 	bag?: Bag;
@@ -54,8 +57,10 @@ const ItemDetails = ({
 	afterAction: () => void;
 	potionHotbar: PotionHotbar;
 	assignmentsEnabled?: boolean;
+	carryingEmber?: boolean;
 }) => {
 	const titleId = useId();
+	const exitRestrictionId = useId();
 	const { equipment } = comparisonContext;
 	const details = ITEM_DEFINITIONS[item.kind];
 	const slots = equipmentSlotsFor(item);
@@ -83,15 +88,17 @@ const ItemDetails = ({
 						: "boost" in details
 							? "+2 temporary attribute for 6 turns; refreshes instead of stacking"
 							: `Recovery up to ${details.recovery.amount} ${details.recovery.resource}`
-					: details.type === "enchantment"
-						? "Guaranteed +1; maximum +3 per item"
-						: details.type === "weapon"
-							? `Attack bonus +${itemAttackBonus(item)}`
-							: details.type === "ring" && "stats" in details
-								? Object.entries(details.stats)
-										.map(([stat, bonus]) => `+${bonus} ${stat}`)
-										.join(" · ")
-								: `Armor ${itemArmor(item)}`}
+					: details.type === "scroll"
+						? "Floor 1 entrance · one scroll and one turn"
+						: details.type === "enchantment"
+							? "Guaranteed +1; maximum +3 per item"
+							: details.type === "weapon"
+								? `Attack bonus +${itemAttackBonus(item)}`
+								: details.type === "ring" && "stats" in details
+									? Object.entries(details.stats)
+											.map(([stat, bonus]) => `+${bonus} ${stat}`)
+											.join(" · ")
+									: `Armor ${itemArmor(item)}`}
 			</p>
 			{"stats" in details && details.type !== "ring" && (
 				<p className="text-xs font-medium">
@@ -133,6 +140,16 @@ const ItemDetails = ({
 								Equip in {EQUIPMENT_SLOT_LABELS[slot].toLowerCase()}
 							</Button>
 						))}
+						{details.type === "scroll" && (
+							<Button
+								type="button"
+								disabled={!alive || carryingEmber}
+								aria-describedby={carryingEmber ? exitRestrictionId : undefined}
+								onClick={() => act({ type: "exit-dungeon", itemId: item.id })}
+							>
+								Read exit scroll
+							</Button>
+						)}
 						{details.type === "potion" && (
 							<Button
 								type="button"
@@ -145,6 +162,11 @@ const ItemDetails = ({
 					</>
 				)}
 			</div>
+			{details.type === "scroll" && carryingEmber && (
+				<p id={exitRestrictionId} className="text-sm text-muted-foreground">
+					{EXIT_SCROLL_EMBER_RESTRICTION}
+				</p>
+			)}
 			{details.type === "enchantment" && !equippedSlot && (
 				<EnchantmentTargets
 					scrollId={item.id}

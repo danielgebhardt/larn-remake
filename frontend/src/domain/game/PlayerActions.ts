@@ -14,6 +14,10 @@ import {
 } from "../items/EquipmentEnchantment";
 import { resourcesAfterEquipmentChange } from "../items/EquipmentResources";
 import {
+	type ExitDungeonAction,
+	readExitScroll,
+} from "../items/ExitDungeonScroll";
+import {
 	type FloorItemAction,
 	itemsAtPlayer,
 	transferFloorItem,
@@ -64,6 +68,7 @@ import {
 } from "./SpellHotbar";
 import { advanceTimedEffects } from "./TimedEffects";
 export type PlayerAction =
+	| ExitDungeonAction
 	| EnchantAction
 	| BuyAction
 	| SellAction
@@ -188,6 +193,7 @@ const resolvePlayerEffect = (
 	rollSource: AttackRollSource,
 ): GameState | { error: string } | undefined => {
 	const turn = state.turn;
+	if (action.type === "exit-dungeon") return readExitScroll(state, action);
 	if (action.type === "enchant") return enchantEquipment(state, action);
 	if (action.type === "buy") return buyPotion(state, action);
 	if (action.type === "sell") return sellEquipment(state, action);

@@ -116,7 +116,17 @@ describe("Shared merchant economy continuation", () => {
 		expect(fresh().merchantStock["healing-potion"]).toBe(10);
 	});
 	it("adds reachable merchant locations to older saves without replacing their played content", () => {
-		const document = snapshot(fresh());
+		const generated = snapshot(fresh());
+		// Version 16 predates exit-scroll content.
+		const document = {
+			...generated,
+			state: {
+				...generated.state,
+				floorItems: generated.state.floorItems.filter(
+					(entry) => entry.item.kind !== "exit-scroll",
+				),
+			},
+		};
 		const objects = document.state.objects.filter((o) => o.kind !== "merchant");
 		const old = {
 			...document,

@@ -301,8 +301,39 @@ export default async function prepareFixtures() {
 			.map(([dr, dc]) => ({ row: entrance.row + dr, col: entrance.col + dc }))
 			.find((point) => run.floors[0].terrain[point.row]?.[point.col] === ".");
 		if (!approach) throw new Error("Expected an entrance approach");
+		const exitScrollState = {
+			...quiet,
+			objects: [],
+			monsters: [],
+			floorItems: quiet.floorItems.filter((x) => x.item.kind === "cure"),
+			player: { ...quiet.player, health: 5 },
+			mana: 0,
+			run: {
+				...run,
+				activeFloor: 3,
+				playerCoordinate: run.floors[2].upStair.coordinate,
+			},
+			bag: {
+				items: [
+					{ id: "exit:1", kind: "exit-scroll" },
+					{ id: "mana", kind: "mana-potion" },
+					{ id: "exit:2", kind: "exit-scroll" },
+				],
+			},
+		};
 		await mkdir(directory, { recursive: true });
 		for (const [name, state, config, fixtureFog = fog] of [
+			["exit-scrolls", exitScrollState, configuration],
+			[
+				"exit-scrolls-ember",
+				{
+					...exitScrollState,
+					quest: { ...exitScrollState.quest, cureRecovered: true },
+					floorItems: [],
+					escape: { startedTurn: 0, activatedFloors: [3] },
+				},
+				configuration,
+			],
 			["corridor-large", largeCorridor, largeConfiguration],
 			[
 				"corridor-fatal",

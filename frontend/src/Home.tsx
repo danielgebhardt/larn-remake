@@ -156,6 +156,17 @@ const Home = ({
 			setPickupOpen(false);
 	}, [pickupOpen, currentItems.length, player.health]);
 
+	useEffect(() => {
+		if (
+			game.state.activityHistory.entries.some(
+				({ event }) => event.type === "exit-scroll-used" && event.turn === turn,
+			)
+		) {
+			setCharacterOpenedFromMap(true);
+			setCharacterOpen(false);
+		}
+	}, [game.state.activityHistory, turn]);
+
 	const startRun = (
 		seed: number,
 		nextConfiguration: RunConfiguration,

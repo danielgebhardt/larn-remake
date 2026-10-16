@@ -845,6 +845,88 @@ test("a fatal ordinary corridor phase cancels its queue and replay starts idle",
 	await expect(turns(page)).toHaveText("Turn 0");
 });
 
+test("exit scroll reading returns to floor 1, preserves the stack and restores focus", async ({
+	page,
+}, testInfo) => {
+	await importAdventure(page, "exit-scrolls");
+	await page.keyboard.press("i");
+	const character = page.getByRole("dialog", {
+		name: "Character",
+		exact: true,
+	});
+	const scroll = character.getByRole("button", {
+		name: "Exit dungeon scroll, slot 1",
+		exact: true,
+	});
+	await scroll.screenshot({
+		path: testInfo.outputPath("exit-scroll-item.png"),
+	});
+	await scroll.click();
+	const details = character.getByRole("region", {
+		name: "Item details",
+		exact: true,
+	});
+	await expect(details).toContainText("one scroll and one turn");
+	await details.screenshot({ path: testInfo.outputPath("exit-scroll.png") });
+	await details
+		.getByRole("button", { name: "Read exit scroll", exact: true })
+		.click();
+	await expect(character).toBeHidden();
+	await expect(map(page)).toBeFocused();
+	await expect(page.getByText("Floor 1 of 5", { exact: true })).toBeVisible();
+	await expect(turns(page)).toHaveText("Turn 1");
+	await expect(page.getByLabel("Player health", { exact: true })).toContainText(
+		"5 / 10",
+	);
+	await expect(page.getByLabel("Player mana", { exact: true })).toContainText(
+		"0 / 10",
+	);
+	await expect(page.getByRole("log")).toContainText("read an exit scroll");
+	await page.setViewportSize({ width: 390, height: 667 });
+	await page.keyboard.press("i");
+	await character
+		.getByRole("button", { name: "Exit dungeon scroll, slot 1", exact: true })
+		.click();
+	await expect(
+		character.getByRole("button", { name: "Mana potion, slot 2", exact: true }),
+	).toBeVisible();
+	await details
+		.getByRole("button", { name: "Read exit scroll", exact: true })
+		.click();
+	await expect(character.getByRole("alert")).toContainText("already beside");
+	await expect(turns(page)).toHaveText("Turn 1");
+	await expect(character).toBeVisible();
+	expect(
+		await character.evaluate((node) => node.scrollWidth <= node.clientWidth),
+	).toBe(true);
+	await page.keyboard.press("Escape");
+	await expect(map(page)).toBeFocused();
+});
+
+test("a restored ember carrier cannot read an exit scroll", async ({
+	page,
+}) => {
+	await importAdventure(page, "exit-scrolls-ember");
+	await page.keyboard.press("i");
+	const character = page.getByRole("dialog", {
+		name: "Character",
+		exact: true,
+	});
+	await character
+		.getByRole("button", { name: "Exit dungeon scroll, slot 1", exact: true })
+		.click();
+	const read = character.getByRole("button", {
+		name: "Read exit scroll",
+		exact: true,
+	});
+	await expect(read).toBeDisabled();
+	await expect(read).toHaveAccessibleDescription(/carrying the Last Ember/);
+	await expect(turns(page)).toHaveText("Turn 0");
+	await expect(page.getByText("Floor 3 of 5", { exact: true })).toBeVisible();
+	await page.keyboard.press("Escape");
+	await expect(map(page)).toBeFocused();
+});
+
 test("merchant uses four compact desktop columns and keeps narrow layouts within the dialog", async ({
 	page,
 }, testInfo) => {

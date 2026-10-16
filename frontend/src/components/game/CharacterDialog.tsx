@@ -223,6 +223,7 @@ const CharacterDialog = ({
 														});
 													}}
 													item={selected}
+													carryingEmber={quest.cureRecovered}
 													comparisonContext={comparisonContext}
 													potionHotbar={potionHotbar}
 													assignmentsEnabled={!won}

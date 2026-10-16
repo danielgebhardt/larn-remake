@@ -28,7 +28,10 @@ it("places each selected book once within its floor band without changing ordina
 	expect(createGameState(run)).toEqual(state);
 	expect(
 		state.floorItems.filter(
-			(entry) => !books.includes(entry) && entry.item.kind !== "cure",
+			(entry) =>
+				!books.includes(entry) &&
+				entry.item.kind !== "cure" &&
+				entry.item.kind !== "exit-scroll",
 		),
 	).toEqual(
 		spawnRunItems(

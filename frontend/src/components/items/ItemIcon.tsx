@@ -16,6 +16,7 @@ import { ITEM_DEFINITIONS, type ItemKind } from "../../domain/items/Item";
 import type { PotionKind } from "../../domain/items/PotionHotbar";
 import DragonMailIcon from "./DragonMailIcon";
 import EmberIcon from "./EmberIcon";
+import ExitScrollIcon from "./ExitScrollIcon";
 import PotionIcon from "./PotionIcon";
 import RingIcon from "./RingIcon";
 
@@ -34,6 +35,7 @@ const icons: Record<
 	ComponentType<SVGProps<SVGSVGElement>>
 > = {
 	"enchantment-scroll": ScrollText,
+	"exit-scroll": ExitScrollIcon,
 	cure: EmberIcon,
 	"short-sword": Sword,
 	"iron-sword": Sword,
@@ -64,7 +66,7 @@ const ItemIcon = ({ kind }: { kind: ItemKind }) => {
 		<Icon
 			aria-hidden="true"
 			focusable="false"
-			className={`size-full ${kind.startsWith("book-") ? "text-violet-700 dark:text-violet-300" : kind === "cure" ? "text-item-ember" : "text-item-gear"}`}
+			className={`size-full ${kind.startsWith("book-") ? "text-violet-700 dark:text-violet-300" : kind === "cure" ? "text-item-ember" : kind === "exit-scroll" ? "text-item-cure" : "text-item-gear"}`}
 		/>
 	);
 };

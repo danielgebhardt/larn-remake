@@ -2,6 +2,7 @@ import type { DungeonRun } from "../dungeon/DungeonRun.ts";
 import { type Bag, createStartingBag } from "../items/Bag";
 import { spawnRunQuestItems } from "../items/CurePlacement";
 import { createStartingEquipment, type Equipment } from "../items/Equipment";
+import { spawnRunExitScrolls } from "../items/ExitScrollPlacement";
 import type { FloorItem } from "../items/FloorItems";
 import { spawnRunItems } from "../items/ItemPlacement";
 import {
@@ -69,7 +70,11 @@ export const createGameState = (
 		...ordinaryLoot,
 		...spawnRunQuestItems(run, monsters, ordinaryLoot),
 	];
-	const floorItems = [...loot, ...spawnRunSpellbooks(run, monsters, loot)];
+	const ordinaryItems = [...loot, ...spawnRunSpellbooks(run, monsters, loot)];
+	const floorItems = [
+		...ordinaryItems,
+		...spawnRunExitScrolls(run, monsters, ordinaryItems),
+	];
 	const encounters = addOptionalEliteRooms({
 		run,
 		monsters,

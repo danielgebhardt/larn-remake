@@ -105,8 +105,9 @@ const itemTypeOrder: Record<ItemDefinition["type"], number> = {
 	ring: 4,
 	potion: 5,
 	enchantment: 6,
-	spellbook: 7,
-	quest: 8,
+	scroll: 7,
+	spellbook: 8,
+	quest: 9,
 };
 const catalogItems = (Object.keys(ITEM_DEFINITIONS) as ItemKind[]).sort(
 	(a, b) =>

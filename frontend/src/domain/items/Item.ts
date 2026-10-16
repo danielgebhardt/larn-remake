@@ -5,6 +5,7 @@ export type ItemDefinition = {
 	type:
 		| "potion"
 		| "enchantment"
+		| "scroll"
 		| "weapon"
 		| "shield"
 		| "chest-armor"
@@ -27,6 +28,19 @@ export type ItemDefinition = {
 	dropWeight: number;
 };
 export const ITEM_DEFINITIONS = {
+	"exit-scroll": {
+		specialFindOnly: true,
+		name: "Exit dungeon scroll",
+		type: "scroll",
+		attackBonus: 0,
+		armor: 0,
+		description:
+			"Read to return beside the dungeon entrance on floor 1. Costs one scroll and one turn; enemies act on arrival. Cannot be used while carrying the Last Ember. Already beside the entrance or no safe arrival: no cost.",
+		minFloor: 2,
+		maxFloor: MAX_FLOORS,
+		foundWeight: 0,
+		dropWeight: 0,
+	},
 	"enchantment-scroll": {
 		name: "Enchantment scroll",
 		type: "enchantment",

@@ -31,6 +31,10 @@ The page opens with a brief adventure introduction. Begin Adventure generates a 
 
 Stair placement uses an independent seeded random source for each floor, derived from the run seed, floor number, and a `stairs` namespace. Down stairs choose equally among rooms outside the entry room, then choose a floor tile within that room. Up stairs choose their own seeded room and tile using a separate `stairs:up` stream, excluding the downstairs room where possible. Descending arrives on those actual upstairs, with reciprocal arrival coordinates. A single-room floor uses its center when distinct from the entry, otherwise its first distinct floor tile in row-major order; a floor with no distinct location fails clearly. The same seed and configuration reproduce the links regardless of floor generation or connection order, without changing terrain generation. Calls to the stair selector without a random source retain the deterministic last-room-center rule.
 
+## Safe corridor running
+
+Press **R**, then an arrow key or **WASD** to run a quiet corridor; **Escape** stops or cancels direction selection. Each paced step takes an ordinary turn, including monsters, effects, recovery and discovery. A sole known bend can be followed. Running stops before rooms, junctions, unknown routes, doors, objects, loot, stairs or the entrance, and on visible creatures, damage, poison or newly revealed decisions. Step off a landmark manually before starting; existing poison denies the run without a turn. Manual actions, menus, focus loss and save/load or adventure lifecycle changes cancel it. A stopped run never resumes by itself. Run instructions are transient and saves remain unchanged. `CORRIDOR_STEP_MS` in `components/game/useCorridorTravel.ts` controls the visible pace, initially 120ms per step. See [engineering review](docs/corridor-travel-review.md).
+
 ## Repository layout
 
 ```text

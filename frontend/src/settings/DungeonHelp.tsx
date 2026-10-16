@@ -114,6 +114,12 @@ const DungeonHelp = ({
 							<Keycap>E</Keycap>
 						</li>
 						<li className="flex items-center justify-between gap-3 py-2">
+							<span>Run a quiet corridor; Escape stops</span>
+							<span>
+								<Keycap>R</Keycap> then Arrow / WASD
+							</span>
+						</li>
+						<li className="flex items-center justify-between gap-3 py-2">
 							<span>Pick up an item</span>
 							<Keycap>G</Keycap>
 						</li>
@@ -148,7 +154,10 @@ const DungeonHelp = ({
 					</ul>
 					<p className="text-xs leading-relaxed text-muted-foreground">
 						Click the dungeon map to focus gameplay. While a menu is open,
-						gameplay keys are paused.
+						gameplay keys are paused. Corridor running takes one normal turn per
+						step and stops at danger, poison, unknown routes, junctions, rooms,
+						objects, loot and stairs. Step off a landmark before starting.
+						Manual input, menus or focus loss cancel it.
 					</p>
 				</section>
 				<section aria-labelledby="map-symbols-title" className="grid gap-3">

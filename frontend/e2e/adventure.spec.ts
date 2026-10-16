@@ -640,6 +640,82 @@ test("a fatal committed turn opens defeat, freezes play and permits replay", asy
 	await expect(turns(page)).toHaveText("Turn 1");
 });
 
+test("corridor running advances visible ordinary turns, stops at decisions and cancels across menus and load", async ({
+	page,
+}, testInfo) => {
+	await importAdventure(page, "corridor");
+	const cue = page.getByRole("status", {
+		name: "Corridor travel",
+		exact: true,
+	});
+	await page.keyboard.press("r");
+	await expect(cue).toContainText("Choose a direction");
+	await expect(turns(page)).toHaveText("Turn 0");
+	await page.keyboard.press("Escape");
+	await expect(turns(page)).toHaveText("Turn 0");
+	await page.keyboard.press("r");
+	await page.keyboard.press("ArrowRight");
+	await expect(turns(page)).not.toHaveText("Turn 0");
+	await page.keyboard.press("Escape");
+	const canceled = await turns(page).innerText();
+	await page.waitForTimeout(350);
+	await expect(turns(page)).toHaveText(canceled);
+	await page.getByRole("button", { name: "Save/Load", exact: true }).click();
+	await page
+		.getByLabel("Import adventure file")
+		.setInputFiles(
+			fileURLToPath(new URL(".generated/corridor.json", import.meta.url)),
+		);
+	await expect(map(page)).toBeFocused();
+	await expect(turns(page)).toHaveText("Turn 0");
+	await page.keyboard.press("r");
+	await page.keyboard.press("d");
+	await expect(cue).toContainText("stopped");
+	const stopped = await turns(page).innerText();
+	expect(Number(stopped?.replace("Turn ", ""))).toBeGreaterThanOrEqual(4);
+	await page.waitForTimeout(300);
+	await expect(turns(page)).toHaveText(stopped);
+	await page.screenshot({ path: testInfo.outputPath("corridor-stop.png") });
+	await page.keyboard.press("r");
+	await page.keyboard.press("ArrowLeft");
+	await page.getByRole("button", { name: "Help", exact: true }).click();
+	const paused = await turns(page).innerText();
+	await page.waitForTimeout(300);
+	await expect(turns(page)).toHaveText(paused);
+	await expect(
+		page.getByRole("dialog", { name: "Help / Controls" }),
+	).toContainText("Run a quiet corridor");
+	await page.keyboard.press("Escape");
+	await map(page).focus();
+	await page.waitForTimeout(300);
+	await expect(turns(page)).toHaveText(paused);
+	await page.getByRole("button", { name: "Save/Load", exact: true }).click();
+	await page
+		.getByLabel("Import adventure file")
+		.setInputFiles(
+			fileURLToPath(new URL(".generated/corridor.json", import.meta.url)),
+		);
+	await expect(map(page)).toBeFocused();
+	await page.waitForTimeout(300);
+	await expect(turns(page)).toHaveText("Turn 0");
+});
+
+test("fog-enabled corridor running uses discovered routes and stops with map focus intact", async ({
+	page,
+}) => {
+	await importAdventure(page, "corridor-fog");
+	await page.keyboard.press("r");
+	await page.keyboard.press("ArrowRight");
+	await expect(turns(page)).not.toHaveText("Turn 0");
+	await expect(
+		page.getByRole("status", { name: "Corridor travel", exact: true }),
+	).toContainText("stopped");
+	const stopped = await turns(page).innerText();
+	await page.waitForTimeout(300);
+	await expect(turns(page)).toHaveText(stopped);
+	await expect(map(page)).toBeFocused();
+});
+
 test("merchant uses four compact desktop columns and keeps narrow layouts within the dialog", async ({
 	page,
 }, testInfo) => {

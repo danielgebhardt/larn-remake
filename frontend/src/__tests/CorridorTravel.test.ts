@@ -173,6 +173,34 @@ it("denies harmful conditions and ended adventures, and sees no hidden monster o
 });
 it("stops on newly visible decisions, damage even when healed, conditions and floor changes", () => {
 	const before = view(quietCorridor());
+	const hitThenHealed = {
+		...quietCorridor(),
+		turn: 1,
+		activityHistory: {
+			nextId: 2,
+			entries: [
+				{
+					id: 1,
+					event: {
+						turn: 1,
+						type: "monster-hit" as const,
+						monster: "goblin" as const,
+						damage: 1,
+					},
+				},
+			],
+		},
+	};
+	expect(corridorStopAfterStep(before, view(hitThenHealed))).toBe("damage");
+	const room = view(carve(quietCorridor(), [1, 9], [1, 10]));
+	const remembered = {
+		...room,
+		terrain: room.terrain.map((row) =>
+			row.map((tile, col) => (col >= 8 ? undefined : tile)),
+		),
+	};
+	expect(corridorStopAfterStep(remembered, room)).toBe("discovery");
+
 	expect(
 		corridorStopAfterStep(before, {
 			...before,

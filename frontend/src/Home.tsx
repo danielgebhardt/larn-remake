@@ -29,6 +29,7 @@ import PotionHotbarView from "./components/game/PotionHotbarView";
 import QuestStatus from "./components/game/QuestStatus";
 import SpellHotbarView from "./components/game/SpellHotbarView";
 import { useAdventureSession } from "./components/game/useAdventureSession";
+import { useCorridorTravel } from "./components/game/useCorridorTravel";
 import { useSpellTargeting } from "./components/game/useSpellTargeting";
 import VictoryDialog from "./components/game/VictoryDialog";
 import VisibleEffects from "./components/game/VisibleEffects";
@@ -287,6 +288,15 @@ const Home = ({
 		() => mapRef.current?.focus({ preventScroll: true }),
 	);
 
+	const corridor = useCorridorTravel({
+		state: game.state,
+		exploration,
+		fogEnabled: fogConfiguration.enabled,
+		enabled: gameplayEnabled && !spells.targeting,
+		mapRef,
+		onStep: (direction) => handleActionRequested({ type: "move", direction }),
+	});
+
 	const handlePotionRequested = (slot: HotbarSlot) => {
 		handleActionRequested({ type: "use-hotbar", slot });
 		mapRef.current?.focus({ preventScroll: true });
@@ -529,7 +539,17 @@ const Home = ({
 							{spells.description}
 						</p>
 					)}
+					{corridor.description && (
+						<p
+							role="status"
+							aria-label="Corridor travel"
+							className="mb-1 text-center text-xs text-muted-foreground"
+						>
+							{corridor.description}
+						</p>
+					)}
 					<DungeonLayout
+						onCorridorKey={corridor.handleKey}
 						mapRef={mapRef}
 						onSpellRequested={spells.activate}
 						onSpellSlotRequested={(slot) => {

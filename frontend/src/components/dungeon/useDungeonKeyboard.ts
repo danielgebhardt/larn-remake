@@ -15,6 +15,7 @@ export type DungeonKeyboardOptions = {
 	onSpellSlotRequested?: (slot: SpellSlot) => void;
 	onSpellRequested?: (spell: SpellKind) => void;
 	onTargetingKey?: (key: string) => void;
+	onCorridorKey?: (event: KeyboardEvent) => boolean;
 	movementEnabled?: boolean;
 };
 
@@ -31,6 +32,7 @@ export const useDungeonKeyboard = ({
 	onSpellRequested,
 	onSpellSlotRequested,
 	onTargetingKey,
+	onCorridorKey,
 	movementEnabled = true,
 }: DungeonKeyboardOptions) => {
 	useEffect(() => {
@@ -75,6 +77,20 @@ export const useDungeonKeyboard = ({
 					return;
 				event.preventDefault();
 				if (!event.repeat) onTargetingKey(key);
+				return;
+			}
+			if (
+				movementEnabled &&
+				!event.ctrlKey &&
+				!event.metaKey &&
+				!event.altKey &&
+				!(
+					event.target instanceof HTMLElement &&
+					event.target.closest(FOCUSED_CONTROLS)
+				) &&
+				onCorridorKey?.(event)
+			) {
+				event.preventDefault();
 				return;
 			}
 			if (movementEnabled && ["z", "h"].includes(event.key.toLowerCase())) {
@@ -224,6 +240,7 @@ export const useDungeonKeyboard = ({
 		onSpellRequested,
 		onSpellSlotRequested,
 		onTargetingKey,
+		onCorridorKey,
 		movementEnabled,
 	]);
 };

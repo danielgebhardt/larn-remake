@@ -150,6 +150,70 @@ export default async function prepareFixtures() {
 				],
 			},
 		};
+		const { corridorView, corridorStep } = await load(
+			"/src/domain/game/CorridorTravel.ts",
+		);
+		let corridorState;
+		for (const floor of run.floors) {
+			for (
+				let row = 1;
+				row < floor.terrain.length - 1 && !corridorState;
+				row++
+			) {
+				for (
+					let col = 1;
+					col < floor.terrain[row].length - 1 && !corridorState;
+					col++
+				) {
+					if (floor.terrain[row][col] !== ".") continue;
+					const candidate = {
+						...quiet,
+						objects: [],
+						floorItems: quiet.floorItems.filter((x) => x.item.kind === "cure"),
+						run: {
+							...run,
+							activeFloor: floor.floorNumber,
+							playerCoordinate: { row, col },
+						},
+					};
+					let probe = candidate;
+					let previous;
+					let steps = 0;
+					for (let step = 0; step < 8; step++) {
+						const projected = corridorView(
+							probe,
+							updateExploration(navigationRun(probe), fog.radius),
+							false,
+						);
+						const decision = corridorStep(projected, "right", previous);
+						if ("stop" in decision) break;
+						previous = probe.run.playerCoordinate;
+						const offsets = {
+							up: [-1, 0],
+							down: [1, 0],
+							left: [0, -1],
+							right: [0, 1],
+						};
+						const [dr, dc] = offsets[decision.direction];
+						probe = {
+							...probe,
+							run: {
+								...probe.run,
+								playerCoordinate: {
+									row: previous.row + dr,
+									col: previous.col + dc,
+								},
+							},
+						};
+						steps++;
+					}
+					if (steps >= 4) corridorState = candidate;
+				}
+			}
+			if (corridorState) break;
+		}
+		if (!corridorState)
+			throw new Error("Expected a quiet corridor for travel verification");
 		const directory = new URL(".generated/", import.meta.url);
 		const escaping = createReviewEncounter(3, 1172903873);
 		const ember = quiet.floorItems.find((entry) => entry.item.kind === "cure");
@@ -165,7 +229,9 @@ export default async function prepareFixtures() {
 			.find((point) => run.floors[0].terrain[point.row]?.[point.col] === ".");
 		if (!approach) throw new Error("Expected an entrance approach");
 		await mkdir(directory, { recursive: true });
-		for (const [name, state, config] of [
+		for (const [name, state, config, fixtureFog = fog] of [
+			["corridor", corridorState, configuration],
+			["corridor-fog", corridorState, configuration, { ...fog, enabled: true }],
 			[
 				"ember-pickup",
 				{
@@ -243,13 +309,16 @@ export default async function prepareFixtures() {
 				merchantConfiguration,
 			],
 		]) {
-			const exploration = updateExploration(navigationRun(state), fog.radius);
+			const exploration = updateExploration(
+				navigationRun(state),
+				fixtureFog.radius,
+			);
 			const text = serializeSave(
 				createSaveDocument(
 					state,
 					exploration,
 					config,
-					fog,
+					fixtureFog,
 					new Date("2026-10-13T12:00:00Z"),
 				),
 			);

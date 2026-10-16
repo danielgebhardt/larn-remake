@@ -60,6 +60,7 @@ const DungeonLayout = ({
 	onSpellRequested,
 	onSpellSlotRequested,
 	onTargetingKey,
+	onCorridorKey,
 	targetIds,
 	spellArea,
 	selectedTargetId,
@@ -228,6 +229,7 @@ const DungeonLayout = ({
 		onSpellRequested,
 		onSpellSlotRequested,
 		onTargetingKey,
+		onCorridorKey,
 		movementEnabled,
 	});
 

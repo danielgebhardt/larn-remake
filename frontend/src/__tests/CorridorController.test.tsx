@@ -71,7 +71,6 @@ it("R direction selection is free; bounded steps use normal turns and Escape can
 	tick();
 	expect(screen.getByLabelText("Turns")).toHaveTextContent("0");
 	begin();
-	key("r", true);
 	tick();
 	expect(screen.getByLabelText("Turns")).toHaveTextContent("1");
 	tick();
@@ -127,7 +126,9 @@ it("a denied direction spends no turn and repeated starts never schedule duplica
 	expect(screen.getByRole("status", { name: "Travel" })).toHaveTextContent(
 		"blocked",
 	);
-	begin();
+	key("r", true);
+	tick();
+	expect(screen.getByLabelText("Turns")).toHaveTextContent("0");
 	begin();
 	tick();
 	expect(screen.getByLabelText("Turns")).toHaveTextContent("1");
@@ -161,4 +162,32 @@ it("becoming hidden cancels and becoming visible does not resume", () => {
 	tick();
 	expect(screen.getByLabelText("Turns")).toHaveTextContent("1");
 	hidden.mockRestore();
+});
+
+it.each([
+	{ key: "Shift" },
+	{ key: "Control" },
+	{ key: "Alt" },
+	{ key: "Meta" },
+	{ key: "Tab" },
+	{ key: "x" },
+	{ key: "F2" },
+	{ key: "r" },
+	{ key: "r", repeat: true },
+	{ key: "ArrowRight", repeat: true },
+	{ key: "r", ctrlKey: true },
+])("any key cancels a running corridor: %j", (event) => {
+	vi.useFakeTimers();
+	render(<Harness />);
+	screen.getByLabelText("Map").focus();
+	begin();
+	tick();
+	fireEvent.keyDown(screen.getByLabelText("Map"), event);
+	const turns = screen.getByLabelText("Turns").textContent;
+	tick();
+	tick();
+	expect(screen.getByLabelText("Turns")).toHaveTextContent(turns ?? "");
+	expect(screen.getByRole("status", { name: "Travel" })).toHaveTextContent(
+		"canceled",
+	);
 });

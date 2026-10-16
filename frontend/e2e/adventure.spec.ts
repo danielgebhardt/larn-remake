@@ -656,7 +656,8 @@ test("corridor running advances visible ordinary turns, stops at decisions and c
 	await page.keyboard.press("r");
 	await page.keyboard.press("ArrowRight");
 	await expect(turns(page)).not.toHaveText("Turn 0");
-	await page.keyboard.press("Escape");
+	await page.keyboard.press("Shift");
+	await expect(cue).toContainText("canceled");
 	const canceled = await turns(page).innerText();
 	await page.waitForTimeout(350);
 	await expect(turns(page)).toHaveText(canceled);

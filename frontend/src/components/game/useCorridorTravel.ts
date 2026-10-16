@@ -47,6 +47,7 @@ export const useCorridorTravel = ({
 }) => {
 	const [travel, setTravel] = useState<Travel>({ mode: "idle" });
 	const current = useRef(travel);
+	const canceledKeys = useRef(new WeakSet<KeyboardEvent>());
 	const [description, setDescription] = useState("");
 	const view = useMemo(
 		() =>
@@ -72,18 +73,25 @@ export const useCorridorTravel = ({
 				setDescription("Corridor run canceled.");
 			}
 		};
+		const keyDown = (event: KeyboardEvent) => {
+			if (current.current.mode !== "running") return;
+			canceledKeys.current.add(event);
+			stop();
+		};
 		const focus = (event: FocusEvent) => {
 			if (event.target !== mapRef.current) stop();
 		};
 		const visibility = () => {
 			if (document.hidden) stop();
 		};
+		document.addEventListener("keydown", keyDown, true);
 		document.addEventListener("pointerdown", stop, true);
 		document.addEventListener("focusin", focus, true);
 		window.addEventListener("blur", stop);
 		document.addEventListener("visibilitychange", visibility);
 		return () => {
 			current.current = { mode: "idle" };
+			document.removeEventListener("keydown", keyDown, true);
 			document.removeEventListener("pointerdown", stop, true);
 			document.removeEventListener("focusin", focus, true);
 			window.removeEventListener("blur", stop);
@@ -136,6 +144,8 @@ export const useCorridorTravel = ({
 	}, [enabled, travel, view, mapRef, onStep]);
 	const handleKey = (event: KeyboardEvent): boolean => {
 		const key = event.key.length === 1 ? event.key.toLowerCase() : event.key;
+		// R stops an active run instead of immediately arming another one.
+		if (canceledKeys.current.has(event)) return key === "r" || key === "Escape";
 		if (key === "r") {
 			if (event.repeat) return true;
 			mapRef.current?.focus({ preventScroll: true });
@@ -150,7 +160,7 @@ export const useCorridorTravel = ({
 		if (current.current.mode === "choosing" && directions[key]) {
 			if (!event.repeat) {
 				change({ mode: "running", direction: directions[key] });
-				setDescription("Running corridor. Escape stops.");
+				setDescription("Running corridor. Any key stops.");
 			}
 			return true;
 		}

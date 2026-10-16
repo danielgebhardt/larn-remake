@@ -114,7 +114,7 @@ const DungeonHelp = ({
 							<Keycap>E</Keycap>
 						</li>
 						<li className="flex items-center justify-between gap-3 py-2">
-							<span>Run a quiet corridor; Escape stops</span>
+							<span>Run a quiet corridor; any key stops</span>
 							<span>
 								<Keycap>R</Keycap> then Arrow / WASD
 							</span>

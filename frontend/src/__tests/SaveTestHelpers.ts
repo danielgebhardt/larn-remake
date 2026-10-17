@@ -64,6 +64,8 @@ export const historicalSaveText = (document: {
 	state: object;
 }): string => {
 	const state = { ...document.state };
+	if (document.version < 25)
+		Reflect.deleteProperty(state, "townEquipmentStock");
 	if (document.version < 24) Reflect.deleteProperty(state, "townPotionStock");
 	return JSON.stringify({ ...document, state });
 };

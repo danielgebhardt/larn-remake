@@ -510,6 +510,18 @@ export default async function prepareFixtures() {
 				},
 				configuration,
 			],
+			...["armor", "weapons"].map((store) => [
+				`town-${store}`,
+				{
+					...quiet,
+					gold: 5000,
+					town: {
+						...createTownLocation(),
+						coordinate: { row: 13, col: store === "armor" ? 10 : 18 },
+					},
+				},
+				configuration,
+			]),
 			["laptop-layout", laptopLayout, configuration],
 			["interaction-hints", interactionHints, configuration],
 			["spell-balance", spellBalance, configuration],

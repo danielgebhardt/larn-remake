@@ -96,7 +96,7 @@ const buildings: readonly TownBuilding[] = Object.freeze(
 		{
 			id: "armor",
 			name: "Armor store",
-			sign: "Armor — protection is coming. Eventually.",
+			sign: "Armor — protection sold separately from confidence.",
 			district: "Market Street",
 			mark: "A",
 			row: 14,
@@ -111,7 +111,7 @@ const buildings: readonly TownBuilding[] = Object.freeze(
 		{
 			id: "weapons",
 			name: "Weapon store",
-			sign: "Weapons — the proprietor is counting the sharp ends.",
+			sign: "Weapons — every edge has a price.",
 			district: "Market Street",
 			mark: "W",
 			row: 14,
@@ -172,8 +172,9 @@ const buildings: readonly TownBuilding[] = Object.freeze(
 		Object.freeze({
 			...building,
 			entry: Object.freeze(building.entry),
-			status:
-				building.id === "potions" ? ("open" as const) : ("closed" as const),
+			status: ["potions", "armor", "weapons"].includes(building.id)
+				? ("open" as const)
+				: ("closed" as const),
 		}),
 	),
 );

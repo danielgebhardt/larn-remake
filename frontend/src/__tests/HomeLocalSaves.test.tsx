@@ -70,8 +70,7 @@ describe("Confirmed local Save and Load", () => {
 			screen.queryByRole("dialog", { name: "Character" }),
 		).not.toBeInTheDocument();
 		await closeSaveSheet(user);
-		expect(screen.getByRole("button", { name: "Save/Load" })).toHaveFocus();
-		screen.getByLabelText("Dungeon map", { exact: true }).focus();
+		expect(screen.getByLabelText("Dungeon map", { exact: true })).toHaveFocus();
 		await user.keyboard(" ");
 		expect(screen.getByLabelText("Turn count")).toHaveTextContent("Turn 1");
 	});

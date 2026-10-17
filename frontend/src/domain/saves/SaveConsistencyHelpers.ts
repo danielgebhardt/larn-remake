@@ -22,6 +22,7 @@ export const savedDifficulty = (document: SaveSourceDocument) =>
 	document.version === 21 ||
 	document.version === 22 ||
 	document.version === 23 ||
-	document.version === 24
+	document.version === 24 ||
+	document.version === 25
 		? document.configuration.difficulty
 		: 1;

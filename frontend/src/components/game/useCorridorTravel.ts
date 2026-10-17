@@ -142,6 +142,12 @@ export const useCorridorTravel = ({
 		}, CORRIDOR_STEP_MS);
 		return () => window.clearTimeout(timer);
 	}, [enabled, travel, view, mapRef, onStep]);
+	// Stop reasons describe the last run, not the next manual action.
+	useEffect(() => {
+		if (travel.mode !== "idle" || !description) return;
+		const timer = window.setTimeout(() => setDescription(""), 4000);
+		return () => window.clearTimeout(timer);
+	}, [travel.mode, description]);
 	const handleKey = (event: KeyboardEvent): boolean => {
 		const key = event.key.length === 1 ? event.key.toLowerCase() : event.key;
 		// R stops an active run instead of immediately arming another one.
@@ -165,7 +171,8 @@ export const useCorridorTravel = ({
 			return true;
 		}
 		if (event.repeat && current.current.mode !== "idle") return true;
-		cancel();
+		if (current.current.mode === "idle") setDescription("");
+		else cancel();
 		return false;
 	};
 	return { description, handleKey };

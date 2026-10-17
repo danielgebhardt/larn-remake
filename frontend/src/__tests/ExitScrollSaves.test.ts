@@ -35,7 +35,7 @@ it("round-trips scroll copies and the explicit exit event, then continues determ
 	const document = snapshot();
 	const loaded = parseSave(serializeSave(document));
 	if (!loaded.ok) throw new Error(loaded.error);
-	expect(loaded.value.version).toBe(24);
+	expect(loaded.value.version).toBe(25);
 	const restored = restoreSave(loaded.value);
 	const result = resolvePlayerAction(restored.state, {
 		type: "exit-dungeon",
@@ -75,7 +75,7 @@ it("migrates an actual v20 snapshot without injecting scrolls or regenerating pl
 	const before = structuredClone(source);
 	const parsed = parseSave(historicalSaveText(source));
 	if (!parsed.ok) throw new Error(parsed.error);
-	expect(parsed.value).toEqual({ ...source, version: 24 });
+	expect(parsed.value).toEqual({ ...source, version: 25 });
 	expect(source).toEqual(before);
 });
 it("restores ember possession and denies every scroll use without consuming or spending a turn", () => {

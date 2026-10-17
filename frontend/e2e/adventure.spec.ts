@@ -1726,3 +1726,29 @@ test("dungeon artwork only loads the active theme image", async ({ page }) => {
 		.toBe(true);
 	await expect(map(page)).toBeFocused();
 });
+
+for (const dismiss of ["Escape", "Close"]) {
+	test(`saving to browser and dismissing with ${dismiss} returns movement focus`, async ({
+		page,
+	}) => {
+		await importAdventure(page, "ready");
+		await page.getByRole("button", { name: "Save/Load", exact: true }).click();
+		await page
+			.getByRole("button", { name: "Save adventure", exact: true })
+			.click();
+		await page
+			.getByRole("button", { name: "Confirm save", exact: true })
+			.click();
+		await expect(
+			page.getByRole("dialog", { name: "Save this adventure?", exact: true }),
+		).toBeHidden();
+		if (dismiss === "Escape") await page.keyboard.press("Escape");
+		else
+			await saveSheet(page)
+				.getByRole("button", { name: "Close", exact: true })
+				.click();
+		await expect(map(page)).toBeFocused();
+		await page.keyboard.press("Space");
+		await expect(turns(page)).toHaveText("Turn 1");
+	});
+}

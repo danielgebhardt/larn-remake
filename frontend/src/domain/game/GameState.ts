@@ -4,6 +4,7 @@ import { spawnRunQuestItems } from "../items/CurePlacement";
 import { createStartingEquipment, type Equipment } from "../items/Equipment";
 import { spawnRunExitScrolls } from "../items/ExitScrollPlacement";
 import type { FloorItem } from "../items/FloorItems";
+import type { ItemInstance } from "../items/Item";
 import { spawnRunItems } from "../items/ItemPlacement";
 import {
 	createStartingPotionHotbar,
@@ -25,6 +26,7 @@ import {
 	createTownPotionStock,
 	type TownPotionStock,
 } from "../town/TownEconomy";
+import { createTownEquipmentStock } from "../town/TownEquipmentStock";
 import type { TownLocation } from "../town/TownLocation";
 import {
 	type ActivityHistory,
@@ -41,6 +43,7 @@ import { createKnownSpells, type SpellKind } from "./Spells";
 import type { TimedEffect } from "./TimedEffects";
 
 export type GameState = {
+	townEquipmentStock: readonly ItemInstance[];
 	townPotionStock: TownPotionStock;
 	town: TownLocation | null;
 	readonly difficulty: Difficulty;
@@ -91,6 +94,7 @@ export const createGameState = (
 	return {
 		town: null,
 		townPotionStock: createTownPotionStock(),
+		townEquipmentStock: createTownEquipmentStock(),
 		difficulty,
 		run,
 		escape: null,

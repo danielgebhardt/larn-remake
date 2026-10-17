@@ -195,3 +195,18 @@ it.each([
 		"canceled",
 	);
 });
+
+it("clears a stopped run notice on ordinary movement and expires idle notices", () => {
+	vi.useFakeTimers();
+	render(<Harness />);
+	screen.getByLabelText("Map").focus();
+	key("r");
+	key("ArrowUp");
+	expect(screen.getByLabelText("Travel")).toHaveTextContent("stopped");
+	key("ArrowRight");
+	expect(screen.getByLabelText("Travel")).toBeEmptyDOMElement();
+	key("r");
+	key("ArrowUp");
+	act(() => vi.advanceTimersByTime(4000));
+	expect(screen.getByLabelText("Travel")).toBeEmptyDOMElement();
+});

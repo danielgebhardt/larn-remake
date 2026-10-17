@@ -4,6 +4,7 @@ import { createSpellHotbar } from "../game/SpellHotbar";
 import { placeMerchants } from "../merchant/MerchantPlacement";
 import { createMerchantStock } from "../merchant/MerchantRules";
 import { createTownPotionStock } from "../town/TownEconomy";
+import { createTownEquipmentStock } from "../town/TownEquipmentStock";
 import type { SaveDocumentV1 } from "./SaveDocumentV1";
 import type { SaveDocumentV2 } from "./SaveDocumentV2";
 import type { SaveDocumentV3 } from "./SaveDocumentV3";
@@ -334,7 +335,7 @@ const migratePlayedSaveToV23 = (
 	return { ...previous, version: 23, state: { ...previous.state, town: null } };
 };
 
-export const migratePlayedSave = (
+const migratePlayedSaveToV24 = (
 	document:
 		| Parameters<typeof migratePlayedSaveToV23>[0]
 		| import("./SaveDocumentV23").SaveDocumentV23,
@@ -345,5 +346,22 @@ export const migratePlayedSave = (
 		...previous,
 		version: 24,
 		state: { ...previous.state, townPotionStock: createTownPotionStock() },
+	};
+};
+
+export const migratePlayedSave = (
+	document:
+		| Parameters<typeof migratePlayedSaveToV24>[0]
+		| import("./SaveDocumentV24").SaveDocumentV24,
+): import("./SaveDocumentV25").SaveDocumentV25 => {
+	const previous =
+		document.version === 24 ? document : migratePlayedSaveToV24(document);
+	return {
+		...previous,
+		version: 25,
+		state: {
+			...previous.state,
+			townEquipmentStock: createTownEquipmentStock(),
+		},
 	};
 };

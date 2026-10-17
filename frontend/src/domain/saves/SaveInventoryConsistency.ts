@@ -10,6 +10,7 @@ import {
 	type MerchantSupply,
 } from "../merchant/MerchantRules";
 import { TOWN_POTION_OFFERS, type TownPotion } from "../town/TownEconomy";
+import { TOWN_EQUIPMENT_OFFERS } from "../town/TownEquipmentStock";
 import { savedLocations, unique } from "./SaveConsistencyHelpers";
 import type { SaveSourceDocument } from "./SaveSource";
 
@@ -57,7 +58,7 @@ export const hasConsistentInventory = (
 
 	for (const item of allItems) {
 		if (!item.id.startsWith("town-potion:")) continue;
-		if (document.version !== 24) return false;
+		if (document.version < 24) return false;
 		const parts = item.id.split(":"),
 			kind = parts[1] as TownPotion,
 			index = Number(parts[2]);
@@ -69,11 +70,31 @@ export const hasConsistentInventory = (
 			index < 1 ||
 			String(index) !== parts[2] ||
 			index >
-				TOWN_POTION_OFFERS[kind].quantity - document.state.townPotionStock[kind]
+				TOWN_POTION_OFFERS[kind].quantity -
+					("townPotionStock" in document.state
+						? document.state.townPotionStock[kind]
+						: 0)
 		)
 			return false;
 	}
 
+	for (const item of allItems) {
+		if (!item.id.startsWith("town-gear:")) continue;
+		if (
+			!("townEquipmentStock" in state) ||
+			!Object.hasOwn(TOWN_EQUIPMENT_OFFERS, item.id)
+		)
+			return false;
+		const offer = TOWN_EQUIPMENT_OFFERS[item.id];
+		if (
+			item.kind !== offer.item.kind ||
+			("enchantment" in item && typeof item.enchantment === "number"
+				? item.enchantment
+				: 0) < (offer.item.enchantment ?? 0) ||
+			state.townEquipmentStock.some((copy) => copy.id === item.id)
+		)
+			return false;
+	}
 	for (const [name, entry] of Object.entries(state.equipment))
 		if (entry && !fitsEquipmentSlot(entry, name as EquipmentSlot)) return false;
 	if (

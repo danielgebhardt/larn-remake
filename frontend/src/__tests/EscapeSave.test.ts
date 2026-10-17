@@ -44,7 +44,7 @@ describe("Saved escape phase", () => {
 		const legacy = { ...escapingAdventure(), version: 13 };
 		const parsed = parseSave(historicalSaveText(legacy));
 		if (!parsed.ok) throw new Error(parsed.error);
-		expect(parsed.value.version).toBe(24);
+		expect(parsed.value.version).toBe(25);
 		expect(parsed.value.state.escape).toEqual({
 			startedTurn: legacy.state.turn,
 			activatedFloors: [1],

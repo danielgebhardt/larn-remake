@@ -39,6 +39,7 @@ import VisibleEffects from "./components/game/VisibleEffects";
 import MerchantDialog from "./components/merchant/MerchantDialog";
 import ObjectChoiceDialog from "./components/objects/ObjectChoiceDialog";
 import ObjectContext from "./components/objects/ObjectContext";
+import TownEquipmentShop from "./components/town/TownEquipmentShop";
 import TownMap from "./components/town/TownMap";
 import TownPotionShop from "./components/town/TownPotionShop";
 import {
@@ -61,6 +62,7 @@ import {
 	type RestoredAdventure,
 	type SaveDocument,
 } from "./domain/saves/SaveFormat";
+import { reachableTownEquipmentStore } from "./domain/town/TownEquipmentStore";
 import { canReachTownPotionStore } from "./domain/town/TownPotionStore";
 import { atDungeonEntrance, atTownGate } from "./domain/town/TownTravel";
 import Header from "./Header.tsx";
@@ -128,7 +130,6 @@ const Home = ({
 	const [seedError, setSeedError] = useState<string | null>(null);
 	const [settingsOpen, setSettingsOpen] = useState(false);
 	const [saveOpen, setSaveOpen] = useState(false);
-	const [restoreMapFocus, setRestoreMapFocus] = useState(false);
 	const [townShopOpen, setTownShopOpen] = useState(false);
 	const [catalogOpen, setCatalogOpen] = useState(false);
 	const [helpOpen, setHelpOpen] = useState(false);
@@ -222,7 +223,6 @@ const Home = ({
 		setCharacterOpen(false);
 		setHelpOpen(false);
 		setCatalogOpen(false);
-		setRestoreMapFocus(true);
 		setSaveOpen(false);
 		setSettingsOpen(false);
 	};
@@ -407,10 +407,9 @@ const Home = ({
 						open={saveOpen}
 						onOpenChange={(open) => {
 							setSaveOpen(open);
-							if (open) setRestoreMapFocus(false);
 						}}
 						onOpenChangeComplete={(open) => {
-							if (!open && restoreMapFocus && mapInputAvailable)
+							if (!open && mapInputAvailable)
 								mapRef.current?.focus({ preventScroll: true });
 						}}
 					>
@@ -427,13 +426,7 @@ const Home = ({
 							Save/Load
 						</SheetTrigger>
 						<AdventureSaveSheet
-							finalFocus={
-								mapInputAvailable
-									? restoreMapFocus
-										? mapRef
-										: undefined
-									: false
-							}
+							finalFocus={mapInputAvailable ? mapRef : false}
 							createSnapshot={() =>
 								createSaveDocument(
 									game.state,
@@ -591,12 +584,15 @@ const Home = ({
 										interactionLabel={
 											canReachTownPotionStore(game.state)
 												? "Potion store (E)"
-												: "Inspect nearby"
+												: reachableTownEquipmentStore(game.state)
+													? "Equipment store (E)"
+													: "Inspect nearby"
 										}
 										onAction={(action) => {
 											if (
 												action.type === "inspect" &&
-												canReachTownPotionStore(game.state)
+												(canReachTownPotionStore(game.state) ||
+													reachableTownEquipmentStore(game.state))
 											) {
 												setActionError("");
 												setTownShopOpen(true);
@@ -755,7 +751,7 @@ const Home = ({
 											className="py-2 text-sm text-muted-foreground"
 										>
 											{game.actionError ||
-												"Potion store open; other shops closed. Arrows/WASD to walk; E inspects signs. Stand on the south gate and press Enter to descend. Town actions do not advance time or restore resources."}
+												"Potion, armor and weapon stores open; other shops closed. Arrows/WASD to walk; E inspects signs. Stand on the south gate and press Enter to descend. Town actions do not advance time or restore resources."}
 										</p>
 									) : (
 										<ObjectContext
@@ -838,6 +834,14 @@ const Home = ({
 					if (startRun(run.seed, configuration))
 						mapRef.current?.focus({ preventScroll: true });
 				}}
+				mapRef={mapRef}
+			/>
+			<TownEquipmentShop
+				open={townShopOpen && canPlay}
+				state={game.state}
+				error={game.actionError}
+				onClose={() => setTownShopOpen(false)}
+				onBuy={handleActionRequested}
 				mapRef={mapRef}
 			/>
 			<TownPotionShop

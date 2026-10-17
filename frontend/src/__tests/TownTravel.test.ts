@@ -173,7 +173,12 @@ describe("deliberate town travel", () => {
 		const legacy = {
 			...doc,
 			version: 22,
-			state: { ...doc.state, town: undefined, townPotionStock: undefined },
+			state: {
+				...doc.state,
+				town: undefined,
+				townPotionStock: undefined,
+				townEquipmentStock: undefined,
+			},
 		};
 		const migrated = parseSave(JSON.stringify(legacy));
 		expect(migrated.ok).toBe(true);

@@ -22,6 +22,7 @@ import { isSaveDocumentV21 } from "./SaveShapeV21";
 import { isSaveDocumentV22 } from "./SaveShapeV22";
 import { isSaveDocumentV23 } from "./SaveShapeV23";
 import { isSaveDocumentV24 } from "./SaveShapeV24";
+import { isSaveDocumentV25 } from "./SaveShapeV25";
 
 // Dispatch and the supported source union derive from the same registry.
 // Historical guards retain their own contracts and normalization adapters.
@@ -50,6 +51,7 @@ const sourceGuards = {
 	22: isSaveDocumentV22,
 	23: isSaveDocumentV23,
 	24: isSaveDocumentV24,
+	25: isSaveDocumentV25,
 } as const;
 type GuardDocument<T> = T extends (value: unknown) => value is infer Document
 	? Document
@@ -74,6 +76,8 @@ export const isSaveSourceDocument = (
 	if (!hasSupportedSaveVersion(value) || !sourceGuards[value.version](value))
 		return false;
 	const document = value as SaveSourceDocument;
+	if (document.version < 25 && "townEquipmentStock" in document.state)
+		return false;
 	if (document.version < 24 && "townPotionStock" in document.state)
 		return false;
 	if (

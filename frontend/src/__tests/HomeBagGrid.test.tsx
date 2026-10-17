@@ -92,7 +92,7 @@ describe("Visual bag and shared item details", () => {
 	it("does not show stale details or highlight a swapped item that has a different identity", async () => {
 		const { user, panel } = await setup();
 		await user.click(panel.getByRole("button", { name: "Iron sword, slot 1" }));
-		await user.click(panel.getByRole("button", { name: "Equip in main hand" }));
+		await user.click(panel.getByRole("button", { name: "Equip on main hand" }));
 		expect(
 			panel.queryByRole("region", { name: "Item details" }),
 		).not.toBeInTheDocument();

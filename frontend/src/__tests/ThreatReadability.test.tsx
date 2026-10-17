@@ -60,3 +60,20 @@ describe("Actionable visible threats", () => {
 		expect(monsterTraits("dungeon-brute").join(" ")).toMatch(/Sleep or Fear/i);
 	});
 });
+
+it("shows actual monster poison potency and remaining potential damage", () => {
+	render(
+		<VisibleEffects
+			monsters={[charger]}
+			monsterPoisonDamage={6}
+			effects={[
+				{ actorId: charger.id, floorNumber: 1, kind: "poisoned", remaining: 5 },
+			]}
+		/>,
+	);
+	expect(
+		screen.getByRole("list", { name: "Visible monster conditions" }),
+	).toHaveTextContent(
+		"6 damage after its active-floor response; up to 30 damage remaining",
+	);
+});

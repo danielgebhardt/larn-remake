@@ -13,7 +13,7 @@ export const EFFECT_DEFINITIONS = {
 	afraid: { name: "Afraid", duration: 3 },
 	poisoned: {
 		name: "Poisoned",
-		duration: 3,
+		duration: 6,
 		monsterDamage: 4,
 		playerDamage: 1,
 	},

@@ -30,7 +30,7 @@ describe("Changing gear in Character", () => {
 		const { user } = renderEncounter();
 		const panel = await openCharacter(user);
 		await user.click(panel.getByRole("button", { name: "Iron sword, slot 1" }));
-		await user.click(panel.getByRole("button", { name: "Equip in main hand" }));
+		await user.click(panel.getByRole("button", { name: "Equip on main hand" }));
 		expect(screen.getByRole("dialog", { name: "Character" })).toBeVisible();
 		expect(
 			within(panel.getByRole("region", { name: "Main hand" })).getByText(
@@ -78,7 +78,7 @@ describe("Changing gear in Character", () => {
 		await user.click(
 			panel.getByRole("button", { name: "Short sword, slot 3" }),
 		);
-		const equip = panel.getByRole("button", { name: "Equip in main hand" });
+		const equip = panel.getByRole("button", { name: "Equip on main hand" });
 		equip.focus();
 		await user.keyboard(" ");
 		expect(panel.getByLabelText("Character attack")).toHaveTextContent(
@@ -115,7 +115,7 @@ describe("Changing gear in Character", () => {
 		await user.click(
 			panel.getByRole("button", { name: "Short sword, slot 1" }),
 		);
-		await user.click(panel.getByRole("button", { name: "Equip in main hand" }));
+		await user.click(panel.getByRole("button", { name: "Equip on main hand" }));
 		expect(panel.queryByRole("alert")).not.toBeInTheDocument();
 		expect(screen.getByLabelText("Turn count")).toHaveTextContent("Turn 1");
 	});
@@ -123,7 +123,7 @@ describe("Changing gear in Character", () => {
 		const { user } = renderEncounter(1);
 		let panel = await openCharacter(user);
 		await user.click(panel.getByRole("button", { name: "Iron sword, slot 1" }));
-		await user.click(panel.getByRole("button", { name: "Equip in main hand" }));
+		await user.click(panel.getByRole("button", { name: "Equip on main hand" }));
 		await inspectEndedRun(user);
 		panel = await openCharacter(user);
 		expect(panel.getByRole("alert")).toHaveTextContent("You died.");
@@ -149,7 +149,7 @@ describe("Changing gear in Character", () => {
 			panel.getByRole("button", { name: "Short sword, slot 1" }),
 		);
 		expect(
-			panel.getByRole("button", { name: "Equip in main hand" }),
+			panel.getByRole("button", { name: "Equip on main hand" }),
 		).toBeDisabled();
 		expect(screen.getByLabelText("Turn count")).toHaveTextContent("Turn 1");
 		await user.keyboard("{Escape}");

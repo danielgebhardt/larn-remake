@@ -98,7 +98,7 @@ describe("Equipment comparison in Character", () => {
 		await user.click(
 			panel.getByRole("button", { name: "Short sword, slot 1" }),
 		);
-		await user.click(panel.getByRole("button", { name: "Equip in main hand" }));
+		await user.click(panel.getByRole("button", { name: "Equip on main hand" }));
 		expect(
 			panel.getByRole("button", { name: "Iron sword, slot 2" }),
 		).toHaveAccessibleDescription(/Better/);
@@ -108,7 +108,7 @@ describe("Equipment comparison in Character", () => {
 		expect(panel.getByLabelText("Equipment comparison")).toHaveTextContent(
 			"Armor 1 → 2 (+1)",
 		);
-		await user.click(panel.getByRole("button", { name: "Equip in head" }));
+		await user.click(panel.getByRole("button", { name: "Equip on head" }));
 		await user.click(panel.getByRole("button", { name: "Head: Leather cap" }));
 		expect(
 			panel.queryByLabelText("Equipment comparison"),
@@ -196,7 +196,7 @@ describe("Equipment comparison in Character", () => {
 			"Mana 3 / 16",
 		);
 		expect(screen.getByLabelText("Turn count")).toHaveTextContent("Turn 0");
-		await user.click(panel.getByRole("button", { name: "Equip in left ring" }));
+		await user.click(panel.getByRole("button", { name: "Equip on left ring" }));
 		expect(panel.getByLabelText("Character attack")).toHaveTextContent(
 			"Attack 3–5",
 		);

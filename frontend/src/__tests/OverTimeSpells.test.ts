@@ -33,7 +33,7 @@ it("Poison Dart ticks after monster actions and rewards its eventual kill exactl
 		lowRolls,
 	).state;
 	expect(state.monsters[0].health).toBe(8);
-	expect(state.effects[0].remaining).toBe(2);
+	expect(state.effects[0].remaining).toBe(5);
 	state = resolvePlayerAction(state, { type: "wait" }, lowRolls).state;
 	expect(state.monsters[0].health).toBe(4);
 	state = resolvePlayerAction(state, { type: "wait" }, lowRolls).state;

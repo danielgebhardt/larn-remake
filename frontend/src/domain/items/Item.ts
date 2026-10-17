@@ -584,7 +584,7 @@ export const ITEM_DEFINITIONS = {
 		attackBonus: 0,
 		armor: 0,
 		description:
-			"Learn Poison Dart: 4 mana, range 8, 2–4 initial damage plus Intelligence modifier, then 4 + half the current Intelligence modifier (rounded down) poison damage for three active phases. Reading uses one turn and no bag slot.",
+			"Learn Poison Dart: 4 mana, range 8, 2–4 initial damage plus Intelligence modifier, then 4 + half the current Intelligence modifier (rounded down) poison damage for six active phases. Reading uses one turn and no bag slot.",
 		minFloor: 4,
 		maxFloor: 13,
 		foundWeight: 0,

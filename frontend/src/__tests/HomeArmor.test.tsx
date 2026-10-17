@@ -47,7 +47,7 @@ describe("Character armor slots", () => {
 			).toBeVisible();
 			await user.click(dialog.getByRole("button", { name: `${name}, slot 1` }));
 			await user.click(
-				dialog.getByRole("button", { name: `Equip in ${slot}` }),
+				dialog.getByRole("button", { name: `Equip on ${slot}` }),
 			);
 			expect(
 				dialog.getByRole("button", { name: `${label}: ${name}` }),
@@ -59,7 +59,7 @@ describe("Character armor slots", () => {
 				dialog.getByRole("button", { name: `${upgrade}, slot 1` }),
 			);
 			await user.click(
-				dialog.getByRole("button", { name: `Equip in ${slot}` }),
+				dialog.getByRole("button", { name: `Equip on ${slot}` }),
 			);
 			expect(
 				dialog.getByRole("button", { name: `${label}: ${upgrade}` }),

@@ -148,7 +148,7 @@ export const formatActivityEvent = (event: ActivityEvent): string => {
 			const replaced = event.replaced
 				? `, returning ${ITEM_DEFINITIONS[event.replaced].name} to your bag`
 				: "";
-			return `${prefix}You equip ${ITEM_DEFINITIONS[event.item].name} in your ${slot}${replaced}.`;
+			return `${prefix}You equip ${ITEM_DEFINITIONS[event.item].name} on your ${slot}${replaced}.`;
 		}
 		case "item-unequipped":
 			return `${prefix}You put ${ITEM_DEFINITIONS[event.item].name} in your bag.`;

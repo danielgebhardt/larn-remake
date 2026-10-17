@@ -61,7 +61,7 @@ describe("Healing potions in Character", () => {
 		const panel = await selectPotion(user);
 		expect(panel.getByText(/Restores up to 5 health/)).toBeVisible();
 		expect(
-			panel.queryByRole("button", { name: /Equip in/ }),
+			panel.queryByRole("button", { name: /Equip on/ }),
 		).not.toBeInTheDocument();
 		await user.click(panel.getByRole("button", { name: "Drink potion" }));
 		expect(panel.getByLabelText("Character health")).toHaveTextContent(

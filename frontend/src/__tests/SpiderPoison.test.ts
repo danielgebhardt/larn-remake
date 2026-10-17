@@ -30,11 +30,11 @@ it("a landed spider bite poisons the player, ticks after retaliation and refresh
 	const first = resolvePlayerAction(initial, { type: "wait" }, hit).state;
 	expect(first.player.health).toBe(8);
 	expect(first.effects).toEqual([
-		{ actorId: "player", floorNumber: null, kind: "poisoned", remaining: 2 },
+		{ actorId: "player", floorNumber: null, kind: "poisoned", remaining: 5 },
 	]);
 	const again = resolvePlayerAction(first, { type: "wait" }, hit).state;
 	expect(again.effects).toHaveLength(1);
-	expect(again.effects[0].remaining).toBe(2);
+	expect(again.effects[0].remaining).toBe(5);
 	expect(again.player.health).toBe(6);
 });
 it("missed bites and free blocked actions do not add or tick poison", () => {
@@ -53,7 +53,7 @@ it("missed bites and free blocked actions do not add or tick poison", () => {
 	);
 	expect(blocked.state).toBe(poisoned);
 });
-it("poison follows the player, expires after three committed phases, and cannot be revived by Renewal", () => {
+it("poison follows the player, expires after six committed phases, and cannot be revived by Renewal", () => {
 	const bitten = resolvePlayerAction(encounter(), { type: "wait" }, hit).state;
 	const away = {
 		...bitten,
@@ -66,8 +66,12 @@ it("poison follows the player, expires after three committed phases, and cannot 
 	};
 	const second = resolvePlayerAction(away, { type: "wait" }, hit).state;
 	expect(second.player.health).toBe(7);
-	const last = resolvePlayerAction(second, { type: "wait" }, hit).state;
+	let last = resolvePlayerAction(second, { type: "wait" }, hit).state;
 	expect(last.player.health).toBe(6);
+	expect(last.effects[0].remaining).toBe(3);
+	for (let phase = 4; phase <= 6; phase++)
+		last = resolvePlayerAction(last, { type: "wait" }, hit).state;
+	expect(last.player.health).toBe(3);
 	expect(last.effects).toEqual([]);
 	const fatal = {
 		...away,

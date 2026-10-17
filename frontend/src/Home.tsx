@@ -50,6 +50,7 @@ import {
 } from "./domain/dungeon/RunConfiguration.ts";
 import { MAX_SEED, parseSeedInput } from "./domain/dungeon/Seed.ts";
 import type { VictorySummary } from "./domain/game/Adventure";
+import { ongoingSpellPotency } from "./domain/game/OngoingSpellPotency";
 import { canAddToBag } from "./domain/items/Bag";
 import { emptyEquipmentSlotFor } from "./domain/items/Equipment";
 import { ITEM_DEFINITIONS } from "./domain/items/Item";
@@ -701,6 +702,13 @@ const Home = ({
 									className={`h-full overflow-y-auto focus-visible:outline-1 focus-visible:-outline-offset-1 focus-visible:outline-ring ${atDungeonEntrance(game.state) && canPlay ? "pr-40" : ""}`}
 								>
 									<VisibleEffects
+										monsterPoisonDamage={
+											ongoingSpellPotency(
+												game.state.progression,
+												game.state.equipment,
+												game.state.effects,
+											).poisonDamage
+										}
 										effects={game.state.effects}
 										monsters={activeMonsters}
 										visible={

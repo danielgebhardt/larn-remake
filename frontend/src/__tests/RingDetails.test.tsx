@@ -17,14 +17,14 @@ it("lets the player choose either ring slot explicitly", async () => {
 		/>,
 	);
 	const user = userEvent.setup();
-	await user.click(screen.getByRole("button", { name: "Equip in right ring" }));
+	await user.click(screen.getByRole("button", { name: "Equip on right ring" }));
 	expect(onAction).toHaveBeenCalledWith({
 		type: "equip",
 		itemId: "ring:1",
 		slot: "rightRing",
 	});
 	expect(
-		screen.getByRole("button", { name: "Equip in left ring" }),
+		screen.getByRole("button", { name: "Equip on left ring" }),
 	).toBeVisible();
 });
 

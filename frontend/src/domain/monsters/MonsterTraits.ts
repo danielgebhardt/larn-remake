@@ -31,7 +31,7 @@ export const monsterTraits = (kind: MonsterKind): readonly string[] => {
 		);
 	if (definition.onHitCondition)
 		traits.push(
-			"Landed hits poison: 1 damage per phase for 3 phases; refreshes without stacking.",
+			"Landed hits poison: 1 damage per phase for 6 phases; refreshes without stacking.",
 		);
 	if (definition.alarmRadius)
 		traits.push(

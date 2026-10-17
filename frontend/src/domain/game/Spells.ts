@@ -179,7 +179,7 @@ export const SPELL_DEFINITIONS = {
 		minimumDamage: 2,
 		maximumDamage: 4,
 		description:
-			"Deal a small initial hit and poison a monster for three active phases. Poison deals 4 + half your current Intelligence modifier (rounded down) damage after its action; refreshing never stacks.",
+			"Deal a small initial hit and poison a monster for six active phases. Poison deals 4 + half your current Intelligence modifier (rounded down) damage after its action; refreshing never stacks.",
 	},
 	renewal: {
 		name: "Renewal",

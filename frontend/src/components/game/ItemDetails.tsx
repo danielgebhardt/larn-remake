@@ -137,7 +137,7 @@ const ItemDetails = ({
 								key={slot}
 								onClick={() => act({ type: "equip", itemId: item.id, slot })}
 							>
-								Equip in {EQUIPMENT_SLOT_LABELS[slot].toLowerCase()}
+								Equip on {EQUIPMENT_SLOT_LABELS[slot].toLowerCase()}
 							</Button>
 						))}
 						{details.type === "scroll" && (

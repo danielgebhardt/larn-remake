@@ -28,10 +28,12 @@ const VisibleEffects = ({
 	effects,
 	monsters,
 	visible,
+	monsterPoisonDamage = EFFECT_DEFINITIONS.poisoned.monsterDamage,
 }: {
 	effects: readonly TimedEffect[];
 	monsters: readonly Monster[];
 	visible?: VisibilityGrid;
+	monsterPoisonDamage?: number;
 }) => {
 	const own = effects.filter((effect) => effect.actorId === "player");
 	const entries = effects.flatMap((effect) => {
@@ -113,7 +115,7 @@ const VisibleEffects = ({
 						>
 							{effectLabel(effect)}
 							{effect.kind === "poisoned" &&
-								" · 1 damage after monsters each committed turn. Antidote removes current poison before that tick."}
+								` · 1 damage after monsters each committed turn; up to ${effect.remaining} damage remaining. Antidote removes current poison before that tick.`}
 						</li>
 					))}
 				</ul>
@@ -130,7 +132,7 @@ const VisibleEffects = ({
 						>
 							{MONSTER_DEFINITIONS[actor.kind].name}: {effectLabel(effect)}
 							{effect.kind === "poisoned" &&
-								" · 1 damage after monsters each committed turn. Antidote removes current poison before that tick."}
+								` · ${monsterPoisonDamage} damage after its active-floor response; up to ${effect.remaining * monsterPoisonDamage} damage remaining. Recasting refreshes without stacking.`}
 						</li>
 					))}
 				</ul>

@@ -61,7 +61,7 @@ describe("G pickup from gameplay", () => {
 		await user.keyboard("2");
 		expect(
 			within(screen.getByLabelText("Pickup activity")).getByText(
-				/You equip Leather cap in your head/,
+				/You equip Leather cap on your head/,
 			),
 		).toBeVisible();
 		await user.keyboard("{Escape}");

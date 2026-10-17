@@ -5,14 +5,26 @@ import {
 	ArrowUp,
 	Castle,
 	Flame,
+	Map as MapIcon,
 	UserRound,
 } from "lucide-react";
-import { type RefObject, useId, useLayoutEffect, useRef } from "react";
+import {
+	type RefObject,
+	useCallback,
+	useEffect,
+	useId,
+	useLayoutEffect,
+	useRef,
+	useState,
+} from "react";
 import type { MovementDirection } from "../../domain/dungeon/DungeonRun";
 import type { TownAction } from "../../domain/town/TownActions";
 import { TOWN, type TownBuilding } from "../../domain/town/TownDefinition";
 import type { TownLocation } from "../../domain/town/TownLocation";
 import { Button } from "../ui/button";
+
+import TownDirectory from "./TownDirectory";
+import { TownBuildingIcon } from "./TownVisuals";
 
 const KEY_DIRECTION: Readonly<Record<string, MovementDirection | undefined>> = {
 	ArrowUp: "up",
@@ -79,11 +91,13 @@ const TownMap = ({
 	onCharacterRequested?: () => void;
 }) => {
 	const instructionsId = useId();
+	const [directoryOpen, setDirectoryOpen] = useState(false);
+	const controlsEnabled = enabled && !directoryOpen;
 	const localViewport = useRef<HTMLElement>(null);
 	const viewport = mapRef ?? localViewport;
 	const player = useRef<HTMLTableCellElement>(null);
 	const { row: playerRow, col: playerCol } = location.coordinate;
-	useLayoutEffect(() => {
+	const followPlayer = useCallback(() => {
 		// Follow the player inside this viewport only; never scroll the dialog or the game.
 		const container = viewport.current;
 		const cell = player.current;
@@ -98,10 +112,20 @@ const TownMap = ({
 			container.scrollTop -= bounds.top - tile.top + 20;
 		else if (tile.bottom > bounds.bottom)
 			container.scrollTop += tile.bottom - bounds.bottom + 20;
-	});
+	}, [viewport]);
+	useLayoutEffect(followPlayer);
+	useEffect(() => {
+		if (typeof ResizeObserver === "undefined") {
+			window.addEventListener("resize", followPlayer);
+			return () => window.removeEventListener("resize", followPlayer);
+		}
+		const observer = new ResizeObserver(followPlayer);
+		if (viewport.current) observer.observe(viewport.current);
+		return () => observer.disconnect();
+	}, [viewport, followPlayer]);
 
 	const act = (action: TownAction) => {
-		if (enabled) onAction(action);
+		if (controlsEnabled) onAction(action);
 		viewport.current?.focus({ preventScroll: true });
 	};
 	return (
@@ -119,7 +143,7 @@ const TownMap = ({
 				className={`${preview ? "max-h-[22rem]" : "min-h-0 flex-1"} min-w-0 overflow-auto rounded-md border border-transparent bg-transparent outline-offset-2 focus-visible:outline-2 focus-visible:outline-primary`}
 				onKeyDown={(event) => {
 					if (
-						!enabled ||
+						!controlsEnabled ||
 						event.target !== event.currentTarget ||
 						event.altKey ||
 						event.ctrlKey ||
@@ -143,6 +167,10 @@ const TownMap = ({
 						event.preventDefault();
 						event.stopPropagation();
 						onCharacterRequested();
+					} else if (key === "?") {
+						event.preventDefault();
+						event.stopPropagation();
+						setDirectoryOpen(true);
 					} else if (key === "e") {
 						event.preventDefault();
 						event.stopPropagation();
@@ -193,6 +221,14 @@ const TownMap = ({
 													/>
 												) : tile === "D" ? (
 													building?.mark
+												) : tile === "R" &&
+													building &&
+													row === building.row + 1 &&
+													col === building.entry.col ? (
+													<TownBuildingIcon
+														id={building.id}
+														className="mx-auto size-4 text-foreground"
+													/>
 												) : null}
 											</td>
 										);
@@ -211,7 +247,7 @@ const TownMap = ({
 						variant="outline"
 						aria-label={name}
 						className="size-11"
-						disabled={!enabled}
+						disabled={!controlsEnabled}
 						onClick={() => act({ type: "move", direction })}
 					>
 						<Icon aria-hidden="true" />
@@ -220,22 +256,37 @@ const TownMap = ({
 				<Button
 					variant="outline"
 					className="min-h-11"
-					disabled={!enabled}
+					disabled={!controlsEnabled}
 					onClick={() => act({ type: "inspect" })}
 				>
 					Inspect nearby
+				</Button>
+				<Button
+					variant="outline"
+					className="size-11"
+					aria-label="Town directory"
+					title="Town directory (?)"
+					disabled={!controlsEnabled}
+					onClick={() => setDirectoryOpen(true)}
+				>
+					<MapIcon aria-hidden="true" />
 				</Button>
 				{!preview && (
 					<Button
 						variant="outline"
 						className="min-h-11"
-						disabled={!enabled || !onTravel}
+						disabled={!controlsEnabled || !onTravel}
 						onClick={onTravel}
 					>
 						Enter dungeon
 					</Button>
 				)}
 			</fieldset>
+			<TownDirectory
+				open={directoryOpen}
+				onClose={() => setDirectoryOpen(false)}
+				mapRef={viewport}
+			/>
 		</div>
 	);
 };

@@ -33,6 +33,20 @@ test("live town is centered over transparent space, preserves the dungeon, and r
 			path: info.outputPath(`live-town-${size.width}.png`),
 		});
 	}
+	await town.focus();
+	await page.keyboard.press("?");
+	const directory = page.getByRole("dialog", { name: "Town directory" });
+	await expect(directory).toBeVisible();
+	await expect(
+		directory.getByRole("heading", { name: "Town directory", exact: true }),
+	).toBeFocused();
+	await expect(directory.getByRole("listitem")).toHaveCount(10);
+	await page.keyboard.type("ss");
+	await page.keyboard.press("Escape");
+	await expect(town).toBeFocused();
+	await expect(
+		town.getByRole("cell", { name: /17, 14: player/ }),
+	).toBeVisible();
 	await enterDungeonFromTown(page);
 	const map = page.getByLabel("Dungeon map", { exact: true });
 	const original = await map

@@ -336,6 +336,7 @@ test("fresh starts, New Dungeon and seed replay restore starter potions without 
 	await settings
 		.getByRole("button", { name: "Start from seed", exact: true })
 		.click();
+	await enterDungeonFromTown(page);
 	await expect(map(page)).toBeFocused();
 	await expect(turns(page)).toHaveText("Turn 0");
 	await expect(

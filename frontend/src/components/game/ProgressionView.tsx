@@ -1,6 +1,7 @@
 import { Brain, Sparkles, Sword, Zap } from "lucide-react";
 import { deriveAttributes } from "../../domain/game/Attributes";
 import { deriveAccuracy } from "../../domain/game/MeleeRules";
+import { permanentAttributeGains } from "../../domain/game/PermanentAttributes";
 import {
 	HEALTH_PER_LEVEL,
 	levelForExperience,
@@ -27,6 +28,7 @@ const ProgressionView = ({
 }) => {
 	const level = levelForExperience(progression.experience);
 	const attributes = deriveAttributes(progression, effects, equipment);
+	const permanent = permanentAttributeGains(progression);
 	const accuracy = deriveAccuracy(progression, effects, equipment);
 	return (
 		<section
@@ -57,13 +59,22 @@ const ProgressionView = ({
 				</output>
 			</div>
 			<ExperienceProgress progression={progression} />
+			<output
+				aria-label="Permanent potion gains"
+				className="text-xs text-primary"
+			>
+				Permanent potions: Strength +{permanent.strength} · Dexterity +
+				{permanent.dexterity} · Intelligence +{permanent.intelligence}
+			</output>
 			{effects.some(
 				(effect) =>
 					effect.actorId === "player" &&
-					(effect.kind === "strengthened" || effect.kind === "nimble"),
+					(effect.kind === "strengthened" ||
+						effect.kind === "nimble" ||
+						effect.kind === "enlightened"),
 			) && (
 				<p className="text-xs text-primary">
-					Attributes include your active temporary spell bonuses.
+					Attributes include your active temporary bonuses.
 				</p>
 			)}
 			<div className="grid gap-1 border-t pt-2">

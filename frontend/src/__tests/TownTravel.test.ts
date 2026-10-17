@@ -178,6 +178,7 @@ describe("deliberate town travel", () => {
 				town: undefined,
 				townPotionStock: undefined,
 				townEquipmentStock: undefined,
+				progression: { experience: doc.state.progression.experience },
 			},
 		};
 		const migrated = parseSave(JSON.stringify(legacy));

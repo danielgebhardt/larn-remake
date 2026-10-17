@@ -9,9 +9,9 @@ The potion store owns a finite stock separate from the existing campaign-wide wa
 | Greater healing (up to 15 HP) | 450 | 4 |
 | Greater mana (up to 12 MP) | 600 | 4 |
 | Antidote (removes current poison) | 125 | 4 |
-| Strength (+2 for six committed turns) | 250 | 2 |
-| Dexterity (+2 for six committed turns) | 250 | 2 |
-| Intelligence (+2 for six committed turns) | 250 | 2 |
+| Strength (+1 permanently) | 1,500 | 2 |
+| Dexterity (+1 permanently) | 1,500 | 2 |
+| Intelligence (+1 permanently) | 1,500 | 2 |
 
 Core prices match wandering merchants. Town does not buy potions or gear; wandering merchants retain their existing carried-equipment sale rules and cannot buy potions. There is no resale loop. Town trades are free of dungeon time and change only gold, actual bottle ownership, stock, hotbar assignment and the purchase log. No healing, effects or combat occur during purchase. Drinking remains a dungeon action; town is not free recovery.
 
@@ -19,9 +19,9 @@ Stock is authored and identical across seeds, like the town. No generator calls 
 
 ## Bounded budget review
 
-The existing `review-merchant.mjs` generated six Normal 40×40×20 adventures (seeds 0, 1, 2, 3, 123, 987). Potential ordinary gold through floor 5 was 788–841 and across the full descent 8,371–8,588. These assume collecting every ordinary monster/loose-gold source; elites, return waves, equipment sales and spending are excluded. Town's entire stock costs 7,600; wandering stock costs 14,000, for 21,600 combined. Greater bottles consolidate recovery into one drinking turn at a higher price; they do not guarantee better restoration per gold. Limited supply preserves choices.
+The existing `review-merchant.mjs` generated six Normal 40×40×20 adventures (seeds 0, 1, 2, 3, 123, 987). Potential ordinary gold through floor 5 was 788–841 and across the full descent 8,371–8,588. These assume collecting every ordinary monster/loose-gold source; elites, return waves, equipment sales and spending are excluded. Town’s potion stock now costs 15,100, including 9,000 for its six permanent stat potions; wandering potion stock costs 14,000, for 29,100 combined. Greater bottles consolidate recovery into one drinking turn at a higher price; they do not guarantee better restoration per gold. Limited supply preserves choices.
 
-Human review scenarios: at 0 gold, browse freely but buy nothing; at 200, choose one mana or healing bottle rather than both; at 500, choose one greater healing or two short tactical boosts; a full bag can add an existing potion stack, but cannot add a new kind; returning with partial HP/MP and poison retains those exact values until an explicit dungeon action. Check early backtracking burden and whether short tactical boosts feel worth 250 gold. Prices are a provisional implementation baseline, not a simulated win-rate or a guarantee of human affordability; developer playtesting owns final balance.
+Human review scenarios: at 0 gold, browse freely but buy nothing; at 200, choose one mana or healing bottle rather than both; at 500, choose one greater healing bottle; at 1,500, choose a permanent attribute point versus several recovery supplies; a full bag can add an existing potion stack, but cannot add a new kind; returning with partial HP/MP and poison retains those exact values until an explicit dungeon action. Check early backtracking burden and whether a permanent point feels worth 1,500 gold. Prices are a provisional implementation baseline, not a simulated win-rate or a guarantee of human affordability; developer playtesting owns final balance.
 
 ## Armor and weapons — #333 / #334
 
@@ -30,3 +30,12 @@ Both counters now open at their fixed Market Street entrances. Stock is authored
 Prices exceed wandering-merchant resale values. Town does not buy equipment or replenish stock through sales; wandering merchants retain their carried-equipment sale rules. Purchases require a separate confirmation and a free bag slot, remove one specific copy from stock and transfer it into the bag. They never auto-equip, discard worn gear, consume a dungeon turn, tick effects or restore resources. Equip separately in the dungeon. Comparisons reuse the existing whole-loadout rules, including enchantments, current attributes/effects, health/mana capacity, armor, damage, accuracy and evasion.
 
 Save format 25 stores the actual remaining copies. Versions 1–24 migrate with fresh equipment stock while retaining all existing played data and potion depletion. Current imports reject duplicate/forged stock, stock items simultaneously claimed as owned, and mismatched copy kinds or downgraded enchantments. Later enchanting, equipping, dropping and selling owned copies do not refill the store. These prices and fixed selections are a playtesting baseline; later seed variation remains a separate story.
+
+
+## Permanent stat potions — #297
+
+Each Strength, Dexterity or Intelligence bottle grants one permanent point, consumes one actual bottle and uses one normal dungeon turn. Doses stack without a gameplay cap; imported values retain safe-integer bounds. Gains are saved separately from level growth, gear and temporary spells. Existing two-point modifier thresholds still apply: a first point can improve an attribute without changing damage or mana capacity; a second crosses the usual threshold. Capacity gains leave current HP/MP unchanged; normal committed-turn recovery still applies. Town drinking remains unavailable.
+
+An audit of eight Normal 40×40×20 seeds (0, 1, 2, 3, 7, 123, 987, 1140572734) found 1–10 potential stat bottles per full descent, counting authored floor items and every initial monster’s seeded drop; 0–2 were available through floor 5. This assumes all initial monsters killed and all drops collected. Return waves and unopened object rewards are excluded, so this is a bounded supply check, not a win-rate or total possible supply estimate. Town sells two of each at 1,500 gold each; two points in one attribute cost 3,000. Drop weights and difficulty scaling are unchanged.
+
+Save format 26 records permanent contributions explicitly. Older saves default to zero gains; active legacy +2 temporary potion buffs keep their saved countdowns and expire normally. They are never converted into permanent points. Previously purchased bottles and depleted town stock remain as saved; future purchases use the new price. Fresh and replayed adventures start with zero permanent gains.

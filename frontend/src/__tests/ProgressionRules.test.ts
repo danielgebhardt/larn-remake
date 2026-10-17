@@ -13,7 +13,10 @@ import {
 
 describe("Experience and health growth", () => {
 	it("starts at level one with ten XP until the next level", () => {
-		expect(createProgression()).toEqual({ experience: 0 });
+		expect(createProgression()).toEqual({
+			experience: 0,
+			permanentAttributes: { strength: 0, dexterity: 0, intelligence: 0 },
+		});
 		expect(progressionProgress(createProgression())).toEqual({
 			level: 1,
 			earned: 0,

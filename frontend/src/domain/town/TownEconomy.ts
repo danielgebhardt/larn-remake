@@ -16,9 +16,9 @@ export const TOWN_POTION_OFFERS = {
 		quantity: 4,
 	},
 	antidote: { price: 125, quantity: 4 },
-	"strength-potion": { price: 250, quantity: 2 },
-	"dexterity-potion": { price: 250, quantity: 2 },
-	"intelligence-potion": { price: 250, quantity: 2 },
+	"strength-potion": { price: 1500, quantity: 2 },
+	"dexterity-potion": { price: 1500, quantity: 2 },
+	"intelligence-potion": { price: 1500, quantity: 2 },
 } as const satisfies Partial<
 	Record<ItemKind, { price: number; quantity: number }>
 >;

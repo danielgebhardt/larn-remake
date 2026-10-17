@@ -8,17 +8,18 @@ import type {
 } from "../dungeon/RunConfiguration";
 import { difficultyLabel } from "../game/Difficulty";
 import type { GameState } from "../game/GameState";
+import { permanentAttributeGains } from "../game/PermanentAttributes";
 import { levelForExperience } from "../game/Progression";
 import type { ItemInstance } from "../items/Item";
 import { navigationRun } from "../objects/NavigationTerrain";
-import type { SaveDocumentV25 } from "./SaveDocumentV25";
+import type { SaveDocumentV26 } from "./SaveDocumentV26";
 import { validateSaveDocument } from "./SaveValidation";
 
-export const SAVE_FORMAT_VERSION = 25;
+export const SAVE_FORMAT_VERSION = 26;
 // Bound imported input before parsing. A maximum-size snapshot is measured in the review.
 export const MAX_SAVE_BYTES = 4 * 1024 * 1024;
 
-export type SaveDocument = SaveDocumentV25;
+export type SaveDocument = SaveDocumentV26;
 export type RestoredAdventure = {
 	state: GameState;
 	exploration: ExplorationState;
@@ -73,7 +74,10 @@ export const createSaveDocument = (
 		quest: state.quest,
 		monstersDefeated: state.monstersDefeated,
 		player: state.player,
-		progression: state.progression,
+		progression: {
+			...state.progression,
+			permanentAttributes: { ...permanentAttributeGains(state.progression) },
+		},
 		equipment: {
 			mainHand: nullableItem(state.equipment.mainHand),
 			offHand: nullableItem(state.equipment.offHand),

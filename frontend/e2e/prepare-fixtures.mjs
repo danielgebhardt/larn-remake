@@ -550,6 +550,40 @@ export default async function prepareFixtures() {
 				},
 				configuration,
 			]),
+			[
+				"permanent-potions",
+				{
+					...quiet,
+					objects: [],
+					player: { health: 5, maxHealth: 10 },
+					mana: 4,
+					bag: {
+						items: [
+							"strength-potion",
+							"dexterity-potion",
+							"intelligence-potion",
+						].flatMap((kind) =>
+							[1, 2].map((copy) => ({ id: `permanent:${kind}:${copy}`, kind })),
+						),
+					},
+					potionHotbar: [
+						"strength-potion",
+						"dexterity-potion",
+						"intelligence-potion",
+						null,
+					],
+				},
+				configuration,
+			],
+			[
+				"town-permanent-potions",
+				{
+					...quiet,
+					gold: 5000,
+					town: { ...createTownLocation(), coordinate: { row: 13, col: 4 } },
+				},
+				configuration,
+			],
 			["laptop-layout", laptopLayout, configuration],
 			["interaction-hints", interactionHints, configuration],
 			["spell-balance", spellBalance, configuration],

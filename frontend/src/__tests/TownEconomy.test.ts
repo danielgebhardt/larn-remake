@@ -34,7 +34,7 @@ it("stocks only supported potions with finite saved ownership separate from wand
 			(sum, offer) => sum + offer.price * offer.quantity,
 			0,
 		),
-	).toBe(7600);
+	).toBe(15100);
 });
 it("accepts actual depletion but rejects refill, fractional, missing and extra stock", () => {
 	const stock = createTownPotionStock();
@@ -49,4 +49,13 @@ it("accepts actual depletion but rejects refill, fractional, missing and extra s
 		{ ...stock, unknown: 1 },
 	])
 		expect(isTownPotionStock(invalid)).toBe(false);
+});
+
+it("prices permanent stat points at 1,500 gold with only two bottles per attribute", () => {
+	for (const kind of [
+		"strength-potion",
+		"dexterity-potion",
+		"intelligence-potion",
+	] as const)
+		expect(TOWN_POTION_OFFERS[kind]).toEqual({ price: 1500, quantity: 2 });
 });

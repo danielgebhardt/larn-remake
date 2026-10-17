@@ -1,6 +1,7 @@
 import type { Equipment } from "../items/Equipment";
 import { equipmentBonuses } from "../items/EquipmentBonuses";
 import { playerEffectBonuses } from "./EffectBonuses";
+import { permanentAttributeGains } from "./PermanentAttributes";
 import {
 	levelForExperience,
 	MAX_PLAYER_LEVEL,
@@ -33,14 +34,20 @@ export const deriveAttributes = (
 	const level = levelForExperience(progression.experience);
 	const temporary = playerEffectBonuses(effects);
 	const gear = equipmentBonuses(equipment);
+	const permanent = permanentAttributeGains(progression);
 	const bonuses = {
 		strength: temporary.strength + gear.strength,
 		dexterity: temporary.dexterity + gear.dexterity,
 	};
-	const strength = strengthAtLevel(level) + bonuses.strength;
-	const dexterity = dexterityAtLevel(level) + bonuses.dexterity;
+	const strength =
+		strengthAtLevel(level) + bonuses.strength + permanent.strength;
+	const dexterity =
+		dexterityAtLevel(level) + bonuses.dexterity + permanent.dexterity;
 	const intelligence =
-		intelligenceAtLevel(level) + gear.intelligence + temporary.intelligence;
+		intelligenceAtLevel(level) +
+		gear.intelligence +
+		temporary.intelligence +
+		permanent.intelligence;
 	return {
 		intelligence,
 		intelligenceModifier: Math.floor((intelligence - BASE_ATTRIBUTE) / 2),

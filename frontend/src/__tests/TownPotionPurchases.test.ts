@@ -168,6 +168,7 @@ describe("finite town potion purchases", () => {
 		const legacy = { ...old, version: 23, state: { ...old.state } };
 		Reflect.deleteProperty(legacy.state, "townPotionStock");
 		Reflect.deleteProperty(legacy.state, "townEquipmentStock");
+		Reflect.deleteProperty(legacy.state.progression, "permanentAttributes");
 		const migrated = parseSave(JSON.stringify(legacy));
 		if (!migrated.ok) throw new Error(migrated.error);
 		expect(migrated.value.state.townPotionStock).toEqual(

@@ -20,7 +20,7 @@ describe("Version-1 save compatibility", () => {
 	it("loads a captured old file and writes the same migrated played data", () => {
 		const { document, adventure } = loadVersionOne();
 		expect(document).toMatchObject({
-			version: 25,
+			version: 26,
 			state: { turn: 3, run: { seed: 123, activeFloor: 1 } },
 		});
 		const written = createSaveDocument(

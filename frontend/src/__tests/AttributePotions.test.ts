@@ -33,13 +33,13 @@ const drink = (kind: ItemKind) => {
 		result: resolvePlayerAction(state, { type: "consume", itemId: "bag:1" }),
 	};
 };
-describe("Temporary attribute potions", () => {
+describe("Permanent attribute potions", () => {
 	it.each([
 		["strength-potion", "strength"],
 		["dexterity-potion", "dexterity"],
 		["intelligence-potion", "intelligence"],
 	] as const)(
-		"drinks %s for a temporary +2 %s bonus, refreshing instead of stacking",
+		"drinks %s for a permanent +1 %s gain, stacking each owned bottle",
 		(kind, attribute) => {
 			const { state, result } = drink(kind);
 			expect(bagSlots(state.bag)).toHaveLength(1);
@@ -52,34 +52,42 @@ describe("Temporary attribute potions", () => {
 					result.state.effects,
 					result.state.equipment,
 				)[attribute],
-			).toBe(12);
-			expect(result.state.effects[0].remaining).toBe(5);
-			const refreshed = resolvePlayerAction(result.state, {
+			).toBe(11);
+			expect(result.state.effects).toEqual([]);
+			expect(result.state.progression.permanentAttributes?.[attribute]).toBe(1);
+			const secondDose = resolvePlayerAction(result.state, {
 				type: "consume",
 				itemId: "bag:2",
 			}).state;
-			expect(refreshed.effects).toHaveLength(1);
-			expect(refreshed.effects[0].remaining).toBe(5);
-			let expired = refreshed;
+			expect(secondDose.effects).toEqual([]);
+			expect(secondDose.progression.permanentAttributes?.[attribute]).toBe(2);
+			let later = secondDose;
 			for (let turn = 0; turn < 5; turn++)
-				expired = resolvePlayerAction(expired, { type: "wait" }).state;
-			expect(expired.effects).toEqual([]);
+				later = resolvePlayerAction(later, { type: "wait" }).state;
+			expect(later.effects).toEqual([]);
 			expect(
-				deriveAttributes(
-					expired.progression,
-					expired.effects,
-					expired.equipment,
-				)[attribute],
-			).toBe(10);
+				deriveAttributes(later.progression, later.effects, later.equipment)[
+					attribute
+				],
+			).toBe(12);
 		},
 	);
-	it("raises spell potency and mana capacity without refilling, and clamps capacity on expiry", () => {
+	it("raises Intelligence modifiers at the normal two-point threshold without refilling mana or expiring", () => {
 		const { result } = drink("intelligence-potion");
 		let state = result.state;
 		expect(state.mana).toBe(10);
 		expect(maximumMana(state.progression, state.equipment, state.effects)).toBe(
+			10,
+		);
+		state = { ...state, mana: 4 };
+		state = resolvePlayerAction(state, {
+			type: "consume",
+			itemId: "bag:2",
+		}).state;
+		expect(maximumMana(state.progression, state.equipment, state.effects)).toBe(
 			12,
 		);
+		expect(state.mana).toBe(4);
 		expect(
 			spellPotency(
 				state.progression,
@@ -88,10 +96,12 @@ describe("Temporary attribute potions", () => {
 				state.effects,
 			),
 		).toMatchObject({ minimumDamage: 4, maximumDamage: 6 });
-		state = { ...state, mana: 12 };
-		for (let turn = 0; turn < 5; turn++)
+		for (let turn = 0; turn < 8; turn++)
 			state = resolvePlayerAction(state, { type: "wait" }).state;
-		expect(state.mana).toBe(10);
+		expect(maximumMana(state.progression, state.equipment, state.effects)).toBe(
+			12,
+		);
+		expect(state.mana).toBe(4);
 	});
 	it("preserves an active intelligence boost and elevated mana through save/resume", () => {
 		const document = savedAdventure();

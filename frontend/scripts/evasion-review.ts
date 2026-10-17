@@ -109,7 +109,7 @@ export const createReviewEncounter = (
 						{ id: "review:left", kind: "relic-band" },
 						{ id: "review:right", kind: "relic-band" },
 					);
-	const progression = { experience: point.experience };
+	const progression = { ...initial.progression, experience: point.experience };
 	const health = 10 + 2 * (levelForExperience(point.experience) - 1);
 	const monsterKind =
 		kind ?? (checkpoint < 2 ? point.ordinary : "iron-champion");

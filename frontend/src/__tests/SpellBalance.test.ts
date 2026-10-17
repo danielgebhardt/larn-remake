@@ -284,7 +284,7 @@ it("Blink falls back to a close tile when no long jump exists", () => {
 	expect(result.state.mana).toBe(26);
 });
 
-it("attribute potions retain six turns without shortening a longer spell buff", () => {
+it("permanent attribute potions preserve the countdown of a longer spell buff", () => {
 	const initial = {
 		...arena(),
 		monsters: [],
@@ -294,7 +294,8 @@ it("attribute potions retain six turns without shortening a longer spell buff", 
 	};
 	const action = { type: "consume" as const, itemId: "strength:bottle" };
 	const ordinary = resolvePlayerAction(initial, action, rolls).state;
-	expect(ordinary.effects[0].remaining).toBe(5);
+	expect(ordinary.effects).toEqual([]);
+	expect(ordinary.progression.permanentAttributes?.strength).toBe(1);
 	const buffed = {
 		...initial,
 		effects: [
@@ -309,4 +310,5 @@ it("attribute potions retain six turns without shortening a longer spell buff", 
 	const refreshed = resolvePlayerAction(buffed, action, rolls).state;
 	expect(refreshed.effects).toHaveLength(1);
 	expect(refreshed.effects[0].remaining).toBe(14);
+	expect(refreshed.progression.permanentAttributes?.strength).toBe(1);
 });

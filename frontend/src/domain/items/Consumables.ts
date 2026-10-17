@@ -1,15 +1,23 @@
 import type { GameState } from "../game/GameState";
 import { maximumMana } from "../game/Mana";
-import type { PlayerStats } from "../game/PlayerStats";
 import {
-	type PlayerEffectKind,
-	refreshPlayerEffect,
-} from "../game/TimedEffects";
+	type AttributeName,
+	MAX_PERMANENT_ATTRIBUTE_GAIN,
+	permanentAttributeGains,
+} from "../game/PermanentAttributes";
+import type { PlayerStats } from "../game/PlayerStats";
+import type { PlayerEffectKind } from "../game/TimedEffects";
 import { type Bag, removeBagItem } from "./Bag";
 import { ITEM_DEFINITIONS, type ItemKind } from "./Item";
 
 export type ConsumeAction = { type: "consume"; itemId: string };
 export type ConsumptionEvent =
+	| {
+			type: "item-attribute-increased";
+			item: ItemKind;
+			attribute: AttributeName;
+			amount: number;
+	  }
 	| {
 			type: "item-boosted";
 			item: ItemKind;
@@ -32,6 +40,7 @@ export const consumeItem = (
 ):
 	| {
 			player: PlayerStats;
+			progression?: GameState["progression"];
 			mana: number;
 			bag: Bag;
 			effects: GameState["effects"];
@@ -61,25 +70,29 @@ export const consumeItem = (
 			event: { type: "item-cleansed", item: selected.kind },
 		};
 	}
-	if ("boost" in definition)
+	if ("permanentAttribute" in definition) {
+		const attribute = definition.permanentAttribute,
+			gains = permanentAttributeGains(state.progression);
+		if (gains[attribute] >= MAX_PERMANENT_ATTRIBUTE_GAIN)
+			return { error: "That attribute cannot be increased further." };
 		return {
 			player,
 			mana,
-			effects: refreshPlayerEffect(state.effects, definition.boost, 6),
+			effects: state.effects,
+			progression: {
+				...state.progression,
+				permanentAttributes: { ...gains, [attribute]: gains[attribute] + 1 },
+			},
 			bag: removeBagItem(bag, selected.id),
 			event: {
-				type: "item-boosted",
+				type: "item-attribute-increased",
 				item: selected.kind,
-				condition: definition.boost,
-				duration: Math.max(
-					6,
-					state.effects.find(
-						(effect) =>
-							effect.actorId === "player" && effect.kind === definition.boost,
-					)?.remaining ?? 0,
-				),
+				attribute,
+				amount: 1,
 			},
 		};
+	}
+
 	const { resource, amount } = definition.recovery;
 	const current = resource === "health" ? player.health : mana;
 	const maximum =

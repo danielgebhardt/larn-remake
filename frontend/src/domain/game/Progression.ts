@@ -1,3 +1,7 @@
+import {
+	createPermanentAttributes,
+	type PermanentAttributes,
+} from "./PermanentAttributes";
 import type { PlayerStats } from "./PlayerStats";
 
 export const MAX_PLAYER_LEVEL = 20;
@@ -6,8 +10,14 @@ const EXPERIENCE_STEP = 10;
 
 // XP is authoritative. Level and automatic growth are derived from it so they
 // cannot drift apart when a reward crosses several thresholds or reaches the cap.
-export type Progression = Readonly<{ experience: number }>;
-export const createProgression = (): Progression => ({ experience: 0 });
+export type Progression = Readonly<{
+	experience: number;
+	permanentAttributes?: PermanentAttributes;
+}>;
+export const createProgression = (): Progression => ({
+	experience: 0,
+	permanentAttributes: createPermanentAttributes(),
+});
 export const experienceThreshold = (level: number): number => {
 	if (!Number.isInteger(level) || level < 1 || level > MAX_PLAYER_LEVEL)
 		throw new RangeError("Unsupported character level.");
@@ -61,7 +71,7 @@ export const gainExperience = (
 	);
 	const healthGain = levels.length * HEALTH_PER_LEVEL;
 	return {
-		progression: { experience },
+		progression: { ...progression, experience },
 		player: healthGain
 			? {
 					maxHealth: player.maxHealth + healthGain,

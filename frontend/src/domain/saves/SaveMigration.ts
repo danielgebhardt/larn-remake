@@ -1,4 +1,5 @@
 import { maximumMana } from "../game/Mana";
+import { createPermanentAttributes } from "../game/PermanentAttributes";
 import { HEALTH_PER_LEVEL, levelForExperience } from "../game/Progression";
 import { createSpellHotbar } from "../game/SpellHotbar";
 import { placeMerchants } from "../merchant/MerchantPlacement";
@@ -349,7 +350,7 @@ const migratePlayedSaveToV24 = (
 	};
 };
 
-export const migratePlayedSave = (
+const migratePlayedSaveToV25 = (
 	document:
 		| Parameters<typeof migratePlayedSaveToV24>[0]
 		| import("./SaveDocumentV24").SaveDocumentV24,
@@ -362,6 +363,26 @@ export const migratePlayedSave = (
 		state: {
 			...previous.state,
 			townEquipmentStock: createTownEquipmentStock(),
+		},
+	};
+};
+
+export const migratePlayedSave = (
+	document:
+		| Parameters<typeof migratePlayedSaveToV25>[0]
+		| import("./SaveDocumentV25").SaveDocumentV25,
+): import("./SaveDocumentV26").SaveDocumentV26 => {
+	const previous =
+		document.version === 25 ? document : migratePlayedSaveToV25(document);
+	return {
+		...previous,
+		version: 26,
+		state: {
+			...previous.state,
+			progression: {
+				...previous.state.progression,
+				permanentAttributes: createPermanentAttributes(),
+			},
 		},
 	};
 };

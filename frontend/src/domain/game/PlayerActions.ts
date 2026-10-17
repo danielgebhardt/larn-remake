@@ -278,6 +278,7 @@ const resolvePlayerEffect = (
 		return {
 			...state,
 			player: consumed.player,
+			progression: consumed.progression ?? state.progression,
 			mana: consumed.mana,
 			bag: consumed.bag,
 			effects: consumed.effects,

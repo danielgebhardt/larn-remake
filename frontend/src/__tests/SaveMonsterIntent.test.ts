@@ -1,6 +1,7 @@
 // @vitest-environment node
 import { describe, expect, it } from "vitest";
 import { createGameState } from "../domain/game/GameState";
+import { createPermanentAttributes } from "../domain/game/PermanentAttributes";
 import { resolvePlayerAction } from "../domain/game/PlayerActions";
 import {
 	createSaveDocument,
@@ -54,11 +55,15 @@ describe("Monster intent and versioned saves", () => {
 		if (!parsed.ok) throw new Error(parsed.error);
 		expect(parsed.value).toEqual({
 			...legacy,
-			version: 25,
+			version: 26,
 			configuration: { ...legacy.configuration, difficulty: 1 },
 			state: {
 				...legacy.state,
 				town: null,
+				progression: {
+					...legacy.state.progression,
+					permanentAttributes: createPermanentAttributes(),
+				},
 				townPotionStock: createTownPotionStock(),
 				townEquipmentStock: createTownEquipmentStock(),
 				equipment: {
@@ -92,7 +97,7 @@ describe("Monster intent and versioned saves", () => {
 		const parsed = parseSave(serializeSave(document));
 		if (!parsed.ok) throw new Error(parsed.error);
 		const restored = restoreSave(parsed.value);
-		expect(parsed.value.version).toBe(25);
+		expect(parsed.value.version).toBe(26);
 		expect(restored.state.monsters).toEqual([preparing]);
 		const written = createSaveDocument(
 			restored.state,

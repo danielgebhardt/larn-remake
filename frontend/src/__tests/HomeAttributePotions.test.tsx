@@ -24,16 +24,19 @@ it("uses a boost potion from a numbered shortcut and displays boosted mana and c
 	map.focus();
 	const user = userEvent.setup();
 	await user.keyboard("1");
-	expect(screen.getByLabelText("Player mana")).toHaveTextContent("10 / 12");
+	expect(screen.getByLabelText("Player mana")).toHaveTextContent("10 / 10");
 	expect(screen.getByRole("log")).toHaveTextContent(
-		/\+2 Intelligence for 6 turns/,
+		/Intelligence permanently increases by 1/,
 	);
 	await user.keyboard("c");
 	await screen.findByRole("dialog", { name: "Character" });
 	expect(screen.getByLabelText("Character Intelligence")).toHaveTextContent(
-		"Intelligence 12",
+		"Intelligence 11",
 	);
-	expect(screen.getByLabelText("Character mana")).toHaveTextContent("10 / 12");
+	expect(screen.getByLabelText("Permanent potion gains")).toHaveTextContent(
+		"Intelligence +1",
+	);
+	expect(screen.getByLabelText("Character mana")).toHaveTextContent("10 / 10");
 	await user.keyboard("{Escape}");
 	await waitFor(() => expect(map).toHaveFocus());
 });

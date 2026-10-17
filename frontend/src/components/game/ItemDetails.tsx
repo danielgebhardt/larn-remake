@@ -85,8 +85,8 @@ const ItemDetails = ({
 				{details.type === "potion"
 					? "cleanses" in details
 						? "Removes poison"
-						: "boost" in details
-							? "+2 temporary attribute for 6 turns; refreshes instead of stacking"
+						: "permanentAttribute" in details
+							? "+1 permanent attribute; each bottle stacks"
 							: `Recovery up to ${details.recovery.amount} ${details.recovery.resource}`
 					: details.type === "scroll"
 						? "Floor 1 entrance · one scroll and one turn"

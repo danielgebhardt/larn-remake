@@ -16,6 +16,8 @@ export const formatActivityEvent = (event: ActivityEvent): string => {
 			return `${prefix}The ${MONSTER_DEFINITIONS[event.monster].name} opens a door, spending its action.`;
 		case "equipment-enchanted":
 			return `${prefix}Enchanted ${ITEM_DEFINITIONS[event.item].name} to +${event.enchantment}.`;
+		case "item-attribute-increased":
+			return `${prefix}You drink ${ITEM_DEFINITIONS[event.item].name}: ${event.attribute[0].toUpperCase()}${event.attribute.slice(1)} permanently increases by ${event.amount}.`;
 		case "item-boosted":
 			return `${prefix}You drink ${ITEM_DEFINITIONS[event.item].name}: +2 ${EFFECT_DEFINITIONS[event.condition].name} for ${event.duration} turns, including this turn.`;
 		case "merchant-sold":

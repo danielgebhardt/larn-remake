@@ -582,41 +582,6 @@ const Home = ({
 					</FantasyRail>
 					<div className="grid min-h-0 flex-1 grid-cols-1 gap-2 lg:grid-cols-[minmax(0,1fr)_18rem] lg:grid-rows-[minmax(0,1fr)_auto] xl:grid-cols-[minmax(0,1fr)_20rem] 2xl:grid-cols-[minmax(0,1fr)_22rem] min-[112.5rem]:grid-cols-[minmax(0,1fr)_26rem]">
 						<div className="flex h-[50dvh] min-h-64 min-w-0 flex-col lg:col-start-1 lg:row-start-1 lg:h-auto lg:min-h-0">
-							<VisibleEffects
-								effects={game.state.effects}
-								monsters={activeMonsters}
-								visible={
-									fogConfiguration.enabled ? exploration.visible : undefined
-								}
-							/>
-							{victory && (
-								<Button
-									variant="outline"
-									size="sm"
-									className="mb-3 self-center"
-									onClick={() => setDismissedVictory(null)}
-								>
-									Victory summary
-								</Button>
-							)}
-							{spells.description && (
-								<p
-									role="status"
-									aria-label="Spell targeting"
-									className="mb-2 rounded-md border border-violet-500/50 bg-violet-500/10 px-3 py-2 text-center text-sm"
-								>
-									{spells.description}
-								</p>
-							)}
-							{corridor.description && (
-								<p
-									role="status"
-									aria-label="Corridor travel"
-									className="mb-1 text-center text-xs text-muted-foreground"
-								>
-									{corridor.description}
-								</p>
-							)}
 							<DungeonFrame>
 								{town ? (
 									<TownMap
@@ -731,33 +696,68 @@ const Home = ({
 									/>
 								)}
 							</DungeonFrame>
-							{!town && game.actionError && merchantId === null && (
-								<p
-									role="status"
-									aria-label="Action feedback"
-									className="py-2 text-sm text-muted-foreground"
+							{/* Transient notices share reserved space so the map never reflows. */}
+							<div className="relative h-16 shrink-0 lg:h-12">
+								<section
+									aria-label="Dungeon notices"
+									// biome-ignore lint/a11y/noNoninteractiveTabindex: Keyboard users need to scroll longer notices.
+									tabIndex={0}
+									className={`h-full overflow-y-auto focus-visible:outline-1 focus-visible:-outline-offset-1 focus-visible:outline-ring ${atDungeonEntrance(game.state) && canPlay ? "pr-40" : ""}`}
 								>
-									{game.actionError}
-								</p>
-							)}
-							{town ? (
-								<p
-									role="status"
-									aria-label="Action feedback"
-									className="h-16 shrink-0 overflow-y-auto py-2 text-sm text-muted-foreground lg:h-12"
-								>
-									{game.actionError ||
-										"Potion store open; other shops closed. Arrows/WASD to walk; E inspects signs. Stand on the south gate and press Enter to descend. Town actions do not advance time or restore resources."}
-								</p>
-							) : (
-								<div className="relative h-16 shrink-0 lg:h-12">
-									<div
-										className={
-											atDungeonEntrance(game.state) && canPlay
-												? "pr-40"
-												: undefined
+									<VisibleEffects
+										effects={game.state.effects}
+										monsters={activeMonsters}
+										visible={
+											fogConfiguration.enabled ? exploration.visible : undefined
 										}
-									>
+									/>
+									{victory && (
+										<Button
+											variant="outline"
+											size="sm"
+											className="mb-3 self-center"
+											onClick={() => setDismissedVictory(null)}
+										>
+											Victory summary
+										</Button>
+									)}
+									{spells.description && (
+										<p
+											role="status"
+											aria-label="Spell targeting"
+											className="mb-2 rounded-md border border-violet-500/50 bg-violet-500/10 px-3 py-2 text-center text-sm"
+										>
+											{spells.description}
+										</p>
+									)}
+									{corridor.description && (
+										<p
+											role="status"
+											aria-label="Corridor travel"
+											className="mb-1 text-center text-xs text-muted-foreground"
+										>
+											{corridor.description}
+										</p>
+									)}
+									{!town && game.actionError && merchantId === null && (
+										<p
+											role="status"
+											aria-label="Action feedback"
+											className="py-2 text-sm text-muted-foreground"
+										>
+											{game.actionError}
+										</p>
+									)}
+									{town ? (
+										<p
+											role="status"
+											aria-label="Action feedback"
+											className="py-2 text-sm text-muted-foreground"
+										>
+											{game.actionError ||
+												"Potion store open; other shops closed. Arrows/WASD to walk; E inspects signs. Stand on the south gate and press Enter to descend. Town actions do not advance time or restore resources."}
+										</p>
+									) : (
 										<ObjectContext
 											state={game.state}
 											visible={
@@ -766,26 +766,26 @@ const Home = ({
 													: undefined
 											}
 										/>
-									</div>
-									{atDungeonEntrance(game.state) &&
-										!game.state.quest.cureRecovered &&
-										canPlay && (
-											<Button
-												className="absolute right-0 top-1"
-												variant="outline"
-												disabled={!gameplayEnabled}
-												onClick={() =>
-													handleActionRequested({
-														type: "travel",
-														destination: "town",
-													})
-												}
-											>
-												Return to town (Enter)
-											</Button>
-										)}
-								</div>
-							)}
+									)}
+								</section>
+								{atDungeonEntrance(game.state) &&
+									!game.state.quest.cureRecovered &&
+									canPlay && (
+										<Button
+											className="absolute right-0 top-1"
+											variant="outline"
+											disabled={!gameplayEnabled}
+											onClick={() =>
+												handleActionRequested({
+													type: "travel",
+													destination: "town",
+												})
+											}
+										>
+											Return to town (Enter)
+										</Button>
+									)}
+							</div>
 						</div>
 						<div className="order-3 flex min-h-0 min-w-0 flex-col lg:col-start-2 lg:row-span-2 lg:row-start-1 [&>*]:flex-1 [&>*]:min-h-0">
 							<ActivityLog

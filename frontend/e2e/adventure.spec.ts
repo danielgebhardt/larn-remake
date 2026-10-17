@@ -1549,6 +1549,99 @@ test("Activity preserves older reading, counts new events and follows again with
 	});
 });
 
+// Bounds must be checked in a real browser: jsdom cannot detect flex reflow.
+for (const size of [
+	{ width: 1280, height: 720 },
+	{ width: 390, height: 667 },
+]) {
+	test(`action errors do not shift the dungeon at ${size.width}px`, async ({
+		page,
+	}) => {
+		await page.setViewportSize(size);
+		await importAdventure(page, "viewport-error");
+		const before = await map(page).boundingBox();
+		await page.keyboard.press("6");
+		await expect(
+			page.getByLabel("Action feedback", { exact: true }),
+		).toContainText("Not enough mana for Heal");
+		expect(await map(page).boundingBox()).toEqual(before);
+		await expect(map(page)).toBeFocused();
+		await page.keyboard.press("Space");
+		await expect(
+			page.getByLabel("Action feedback", { exact: true }),
+		).toHaveCount(0);
+		expect(await map(page).boundingBox()).toEqual(before);
+		await page.keyboard.press("e");
+		await expect(
+			page.getByLabel("Action feedback", { exact: true }),
+		).toContainText(/dry/i);
+		expect(await map(page).boundingBox()).toEqual(before);
+		await page.keyboard.press("ArrowDown");
+		await expect(
+			page.getByLabel("Action feedback", { exact: true }),
+		).toHaveCount(0);
+		expect(await map(page).boundingBox()).toEqual(before);
+	});
+
+	for (const kind of ["brute", "charger"]) {
+		test(`${kind} warnings do not shift the dungeon at ${size.width}px`, async ({
+			page,
+		}) => {
+			await page.setViewportSize(size);
+			await importAdventure(page, `viewport-${kind}`);
+			const threats = page.getByRole("list", {
+				name: "Visible threats",
+				exact: true,
+			});
+			await expect(threats).toHaveCount(0);
+			const before = await map(page).boundingBox();
+			await page.keyboard.press("Space");
+			await expect(threats).toContainText(
+				kind === "brute"
+					? "Move off the marked tile"
+					: "Sidestep the marked line",
+			);
+			expect(await map(page).boundingBox()).toEqual(before);
+			await page.keyboard.press("ArrowDown");
+			if (kind === "charger") {
+				await expect(threats).toContainText("Recovering");
+				expect(await map(page).boundingBox()).toEqual(before);
+				await page.keyboard.press("Space");
+			}
+			await expect(threats).toHaveCount(0);
+			expect(await map(page).boundingBox()).toEqual(before);
+			await expect(map(page)).toBeFocused();
+		});
+	}
+
+	test(`poison expiration does not shift the dungeon at ${size.width}px`, async ({
+		page,
+	}, testInfo) => {
+		await page.setViewportSize(size);
+		await importAdventure(page, "viewport-poison");
+		const conditions = page.getByRole("list", {
+			name: "Your conditions",
+			exact: true,
+		});
+		await expect(conditions).toContainText("Poisoned");
+		// Long warnings stay scrollable, including when they wrap on a phone.
+		const notices = page.getByRole("region", {
+			name: "Dungeon notices",
+			exact: true,
+		});
+		await notices.focus();
+		await page.keyboard.press("End");
+		await expect(notices).toBeFocused();
+		await page.screenshot({ path: testInfo.outputPath("poison-notice.png") });
+		await map(page).focus();
+		const before = await map(page).boundingBox();
+		await page.keyboard.press("Space");
+		await expect(conditions).toHaveCount(0);
+		expect(await map(page).boundingBox()).toEqual(before);
+		await expect(map(page)).toBeFocused();
+	});
+}
+
 test("interaction hints reserve their space without resizing the dungeon", async ({
 	page,
 }) => {

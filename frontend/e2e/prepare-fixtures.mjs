@@ -433,8 +433,83 @@ export default async function prepareFixtures() {
 				},
 			],
 		};
+		// A clear room lets status changes be exercised without camera movement.
+		let viewportOrigin;
+		for (let row = 1; row < 18 && !viewportOrigin; row++) {
+			for (let col = 1; col < 17; col++) {
+				const points = [0, 1].flatMap((dr) =>
+					[0, 1, 2].map((dc) => ({ row: row + dr, col: col + dc })),
+				);
+				if (
+					points.every(
+						(point) =>
+							run.floors[0].terrain[point.row][point.col] === "." &&
+							!reserved.some((x) => x.row === point.row && x.col === point.col),
+					)
+				) {
+					viewportOrigin = { row, col };
+					break;
+				}
+			}
+		}
+		if (!viewportOrigin) throw new Error("Expected room for viewport feedback");
+		const viewportFeedback = {
+			...scrolling,
+			run: { ...run, playerCoordinate: viewportOrigin },
+			player: { health: 10, maxHealth: 10 },
+			mana: 0,
+		};
+		const viewportMonster = (kind, offset) => ({
+			...viewportFeedback,
+			monsters: [
+				{
+					id: "1:1",
+					kind,
+					floorNumber: 1,
+					health: 10,
+					coordinate: {
+						row: viewportOrigin.row,
+						col: viewportOrigin.col + offset,
+					},
+					intent: { type: "idle" },
+				},
+			],
+		});
 		await mkdir(directory, { recursive: true });
 		for (const [name, state, config, fixtureFog = fog] of [
+			[
+				"viewport-error",
+				{
+					...viewportFeedback,
+					objects: [
+						{
+							id: "floor:1:object:fountain:viewport",
+							kind: "fountain",
+							floorNumber: 1,
+							coordinate: viewportOrigin,
+							activated: true,
+						},
+					],
+				},
+				configuration,
+			],
+			["viewport-brute", viewportMonster("dungeon-brute", 1), configuration],
+			["viewport-charger", viewportMonster("horned-charger", 2), configuration],
+			[
+				"viewport-poison",
+				{
+					...viewportFeedback,
+					effects: [
+						{
+							actorId: "player",
+							floorNumber: null,
+							kind: "poisoned",
+							remaining: 1,
+						},
+					],
+				},
+				configuration,
+			],
 			["laptop-layout", laptopLayout, configuration],
 			["interaction-hints", interactionHints, configuration],
 			["spell-balance", spellBalance, configuration],

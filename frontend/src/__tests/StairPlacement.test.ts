@@ -14,6 +14,7 @@ import {
 	generateDungeonFloor,
 	generateDungeonRun,
 } from "../domain/dungeon/DungeonRun.ts";
+import { DEFAULT_RUN_CONFIGURATION } from "../domain/dungeon/RunConfiguration.ts";
 import { createSeededRandom } from "../domain/dungeon/Seed.ts";
 import {
 	carveCorridors,
@@ -328,5 +329,121 @@ describe("Random stair selection", () => {
 		expect(() =>
 			selectStairLocation(source, { row: 1, col: 1 }, createSeededRandom(123)),
 		).toThrow(new RangeError("No valid coordinate available for staircase"));
+	});
+});
+
+describe("Stairs leave corridor entrances clear", () => {
+	it.each([20, 40, 60, 100])(
+		"keeps both stairs away from room mouths for reported seed at size %i",
+		(size) => {
+			const config = { ...DEFAULT_RUN_CONFIGURATION, rows: size, cols: size };
+			const run = connectDungeonFloors(
+				generateDungeonRun(241547927, 20, config),
+			);
+			for (const floor of run.floors) {
+				for (const stair of [floor.upStair, floor.downStair]) {
+					if (!stair) continue;
+					const { row, col } = stair.coordinate;
+					const room = floor.rooms.find(
+						(room) =>
+							row >= room.startRow &&
+							row <= room.endRow &&
+							col >= room.startCol &&
+							col <= room.endCol,
+					);
+					if (!room) throw new Error("Stair outside rooms");
+					const outsideNeighbors = [
+						{ row: row - 1, col },
+						{ row: row + 1, col },
+						{ row, col: col - 1 },
+						{ row, col: col + 1 },
+					].filter(
+						(tile) =>
+							tile.row < room.startRow ||
+							tile.row > room.endRow ||
+							tile.col < room.startCol ||
+							tile.col > room.endCol,
+					);
+					for (const tile of outsideNeighbors) {
+						expect(
+							floor.terrain[tile.row]?.[tile.col],
+							`floor ${floor.floorNumber}: stair ${row},${col} faces corridor ${tile.row},${tile.col}`,
+						).not.toBe(FLOOR);
+					}
+				}
+			}
+		},
+	);
+
+	it("excludes entrances on all four sides while retaining other room-edge tiles", () => {
+		const room = rooms[1];
+		const source = {
+			rooms: [rooms[0], room],
+			terrain: carveRooms(makeDungeon(5, 9), [rooms[0], room]).map((row) => [
+				...row,
+			]),
+		};
+		for (const tile of [
+			{ row: 0, col: 6 },
+			{ row: 4, col: 6 },
+			{ row: 2, col: 4 },
+			{ row: 2, col: 8 },
+		]) {
+			source.terrain[tile.row][tile.col] = FLOOR;
+		}
+		const selected = new Set<string>();
+		for (let index = 0; index < 100; index++) {
+			const stair = selectStairLocation(
+				source,
+				{ row: 2, col: 2 },
+				() => index / 100,
+			);
+			selected.add(`${stair.row},${stair.col}`);
+		}
+		expect([...selected].sort()).toEqual(["1,5", "1,7", "2,6", "3,5", "3,7"]);
+	});
+
+	it("skips a room whose only tile is a corridor entrance when another room is clear", () => {
+		const narrowRoom = { startRow: 1, endRow: 1, startCol: 9, endCol: 9 };
+		const source = {
+			rooms: [rooms[0], rooms[1], narrowRoom],
+			terrain: carveRooms(makeDungeon(5, 11), [
+				rooms[0],
+				rooms[1],
+				narrowRoom,
+			]).map((row) => [...row]),
+		};
+		source.terrain[2][9] = FLOOR;
+		for (const random of [undefined, () => 0, () => 0.99]) {
+			const stair = selectStairLocation(source, { row: 2, col: 2 }, random);
+			expect(stair.col).toBeGreaterThanOrEqual(5);
+			expect(stair.col).toBeLessThanOrEqual(7);
+		}
+	});
+
+	it("still links a tiny authored room when its only distinct tile is an entrance", () => {
+		const room = { startRow: 1, endRow: 1, startCol: 1, endCol: 2 };
+		const source = {
+			rooms: [room],
+			terrain: carveRooms(makeDungeon(3, 4), [room]).map((row) => [...row]),
+		};
+		source.terrain[1][3] = FLOOR;
+		expect(selectStairLocation(source, { row: 1, col: 1 })).toEqual({
+			row: 1,
+			col: 2,
+		});
+	});
+
+	it("keeps the deterministic single-room fallback off a corridor mouth", () => {
+		const room = rooms[0];
+		const source = {
+			rooms: [room],
+			terrain: carveRooms(makeDungeon(5, 5), [room]).map((row) => [...row]),
+		};
+		source.terrain[0][1] = FLOOR;
+		expect(selectStairLocation(source, { row: 2, col: 2 })).toEqual({
+			row: 1,
+			col: 2,
+		});
 	});
 });

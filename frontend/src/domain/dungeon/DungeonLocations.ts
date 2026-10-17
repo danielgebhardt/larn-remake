@@ -12,6 +12,46 @@ const getRoomCenter = (room: Room) => {
 	};
 };
 
+const roomContains = (room: Room, { row, col }: Coordinate): boolean =>
+	row >= room.startRow &&
+	row <= room.endRow &&
+	col >= room.startCol &&
+	col <= room.endCol;
+
+const stairCandidates = (
+	dungeon: LocationSelectionSource,
+	room: Room,
+	entry: Coordinate,
+) => {
+	const floorTiles: Coordinate[] = [];
+	const clearTiles: Coordinate[] = [];
+	for (let row = room.startRow; row <= room.endRow; row++) {
+		for (let col = room.startCol; col <= room.endCol; col++) {
+			if (
+				dungeon.terrain[row]?.[col] !== FLOOR ||
+				(row === entry.row && col === entry.col)
+			)
+				continue;
+			const tile = { row, col };
+			floorTiles.push(tile);
+			// A floor neighbor outside the room is a corridor entrance. Leave
+			// its first room tile free so entering the room cannot force travel.
+			const opensToCorridor = [
+				{ row: row - 1, col },
+				{ row: row + 1, col },
+				{ row, col: col - 1 },
+				{ row, col: col + 1 },
+			].some(
+				(neighbor) =>
+					!roomContains(room, neighbor) &&
+					dungeon.terrain[neighbor.row]?.[neighbor.col] === FLOOR,
+			);
+			if (!opensToCorridor) clearTiles.push(tile);
+		}
+	}
+	return { room, floorTiles, clearTiles };
+};
+
 export const selectPlayerStart = (
 	dungeon: LocationSelectionSource,
 ): Coordinate => {
@@ -43,12 +83,8 @@ export const selectStairLocation = (
 		throw new RangeError("Invalid start point");
 	}
 
-	const entryRoom = dungeon.rooms.find(
-		(room) =>
-			entryCoordinate.row >= room.startRow &&
-			entryCoordinate.row <= room.endRow &&
-			entryCoordinate.col >= room.startCol &&
-			entryCoordinate.col <= room.endCol,
+	const entryRoom = dungeon.rooms.find((room) =>
+		roomContains(room, entryCoordinate),
 	);
 
 	if (!entryRoom) {
@@ -58,52 +94,40 @@ export const selectStairLocation = (
 	}
 
 	const otherRooms = dungeon.rooms.filter((room) => room !== entryRoom);
-
-	if (otherRooms.length > 0) {
-		if (!random) {
-			return getRoomCenter(otherRooms[otherRooms.length - 1]);
+	const rooms = otherRooms.length > 0 ? otherRooms : [entryRoom];
+	const candidatesByRoom = rooms.map((room) =>
+		stairCandidates(dungeon, room, entryCoordinate),
+	);
+	const clearRooms = candidatesByRoom.filter(
+		(candidate) => candidate.clearTiles.length > 0,
+	);
+	// Tiny authored floors can have no clear tile. Preserve their ability to
+	// link floors, preferring clear entrances whenever the geometry allows it.
+	const eligibleRooms =
+		clearRooms.length > 0
+			? clearRooms
+			: candidatesByRoom.filter((candidate) => candidate.floorTiles.length > 0);
+	if (eligibleRooms.length === 0) {
+		if (otherRooms.length === 0) {
+			throw new NoDistinctStairLocationError(
+				"No valid coordinate available for staircase",
+			);
 		}
-
-		// Choose rooms equally, then choose a floor tile in that room.
-		const room = otherRooms[Math.floor(random() * otherRooms.length)];
-		const candidates: Coordinate[] = [];
-		for (let row = room.startRow; row <= room.endRow; row++) {
-			for (let col = room.startCol; col <= room.endCol; col++) {
-				if (dungeon.terrain[row]?.[col] === FLOOR) {
-					candidates.push({ row, col });
-				}
-			}
-		}
-
-		if (candidates.length === 0) {
-			throw new RangeError("No valid coordinate available for staircase");
-		}
-		return candidates[Math.floor(random() * candidates.length)];
+		throw new RangeError("No valid coordinate available for staircase");
 	}
-
-	// A single-room floor uses its center, then the first distinct floor tile
-	// in row-major order. This constrained fallback consumes no randomness.
-	const center = getRoomCenter(entryRoom);
-	if (
-		(center.row !== entryCoordinate.row ||
-			center.col !== entryCoordinate.col) &&
-		dungeon.terrain[center.row]?.[center.col] === FLOOR
-	) {
-		return center;
-	}
-
-	for (let row = entryRoom.startRow; row <= entryRoom.endRow; row++) {
-		for (let col = entryRoom.startCol; col <= entryRoom.endCol; col++) {
-			if (
-				(row !== entryCoordinate.row || col !== entryCoordinate.col) &&
-				dungeon.terrain[row]?.[col] === FLOOR
-			) {
-				return { row, col };
-			}
-		}
-	}
-
-	throw new NoDistinctStairLocationError(
-		"No valid coordinate available for staircase",
+	// Choose rooms equally, then choose a clear floor tile in that room.
+	// A single-room floor keeps its deterministic, randomness-free fallback.
+	const randomized = random && otherRooms.length > 0;
+	const selected = randomized
+		? eligibleRooms[Math.floor(random() * eligibleRooms.length)]
+		: eligibleRooms[eligibleRooms.length - 1];
+	const candidates =
+		clearRooms.length > 0 ? selected.clearTiles : selected.floorTiles;
+	if (randomized) return candidates[Math.floor(random() * candidates.length)];
+	const center = getRoomCenter(selected.room);
+	return (
+		candidates.find(
+			(tile) => tile.row === center.row && tile.col === center.col,
+		) ?? candidates[0]
 	);
 };

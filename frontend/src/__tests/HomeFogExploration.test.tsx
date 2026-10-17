@@ -3,6 +3,7 @@ import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import type { DungeonRun } from "../domain/dungeon/DungeonRun.ts";
 import { ThemeProvider } from "../settings/ThemeProvider.tsx";
+import { enterDungeonFromTown } from "./HomeTestHelpers";
 import {
 	closeSettings,
 	openSettings,
@@ -93,6 +94,7 @@ describe("Fog across complete dungeon runs", () => {
 		const seed = await openSettings(user);
 		await user.clear(seed);
 		await user.type(seed, "123{Enter}");
+		await enterDungeonFromTown(user);
 		await waitForSettingsClosed();
 		expect(screen.getByRole("heading", { name: "Floor 1 of 2" })).toBeVisible();
 		expect(
@@ -104,6 +106,7 @@ describe("Fog across complete dungeon runs", () => {
 		).toBeVisible();
 		await user.keyboard(walkRight(6));
 		await user.click(screen.getByRole("button", { name: "New Dungeon" }));
+		await enterDungeonFromTown(user);
 		expect(screen.getByRole("heading", { name: "Floor 1 of 2" })).toBeVisible();
 		await user.keyboard(walkRight(9));
 		expect(
@@ -151,6 +154,7 @@ describe("Fog across complete dungeon runs", () => {
 		await user.click(screen.getByRole("button", { name: "Light" }));
 		await closeSettings(user);
 		await user.click(screen.getByRole("button", { name: "New Dungeon" }));
+		await enterDungeonFromTown(user);
 		await openSettings(user);
 		expect(
 			screen.getByRole("checkbox", { name: "Enable fog of war" }),
@@ -162,6 +166,7 @@ describe("Fog across complete dungeon runs", () => {
 			screen.getByRole("checkbox", { name: "Enable fog of war" }),
 		);
 		await user.click(screen.getByRole("button", { name: "Start from seed" }));
+		await enterDungeonFromTown(user);
 		await waitForSettingsClosed();
 		expect(
 			screen.getByRole("cell", { name: "row1col8 - undiscovered" }),

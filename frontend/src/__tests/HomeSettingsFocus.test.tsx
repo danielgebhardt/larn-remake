@@ -3,6 +3,7 @@ import userEvent from "@testing-library/user-event";
 import { afterEach, expect, it, vi } from "vitest";
 import * as GameState from "../domain/game/GameState";
 import {
+	enterDungeonFromTown,
 	openSettings,
 	renderHome,
 	resetHomeTestState,
@@ -34,6 +35,7 @@ it("returns all gameplay shortcuts to the map after applying settings with Enter
 	const rows = screen.getByRole("textbox", { name: "Rows" });
 	await user.clear(rows);
 	await user.type(rows, "20{Enter}");
+	await enterDungeonFromTown(user);
 	await waitForSettingsClosed();
 	await waitFor(() =>
 		expect(screen.getByLabelText("Dungeon map", { exact: true })).toHaveFocus(),

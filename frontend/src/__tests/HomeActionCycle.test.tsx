@@ -2,6 +2,7 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, it } from "vitest";
 import { ThemeProvider } from "../settings/ThemeProvider.tsx";
+import { enterDungeonFromTown } from "./HomeTestHelpers";
 import {
 	closeSettings,
 	openSettings,
@@ -49,6 +50,7 @@ describe("Complete exploration action cycle", () => {
 		const replaySeed = await openSettings(user);
 		await user.clear(replaySeed);
 		await user.type(replaySeed, "123{Enter}");
+		await enterDungeonFromTown(user);
 		await waitForSettingsClosed();
 		expect(screen.getByLabelText("Turn count")).toHaveTextContent("Turn 0");
 		await user.keyboard("ddd");

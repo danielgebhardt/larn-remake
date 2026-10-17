@@ -4,6 +4,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import * as DungeonGeneration from "../domain/dungeon/DungeonGeneration.ts";
 import * as DungeonRun from "../domain/dungeon/DungeonRun.ts";
 import { FLOOR } from "../domain/dungeon/Tiles.ts";
+import { enterDungeonFromTown } from "./HomeTestHelpers";
 import {
 	renderHome as render,
 	resetHomeTestState,
@@ -75,6 +76,7 @@ describe("Home run restart", () => {
 		generateSpy.mockReturnValue(secondRun);
 
 		await user.click(screen.getByRole("button", { name: "New Dungeon" }));
+		await enterDungeonFromTown(user);
 
 		expect(generateSpy).toHaveBeenCalledTimes(callsBeforeClick + 1);
 
@@ -120,6 +122,7 @@ describe("Home run restart", () => {
 			).toBeVisible();
 
 			await user.click(screen.getByRole("button", { name: "New Dungeon" }));
+			await enterDungeonFromTown(user);
 
 			expect(
 				screen.getByRole("cell", { name: "row2col3 - player" }),
@@ -145,6 +148,7 @@ describe("Home run restart", () => {
 		expect(screen.getByRole("heading", { name: "Floor 2 of 3" })).toBeVisible();
 
 		await user.click(screen.getByRole("button", { name: "New Dungeon" }));
+		await enterDungeonFromTown(user);
 
 		expect(screen.getByRole("heading", { name: "Floor 1 of 3" })).toBeVisible();
 	});

@@ -3,6 +3,7 @@ import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import * as DungeonRun from "../domain/dungeon/DungeonRun.ts";
 import * as GameState from "../domain/game/GameState.ts";
+import { enterDungeonFromTown } from "./HomeTestHelpers";
 import {
 	closeSettings,
 	DEFAULT_DUNGEON_CONFIG,
@@ -136,6 +137,7 @@ describe("Home dungeon configuration", () => {
 		await user.type(seed, "123");
 		await editConfiguration(user, { rows: "10", columns: "15", floors: "6" });
 		await user.click(screen.getByRole("button", { name: "Start from seed" }));
+		await enterDungeonFromTown(user);
 		await waitForSettingsClosed();
 		expect(screen.getByRole("heading", { name: "Floor 1 of 6" })).toBeVisible();
 		const firstBoard = readDungeonCells(screen.getByRole("table"));
@@ -151,6 +153,7 @@ describe("Home dungeon configuration", () => {
 		const secondBoard = readDungeonCells(screen.getByRole("table"));
 		await openSettings(user);
 		await user.click(screen.getByRole("button", { name: "Start from seed" }));
+		await enterDungeonFromTown(user);
 		await waitForSettingsClosed();
 		expect(screen.getByRole("heading", { name: "Floor 1 of 6" })).toBeVisible();
 		expect(readDungeonCells(screen.getByRole("table"))).toEqual(firstBoard);
@@ -161,6 +164,7 @@ describe("Home dungeon configuration", () => {
 		await closeSettings(user);
 		vi.spyOn(Math, "random").mockReturnValue(0);
 		await user.click(screen.getByRole("button", { name: "New Dungeon" }));
+		await enterDungeonFromTown(user);
 		expect(generate).toHaveBeenLastCalledWith(0, 6, {
 			...DEFAULT_DUNGEON_CONFIG,
 			rows: 10,
@@ -203,6 +207,7 @@ describe("Home dungeon configuration", () => {
 		expect(screen.getByRole("textbox", { name: "Rows" })).toHaveValue("10");
 		await user.click(screen.getByRole("button", { name: "Start from seed" }));
 		await waitForSettingsClosed();
+		await enterDungeonFromTown(user);
 		expect(screen.getByRole("heading", { name: "Floor 1 of 5" })).toBeVisible();
 		expect(within(screen.getByRole("table")).getAllByRole("row")).toHaveLength(
 			10,

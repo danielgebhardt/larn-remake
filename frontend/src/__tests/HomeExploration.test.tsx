@@ -11,6 +11,7 @@ import {
 	STAIRS_UP,
 	WALL,
 } from "../domain/dungeon/Tiles.ts";
+import { enterDungeonFromTown } from "./HomeTestHelpers";
 import {
 	closeSettings,
 	openSettings,
@@ -153,6 +154,7 @@ describe("Home exploration integration", () => {
 		const input = await openSettings(user);
 		await user.clear(input);
 		await user.type(input, "0{Enter}");
+		await enterDungeonFromTown(user);
 		await waitForSettingsClosed();
 		expectFloor(0, 1, { row: 1, col: 1 });
 		expect(generate).toHaveBeenCalledTimes(2);
@@ -167,6 +169,7 @@ describe("Home exploration integration", () => {
 		]) {
 			vi.spyOn(Math, "random").mockReturnValue(seed / 4294967296);
 			await user.click(screen.getByRole("button", { name: "New Dungeon" }));
+			await enterDungeonFromTown(user);
 			expectFloor(seed, 1, { row: 1, col: 1 + offset });
 			expect(await openSettings(user)).toHaveValue(String(seed));
 			expect(screen.getByLabelText("Current dungeon seed")).toHaveTextContent(

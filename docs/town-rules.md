@@ -1,12 +1,12 @@
 # Level 0 town rules — #326
 
-Selected for implementation by the developer under epic #325. These rules govern the town foundation and its later travel/services; they do not change the current dungeon-only adventure before #329 connects the gate.
+Selected for implementation by the developer under epic #325. These rules govern the town foundation and its later travel/services; Live travel is connected in #329; shop services remain staged separately.
 
 ## Location and starts
 
 Town is a fixed authored level 0, with a layout identity, dimensions and coordinates of its own. It is never inserted into `DungeonRun.floors`; positive floor numbers, the configured dungeon floor count, seeded placement and arrival coordinates keep their existing meaning. The town uses no seed or dungeon-size settings. Its geography and initial closed buildings are identical in every adventure. Future seeded stock is a separate service concern, not permission to randomize streets or entrances.
 
-Once #329 supplies a complete round trip, new/replayed adventures should begin at the southern town approach facing the dungeon gate. Until then, ordinary adventures still start at their existing floor-1 approach; the foundation is available as a clearly labeled, isolated town preview in Catalog. There is no playable town visit that strands a character before travel exists.
+New/replayed adventures begin at the southern town approach facing the dungeon gate. Enter on the gate deliberately descends; Enter at the dungeon entrance deliberately returns. E remains object/sign inspection. Catalog retains an isolated preview.
 
 Town and dungeon locations are explicit alternatives. Entering town must retain the actual dungeon run and its discovery, actors, loot and state, not regenerate it. The entrance and nearby arrival cells are reserved walkable locations. Deliberate gate interaction will connect the town gate and floor-1 entrance in #329; walking over a gate alone will not switch locations.
 
@@ -30,7 +30,7 @@ Exit scrolls retain their exact behavior: return to floor 1 beside the dungeon e
 
 Death and victory retain ownership of ended adventures. Preview movement cannot move, revive or modify the actual character. Replay creates a new adventure with starting resources; it never carries service stock or stored goods across runs. Before #329, replay retains the current dungeon start; after #329 it may use the fixed town approach.
 
-Current and legacy dungeon saves keep their played dungeon locations and all actual owned state. They must not be moved into town, regenerated or granted resource changes on load. A town location must carry the supported layout identity and a valid walkable coordinate; reject unknown identities, blocked/out-of-bounds locations and a claimed dungeon floor 0. #328 defines the town location/snapshot contract; adventure-save integration is required when #329 first makes an actual visit selectable, with the broader inventory/stock audit in #342. Do not silently serialize a town visit as a dungeon floor.
+Current and legacy dungeon saves keep their played dungeon locations and all actual owned state. They must not be moved into town, regenerated or granted resource changes on load. A town location must carry the supported layout identity and a valid walkable coordinate; reject unknown identities, blocked/out-of-bounds locations and a claimed dungeon floor 0. #329 integrates the town location into v23 adventure saves; v1–v22 saves retain their dungeon location. The broader inventory/stock audit remains in #342. Do not silently serialize a town visit as a dungeon floor.
 
 ## Acceptance scenarios
 

@@ -3,6 +3,7 @@ import userEvent from "@testing-library/user-event";
 import { afterEach, expect, it, vi } from "vitest";
 import * as GameState from "../domain/game/GameState";
 import {
+	enterDungeonFromTown,
 	renderHome as render,
 	resetHomeTestState,
 	stubDungeonRun,
@@ -27,6 +28,7 @@ it("returns focus to gameplay after New Dungeon so G works without clicking the 
 	render(<Home />);
 	const user = userEvent.setup();
 	await user.click(screen.getByRole("button", { name: "New Dungeon" }));
+	await enterDungeonFromTown(user);
 	expect(screen.getByLabelText("Dungeon map", { exact: true })).toHaveFocus();
 	await user.keyboard("{ArrowRight}g");
 	expect(screen.getByRole("log")).toHaveTextContent(

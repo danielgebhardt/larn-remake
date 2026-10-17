@@ -6,6 +6,7 @@ import * as GameState from "../domain/game/GameState";
 import { ThemeProvider } from "../settings/ThemeProvider";
 import {
 	closeSettings,
+	enterDungeonFromTown,
 	openSettings,
 	renderHome,
 	resetHomeTestState,
@@ -31,7 +32,7 @@ describe("Choosing adventure difficulty", () => {
 		);
 		expect(create).toHaveBeenCalledWith(expect.any(Object), 1.25);
 		expect(generate.mock.lastCall?.[2]).not.toHaveProperty("difficulty");
-		expect(screen.getByLabelText("Dungeon map", { exact: true })).toHaveFocus();
+		expect(screen.getByLabelText("Town map", { exact: true })).toHaveFocus();
 	});
 	it("keeps the opening choice after generation fails and allows retry", async () => {
 		const user = userEvent.setup();
@@ -79,6 +80,7 @@ describe("Choosing adventure difficulty", () => {
 		await openSettings(user);
 		await user.click(screen.getByRole("button", { name: "Start from seed" }));
 		await waitForSettingsClosed();
+		await enterDungeonFromTown(user);
 		expect(screen.getByLabelText("Adventure difficulty")).toHaveTextContent(
 			"Harder",
 		);

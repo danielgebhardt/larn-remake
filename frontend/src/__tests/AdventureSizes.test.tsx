@@ -85,6 +85,6 @@ describe("Welcome map-size choices", () => {
 		expect(screen.getByLabelText("Adventure difficulty")).toHaveTextContent(
 			"Harder",
 		);
-		expect(screen.getByLabelText("Dungeon map", { exact: true })).toHaveFocus();
+		expect(screen.getByLabelText("Town map", { exact: true })).toHaveFocus();
 	});
 });

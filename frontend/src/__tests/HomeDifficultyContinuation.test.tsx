@@ -4,6 +4,7 @@ import { afterEach, describe, expect, it } from "vitest";
 import { serializeSave } from "../domain/saves/SaveFormat";
 import { ThemeProvider } from "../settings/ThemeProvider";
 import {
+	enterDungeonFromTown,
 	openSaveSheet,
 	openSettings,
 	resetHomeTestState,
@@ -56,6 +57,7 @@ describe("Non-normal saved adventure controls", () => {
 				screen.getByRole("radio", { name: new RegExp(label) }),
 			).toBeChecked();
 			await user.click(screen.getByRole("button", { name: "Start from seed" }));
+			await enterDungeonFromTown(user);
 			await waitForSettingsClosed();
 			expect(screen.getByLabelText("Adventure difficulty")).toHaveTextContent(
 				label,

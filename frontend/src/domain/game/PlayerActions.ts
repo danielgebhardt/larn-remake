@@ -47,6 +47,11 @@ import {
 	type InteractAction,
 	interactObject,
 } from "../objects/ObjectInteraction";
+import { resolveTownAction } from "../town/TownActions";
+import {
+	type TownTravelAction,
+	travelBetweenTownAndDungeon,
+} from "../town/TownTravel";
 import { type ActivityEvent, appendActivityEvents } from "./ActivityHistory.ts";
 import { type AttackRollSource, createAttackRolls } from "./CombatRandomness";
 import { deriveCombatStats } from "./CombatStats";
@@ -67,7 +72,10 @@ import {
 	type SpellAssignmentAction,
 } from "./SpellHotbar";
 import { advanceTimedEffects } from "./TimedEffects";
+
 export type PlayerAction =
+	| TownTravelAction
+	| { type: "inspect-town" }
 	| ExitDungeonAction
 	| EnchantAction
 	| BuyAction
@@ -86,6 +94,7 @@ export type PlayerAction =
 export type ActionResolution = {
 	state: GameState;
 	turnAdvanced: boolean;
+	message?: string;
 	error?: string;
 };
 
@@ -98,7 +107,7 @@ export const resolvePlayerAction = (
 		return {
 			state,
 			turnAdvanced: false,
-			...(action.type === "cast"
+			...(action.type === "cast" || action.type === "travel"
 				? { error: "The adventure is complete." }
 				: {}),
 		};
@@ -134,8 +143,42 @@ export const resolvePlayerAction = (
 			turnAdvanced: false,
 			...(action.type === "cast"
 				? { error: "You cannot cast after death." }
-				: {}),
+				: action.type === "travel"
+					? { error: "This adventure has ended." }
+					: {}),
 		};
+	if (action.type === "travel")
+		return travelBetweenTownAndDungeon(state, action);
+	if (state.town) {
+		if (action.type === "wait") return { state, turnAdvanced: false };
+		if (action.type !== "move" && action.type !== "inspect-town")
+			return {
+				state,
+				turnAdvanced: false,
+				error: "Enter the dungeon before using items, equipment or spells.",
+			};
+		const result = resolveTownAction(
+			state.town,
+			action.type === "move" ? action : { type: "inspect" },
+			"Dungeon entrance — stand on the gate and press Enter to descend.",
+		);
+		if (result.location.kind !== "town" || result.error)
+			return {
+				state,
+				turnAdvanced: false,
+				error: result.error ?? "Invalid town location.",
+			};
+		return {
+			state:
+				result.location === state.town
+					? state
+					: { ...state, town: result.location },
+			turnAdvanced: false,
+			message: result.message,
+		};
+	}
+	if (action.type === "inspect-town")
+		return { state, turnAdvanced: false, error: "You are not in town." };
 	if (action.type === "use-hotbar") {
 		if (!HOTBAR_SLOTS.includes(action.slot))
 			return {
@@ -189,7 +232,13 @@ export const resolvePlayerAction = (
 // Free assignments and hotbar aliases are handled before committing a turn.
 const resolvePlayerEffect = (
 	state: GameState,
-	action: Exclude<PlayerAction, HotbarAction | SpellAssignmentAction>,
+	action: Exclude<
+		PlayerAction,
+		| HotbarAction
+		| SpellAssignmentAction
+		| TownTravelAction
+		| { type: "inspect-town" }
+	>,
 	rollSource: AttackRollSource,
 ): GameState | { error: string } | undefined => {
 	const turn = state.turn;

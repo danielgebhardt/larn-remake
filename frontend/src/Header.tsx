@@ -64,7 +64,9 @@ const Header = ({
                   text-muted-foreground sm:text-base
                "
 				>
-					Floor {floorNumber} of {floorCount}
+					{floorNumber === 0
+						? "Beacon town · Level 0"
+						: `Floor ${floorNumber} of ${floorCount}`}
 				</h2>
 			</div>
 		</div>

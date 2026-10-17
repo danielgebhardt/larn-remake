@@ -177,3 +177,13 @@ export const inspectEndedRun = async (
 		expect(screen.getByLabelText("Dungeon map", { exact: true })).toHaveFocus(),
 	);
 };
+
+// Fresh/replayed adventures begin in town; dungeon-focused scenarios explicitly depart.
+export const enterDungeonFromTown = async (
+	user: ReturnType<typeof userEvent.setup>,
+) => {
+	const town = screen.getByLabelText("Town map", { exact: true });
+	expect(town).toHaveFocus();
+	await user.keyboard("ss{Enter}");
+	expect(screen.getByLabelText("Dungeon map", { exact: true })).toHaveFocus();
+};

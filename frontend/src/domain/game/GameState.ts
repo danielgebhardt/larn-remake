@@ -21,6 +21,7 @@ import { maximumMonsterHealth } from "../monsters/MonsterStats";
 import type { DungeonObject } from "../objects/DungeonObject";
 import { spawnRunObjects } from "../objects/ObjectPlacement";
 import { addOptionalEliteRooms } from "../objects/OptionalEliteRooms";
+import type { TownLocation } from "../town/TownLocation";
 import {
 	type ActivityHistory,
 	createActivityHistory,
@@ -36,6 +37,7 @@ import { createKnownSpells, type SpellKind } from "./Spells";
 import type { TimedEffect } from "./TimedEffects";
 
 export type GameState = {
+	town: TownLocation | null;
 	readonly difficulty: Difficulty;
 	merchantStock: MerchantStock;
 	escape: EscapeState | null;
@@ -82,6 +84,7 @@ export const createGameState = (
 		objects: spawnRunObjects(run, monsters, floorItems),
 	});
 	return {
+		town: null,
 		difficulty,
 		run,
 		escape: null,

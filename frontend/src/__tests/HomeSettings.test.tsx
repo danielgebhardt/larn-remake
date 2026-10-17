@@ -118,7 +118,7 @@ describe("Home settings and appearance", () => {
 		vi.spyOn(DungeonRun, "connectDungeonFloors").mockReturnValue(run);
 		const user = userEvent.setup();
 		render(<Home />);
-		await user.tab();
+		screen.getByRole("button", { name: "New Dungeon" }).focus();
 		expect(screen.getByRole("button", { name: "New Dungeon" })).toHaveFocus();
 		await user.tab();
 		expect(screen.getByRole("button", { name: "Character" })).toHaveFocus();

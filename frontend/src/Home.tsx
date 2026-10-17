@@ -39,6 +39,7 @@ import VisibleEffects from "./components/game/VisibleEffects";
 import MerchantDialog from "./components/merchant/MerchantDialog";
 import ObjectChoiceDialog from "./components/objects/ObjectChoiceDialog";
 import ObjectContext from "./components/objects/ObjectContext";
+import TownMap from "./components/town/TownMap";
 import {
 	DEFAULT_FOG_CONFIGURATION,
 	DEFAULT_RUN_CONFIGURATION,
@@ -59,6 +60,7 @@ import {
 	type RestoredAdventure,
 	type SaveDocument,
 } from "./domain/saves/SaveFormat";
+import { atDungeonEntrance, atTownGate } from "./domain/town/TownTravel";
 import Header from "./Header.tsx";
 import DungeonSettings from "./settings/DungeonSettings.tsx";
 import { APP_FEATURES } from "./settings/FeatureFlags";
@@ -106,7 +108,7 @@ const Home = ({
 		initialConfiguration,
 		initialFogConfiguration,
 	});
-	const { run, turn, player } = game.state;
+	const { run, turn, player, town } = game.state;
 	const [dismissedVictory, setDismissedVictory] =
 		useState<VictorySummary | null>(null);
 	const [dismissedDeath, setDismissedDeath] = useState(false);
@@ -138,9 +140,13 @@ const Home = ({
 	const [merchantId, setMerchantId] = useState<string | null>(null);
 	const mapRef = useRef<HTMLElement>(null);
 	useEffect(() => {
-		if (initialSeed !== undefined || initialAdventure?.state.player.health)
+		if (
+			town ||
+			initialSeed !== undefined ||
+			initialAdventure?.state.player.health
+		)
 			mapRef.current?.focus({ preventScroll: true });
-	}, [initialSeed, initialAdventure]);
+	}, [initialSeed, initialAdventure, town]);
 	useEffect(() => {
 		if (!deathOpen) return;
 		setCharacterOpen(false);
@@ -296,7 +302,7 @@ const Home = ({
 	const spells = useSpellTargeting(
 		game.state,
 		fogConfiguration.enabled ? exploration.visible : undefined,
-		gameplayEnabled,
+		gameplayEnabled && !town,
 		handleActionRequested,
 		setActionError,
 		() => mapRef.current?.focus({ preventScroll: true }),
@@ -306,7 +312,7 @@ const Home = ({
 		state: game.state,
 		exploration,
 		fogEnabled: fogConfiguration.enabled,
-		enabled: gameplayEnabled && !spells.targeting,
+		enabled: gameplayEnabled && !town && !spells.targeting,
 		mapRef,
 		onStep: (direction) => handleActionRequested({ type: "move", direction }),
 	});
@@ -348,7 +354,7 @@ const Home = ({
 	return (
 		<div className="ember-surface flex min-h-dvh flex-col bg-muted/30 lg:h-dvh">
 			<Header
-				floorNumber={activeFloor.floorNumber}
+				floorNumber={town ? 0 : activeFloor.floorNumber}
 				floorCount={run.floors.length}
 				onNewDungeon={handleNewDungeon}
 				characterAction={
@@ -605,70 +611,108 @@ const Home = ({
 								</p>
 							)}
 							<DungeonFrame>
-								<DungeonLayout
-									onCorridorKey={corridor.handleKey}
-									mapRef={mapRef}
-									onSpellRequested={spells.activate}
-									onSpellSlotRequested={(slot) => {
-										const spell = game.state.spellHotbar[slot - 1];
-										if (spell) spells.activate(spell);
-										else
-											setActionError(
-												`Spell slot ${slot} is empty. Assign a spell in Character.`,
-											);
-									}}
-									onTargetingKey={
-										spells.targeting ? spells.handleKey : undefined
-									}
-									targetIds={spells.targetIds}
-									spellArea={spells.spellArea}
-									selectedTargetId={spells.targeting?.id}
-									onTargetRequested={
-										spells.targeting ? spells.castTarget : undefined
-									}
-									monsters={activeMonsters}
-									floorItems={activeItems}
-									dungeon={activeFloor.terrain}
-									visible={
-										fogConfiguration.enabled ? exploration.visible : undefined
-									}
-									explored={
-										fogConfiguration.enabled
-											? exploration.explored.get(run.activeFloor)
-											: undefined
-									}
-									playerPosition={run.playerCoordinate}
-									upStair={activeFloor.upStair?.coordinate}
-									entrance={
-										run.activeFloor === 1
-											? game.state.quest.entrance
-											: undefined
-									}
-									downStair={activeFloor.downStair?.coordinate}
-									onMoveRequested={(direction) =>
-										handleActionRequested({ type: "move", direction })
-									}
-									onWaitRequested={() =>
-										handleActionRequested({ type: "wait" })
-									}
-									dungeonObjects={activeObjects}
-									onInteractRequested={
-										gameplayEnabled ? handleInteractRequested : undefined
-									}
-									onPickupRequested={handlePickupRequested}
-									onPotionRequested={handlePotionRequested}
-									onCharacterRequested={
-										mapInputAvailable
-											? () => {
-													setCharacterOpenedFromMap(true);
-													setCharacterOpen(true);
-												}
-											: undefined
-									}
-									movementEnabled={gameplayEnabled}
-								/>
+								{town ? (
+									<TownMap
+										location={town}
+										mapRef={mapRef}
+										enabled={gameplayEnabled}
+										onAction={(action) =>
+											handleActionRequested(
+												action.type === "inspect"
+													? { type: "inspect-town" }
+													: action,
+											)
+										}
+										onTravel={
+											atTownGate(game.state)
+												? () =>
+														handleActionRequested({
+															type: "travel",
+															destination: "dungeon",
+														})
+												: undefined
+										}
+										onCharacterRequested={() => {
+											setCharacterOpenedFromMap(true);
+											setCharacterOpen(true);
+										}}
+									/>
+								) : (
+									<DungeonLayout
+										onTravelRequested={
+											atDungeonEntrance(game.state) &&
+											!game.state.quest.cureRecovered
+												? () =>
+														handleActionRequested({
+															type: "travel",
+															destination: "town",
+														})
+												: undefined
+										}
+										onCorridorKey={corridor.handleKey}
+										mapRef={mapRef}
+										onSpellRequested={spells.activate}
+										onSpellSlotRequested={(slot) => {
+											const spell = game.state.spellHotbar[slot - 1];
+											if (spell) spells.activate(spell);
+											else
+												setActionError(
+													`Spell slot ${slot} is empty. Assign a spell in Character.`,
+												);
+										}}
+										onTargetingKey={
+											spells.targeting ? spells.handleKey : undefined
+										}
+										targetIds={spells.targetIds}
+										spellArea={spells.spellArea}
+										selectedTargetId={spells.targeting?.id}
+										onTargetRequested={
+											spells.targeting ? spells.castTarget : undefined
+										}
+										monsters={activeMonsters}
+										floorItems={activeItems}
+										dungeon={activeFloor.terrain}
+										visible={
+											fogConfiguration.enabled ? exploration.visible : undefined
+										}
+										explored={
+											fogConfiguration.enabled
+												? exploration.explored.get(run.activeFloor)
+												: undefined
+										}
+										playerPosition={run.playerCoordinate}
+										upStair={activeFloor.upStair?.coordinate}
+										entrance={
+											run.activeFloor === 1
+												? game.state.quest.entrance
+												: undefined
+										}
+										downStair={activeFloor.downStair?.coordinate}
+										onMoveRequested={(direction) =>
+											handleActionRequested({ type: "move", direction })
+										}
+										onWaitRequested={() =>
+											handleActionRequested({ type: "wait" })
+										}
+										dungeonObjects={activeObjects}
+										onInteractRequested={
+											gameplayEnabled ? handleInteractRequested : undefined
+										}
+										onPickupRequested={handlePickupRequested}
+										onPotionRequested={handlePotionRequested}
+										onCharacterRequested={
+											mapInputAvailable
+												? () => {
+														setCharacterOpenedFromMap(true);
+														setCharacterOpen(true);
+													}
+												: undefined
+										}
+										movementEnabled={gameplayEnabled && !town}
+									/>
+								)}
 							</DungeonFrame>
-							{game.actionError && merchantId === null && (
+							{!town && game.actionError && merchantId === null && (
 								<p
 									role="status"
 									aria-label="Action feedback"
@@ -677,12 +721,52 @@ const Home = ({
 									{game.actionError}
 								</p>
 							)}
-							<ObjectContext
-								state={game.state}
-								visible={
-									fogConfiguration.enabled ? exploration.visible : undefined
-								}
-							/>
+							{town ? (
+								<p
+									role="status"
+									aria-label="Action feedback"
+									className="h-16 shrink-0 overflow-y-auto py-2 text-sm text-muted-foreground lg:h-12"
+								>
+									{game.actionError ||
+										"All shops closed. Arrows/WASD to walk; E inspects signs. Stand on the south gate and press Enter to descend. Town actions do not advance time or restore resources."}
+								</p>
+							) : (
+								<div className="relative h-16 shrink-0 lg:h-12">
+									<div
+										className={
+											atDungeonEntrance(game.state) && canPlay
+												? "pr-40"
+												: undefined
+										}
+									>
+										<ObjectContext
+											state={game.state}
+											visible={
+												fogConfiguration.enabled
+													? exploration.visible
+													: undefined
+											}
+										/>
+									</div>
+									{atDungeonEntrance(game.state) &&
+										!game.state.quest.cureRecovered &&
+										canPlay && (
+											<Button
+												className="absolute right-0 top-1"
+												variant="outline"
+												disabled={!gameplayEnabled}
+												onClick={() =>
+													handleActionRequested({
+														type: "travel",
+														destination: "town",
+													})
+												}
+											>
+												Return to town (Enter)
+											</Button>
+										)}
+								</div>
+							)}
 						</div>
 						<div className="order-3 flex min-h-0 min-w-0 flex-col lg:col-start-2 lg:row-span-2 lg:row-start-1 [&>*]:flex-1 [&>*]:min-h-0">
 							<ActivityLog
@@ -704,7 +788,7 @@ const Home = ({
 									<PotionHotbarView
 										bag={game.state.bag}
 										potionHotbar={game.state.potionHotbar}
-										alive={gameplayEnabled && !spells.targeting}
+										alive={gameplayEnabled && !town && !spells.targeting}
 										onActivate={handlePotionRequested}
 									/>
 
@@ -716,7 +800,7 @@ const Home = ({
 									<SpellHotbarView
 										slots={game.state.spellHotbar}
 										knownSpells={game.state.knownSpells}
-										enabled={gameplayEnabled}
+										enabled={gameplayEnabled && !town}
 										targeting={spells.targeting?.spell}
 										onActivate={spells.activate}
 									/>

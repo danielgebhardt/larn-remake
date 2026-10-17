@@ -11,14 +11,14 @@ import type { GameState } from "../game/GameState";
 import { levelForExperience } from "../game/Progression";
 import type { ItemInstance } from "../items/Item";
 import { navigationRun } from "../objects/NavigationTerrain";
-import type { SaveDocumentV22 } from "./SaveDocumentV22";
+import type { SaveDocumentV23 } from "./SaveDocumentV23";
 import { validateSaveDocument } from "./SaveValidation";
 
-export const SAVE_FORMAT_VERSION = 22;
+export const SAVE_FORMAT_VERSION = 23;
 // Bound imported input before parsing. A maximum-size snapshot is measured in the review.
 export const MAX_SAVE_BYTES = 4 * 1024 * 1024;
 
-export type SaveDocument = SaveDocumentV22;
+export type SaveDocument = SaveDocumentV23;
 export type RestoredAdventure = {
 	state: GameState;
 	exploration: ExplorationState;
@@ -48,6 +48,9 @@ export const createSaveDocument = (
 	configuration: { ...configuration, difficulty: state.difficulty },
 	fog: { ...fog },
 	state: {
+		town: state.town
+			? { ...state.town, coordinate: { ...state.town.coordinate } }
+			: null,
 		gold: state.gold,
 		merchantStock: { ...state.merchantStock },
 		escape: state.escape,
@@ -197,4 +200,4 @@ export const restoreSave = (document: SaveDocument): RestoredAdventure => {
 };
 
 export const saveSummary = (document: SaveDocument): string =>
-	`Seed ${document.state.run.seed} · Floor ${document.state.run.activeFloor} of ${document.state.run.floors.length} · Level ${levelForExperience(document.state.progression.experience)} · Turn ${document.state.turn} · ${difficultyLabel(document.configuration.difficulty)}`;
+	`Seed ${document.state.run.seed} · ${document.state.town ? "Town · Level 0" : `Floor ${document.state.run.activeFloor} of ${document.state.run.floors.length}`} · Level ${levelForExperience(document.state.progression.experience)} · Turn ${document.state.turn} · ${difficultyLabel(document.configuration.difficulty)}`;

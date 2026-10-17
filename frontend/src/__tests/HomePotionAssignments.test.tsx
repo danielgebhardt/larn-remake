@@ -4,6 +4,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import * as GameState from "../domain/game/GameState";
 import { createBag } from "../domain/items/Bag";
 import {
+	enterDungeonFromTown,
 	renderHome as render,
 	resetHomeTestState,
 	stubDungeonRun,
@@ -131,6 +132,7 @@ describe("Assigning potion shortcuts in Character", () => {
 			expect(screen.queryByRole("dialog")).not.toBeInTheDocument(),
 		);
 		await user.click(screen.getByRole("button", { name: "New Dungeon" }));
+		await enterDungeonFromTown(user);
 		await user.keyboard("i");
 		const fresh = within(
 			await screen.findByRole("dialog", { name: "Character" }),

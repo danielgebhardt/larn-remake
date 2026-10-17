@@ -6,6 +6,7 @@ import * as MonsterPlacement from "../domain/monsters/MonsterPlacement";
 import { ThemeProvider } from "../settings/ThemeProvider";
 import {
 	closeSettings,
+	enterDungeonFromTown,
 	inspectEndedRun,
 	openSettings,
 	readDungeonCells,
@@ -43,6 +44,7 @@ describe("Complete monster encounters on screen", () => {
 		).toBeVisible();
 		await openSettings(user);
 		await user.click(screen.getByRole("button", { name: "Start from seed" }));
+		await enterDungeonFromTown(user);
 		expect(readDungeonCells()).toEqual(initialMap);
 		expect(screen.getByLabelText("Player health")).toHaveTextContent(
 			"Health 10 / 10",

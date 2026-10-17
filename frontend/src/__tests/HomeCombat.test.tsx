@@ -1,6 +1,7 @@
 import { screen, within } from "@testing-library/react";
 import { afterEach, describe, expect, it } from "vitest";
 import { renderEncounter } from "./HomeEncounterTestHelpers.tsx";
+import { enterDungeonFromTown } from "./HomeTestHelpers";
 import {
 	closeSettings,
 	openSettings,
@@ -120,11 +121,13 @@ describe("Combat on the play screen", () => {
 			await user.keyboard("dd");
 			if (restart === "new dungeon") {
 				await user.click(screen.getByRole("button", { name: "New Dungeon" }));
+				await enterDungeonFromTown(user);
 			} else {
 				await openSettings(user);
 				await user.click(
 					screen.getByRole("button", { name: "Start from seed" }),
 				);
+				await enterDungeonFromTown(user);
 			}
 			expect(screen.getByLabelText("Player health")).toHaveTextContent(
 				"Health 10 / 10",

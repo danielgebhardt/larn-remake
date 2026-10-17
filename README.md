@@ -221,11 +221,11 @@ To demonstrate the exploration milestone:
 
 Floor 1 has no up stair, and the deepest floor has no down stair. Floor count is configurable in Settings, from five to twenty floors; the recommended default is twenty 40×40 floors. Local save/resume is implemented. Town travel and services remain future work; its fixed level-0 foundation is available in **Catalog → Town**.
 
-### Town foundation preview
+### Beacon town and dungeon travel
 
-**Catalog → Town** opens the authored 29 × 21 beacon town. Focus the map and use arrows/WASD, or the touch buttons, to walk; **E** inspects a nearby sign. All services are visibly closed. **Escape** returns focus to the unchanged dungeon. The town is independent of dungeon seed, size and floor count.
+New and replayed adventures begin in the same authored 29 × 21 town, regardless of dungeon seed or size. Walk with arrows/WASD or touch controls. Stand on the south dungeon gate and press **Enter** (or **Enter dungeon**) to descend. At the floor-1 entrance, **Enter** or **Return to town** makes a deliberate free return; **E** still interacts with nearby objects. Gate crossings never regenerate the dungeon or advance combat, effects or recovery. The ember still wins at the floor-1 entrance and cannot be taken on a town detour.
 
-The preview owns its location through town domain actions. Its versioned location snapshot validates layout identity and walkable coordinates; it is not yet part of adventure saves or a playable gate transition. #329 will connect live travel and its required save integration. No adventure turns, recovery, inventory or effects change in the preview. See [town rules](docs/town-rules.md) and the [fixed layout](docs/town-layout.md).
+Save format **v23** retains town location/layout identity alongside the actual dungeon and discovery. Valid v1–v22 saves migrate in their existing dungeon location. Ended/ember-carrying town saves, unknown layouts and invalid arrivals are rejected. Shops remain closed until their service stories. **Catalog → Town** remains an isolated preview. See [town rules](docs/town-rules.md) and the [fixed layout](docs/town-layout.md).
 
 ## Configuration
 

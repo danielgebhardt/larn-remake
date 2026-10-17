@@ -6,6 +6,7 @@ import { createBag } from "../domain/items/Bag";
 import { HOTBAR_SLOTS, type HotbarSlot } from "../domain/items/PotionHotbar";
 import { resolvePlayerActionWithHits as resolvePlayerAction } from "./ControlledCombatTestHelpers";
 import {
+	enterDungeonFromTown,
 	inspectEndedRun,
 	renderHome as render,
 	resetHomeTestState,
@@ -148,6 +149,7 @@ describe("Potion hotbar gameplay", () => {
 	it("restores starter supplies and shortcuts on New Dungeon", async () => {
 		const user = setup();
 		await user.click(screen.getByRole("button", { name: "New Dungeon" }));
+		await enterDungeonFromTown(user);
 		for (const slot of [3, 4])
 			expect(
 				screen.getByRole("button", { name: `Potion slot ${slot}: empty` }),

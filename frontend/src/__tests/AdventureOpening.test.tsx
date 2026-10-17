@@ -43,5 +43,5 @@ it("begins a randomly seeded adventure and focuses the map", async () => {
 	expect(
 		screen.queryByRole("dialog", { name: "The Last Ember" }),
 	).not.toBeInTheDocument();
-	expect(screen.getByLabelText("Dungeon map", { exact: true })).toHaveFocus();
+	expect(screen.getByLabelText("Town map", { exact: true })).toHaveFocus();
 });

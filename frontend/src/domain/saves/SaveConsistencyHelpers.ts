@@ -18,6 +18,9 @@ export const savedLocations = (document: SaveSourceDocument) => {
 };
 
 export const savedDifficulty = (document: SaveSourceDocument) =>
-	document.version === 20 || document.version === 21 || document.version === 22
+	document.version === 20 ||
+	document.version === 21 ||
+	document.version === 22 ||
+	document.version === 23
 		? document.configuration.difficulty
 		: 1;

@@ -1,5 +1,6 @@
 import { fileURLToPath } from "node:url";
 import { expect, type Page, test } from "@playwright/test";
+import { enterDungeonFromTown } from "./town-helpers.js";
 
 const map = (page: Page) => page.getByLabel("Dungeon map", { exact: true });
 const turns = (page: Page) => page.getByLabel("Turn count", { exact: true });
@@ -266,6 +267,7 @@ test("fresh starts, New Dungeon and seed replay restore starter potions without 
 	await page
 		.getByRole("button", { name: "Begin Adventure", exact: true })
 		.click();
+	await enterDungeonFromTown(page);
 	await expect(
 		page.getByRole("button", {
 			name: "Potion slot 1: Healing potion, 1 carried",
@@ -304,6 +306,7 @@ test("fresh starts, New Dungeon and seed replay restore starter potions without 
 		}),
 	).toBeVisible();
 	await page.getByRole("button", { name: "New Dungeon", exact: true }).click();
+	await enterDungeonFromTown(page);
 	await expect(
 		page.getByRole("button", {
 			name: "Potion slot 1: Healing potion, 1 carried",
@@ -495,6 +498,7 @@ test("welcome choices and keyboard Settings apply return control to the map", as
 	await page
 		.getByRole("button", { name: "Begin Adventure", exact: true })
 		.click();
+	await enterDungeonFromTown(page);
 	await expect(map(page)).toBeFocused();
 	await expect(
 		page.getByLabel("Adventure difficulty", { exact: true }),
@@ -519,6 +523,7 @@ test("welcome choices and keyboard Settings apply return control to the map", as
 		.getByRole("textbox", { name: "Floors", exact: true })
 		.press("Enter");
 	await expect(settings).toBeHidden();
+	await enterDungeonFromTown(page);
 	await expect(map(page)).toBeFocused();
 	await expect(
 		page.getByRole("heading", { name: "Floor 1 of 5" }),
@@ -628,6 +633,7 @@ test("a fatal committed turn opens defeat, freezes play and permits replay", asy
 	await page
 		.getByRole("button", { name: "Start from seed", exact: true })
 		.click();
+	await enterDungeonFromTown(page);
 	await expect(
 		page.getByRole("dialog", { name: "Settings", exact: true }),
 	).toBeHidden();
@@ -819,6 +825,7 @@ test("a queued corridor step stays canceled through confirmed save/load and a ne
 		page.getByRole("status", { name: "Corridor travel", exact: true }),
 	).toContainText("Running");
 	await page.getByRole("button", { name: "New Dungeon", exact: true }).click();
+	await enterDungeonFromTown(page);
 	await expect(turns(page)).toHaveText("Turn 0");
 	await page.waitForTimeout(400);
 	await expect(turns(page)).toHaveText("Turn 0");
@@ -840,6 +847,7 @@ test("a fatal ordinary corridor phase cancels its queue and replay starts idle",
 		.getByRole("button", { name: "Replay this seed", exact: true })
 		.click();
 	await expect(death).toBeHidden();
+	await enterDungeonFromTown(page);
 	await expect(map(page)).toBeFocused();
 	await page.waitForTimeout(350);
 	await expect(turns(page)).toHaveText("Turn 0");

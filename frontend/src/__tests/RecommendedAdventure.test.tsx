@@ -30,5 +30,5 @@ it("uses the recommended configuration on Begin and retains it for random restar
 		20,
 		expect.objectContaining({ rows: 40, cols: 40 }),
 	);
-	expect(screen.getByLabelText("Dungeon map", { exact: true })).toHaveFocus();
+	expect(screen.getByLabelText("Town map", { exact: true })).toHaveFocus();
 });

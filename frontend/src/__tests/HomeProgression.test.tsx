@@ -4,6 +4,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import * as GameState from "../domain/game/GameState";
 import { levelForExperience } from "../domain/game/Progression";
 import {
+	enterDungeonFromTown,
 	renderHome as render,
 	resetHomeTestState,
 	stubDungeonRun,
@@ -81,6 +82,7 @@ describe("Progression on the play screen", () => {
 		);
 		expect(screen.getByLabelText("Dungeon map", { exact: true })).toHaveFocus();
 		await user.click(screen.getByRole("button", { name: "New Dungeon" }));
+		await enterDungeonFromTown(user);
 		expect(screen.getByLabelText("Player experience")).toHaveTextContent(
 			"0 / 10 XP",
 		);

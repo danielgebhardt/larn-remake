@@ -2,6 +2,7 @@ import { screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import * as DungeonRun from "../domain/dungeon/DungeonRun.ts";
+import { enterDungeonFromTown } from "./HomeTestHelpers";
 import {
 	closeSettings,
 	DEFAULT_DUNGEON_CONFIG,
@@ -57,6 +58,7 @@ describe("Home seed replay", () => {
 		await user.clear(input);
 		await user.type(input, "123");
 		await user.click(screen.getByRole("button", { name: "Start from seed" }));
+		await enterDungeonFromTown(user);
 		await waitForSettingsClosed();
 		expect(screen.getByLabelText("Dungeon map", { exact: true })).toHaveFocus();
 		expect(generate).toHaveBeenCalledTimes(2);
@@ -83,6 +85,7 @@ describe("Home seed replay", () => {
 			const input = await openSettings(user);
 			await user.clear(input);
 			await user.type(input, "0{Enter}");
+			await enterDungeonFromTown(user);
 			await waitForSettingsClosed();
 			expect(
 				screen.getByRole("heading", { name: "Floor 1 of 3" }),
@@ -154,6 +157,7 @@ describe("Home seed replay", () => {
 		await user.clear(input);
 		expect(screen.queryByRole("alert")).not.toBeInTheDocument();
 		await user.type(input, " 00123 {Enter}");
+		await enterDungeonFromTown(user);
 		await waitForSettingsClosed();
 		const reopenedInput = await openSettings(user);
 		expect(screen.queryByRole("alert")).not.toBeInTheDocument();
@@ -196,6 +200,7 @@ describe("Home seed replay", () => {
 		const input = await openSettings(user);
 		await user.clear(input);
 		await user.type(input, "4294967295{Enter}");
+		await enterDungeonFromTown(user);
 		await waitForSettingsClosed();
 		expect(generate).toHaveBeenLastCalledWith(
 			4294967295,
@@ -222,6 +227,7 @@ describe("Home seed replay", () => {
 		let input = await openSettings(user);
 		await user.clear(input);
 		await user.type(input, "123{Enter}");
+		await enterDungeonFromTown(user);
 		await waitForSettingsClosed();
 		expect(
 			readDungeonCells(screen.getByRole("table", { name: "Dungeon" })),
@@ -229,6 +235,7 @@ describe("Home seed replay", () => {
 		input = await openSettings(user);
 		await user.clear(input);
 		await user.type(input, "0{Enter}");
+		await enterDungeonFromTown(user);
 		await waitForSettingsClosed();
 		expect(connect.mock.results[2].value).toEqual(originalRun);
 		expect(

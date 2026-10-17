@@ -22,6 +22,7 @@ const distance = (a: Coordinate, b: Coordinate) =>
 export const resolveTownAction = (
 	location: AdventureLocation,
 	action: unknown,
+	gateMessage = "Dungeon entrance — travel is not connected in this preview.",
 ): TownActionResult => {
 	const unchanged = (message: string, error?: string): TownActionResult => ({
 		location,
@@ -46,9 +47,7 @@ export const resolveTownAction = (
 				"The beacon is dying. No one has volunteered to tell it.",
 			);
 		if (distance(location.coordinate, TOWN.gate) <= 1)
-			return unchanged(
-				"Dungeon entrance — travel is not connected in this preview.",
-			);
+			return unchanged(gateMessage);
 		return unchanged(
 			"Quiet streets. Walk beside a doorway, the beacon or the dungeon gate and inspect again.",
 		);

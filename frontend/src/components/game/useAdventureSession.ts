@@ -42,6 +42,8 @@ const createRun = (
 	);
 };
 
+import { createTownLocation } from "../../domain/town/TownLocation";
+
 type Session = RestoredAdventure & { actionError: string };
 type SessionOptions = {
 	initialSeed?: number;
@@ -60,7 +62,7 @@ export const createAdventureSession = (
 		configuration.difficulty ?? 1,
 	);
 	return {
-		state,
+		state: { ...state, town: createTownLocation() },
 		configuration,
 		fog,
 		exploration: updateExploration(navigationRun(state), fog.radius),
@@ -86,32 +88,35 @@ export const useAdventureSession = ({
 				),
 	);
 	const { run } = session.state;
-	const currentItems = itemsAtPlayer(session.state);
+	const currentItems = session.state.town ? [] : itemsAtPlayer(session.state);
 	const activeFloor = navigationRun(session.state).floors[run.activeFloor - 1];
 	const activeObjects = useMemo(
 		() =>
 			session.state.objects.filter(
 				(object) =>
+					!session.state.town &&
 					object.floorNumber === run.activeFloor &&
 					objectAvailable(object) &&
 					!(object.kind === "gold" && object.activated),
 			),
-		[session.state.objects, run.activeFloor],
+		[session.state.objects, session.state.town, run.activeFloor],
 	);
 	const activeMonsters = useMemo(
 		() =>
 			session.state.monsters.filter(
 				(monster) =>
-					monster.floorNumber === run.activeFloor && monster.health > 0,
+					!session.state.town &&
+					monster.floorNumber === run.activeFloor &&
+					monster.health > 0,
 			),
-		[session.state.monsters, run.activeFloor],
+		[session.state.monsters, session.state.town, run.activeFloor],
 	);
 	const activeItems = useMemo(
 		() =>
 			session.state.floorItems.filter(
-				(item) => item.floorNumber === run.activeFloor,
+				(item) => !session.state.town && item.floorNumber === run.activeFloor,
 			),
-		[session.state.floorItems, run.activeFloor],
+		[session.state.floorItems, session.state.town, run.activeFloor],
 	);
 
 	const start = (seed: number, configuration: RunConfiguration): boolean => {
@@ -146,15 +151,28 @@ export const useAdventureSession = ({
 		setSession((current) => {
 			const result = resolvePlayerAction(current.state, action);
 			if (result.error) return { ...current, actionError: result.error };
-			if (result.state === current.state && !current.actionError)
+			if (
+				result.state === current.state &&
+				!current.actionError &&
+				!result.message
+			)
 				return current;
-			const nextExploration = result.turnAdvanced
-				? updateExploration(
-						navigationRun(result.state),
-						current.fog.radius,
-						current.exploration,
-					)
-				: current.exploration;
+			const nextExploration =
+				result.turnAdvanced ||
+				(current.state.town !== null && result.state.town === null)
+					? updateExploration(
+							navigationRun(result.state),
+							current.fog.radius,
+							current.exploration,
+						)
+					: current.exploration;
+			if (!result.turnAdvanced)
+				return {
+					...current,
+					state: result.state,
+					actionError: result.message ?? "",
+					exploration: nextExploration,
+				};
 			const events =
 				result.turnAdvanced &&
 				result.state.player.health > 0 &&

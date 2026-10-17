@@ -115,7 +115,7 @@ describe("Home Help menu", () => {
 	);
 	it("opens from the keyboard and keeps Space on the Help button from waiting", async () => {
 		const user = renderHelpRun();
-		await user.tab(); // New Dungeon
+		screen.getByRole("button", { name: "New Dungeon" }).focus(); // Start at the first header control
 		await user.tab(); // Character
 		await user.tab(); // Save/Load
 		await user.tab(); // Settings

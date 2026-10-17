@@ -122,7 +122,7 @@ describe("Character sheet", () => {
 	);
 	it("opens from the keyboard and keeps Space on its trigger from waiting", async () => {
 		const user = renderCharacterRun();
-		await user.tab(); // New Dungeon
+		screen.getByRole("button", { name: "New Dungeon" }).focus(); // Start at the first header control
 		await user.tab(); // Character
 		expect(screen.getByRole("button", { name: "Character" })).toHaveFocus();
 		await user.keyboard("{Enter}");

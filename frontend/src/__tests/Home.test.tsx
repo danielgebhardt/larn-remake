@@ -5,6 +5,7 @@ import * as DungeonGeneration from "../domain/dungeon/DungeonGeneration.ts";
 import { selectPlayerStart } from "../domain/dungeon/DungeonLocations.ts";
 import * as DungeonRun from "../domain/dungeon/DungeonRun.ts";
 import { FLOOR, WALL } from "../domain/dungeon/Tiles.ts";
+import { enterDungeonFromTown } from "./HomeTestHelpers";
 import {
 	renderHome as render,
 	resetHomeTestState,
@@ -246,6 +247,7 @@ describe("Home rendering and movement", () => {
 
 		generateSpy.mockReturnValue(second);
 		await user.click(screen.getByRole("button", { name: "New Dungeon" }));
+		await enterDungeonFromTown(user);
 
 		await user.keyboard("{ArrowUp}");
 

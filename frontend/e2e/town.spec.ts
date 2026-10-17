@@ -1,4 +1,5 @@
 import { expect, test } from "@playwright/test";
+import { enterDungeonFromTown } from "./town-helpers.js";
 
 test("fixed town preview works in both themes on phone, laptop and desktop without changing the adventure", async ({
 	page,
@@ -10,6 +11,7 @@ test("fixed town preview works in both themes on phone, laptop and desktop witho
 	await page
 		.getByRole("button", { name: "Begin Adventure", exact: true })
 		.click();
+	await enterDungeonFromTown(page);
 	const map = page.getByLabel("Dungeon map", { exact: true });
 	const originalPlayer = await map
 		.getByRole("cell", { name: / - player$/ })

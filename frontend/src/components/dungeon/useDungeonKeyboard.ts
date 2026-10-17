@@ -10,6 +10,7 @@ export type DungeonKeyboardOptions = {
 	onWaitRequested?: () => void;
 	onPickupRequested?: () => void;
 	onInteractRequested?: () => void;
+	onTravelRequested?: () => void;
 	onCharacterRequested?: () => void;
 	onPotionRequested?: (slot: HotbarSlot) => void;
 	onSpellSlotRequested?: (slot: SpellSlot) => void;
@@ -27,6 +28,7 @@ export const useDungeonKeyboard = ({
 	onWaitRequested,
 	onPickupRequested,
 	onInteractRequested,
+	onTravelRequested,
 	onCharacterRequested,
 	onPotionRequested,
 	onSpellRequested,
@@ -77,6 +79,22 @@ export const useDungeonKeyboard = ({
 					return;
 				event.preventDefault();
 				if (!event.repeat) onTargetingKey(key);
+				return;
+			}
+			if (
+				event.key === "Enter" &&
+				movementEnabled &&
+				onTravelRequested &&
+				!event.ctrlKey &&
+				!event.metaKey &&
+				!event.altKey &&
+				!(
+					event.target instanceof HTMLElement &&
+					event.target.closest(FOCUSED_CONTROLS)
+				)
+			) {
+				event.preventDefault();
+				if (!event.repeat) onTravelRequested();
 				return;
 			}
 			if (
@@ -235,6 +253,7 @@ export const useDungeonKeyboard = ({
 		onWaitRequested,
 		onPickupRequested,
 		onInteractRequested,
+		onTravelRequested,
 		onCharacterRequested,
 		onPotionRequested,
 		onSpellRequested,

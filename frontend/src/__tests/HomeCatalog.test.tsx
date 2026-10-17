@@ -114,8 +114,34 @@ describe("Developer catalog", () => {
 		expect(sheet.getByRole("tab", { name: "Spells" })).toHaveFocus();
 		expect(sheet.getByRole("tabpanel", { name: "Spells" })).toBeVisible();
 		await user.keyboard("{End}");
-		expect(sheet.getByRole("tabpanel", { name: "Terrain" })).toBeVisible();
+		expect(sheet.getByRole("tabpanel", { name: "Town" })).toBeVisible();
 		expect(screen.getByLabelText("Turn count")).toHaveTextContent("Turn 0");
+	});
+	it("keeps town preview walking isolated from the adventure and restores map focus", async () => {
+		renderHome(<Home />);
+		const user = userEvent.setup();
+		const originalPlayer = screen
+			.getByRole("cell", { name: / - player$/ })
+			.getAttribute("aria-label");
+		await user.click(screen.getByRole("button", { name: "Catalog" }));
+		const sheet = within(
+			await screen.findByRole("dialog", { name: "Developer catalog" }),
+		);
+		await user.click(sheet.getByRole("tab", { name: "Town" }));
+		expect(sheet.queryByRole("searchbox")).not.toBeInTheDocument();
+		await user.click(sheet.getByRole("region", { name: "Town map preview" }));
+		await user.keyboard("sse");
+		expect(sheet.getByRole("status")).toHaveTextContent(/not connected/i);
+		await user.keyboard("{Escape}");
+		await waitFor(() =>
+			expect(screen.queryByRole("dialog")).not.toBeInTheDocument(),
+		);
+		expect(screen.getByRole("cell", { name: / - player$/ })).toHaveAttribute(
+			"aria-label",
+			originalPlayer,
+		);
+		expect(screen.getByLabelText("Turn count")).toHaveTextContent("Turn 0");
+		expect(screen.getByLabelText("Dungeon map", { exact: true })).toHaveFocus();
 	});
 	it("keeps all potion kinds together, including ordinary mana potion", async () => {
 		renderHome(<Home />);

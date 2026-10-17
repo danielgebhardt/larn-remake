@@ -37,6 +37,7 @@ import {
 import ItemIcon from "../items/ItemIcon";
 import MonsterIcon from "../monsters/MonsterIcon";
 import DungeonObjectIcon from "../objects/DungeonObjectIcon";
+import TownPreview from "../town/TownPreview";
 import { SPELL_ICONS } from "./SpellHotbarView";
 
 const Preview = ({ icon }: { icon: ReactNode }) => (
@@ -70,6 +71,7 @@ const CATALOG_SECTIONS = [
 	"Items",
 	"Dungeon objects",
 	"Terrain",
+	"Town",
 ] as const;
 const Group = ({ name, children }: { name: string; children: ReactNode }) => (
 	<Tabs.Panel value={name} className="min-h-0 flex-1 overflow-y-auto">
@@ -121,6 +123,7 @@ const DeveloperCatalog = ({
 	finalFocus?: RefObject<HTMLElement | null> | false;
 }) => {
 	const [query, setQuery] = useState("");
+	const [townSelected, setTownSelected] = useState(false);
 	const filterId = useId();
 	const matches = (kind: string, name: string, description = "") =>
 		`${kind} ${name} ${description}`
@@ -136,12 +139,15 @@ const DeveloperCatalog = ({
 				<SheetDescription>
 					Normal baseline definitions and game SVGs. Active difficulty values
 					are shown in Help. Inspection is free; this view includes undiscovered
-					content.
+					content. The Town tab offers an isolated walkable town preview.
 				</SheetDescription>
 			</SheetHeader>
 			<Tabs.Root
 				defaultValue="Monsters"
-				onValueChange={() => setQuery("")}
+				onValueChange={(value) => {
+					setQuery("");
+					setTownSelected(value === "Town");
+				}}
 				className="flex min-h-0 flex-1 flex-col gap-4 px-4 pb-6"
 			>
 				<Tabs.List
@@ -159,19 +165,21 @@ const DeveloperCatalog = ({
 						</Tabs.Tab>
 					))}
 				</Tabs.List>
-				<label
-					htmlFor={filterId}
-					className="grid shrink-0 gap-2 text-sm font-medium"
-				>
-					Filter catalog
-					<Input
-						id={filterId}
-						type="search"
-						value={query}
-						onChange={(event) => setQuery(event.target.value)}
-						placeholder="Name, kind or description"
-					/>
-				</label>
+				{!townSelected && (
+					<label
+						htmlFor={filterId}
+						className="grid shrink-0 gap-2 text-sm font-medium"
+					>
+						Filter catalog
+						<Input
+							id={filterId}
+							type="search"
+							value={query}
+							onChange={(event) => setQuery(event.target.value)}
+							placeholder="Name, kind or description"
+						/>
+					</label>
+				)}
 				<Group name="Monsters">
 					{(Object.keys(MONSTER_DEFINITIONS) as MonsterKind[])
 						.filter((kind) =>
@@ -353,6 +361,9 @@ const DeveloperCatalog = ({
 							);
 						})}
 				</Group>
+				<Tabs.Panel value="Town" className="min-h-0 flex-1 overflow-y-auto">
+					<TownPreview />
+				</Tabs.Panel>
 			</Tabs.Root>
 		</SheetContent>
 	);

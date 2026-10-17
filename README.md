@@ -219,7 +219,13 @@ To demonstrate the exploration milestone:
 3. Open **Settings**, enter the noted seed, and start from it to recreate the complete run at its original start.
 4. Select **New Dungeon**, then explore again. Subsequent transitions use the new run's floors.
 
-Floor 1 has no up stair, and the deepest floor has no down stair. Floor count is configurable in Settings, from five to twenty floors; the recommended default is twenty 40×40 floors. Town and broader progression remain future work; local save/resume is implemented.
+Floor 1 has no up stair, and the deepest floor has no down stair. Floor count is configurable in Settings, from five to twenty floors; the recommended default is twenty 40×40 floors. Local save/resume is implemented. Town travel and services remain future work; its fixed level-0 foundation is available in **Catalog → Town**.
+
+### Town foundation preview
+
+**Catalog → Town** opens the authored 29 × 21 beacon town. Focus the map and use arrows/WASD, or the touch buttons, to walk; **E** inspects a nearby sign. All services are visibly closed. **Escape** returns focus to the unchanged dungeon. The town is independent of dungeon seed, size and floor count.
+
+The preview owns its location through town domain actions. Its versioned location snapshot validates layout identity and walkable coordinates; it is not yet part of adventure saves or a playable gate transition. #329 will connect live travel and its required save integration. No adventure turns, recovery, inventory or effects change in the preview. See [town rules](docs/town-rules.md) and the [fixed layout](docs/town-layout.md).
 
 ## Configuration
 

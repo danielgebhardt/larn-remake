@@ -1,3 +1,5 @@
+export const RELIQUARY_HEALTH_COST = 10;
+
 import type { Coordinate } from "../dungeon/DungeonTypes";
 export const OBJECT_DEFINITIONS = {
 	merchant: {

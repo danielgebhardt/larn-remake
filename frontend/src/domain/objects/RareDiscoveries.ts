@@ -4,7 +4,7 @@ import { appendActivityEvents } from "../game/ActivityHistory";
 import type { GameState } from "../game/GameState";
 import { ITEM_DEFINITIONS, type ItemKind } from "../items/Item";
 import { selectedRunSpellbooks } from "../items/SpellbookPlacement";
-import type { DungeonObject } from "./DungeonObject";
+import { type DungeonObject, RELIQUARY_HEALTH_COST } from "./DungeonObject";
 import { objectDamage, spendObject } from "./ObjectEffects";
 import type { ObjectChoice } from "./ObjectInteraction";
 export const openDiscovery = (
@@ -42,7 +42,7 @@ export const openDiscovery = (
 			: "mana-potion";
 	}
 	let next = spendObject(state, object);
-	const damage = object.kind === "reliquary" ? 3 : 0;
+	const damage = object.kind === "reliquary" ? RELIQUARY_HEALTH_COST : 0;
 	const event = {
 		type: "discovery-opened" as const,
 		kind: object.kind,

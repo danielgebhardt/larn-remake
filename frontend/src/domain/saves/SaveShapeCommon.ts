@@ -99,7 +99,7 @@ const eventFields = {
 	"discovery-opened": {
 		kind: oneOf(Object.keys(OBJECT_DEFINITIONS)),
 		item: itemKind,
-		damage: integer(0, 3),
+		damage: integer(0, 10),
 	},
 	"object-seen": {
 		kind: oneOf(Object.keys(OBJECT_DEFINITIONS)),

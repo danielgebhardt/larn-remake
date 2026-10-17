@@ -5,6 +5,7 @@ import {
 	type DungeonObject,
 	type DungeonObjectKind,
 	objectLabel,
+	RELIQUARY_HEALTH_COST,
 } from "./DungeonObject";
 
 const hints: Record<DungeonObjectKind, { fresh: string; spent: string }> = {
@@ -20,7 +21,7 @@ const hints: Record<DungeonObjectKind, { fresh: string; spent: string }> = {
 			"Press E within reach to close an unoccupied gate. Its chamber remains optional.",
 	},
 	reliquary: {
-		fresh: "Press E to review the seal’s 3-damage cost and rare ring reward.",
+		fresh: `Press E to review the seal’s ${RELIQUARY_HEALTH_COST}-damage cost and rare ring reward.`,
 		spent: "Seal broken; any remaining reward is on the floor for G pickup.",
 	},
 	archive: {

@@ -7,7 +7,7 @@ import {
 	monsterDamageRange,
 } from "../monsters/MonsterStats";
 import { fountainRestoration } from "./DungeonFountains";
-import type { DungeonObject } from "./DungeonObject";
+import { type DungeonObject, RELIQUARY_HEALTH_COST } from "./DungeonObject";
 import { shrineTerms } from "./DungeonShrines";
 import type { ObjectChoice } from "./ObjectInteraction";
 export type InteractionChoice = Readonly<{
@@ -69,8 +69,7 @@ export const objectChoices = (
 				{
 					value: "unseal",
 					label: "Break the seal",
-					description:
-						"Take 3 damage, ignoring armor and potentially fatal, to release a rare ring. The reward stays on the floor for G pickup. One turn; one use.",
+					description: `Take ${RELIQUARY_HEALTH_COST} damage, ignoring armor and difficulty, to release a rare ring. ${state ? `Health ${state.player.health} → ${Math.max(0, state.player.health - RELIQUARY_HEALTH_COST)}. ${state.player.health <= RELIQUARY_HEALTH_COST ? "This will kill you. " : ""}` : "Potentially fatal. "}The reward stays on the floor for G pickup. One turn; one use. Surviving the sacrifice still lets monsters act.`,
 				},
 			]
 		: object.kind === "archive"

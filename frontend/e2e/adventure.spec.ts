@@ -1782,3 +1782,30 @@ for (const dismiss of ["Escape", "Close"]) {
 		await expect(turns(page)).toHaveText("Turn 1");
 	});
 }
+
+test("reliquary confirms its ten-health lethal sacrifice and supports free cancellation", async ({
+	page,
+}) => {
+	await importAdventure(page, "reliquary-review");
+	await page.keyboard.press("e");
+	const choice = page.getByRole("dialog", {
+		name: "Sealed reliquary",
+		exact: true,
+	});
+	await expect(choice).toContainText(
+		"Take 10 damage, ignoring armor and difficulty",
+	);
+	await expect(choice).toContainText("Health 10 → 0. This will kill you.");
+	await page.keyboard.press("Escape");
+	await expect(map(page)).toBeFocused();
+	await expect(turns(page)).toHaveText("Turn 0");
+	await expect(page.getByLabel("Player health", { exact: true })).toContainText(
+		"10 / 10",
+	);
+	await page.keyboard.press("e");
+	await page.keyboard.press("1");
+	await expect(
+		page.getByRole("dialog", { name: "You died", exact: true }),
+	).toBeVisible();
+	await expect(page.getByRole("log")).toContainText("The seal deals 10 damage");
+});

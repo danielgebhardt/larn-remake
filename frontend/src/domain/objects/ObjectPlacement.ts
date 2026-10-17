@@ -87,6 +87,12 @@ export const spawnRunObjects = (
 	for (const [kind, definition] of Object.entries(OBJECT_DEFINITIONS)) {
 		if (definition.placement !== "room") continue;
 		for (const floor of run.floors) {
+			// Preserve the existing per-floor seeded chance, but stop after the first successful reliquary.
+			if (
+				kind === "reliquary" &&
+				objects.some((object) => object.kind === "reliquary")
+			)
+				break;
 			if (
 				floor.floorNumber < definition.minFloor ||
 				floor.floorNumber > definition.maxFloor

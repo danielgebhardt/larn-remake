@@ -569,6 +569,23 @@ export default async function prepareFixtures() {
 				},
 				configuration,
 			],
+			[
+				"reliquary-review",
+				{
+					...largeCorridor,
+					run: { ...largeRun, activeFloor: 8 },
+					objects: [
+						{
+							id: "floor:8:object:reliquary:1",
+							kind: "reliquary",
+							floorNumber: 8,
+							coordinate: { row: 50, col: 41 },
+							activated: false,
+						},
+					],
+				},
+				largeConfiguration,
+			],
 			["room-corridor", roomCorridor, largeConfiguration],
 			["corridor-large", largeCorridor, largeConfiguration],
 			[

@@ -7,8 +7,10 @@ import {
 import { DEFAULT_RUN_CONFIGURATION } from "../domain/dungeon/RunConfiguration";
 import { createGameState } from "../domain/game/GameState";
 import { resolvePlayerAction } from "../domain/game/PlayerActions";
+import { experienceThreshold } from "../domain/game/Progression";
 import { ITEM_DEFINITIONS } from "../domain/items/Item";
 import { protectedFloorLocations } from "../domain/monsters/MonsterLocations";
+import { objectChoices } from "../domain/objects/ObjectChoices";
 import {
 	createSaveDocument,
 	parseSave,
@@ -23,7 +25,11 @@ const encounter = (kind: "reliquary" | "archive") => {
 		...saved,
 		state: {
 			...saved.state,
-			player: { health: 10, maxHealth: 10 },
+			player: { health: 20, maxHealth: 20 },
+			progression: {
+				...saved.state.progression,
+				experience: experienceThreshold(6),
+			},
 			monsters: [],
 			objects: [
 				{
@@ -48,7 +54,7 @@ it("breaking a relic seal trades a stated wound for one retained relic, includin
 		type: "interact",
 		choice: "unseal",
 	}).state;
-	expect(result.player.health).toBe(7);
+	expect(result.player.health).toBe(10);
 	expect(
 		result.floorItems.some((entry) => entry.item.kind === "relic-band"),
 	).toBe(true);
@@ -132,3 +138,52 @@ it("rare room finds have bounded independent placement without changing terrain 
 		);
 	}
 });
+
+it("generates at most one deterministic reliquary across the entire dungeon", () => {
+	let found = 0;
+	for (let seed = 0; seed < 12; seed++) {
+		const run = connectDungeonFloors(
+			generateDungeonRun(seed, 20, DEFAULT_RUN_CONFIGURATION),
+		);
+		const state = createGameState(run);
+		const reliquaries = state.objects.filter(
+			(object) => object.kind === "reliquary",
+		);
+		expect(reliquaries.length).toBeLessThanOrEqual(1);
+		found += reliquaries.length;
+		expect(createGameState(run).objects).toEqual(state.objects);
+	}
+	expect(found).toBeGreaterThan(0);
+}, 15000);
+it.each([1, 10, 11, 48])(
+	"a ten-health sacrifice ignores armor/difficulty at %s HP and clearly warns of death",
+	(health) => {
+		const initial = encounter("reliquary").state;
+		for (const difficulty of [0.75, 1, 1.25] as const) {
+			const state = {
+				...initial,
+				difficulty,
+				player: { health, maxHealth: Math.max(health, 20) },
+				equipment: {
+					...initial.equipment,
+					chest: { id: "armor", kind: "dragon-mail" as const },
+				},
+			};
+			const description = objectChoices(state.objects[0], state)[0].description;
+			expect(description).toContain("10 damage");
+			expect(description).toContain("ignoring armor and difficulty");
+			if (health <= 10) expect(description).toContain("will kill you");
+			const result = resolvePlayerAction(state, {
+				type: "interact",
+				choice: "unseal",
+			});
+			expect(result.turnAdvanced).toBe(true);
+			expect(result.state.player.health).toBe(Math.max(0, health - 10));
+			expect(
+				result.state.floorItems.filter(
+					(entry) => entry.item.id === `${state.objects[0].id}:reward`,
+				),
+			).toHaveLength(1);
+		}
+	},
+);

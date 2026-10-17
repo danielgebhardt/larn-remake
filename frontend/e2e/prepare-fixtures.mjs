@@ -40,6 +40,9 @@ export default async function prepareFixtures() {
 		const fog = { ...DEFAULT_FOG_CONFIGURATION, enabled: false };
 		const run = connectDungeonFloors(generateDungeonRun(123, 5, configuration));
 		const fresh = createGameState(run, configuration.difficulty);
+		const { createTownLocation } = await load(
+			"/src/domain/town/TownLocation.ts",
+		);
 		const quiet = {
 			...fresh,
 			bag: { items: [] },
@@ -495,6 +498,23 @@ export default async function prepareFixtures() {
 				"evasion",
 				createReviewEncounter(3, 1172903873),
 				DEFAULT_RUN_CONFIGURATION,
+			],
+			[
+				"town-potions",
+				{
+					...quiet,
+					gold: 1000,
+					town: { ...createTownLocation(), coordinate: { row: 13, col: 4 } },
+					effects: [
+						{
+							actorId: "player",
+							floorNumber: null,
+							kind: "poisoned",
+							remaining: 3,
+						},
+					],
+				},
+				configuration,
 			],
 			["ready", quiet, configuration],
 			["poisoned", poisoned, configuration],

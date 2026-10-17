@@ -13,7 +13,7 @@ export type TownBuilding = Readonly<{
 	width: number;
 	height: number;
 	entry: Readonly<Coordinate>;
-	status: "closed";
+	status: "open" | "closed";
 }>;
 
 const buildings: readonly TownBuilding[] = Object.freeze(
@@ -81,7 +81,7 @@ const buildings: readonly TownBuilding[] = Object.freeze(
 		{
 			id: "potions",
 			name: "Potion store",
-			sign: "Potions — sealed until the apothecary returns.",
+			sign: "Potions — the apothecary returned. The prices survived.",
 			district: "Market Street",
 			mark: "P",
 			row: 14,
@@ -172,7 +172,8 @@ const buildings: readonly TownBuilding[] = Object.freeze(
 		Object.freeze({
 			...building,
 			entry: Object.freeze(building.entry),
-			status: "closed" as const,
+			status:
+				building.id === "potions" ? ("open" as const) : ("closed" as const),
 		}),
 	),
 );

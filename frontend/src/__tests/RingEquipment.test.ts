@@ -1,4 +1,5 @@
 // @vitest-environment node
+
 import { expect, it } from "vitest";
 import { resolvePlayerAction } from "../domain/game/PlayerActions";
 import { BAG_CAPACITY, createBag } from "../domain/items/Bag";
@@ -10,7 +11,7 @@ import {
 	restoreSave,
 	serializeSave,
 } from "../domain/saves/SaveFormat";
-import { savedAdventure } from "./SaveTestHelpers";
+import { historicalSaveText, savedAdventure } from "./SaveTestHelpers";
 
 const ring = { id: "ring:1", kind: "copper-ring" as const };
 it.each(["leftRing", "rightRing"] as const)(
@@ -84,7 +85,7 @@ it("migrates version-five equipment to empty ring slots and persists equipped ri
 			},
 		},
 	};
-	const migrated = parseSave(JSON.stringify(legacy));
+	const migrated = parseSave(historicalSaveText(legacy));
 	expect(migrated.ok).toBe(true);
 	if (!migrated.ok) throw new Error(migrated.error);
 	expect(migrated.value.state.equipment).toMatchObject({
@@ -135,5 +136,5 @@ it("rejects duplicated ring ownership in imported saves and charges normal turns
 			equipment: { ...saved.state.equipment, leftRing: ring, rightRing: ring },
 		},
 	};
-	expect(parseSave(JSON.stringify(duplicate)).ok).toBe(false);
+	expect(parseSave(historicalSaveText(duplicate)).ok).toBe(false);
 });

@@ -21,6 +21,10 @@ import { maximumMonsterHealth } from "../monsters/MonsterStats";
 import type { DungeonObject } from "../objects/DungeonObject";
 import { spawnRunObjects } from "../objects/ObjectPlacement";
 import { addOptionalEliteRooms } from "../objects/OptionalEliteRooms";
+import {
+	createTownPotionStock,
+	type TownPotionStock,
+} from "../town/TownEconomy";
 import type { TownLocation } from "../town/TownLocation";
 import {
 	type ActivityHistory,
@@ -37,6 +41,7 @@ import { createKnownSpells, type SpellKind } from "./Spells";
 import type { TimedEffect } from "./TimedEffects";
 
 export type GameState = {
+	townPotionStock: TownPotionStock;
 	town: TownLocation | null;
 	readonly difficulty: Difficulty;
 	merchantStock: MerchantStock;
@@ -85,6 +90,7 @@ export const createGameState = (
 	});
 	return {
 		town: null,
+		townPotionStock: createTownPotionStock(),
 		difficulty,
 		run,
 		escape: null,

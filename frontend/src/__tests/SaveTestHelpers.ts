@@ -57,3 +57,13 @@ export const savedAdventureWithPickupAndHealing = () => {
 		},
 	};
 };
+
+// Build historical inputs without the stock field introduced in v24. Played fields remain intact.
+export const historicalSaveText = (document: {
+	version: number;
+	state: object;
+}): string => {
+	const state = { ...document.state };
+	if (document.version < 24) Reflect.deleteProperty(state, "townPotionStock");
+	return JSON.stringify({ ...document, state });
+};

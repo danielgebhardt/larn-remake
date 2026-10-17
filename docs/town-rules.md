@@ -8,7 +8,7 @@ Town is a fixed authored level 0, with a layout identity, dimensions and coordin
 
 New/replayed adventures begin at the southern town approach facing the dungeon gate. Enter on the gate deliberately descends; Enter at the dungeon entrance deliberately returns. E remains object/sign inspection. Catalog retains an isolated preview.
 
-Town and dungeon locations are explicit alternatives. Entering town must retain the actual dungeon run and its discovery, actors, loot and state, not regenerate it. The entrance and nearby arrival cells are reserved walkable locations. Deliberate gate interaction will connect the town gate and floor-1 entrance in #329; walking over a gate alone will not switch locations.
+Town and dungeon locations are explicit alternatives. Entering town must retain the actual dungeon run and its discovery, actors, loot and state, not regenerate it. The entrance and nearby arrival cells are reserved walkable locations. Deliberate gate interaction connects the town gate and floor-1 entrance in #329; walking over a gate alone will not switch locations.
 
 ## Safety, time and resources
 
@@ -16,7 +16,7 @@ Town and dungeon locations are explicit alternatives. Entering town must retain 
 - Town walking, inspecting signs, opening/closing menus and normal gate travel do not advance adventure turns, the dungeon simulation, timed effects or passive recovery. Closed doors and blocked moves do nothing to resources or turns.
 - Health, mana, gold, equipment, inventory, spell knowledge and every timed-effect duration are retained on entering/leaving. Poison does not tick in town, but neither does healing, regeneration, buff duration or mana recovery. Real time, walking, waiting, browsing, reload and re-entry cannot restore resources.
 - Later town trades and services are free of dungeon time. Each transaction atomically changes only its stated payment, stock, ownership or service result. A healer may restore health only through its explicit paid service; shopping itself cannot tick healing/mana effects. Prices, finite stock, costs and later restock eligibility belong to #331 onward. Existing dungeon merchants keep their current one-turn trade rules and stock.
-- No rest button, free shrine, implicit refill, passive interest or cross-adventure storage is part of this foundation. Buildings are visibly closed until their service story opens them.
+- No rest button, free shrine, implicit refill, passive interest or cross-adventure storage is part of this foundation. The potion store opens in #332; other buildings remain visibly closed until their service story opens them.
 
 ## Ember homecoming and recall
 
@@ -30,7 +30,7 @@ Exit scrolls retain their exact behavior: return to floor 1 beside the dungeon e
 
 Death and victory retain ownership of ended adventures. Preview movement cannot move, revive or modify the actual character. Replay creates a new adventure with starting resources; it never carries service stock or stored goods across runs. Before #329, replay retains the current dungeon start; after #329 it may use the fixed town approach.
 
-Current and legacy dungeon saves keep their played dungeon locations and all actual owned state. They must not be moved into town, regenerated or granted resource changes on load. A town location must carry the supported layout identity and a valid walkable coordinate; reject unknown identities, blocked/out-of-bounds locations and a claimed dungeon floor 0. #329 integrates the town location into v23 adventure saves; v1–v22 saves retain their dungeon location. The broader inventory/stock audit remains in #342. Do not silently serialize a town visit as a dungeon floor.
+Current and legacy dungeon saves keep their played dungeon locations and all actual owned state. They must not be moved into town, regenerated or granted resource changes on load. A town location must carry the supported layout identity and a valid walkable coordinate; reject unknown identities, blocked/out-of-bounds locations and a claimed dungeon floor 0. #329 integrates the town location into v23 adventure saves; v1–v22 saves retain their dungeon location. V24 adds separately owned finite town-potion stock in #332; older saves initialize it once, and current saves retain actual depletion. The broader inventory/stock audit remains in #342. Do not silently serialize a town visit as a dungeon floor.
 
 ## Acceptance scenarios
 

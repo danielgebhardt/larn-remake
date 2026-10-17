@@ -2,7 +2,7 @@
 
 Reviewable authored plan for #325. See [the map](town-layout.svg) and [time/homecoming rules](town-rules.md). The developer explicitly requested a seed-independent town of its own fixed size; neither dungeon dimensions nor floor count affect this plan.
 
-The town is **29 columns × 21 rows**, indexed from 0. North is the top of the map. Its boundary is closed, roofs and the beacon plinth block walking, and door thresholds remain accessible from the streets. These are reserved service entrances, not enterable interiors. All services are closed in #328 and explain that status without opening an empty shop menu.
+The town is **29 columns × 21 rows**, indexed from 0. North is the top of the map. Its boundary is closed, roofs and the beacon plinth block walking, and door thresholds remain accessible from the streets. These are reserved service entrances, not enterable interiors. The #328 foundation diagram reserves closed services. #332 opens the potion store; other storefronts remain closed. In the foundation, all services are closed and explain that status without opening an empty shop menu.
 
 ## Routes and landmarks
 

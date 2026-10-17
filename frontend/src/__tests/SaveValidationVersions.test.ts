@@ -9,6 +9,7 @@ import { savedAdventure } from "./SaveTestHelpers";
 const sourceForVersion = (version: number) => {
 	const source = version <= 2 ? JSON.parse(versionOneFile) : savedAdventure();
 	source.version = version;
+	if (version < 24) Reflect.deleteProperty(source.state, "townPotionStock");
 	if (version === 2)
 		source.state.monsters = source.state.monsters.map((actor: object) => ({
 			...actor,
@@ -18,7 +19,7 @@ const sourceForVersion = (version: number) => {
 		source.state.spellHotbar = ["magic-missile", "heal", null, null];
 	return source;
 };
-const versions = Array.from({ length: 23 }, (_, index) => index + 1);
+const versions = Array.from({ length: 24 }, (_, index) => index + 1);
 
 describe("Supported save versions", () => {
 	it.each(versions)(
@@ -29,7 +30,7 @@ describe("Supported save versions", () => {
 			const result = validateSaveDocument(source);
 			expect(result.ok).toBe(true);
 			if (!result.ok) throw new Error(result.error);
-			expect(result.value.version).toBe(23);
+			expect(result.value.version).toBe(24);
 			expect(result.value.state.turn).toBe(source.state.turn);
 			expect(result.value.state.run).toEqual(source.state.run);
 			expect(source).toEqual(before);
@@ -104,7 +105,7 @@ describe("Supported save versions", () => {
 	it.each([
 		{},
 		{ version: 0 },
-		{ version: 24 },
+		{ version: 25 },
 		{ version: "19" },
 		{ version: "toString" },
 	])("reports unsupported versions for %j", (source) => {

@@ -41,7 +41,10 @@ export const resolveTownAction = (
 		const building = TOWN.buildings.find(
 			(building) => distance(location.coordinate, building.entry) <= 1,
 		);
-		if (building) return unchanged(`${building.sign} Closed.`);
+		if (building)
+			return unchanged(
+				`${building.sign} ${building.status === "open" ? "Open. Press E beside the door to browse." : "Closed."}`,
+			);
 		if (distance(location.coordinate, TOWN.beacon) <= 1)
 			return unchanged(
 				"The beacon is dying. No one has volunteered to tell it.",

@@ -1,4 +1,5 @@
 // @vitest-environment node
+
 import { expect, it } from "vitest";
 import { appendActivityEvents } from "../domain/game/ActivityHistory";
 import { resolvePlayerAction } from "../domain/game/PlayerActions";
@@ -7,7 +8,7 @@ import {
 	restoreSave,
 	serializeSave,
 } from "../domain/saves/SaveFormat";
-import { savedAdventure } from "./SaveTestHelpers";
+import { historicalSaveText, savedAdventure } from "./SaveTestHelpers";
 
 it("round-trips friendly fire and twenty-turn buffs, then continues deterministically", () => {
 	const source = savedAdventure();
@@ -28,12 +29,14 @@ it("round-trips friendly fire and twenty-turn buffs, then continues deterministi
 	const parsed = parseSave(serializeSave(source));
 	if (!parsed.ok) throw new Error(parsed.error);
 	expect(parsed.value).toEqual(source);
-	expect(parsed.value.version).toBe(23);
+	expect(parsed.value.version).toBe(24);
 	expect(
 		resolvePlayerAction(restoreSave(parsed.value).state, { type: "wait" }),
 	).toEqual(resolvePlayerAction(restoreSave(source).state, { type: "wait" }));
 	for (const version of [20, 21])
-		expect(parseSave(JSON.stringify({ ...source, version })).ok).toBe(false);
+		expect(parseSave(historicalSaveText({ ...source, version })).ok).toBe(
+			false,
+		);
 });
 it("migrates v21 without extending active timers, adding books or replacing played state", () => {
 	const source = { ...savedAdventure(), version: 21 };
@@ -41,9 +44,9 @@ it("migrates v21 without extending active timers, adding books or replacing play
 		{ actorId: "player", floorNumber: null, kind: "protected", remaining: 3 },
 	];
 	const before = structuredClone(source);
-	const parsed = parseSave(JSON.stringify(source));
+	const parsed = parseSave(historicalSaveText(source));
 	if (!parsed.ok) throw new Error(parsed.error);
-	expect(parsed.value).toEqual({ ...source, version: 23 });
+	expect(parsed.value).toEqual({ ...source, version: 24 });
 	expect(source).toEqual(before);
 });
 it.each([
@@ -56,7 +59,7 @@ it.each([
 	const history = source.state.activityHistory;
 	expect(
 		parseSave(
-			JSON.stringify({
+			historicalSaveText({
 				...source,
 				state: {
 					...source.state,

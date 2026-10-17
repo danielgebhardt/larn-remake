@@ -1,4 +1,5 @@
 // @vitest-environment node
+
 import { describe, expect, it } from "vitest";
 import {
 	connectDungeonFloors,
@@ -26,6 +27,7 @@ import {
 	restoreSave,
 	serializeSave,
 } from "../domain/saves/SaveFormat";
+import { historicalSaveText } from "./SaveTestHelpers";
 import { COMPACT_TEST_CONFIGURATION } from "./TestRunConfiguration";
 
 const configuration = { ...COMPACT_TEST_CONFIGURATION, floorCount: 20 };
@@ -133,7 +135,7 @@ describe("Shared merchant economy continuation", () => {
 			version: 16,
 			state: { ...document.state, merchantStock: undefined, objects },
 		};
-		const parsed = parseSave(JSON.stringify(old));
+		const parsed = parseSave(historicalSaveText(old));
 		if (!parsed.ok) throw new Error(parsed.error);
 		expect(
 			parsed.value.state.objects
@@ -155,7 +157,7 @@ describe("Shared merchant economy continuation", () => {
 		])
 			expect(
 				parseSave(
-					JSON.stringify({
+					historicalSaveText({
 						...document,
 						state: { ...document.state, bag: { items: [item] } },
 					}),

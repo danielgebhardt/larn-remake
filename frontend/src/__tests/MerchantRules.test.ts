@@ -1,4 +1,5 @@
 // @vitest-environment node
+
 import { describe, expect, it } from "vitest";
 import { ITEM_DEFINITIONS, type ItemKind } from "../domain/items/Item";
 import {
@@ -11,7 +12,7 @@ import {
 	restoreSave,
 	serializeSave,
 } from "../domain/saves/SaveFormat";
-import { savedAdventure } from "./SaveTestHelpers";
+import { historicalSaveText, savedAdventure } from "./SaveTestHelpers";
 
 describe("Shared merchant stock and prices", () => {
 	it("starts each adventure with independent stock of ten of each of four supplies", () => {
@@ -65,7 +66,7 @@ describe("Shared merchant stock and prices", () => {
 			version: 16,
 			state: { ...document.state, merchantStock: undefined },
 		};
-		const migrated = parseSave(JSON.stringify(old));
+		const migrated = parseSave(historicalSaveText(old));
 		if (!migrated.ok) throw new Error(migrated.error);
 		expect(migrated.value.state.merchantStock).toEqual(createMerchantStock());
 	});
@@ -75,7 +76,7 @@ describe("Shared merchant stock and prices", () => {
 			const document = savedAdventure();
 			expect(
 				parseSave(
-					JSON.stringify({
+					historicalSaveText({
 						...document,
 						state: {
 							...document.state,

@@ -1,4 +1,5 @@
 // @vitest-environment node
+
 import { expect, it } from "vitest";
 import { createGameState } from "../domain/game/GameState";
 import { damageMonster } from "../domain/game/MonsterDamage";
@@ -11,7 +12,7 @@ import {
 	serializeSave,
 } from "../domain/saves/SaveFormat";
 import { createCorridorEncounter } from "./MonsterEncounterTestHelpers";
-import { savedAdventure } from "./SaveTestHelpers";
+import { historicalSaveText, savedAdventure } from "./SaveTestHelpers";
 
 it("walking onto gold collects it once without bag space or an extra turn", () => {
 	const initial = {
@@ -79,7 +80,7 @@ it("saves gold and migrates pre-gold adventures with zero rather than rerolling 
 	expect(parseSave(serializeSave(doc))).toEqual({ ok: true, value: doc });
 	expect(
 		parseSave(
-			JSON.stringify({
+			historicalSaveText({
 				...doc,
 				version: 9,
 				state: {
@@ -91,6 +92,7 @@ it("saves gold and migrates pre-gold adventures with zero rather than rerolling 
 		),
 	).toMatchObject({ ok: true, value: { state: { gold: 0 } } });
 	expect(
-		parseSave(JSON.stringify({ ...doc, state: { ...doc.state, gold: -1 } })).ok,
+		parseSave(historicalSaveText({ ...doc, state: { ...doc.state, gold: -1 } }))
+			.ok,
 	).toBe(false);
 });

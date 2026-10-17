@@ -1,4 +1,5 @@
 // @vitest-environment node
+
 import { expect, it } from "vitest";
 import {
 	connectDungeonFloors,
@@ -16,7 +17,7 @@ import {
 	restoreSave,
 	serializeSave,
 } from "../domain/saves/SaveFormat";
-import { savedAdventure } from "./SaveTestHelpers";
+import { historicalSaveText, savedAdventure } from "./SaveTestHelpers";
 
 it("seeds doors in straight passage tiles without occupying actors, loot or protected stairs", () => {
 	const run = connectDungeonFloors(
@@ -100,7 +101,7 @@ it("preserves an opened door through saving and restores closed-door sight from 
 		state: { ...doc.state, spellHotbar: doc.state.spellHotbar.slice(0, 4) },
 	};
 	delete (old.state as Partial<typeof old.state>).objects;
-	const migrated = parseSave(JSON.stringify(old));
+	const migrated = parseSave(historicalSaveText(old));
 	if (!migrated.ok) throw new Error(migrated.error);
 	expect(migrated.value.state.objects).toEqual([]);
 });

@@ -1,4 +1,5 @@
 // @vitest-environment node
+
 import { describe, expect, it } from "vitest";
 import {
 	parseSave,
@@ -6,7 +7,7 @@ import {
 	serializeSave,
 } from "../domain/saves/SaveFormat";
 import versionThirteenFile from "./fixtures/adventure-v13.json?raw";
-import { savedAdventure } from "./SaveTestHelpers";
+import { historicalSaveText, savedAdventure } from "./SaveTestHelpers";
 
 const escapingAdventure = () => {
 	const document = savedAdventure();
@@ -41,9 +42,9 @@ describe("Saved escape phase", () => {
 	});
 	it("starts legacy cure carriers in escape and exempts their current floor from fresh spawns", () => {
 		const legacy = { ...escapingAdventure(), version: 13 };
-		const parsed = parseSave(JSON.stringify(legacy));
+		const parsed = parseSave(historicalSaveText(legacy));
 		if (!parsed.ok) throw new Error(parsed.error);
-		expect(parsed.value.version).toBe(23);
+		expect(parsed.value.version).toBe(24);
 		expect(parsed.value.state.escape).toEqual({
 			startedTurn: legacy.state.turn,
 			activatedFloors: [1],
@@ -59,7 +60,7 @@ describe("Saved escape phase", () => {
 		const document = escapingAdventure();
 		expect(
 			parseSave(
-				JSON.stringify({
+				historicalSaveText({
 					...document,
 					state: { ...document.state, escape: escapeState },
 				}),
@@ -70,7 +71,7 @@ describe("Saved escape phase", () => {
 		const document = savedAdventure();
 		expect(
 			parseSave(
-				JSON.stringify({
+				historicalSaveText({
 					...document,
 					state: {
 						...document.state,

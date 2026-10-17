@@ -40,6 +40,7 @@ import MerchantDialog from "./components/merchant/MerchantDialog";
 import ObjectChoiceDialog from "./components/objects/ObjectChoiceDialog";
 import ObjectContext from "./components/objects/ObjectContext";
 import TownMap from "./components/town/TownMap";
+import TownPotionShop from "./components/town/TownPotionShop";
 import {
 	DEFAULT_FOG_CONFIGURATION,
 	DEFAULT_RUN_CONFIGURATION,
@@ -60,6 +61,7 @@ import {
 	type RestoredAdventure,
 	type SaveDocument,
 } from "./domain/saves/SaveFormat";
+import { canReachTownPotionStore } from "./domain/town/TownPotionStore";
 import { atDungeonEntrance, atTownGate } from "./domain/town/TownTravel";
 import Header from "./Header.tsx";
 import DungeonSettings from "./settings/DungeonSettings.tsx";
@@ -127,6 +129,7 @@ const Home = ({
 	const [settingsOpen, setSettingsOpen] = useState(false);
 	const [saveOpen, setSaveOpen] = useState(false);
 	const [restoreMapFocus, setRestoreMapFocus] = useState(false);
+	const [townShopOpen, setTownShopOpen] = useState(false);
 	const [catalogOpen, setCatalogOpen] = useState(false);
 	const [helpOpen, setHelpOpen] = useState(false);
 	const [characterOpen, setCharacterOpen] = useState(false);
@@ -154,6 +157,7 @@ const Home = ({
 		setInteractionObject(null);
 		setInteractionTargets([]);
 		setMerchantId(null);
+		setTownShopOpen(false);
 		setSettingsOpen(false);
 		setSaveOpen(false);
 		setHelpOpen(false);
@@ -192,6 +196,7 @@ const Home = ({
 		setInteractionObject(null);
 		setInteractionTargets([]);
 		setMerchantId(null);
+		setTownShopOpen(false);
 		setConfigDraft(configurationDraft(nextConfiguration));
 		setConfigErrors({});
 		setGenerationError(null);
@@ -213,6 +218,7 @@ const Home = ({
 		setInteractionObject(null);
 		setInteractionTargets([]);
 		setMerchantId(null);
+		setTownShopOpen(false);
 		setCharacterOpen(false);
 		setHelpOpen(false);
 		setCatalogOpen(false);
@@ -288,6 +294,7 @@ const Home = ({
 	};
 	const mapInputAvailable =
 		merchantId === null &&
+		!townShopOpen &&
 		!deathOpen &&
 		interactionObject === null &&
 		interactionTargets.length === 0 &&
@@ -616,13 +623,25 @@ const Home = ({
 										location={town}
 										mapRef={mapRef}
 										enabled={gameplayEnabled}
-										onAction={(action) =>
-											handleActionRequested(
-												action.type === "inspect"
-													? { type: "inspect-town" }
-													: action,
-											)
+										interactionLabel={
+											canReachTownPotionStore(game.state)
+												? "Potion store (E)"
+												: "Inspect nearby"
 										}
+										onAction={(action) => {
+											if (
+												action.type === "inspect" &&
+												canReachTownPotionStore(game.state)
+											) {
+												setActionError("");
+												setTownShopOpen(true);
+											} else
+												handleActionRequested(
+													action.type === "inspect"
+														? { type: "inspect-town" }
+														: action,
+												);
+										}}
 										onTravel={
 											atTownGate(game.state)
 												? () =>
@@ -728,7 +747,7 @@ const Home = ({
 									className="h-16 shrink-0 overflow-y-auto py-2 text-sm text-muted-foreground lg:h-12"
 								>
 									{game.actionError ||
-										"All shops closed. Arrows/WASD to walk; E inspects signs. Stand on the south gate and press Enter to descend. Town actions do not advance time or restore resources."}
+										"Potion store open; other shops closed. Arrows/WASD to walk; E inspects signs. Stand on the south gate and press Enter to descend. Town actions do not advance time or restore resources."}
 								</p>
 							) : (
 								<div className="relative h-16 shrink-0 lg:h-12">
@@ -819,6 +838,14 @@ const Home = ({
 					if (startRun(run.seed, configuration))
 						mapRef.current?.focus({ preventScroll: true });
 				}}
+				mapRef={mapRef}
+			/>
+			<TownPotionShop
+				open={townShopOpen && canPlay}
+				state={game.state}
+				error={game.actionError}
+				onClose={() => setTownShopOpen(false)}
+				onBuy={handleActionRequested}
 				mapRef={mapRef}
 			/>
 			<MerchantDialog

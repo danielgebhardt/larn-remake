@@ -41,7 +41,9 @@ describe("fixed level-zero town", () => {
 		}
 		expect(TOWN.buildings).toHaveLength(10);
 		for (const building of TOWN.buildings) {
-			expect(building.status).toBe("closed");
+			expect(building.status).toBe(
+				building.id === "potions" ? "open" : "closed",
+			);
 			expect(TOWN.terrain[building.entry.row][building.entry.col]).toBe("D");
 			expect(
 				distances.get(`${building.entry.row},${building.entry.col}`),
@@ -127,7 +129,7 @@ describe("fixed level-zero town", () => {
 		};
 		const result = resolveTownAction(location, { type: "inspect" });
 		expect(result.location).toBe(location);
-		expect(result.message).toMatch(/Potions.*Closed/);
+		expect(result.message).toMatch(/Potions.*Open/);
 		expect(result.turnAdvanced).toBe(false);
 	});
 	it.each([

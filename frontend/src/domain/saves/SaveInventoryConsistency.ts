@@ -9,6 +9,7 @@ import {
 	MERCHANT_OFFERS,
 	type MerchantSupply,
 } from "../merchant/MerchantRules";
+import { TOWN_POTION_OFFERS, type TownPotion } from "../town/TownEconomy";
 import { savedLocations, unique } from "./SaveConsistencyHelpers";
 import type { SaveSourceDocument } from "./SaveSource";
 
@@ -53,6 +54,25 @@ export const hasConsistentInventory = (
 			)
 				return false;
 		}
+
+	for (const item of allItems) {
+		if (!item.id.startsWith("town-potion:")) continue;
+		if (document.version !== 24) return false;
+		const parts = item.id.split(":"),
+			kind = parts[1] as TownPotion,
+			index = Number(parts[2]);
+		if (
+			parts.length !== 3 ||
+			kind !== item.kind ||
+			!Object.hasOwn(TOWN_POTION_OFFERS, kind) ||
+			!Number.isSafeInteger(index) ||
+			index < 1 ||
+			String(index) !== parts[2] ||
+			index >
+				TOWN_POTION_OFFERS[kind].quantity - document.state.townPotionStock[kind]
+		)
+			return false;
+	}
 
 	for (const [name, entry] of Object.entries(state.equipment))
 		if (entry && !fitsEquipmentSlot(entry, name as EquipmentSlot)) return false;

@@ -8,6 +8,7 @@ import {
 	restoreSave,
 	serializeSave,
 } from "../domain/saves/SaveFormat";
+import { createTownPotionStock } from "../domain/town/TownEconomy";
 import versionOneFile from "./fixtures/adventure-v1.json?raw";
 import { savedAdventure } from "./SaveTestHelpers";
 
@@ -52,11 +53,12 @@ describe("Monster intent and versioned saves", () => {
 		if (!parsed.ok) throw new Error(parsed.error);
 		expect(parsed.value).toEqual({
 			...legacy,
-			version: 23,
+			version: 24,
 			configuration: { ...legacy.configuration, difficulty: 1 },
 			state: {
 				...legacy.state,
 				town: null,
+				townPotionStock: createTownPotionStock(),
 				equipment: {
 					...legacy.state.equipment,
 					leftRing: null,
@@ -88,7 +90,7 @@ describe("Monster intent and versioned saves", () => {
 		const parsed = parseSave(serializeSave(document));
 		if (!parsed.ok) throw new Error(parsed.error);
 		const restored = restoreSave(parsed.value);
-		expect(parsed.value.version).toBe(23);
+		expect(parsed.value.version).toBe(24);
 		expect(restored.state.monsters).toEqual([preparing]);
 		const written = createSaveDocument(
 			restored.state,

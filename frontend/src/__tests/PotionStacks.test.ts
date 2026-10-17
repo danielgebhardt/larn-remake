@@ -1,11 +1,12 @@
 // @vitest-environment node
+
 import { describe, expect, it } from "vitest";
 import { createGameState } from "../domain/game/GameState";
 import { resolvePlayerAction } from "../domain/game/PlayerActions";
 import { BAG_CAPACITY, bagSlots, createBag } from "../domain/items/Bag";
 import type { ItemInstance, ItemKind } from "../domain/items/Item";
 import { parseSave, serializeSave } from "../domain/saves/SaveFormat";
-import { savedAdventure } from "./SaveTestHelpers";
+import { historicalSaveText, savedAdventure } from "./SaveTestHelpers";
 import { createThreeFloorTraversalRun } from "./testhelpers";
 
 const copies = (kind: ItemKind, count: number): ItemInstance[] =>
@@ -103,7 +104,7 @@ describe("Potion stacks and 27 bag slots", () => {
 		]) {
 			expect(
 				parseSave(
-					JSON.stringify({
+					historicalSaveText({
 						...document,
 						state: { ...document.state, bag: { items } },
 					}),
@@ -127,14 +128,14 @@ describe("Potion stacks and 27 bag slots", () => {
 				bag: { items: copies("mana-potion", 20) },
 			},
 		};
-		const parsed = parseSave(JSON.stringify(legacy));
+		const parsed = parseSave(historicalSaveText(legacy));
 		expect(parsed.ok).toBe(true);
 		if (!parsed.ok) throw new Error(parsed.error);
 		expect(parsed.value.state.bag.items).toEqual(legacy.state.bag.items);
 		expect(bagSlots(parsed.value.state.bag)[0].count).toBe(20);
 		expect(
 			parseSave(
-				JSON.stringify({
+				historicalSaveText({
 					...legacy,
 					state: { ...legacy.state, bag: current.state.bag },
 				}),

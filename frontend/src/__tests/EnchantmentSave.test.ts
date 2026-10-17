@@ -1,4 +1,5 @@
 // @vitest-environment node
+
 import { describe, expect, it } from "vitest";
 import { deriveCombatStats } from "../domain/game/CombatStats";
 import {
@@ -7,7 +8,7 @@ import {
 	restoreSave,
 	serializeSave,
 } from "../domain/saves/SaveFormat";
-import { savedAdventure } from "./SaveTestHelpers";
+import { historicalSaveText, savedAdventure } from "./SaveTestHelpers";
 
 describe("Versioned owned enchantments", () => {
 	it("round-trips equipped, bag and dropped bonuses while selecting only declared item fields", () => {
@@ -34,7 +35,7 @@ describe("Versioned owned enchantments", () => {
 		];
 		const parsed = parseSave(serializeSave(document));
 		if (!parsed.ok) throw new Error(parsed.error);
-		expect(parsed.value.version).toBe(23);
+		expect(parsed.value.version).toBe(24);
 		const restored = restoreSave(parsed.value);
 		expect(restored.state.equipment.mainHand?.enchantment).toBe(2);
 		expect(restored.state.bag.items[0].enchantment).toBe(1);
@@ -66,7 +67,7 @@ describe("Versioned owned enchantments", () => {
 			const document = savedAdventure();
 			expect(
 				parseSave(
-					JSON.stringify({
+					historicalSaveText({
 						...document,
 						state: {
 							...document.state,
@@ -88,7 +89,7 @@ describe("Versioned owned enchantments", () => {
 		for (const kind of ["ring-strength", "healing-potion"]) {
 			expect(
 				parseSave(
-					JSON.stringify({
+					historicalSaveText({
 						...document,
 						state: {
 							...document.state,
@@ -102,7 +103,7 @@ describe("Versioned owned enchantments", () => {
 	it("does not promote unknown legacy item metadata to an owned bonus", () => {
 		const document = savedAdventure();
 		const parsed = parseSave(
-			JSON.stringify({
+			historicalSaveText({
 				...document,
 				version: 17,
 				state: {

@@ -17,7 +17,8 @@ export const isConsistentSave = (document: SaveSourceDocument): boolean =>
 	hasConsistentTown(document);
 
 const hasConsistentTown = (document: SaveSourceDocument): boolean => {
-	if (document.version !== 23 || document.state.town === null) return true;
+	if (document.version !== 23 && document.version !== 24) return true;
+	if (document.state.town === null) return true;
 	const { state } = document;
 	return (
 		isTownLocation(state.town) &&

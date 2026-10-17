@@ -49,6 +49,10 @@ import {
 } from "../objects/ObjectInteraction";
 import { resolveTownAction } from "../town/TownActions";
 import {
+	type BuyTownPotionAction,
+	buyTownPotion,
+} from "../town/TownPotionStore";
+import {
 	type TownTravelAction,
 	travelBetweenTownAndDungeon,
 } from "../town/TownTravel";
@@ -74,6 +78,7 @@ import {
 import { advanceTimedEffects } from "./TimedEffects";
 
 export type PlayerAction =
+	| BuyTownPotionAction
 	| TownTravelAction
 	| { type: "inspect-town" }
 	| ExitDungeonAction
@@ -107,7 +112,9 @@ export const resolvePlayerAction = (
 		return {
 			state,
 			turnAdvanced: false,
-			...(action.type === "cast" || action.type === "travel"
+			...(action.type === "cast" ||
+			action.type === "travel" ||
+			action.type === "buy-town-potion"
 				? { error: "The adventure is complete." }
 				: {}),
 		};
@@ -143,12 +150,13 @@ export const resolvePlayerAction = (
 			turnAdvanced: false,
 			...(action.type === "cast"
 				? { error: "You cannot cast after death." }
-				: action.type === "travel"
+				: action.type === "travel" || action.type === "buy-town-potion"
 					? { error: "This adventure has ended." }
 					: {}),
 		};
 	if (action.type === "travel")
 		return travelBetweenTownAndDungeon(state, action);
+	if (action.type === "buy-town-potion") return buyTownPotion(state, action);
 	if (state.town) {
 		if (action.type === "wait") return { state, turnAdvanced: false };
 		if (action.type !== "move" && action.type !== "inspect-town")
@@ -237,6 +245,7 @@ const resolvePlayerEffect = (
 		| HotbarAction
 		| SpellAssignmentAction
 		| TownTravelAction
+		| BuyTownPotionAction
 		| { type: "inspect-town" }
 	>,
 	rollSource: AttackRollSource,

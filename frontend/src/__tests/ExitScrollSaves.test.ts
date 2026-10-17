@@ -9,6 +9,7 @@ import {
 	serializeSave,
 } from "../domain/saves/SaveFormat";
 import { corridorContinuationAdventure } from "./CorridorContinuationTestHelpers";
+import { historicalSaveText } from "./SaveTestHelpers";
 
 const snapshot = () => {
 	const base = corridorContinuationAdventure();
@@ -34,7 +35,7 @@ it("round-trips scroll copies and the explicit exit event, then continues determ
 	const document = snapshot();
 	const loaded = parseSave(serializeSave(document));
 	if (!loaded.ok) throw new Error(loaded.error);
-	expect(loaded.value.version).toBe(23);
+	expect(loaded.value.version).toBe(24);
 	const restored = restoreSave(loaded.value);
 	const result = resolvePlayerAction(restored.state, {
 		type: "exit-dungeon",
@@ -72,9 +73,9 @@ it("migrates an actual v20 snapshot without injecting scrolls or regenerating pl
 		version: 20,
 	};
 	const before = structuredClone(source);
-	const parsed = parseSave(JSON.stringify(source));
+	const parsed = parseSave(historicalSaveText(source));
 	if (!parsed.ok) throw new Error(parsed.error);
-	expect(parsed.value).toEqual({ ...source, version: 23 });
+	expect(parsed.value).toEqual({ ...source, version: 24 });
 	expect(source).toEqual(before);
 });
 it("restores ember possession and denies every scroll use without consuming or spending a turn", () => {
@@ -96,7 +97,7 @@ it("restores ember possession and denies every scroll use without consuming or s
 it.each([1, 19, 20])(
 	"rejects new scroll ownership declared as legacy v%s",
 	(version) => {
-		expect(parseSave(JSON.stringify({ ...snapshot(), version })).ok).toBe(
+		expect(parseSave(historicalSaveText({ ...snapshot(), version })).ok).toBe(
 			false,
 		);
 	},
@@ -125,7 +126,7 @@ it("rejects unknown item kinds, invalid enhancement and duplicate scroll ownersh
 	const document = snapshot();
 	expect(
 		parseSave(
-			JSON.stringify({
+			historicalSaveText({
 				...document,
 				state: {
 					...document.state,
@@ -136,7 +137,7 @@ it("rejects unknown item kinds, invalid enhancement and duplicate scroll ownersh
 	).toBe(false);
 	expect(
 		parseSave(
-			JSON.stringify({
+			historicalSaveText({
 				...document,
 				state: {
 					...document.state,
@@ -149,7 +150,7 @@ it("rejects unknown item kinds, invalid enhancement and duplicate scroll ownersh
 	).toBe(false);
 	expect(
 		parseSave(
-			JSON.stringify({
+			historicalSaveText({
 				...document,
 				state: {
 					...document.state,

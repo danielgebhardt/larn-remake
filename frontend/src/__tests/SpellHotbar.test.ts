@@ -1,4 +1,5 @@
 // @vitest-environment node
+
 import { expect, it } from "vitest";
 import { createGameState } from "../domain/game/GameState";
 import { resolvePlayerAction } from "../domain/game/PlayerActions";
@@ -9,7 +10,7 @@ import {
 	serializeSave,
 } from "../domain/saves/SaveFormat";
 import { createCorridorEncounter } from "./MonsterEncounterTestHelpers";
-import { savedAdventure } from "./SaveTestHelpers";
+import { historicalSaveText, savedAdventure } from "./SaveTestHelpers";
 
 it("assigns known spells without turns and moves an existing assignment instead of duplicating it", () => {
 	const state = {
@@ -74,7 +75,7 @@ it("rejects an unlearned spell without changing state or spending a turn", () =>
 it("round trips custom assignments and migrates v3 knowledge into default slots", () => {
 	const saved = savedAdventure();
 	const old = { ...saved, version: 3 };
-	const migrated = parseSave(JSON.stringify(old));
+	const migrated = parseSave(historicalSaveText(old));
 	expect(migrated.ok).toBe(true);
 	if (!migrated.ok) throw new Error(migrated.error);
 	expect(migrated.value.state.spellHotbar).toEqual([
@@ -122,7 +123,7 @@ it.each([
 	const document = savedAdventure();
 	expect(
 		parseSave(
-			JSON.stringify({
+			historicalSaveText({
 				...document,
 				state: { ...document.state, spellHotbar: slots },
 			}),

@@ -3,6 +3,7 @@ import { HEALTH_PER_LEVEL, levelForExperience } from "../game/Progression";
 import { createSpellHotbar } from "../game/SpellHotbar";
 import { placeMerchants } from "../merchant/MerchantPlacement";
 import { createMerchantStock } from "../merchant/MerchantRules";
+import { createTownPotionStock } from "../town/TownEconomy";
 import type { SaveDocumentV1 } from "./SaveDocumentV1";
 import type { SaveDocumentV2 } from "./SaveDocumentV2";
 import type { SaveDocumentV3 } from "./SaveDocumentV3";
@@ -326,9 +327,23 @@ const migratePlayedSaveToV22 = (
 		? document
 		: { ...migratePlayedSaveToV21(document), version: 22 };
 
-export const migratePlayedSave = (
+const migratePlayedSaveToV23 = (
 	document: Parameters<typeof migratePlayedSaveToV22>[0],
 ): import("./SaveDocumentV23").SaveDocumentV23 => {
 	const previous = migratePlayedSaveToV22(document);
 	return { ...previous, version: 23, state: { ...previous.state, town: null } };
+};
+
+export const migratePlayedSave = (
+	document:
+		| Parameters<typeof migratePlayedSaveToV23>[0]
+		| import("./SaveDocumentV23").SaveDocumentV23,
+): import("./SaveDocumentV24").SaveDocumentV24 => {
+	const previous =
+		document.version === 23 ? document : migratePlayedSaveToV23(document);
+	return {
+		...previous,
+		version: 24,
+		state: { ...previous.state, townPotionStock: createTownPotionStock() },
+	};
 };

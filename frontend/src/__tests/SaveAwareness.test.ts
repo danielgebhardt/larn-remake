@@ -1,11 +1,12 @@
 // @vitest-environment node
+
 import { describe, expect, it } from "vitest";
 import {
 	parseSave,
 	restoreSave,
 	serializeSave,
 } from "../domain/saves/SaveFormat";
-import { savedAdventure } from "./SaveTestHelpers";
+import { historicalSaveText, savedAdventure } from "./SaveTestHelpers";
 
 describe("Saved monster awareness", () => {
 	it("retains the last seen tile and remaining pursuit phases", () => {
@@ -39,7 +40,7 @@ describe("Saved monster awareness", () => {
 	it("migrates v12 actors to idle without trusting unknown awareness data", () => {
 		const document = savedAdventure();
 		const legacy = { ...document, version: 12 };
-		const parsed = parseSave(JSON.stringify(legacy));
+		const parsed = parseSave(historicalSaveText(legacy));
 		expect(parsed.ok).toBe(true);
 		if (!parsed.ok) throw new Error(parsed.error);
 		expect(
@@ -62,7 +63,7 @@ describe("Saved monster awareness", () => {
 			};
 			expect(
 				parseSave(
-					JSON.stringify({
+					historicalSaveText({
 						...document,
 						state: {
 							...document.state,

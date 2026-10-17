@@ -210,7 +210,7 @@ In **Settings**, **Enable fog of war** immediately switches between exploration 
 
 Settings focuses the seed input when opened and contains keyboard focus while open. Game movement and stair transitions are suspended throughout the panel. Use Escape or **Close** to dismiss it without applying a draft; focus returns to the dungeon map and all gameplay shortcuts resume. Focused toolbar controls retain their own keys. Opening, closing, or editing settings does not regenerate the dungeon. Unsubmitted drafts are retained during this session; **New Dungeon** resets the draft and feedback to match the new run.
 
-**New Dungeon** requests a random seed across that same range and replaces the entire run: all floors and stair links, depth, and player position. It returns the player to floor 1 at the new run's selected start. The displayed seed and input update to the new seed. A random seed can repeat; restarting still resets exploration, including when the seed repeats.
+**New Dungeon** requests a random seed across that same range and replaces the entire run: all floors and stair links, depth, and player position. It starts the player in town, retaining the new dungeon at its floor-1 entrance. The displayed seed and input update to the new seed. A random seed can repeat; restarting still resets exploration, including when the seed repeats.
 
 To demonstrate the exploration milestone:
 
@@ -219,13 +219,17 @@ To demonstrate the exploration milestone:
 3. Open **Settings**, enter the noted seed, and start from it to recreate the complete run at its original start.
 4. Select **New Dungeon**, then explore again. Subsequent transitions use the new run's floors.
 
-Floor 1 has no up stair, and the deepest floor has no down stair. Floor count is configurable in Settings, from five to twenty floors; the recommended default is twenty 40×40 floors. Local save/resume is implemented. Town travel and services remain future work; its fixed level-0 foundation is available in **Catalog → Town**.
+Floor 1 has no up stair, and the deepest floor has no down stair. Floor count is configurable in Settings, from five to twenty floors; the recommended default is twenty 40×40 floors. Local save/resume is implemented. Town travel and the potion store are implemented; the remaining town services stay on the backlog. **Catalog → Town** offers a separate preview.
 
 ### Beacon town and dungeon travel
 
 New and replayed adventures begin in the same authored 29 × 21 town, regardless of dungeon seed or size. Walk with arrows/WASD or touch controls. Stand on the south dungeon gate and press **Enter** (or **Enter dungeon**) to descend. At the floor-1 entrance, **Enter** or **Return to town** makes a deliberate free return; **E** still interacts with nearby objects. Gate crossings never regenerate the dungeon or advance combat, effects or recovery. The ember still wins at the floor-1 entrance and cannot be taken on a town detour.
 
-Save format **v23** retains town location/layout identity alongside the actual dungeon and discovery. Valid v1–v22 saves migrate in their existing dungeon location. Ended/ember-carrying town saves, unknown layouts and invalid arrivals are rejected. Shops remain closed until their service stories. **Catalog → Town** remains an isolated preview. See [town rules](docs/town-rules.md) and the [fixed layout](docs/town-layout.md).
+Save format **v24** retains town location/layout identity, the actual dungeon and discovery, and actual town potion stock. V1–v22 saves stay in their played dungeon location; v23 retains its saved location. Older adventures receive initial town stock once during migration. Unknown layouts, invalid/ended town locations, invalid stock and purchased identities inconsistent with depletion are rejected. The potion store is open; other storefronts remain closed. **Catalog → Town** remains an isolated preview. See [town rules](docs/town-rules.md) and the [fixed layout](docs/town-layout.md).
+
+Walk beside the **P / flask** storefront on Market Street (door 14, 4) and press **E**, or choose **Potion store (E)**. Eight existing potions show their effects, price, quantity and affordability. Choose a bottle, then explicitly confirm. Canceling is free; buying changes only the quoted payment, actual bottle, finite stock, hotbar and purchase log. It never heals, advances time or refills stock. Town and wandering stock are separate; neither restocks. See [provisional prices and budget evidence](docs/town-economy.md).
+
+The map is centered over transparent unused space. Building SVGs and the **Town directory (?)** identify each district and storefront without moving the player or opening shops. Small screens keep the same map, with contained scrolling and touch controls.
 
 ## Configuration
 

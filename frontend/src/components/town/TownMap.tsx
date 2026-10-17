@@ -80,6 +80,7 @@ const TownMap = ({
 	enabled = true,
 	preview = false,
 	onTravel,
+	interactionLabel = "Inspect nearby",
 	onCharacterRequested,
 }: {
 	location: TownLocation;
@@ -88,6 +89,7 @@ const TownMap = ({
 	enabled?: boolean;
 	preview?: boolean;
 	onTravel?: () => void;
+	interactionLabel?: string;
 	onCharacterRequested?: () => void;
 }) => {
 	const instructionsId = useId();
@@ -195,7 +197,7 @@ const TownMap = ({
 												col >= building.col &&
 												col < building.col + building.width,
 										);
-										const label = `${row}, ${col}: ${occupied ? "player; " : ""}${building ? `${building.name}, ${tile === "D" ? "closed entrance" : "roof"}` : TILE_NAME[tile]}`;
+										const label = `${row}, ${col}: ${occupied ? "player; " : ""}${building ? `${building.name}, ${tile === "D" ? `${building.status} entrance` : "roof"}` : TILE_NAME[tile]}`;
 										return (
 											<td
 												key={`${row}-${col}`}
@@ -259,7 +261,7 @@ const TownMap = ({
 					disabled={!controlsEnabled}
 					onClick={() => act({ type: "inspect" })}
 				>
-					Inspect nearby
+					{interactionLabel}
 				</Button>
 				<Button
 					variant="outline"

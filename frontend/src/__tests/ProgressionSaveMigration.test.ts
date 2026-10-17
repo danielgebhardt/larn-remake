@@ -1,4 +1,5 @@
 // @vitest-environment node
+
 import { expect, it } from "vitest";
 import { levelForExperience } from "../domain/game/Progression";
 import {
@@ -7,7 +8,7 @@ import {
 	restoreSave,
 	serializeSave,
 } from "../domain/saves/SaveFormat";
-import { savedAdventure } from "./SaveTestHelpers";
+import { historicalSaveText, savedAdventure } from "./SaveTestHelpers";
 
 it.each([false, true])(
 	"migrates a capped legacy character preserving XP and wounds (dead=%s)",
@@ -22,10 +23,10 @@ it.each([false, true])(
 				mana: 4,
 			},
 		};
-		const parsed = parseSave(JSON.stringify(legacy));
+		const parsed = parseSave(historicalSaveText(legacy));
 		expect(parsed.ok).toBe(true);
 		if (!parsed.ok) throw new Error(parsed.error);
-		expect(parsed.value.version).toBe(23);
+		expect(parsed.value.version).toBe(24);
 		const restored = restoreSave(parsed.value);
 		expect(restored.state.progression.experience).toBe(1000);
 		expect(levelForExperience(restored.state.progression.experience)).toBe(11);
@@ -52,7 +53,7 @@ it.each([false, true])(
 it("rejects legacy capacity corruption rather than repairing unvalidated data", () => {
 	const legacy = savedAdventure();
 	const result = parseSave(
-		JSON.stringify({
+		historicalSaveText({
 			...legacy,
 			version: 2,
 			state: {

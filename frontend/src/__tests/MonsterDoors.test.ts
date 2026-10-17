@@ -1,4 +1,5 @@
 // @vitest-environment node
+
 import { describe, expect, it } from "vitest";
 import type { GameState } from "../domain/game/GameState";
 import { resolvePlayerAction } from "../domain/game/PlayerActions";
@@ -10,6 +11,7 @@ import {
 	serializeSave,
 } from "../domain/saves/SaveFormat";
 import { bruteEncounter } from "./BruteTestHelpers";
+import { historicalSaveText } from "./SaveTestHelpers";
 import { tacticalSnapshot } from "./TacticalReplayTestHelpers";
 
 const encounter = (): GameState => {
@@ -201,9 +203,9 @@ describe("Capable enemies opening ordinary doors", () => {
 			},
 		};
 		const old = { ...tacticalSnapshot(state), version: 18 };
-		const parsed = parseSave(JSON.stringify(old));
+		const parsed = parseSave(historicalSaveText(old));
 		if (!parsed.ok) throw Error(parsed.error);
-		expect(parsed.value.version).toBe(23);
+		expect(parsed.value.version).toBe(24);
 		expect(restoreSave(parsed.value).state).toEqual(state);
 	});
 	it.each([null, 12, "", "x".repeat(201)])(
@@ -232,7 +234,7 @@ describe("Capable enemies opening ordinary doors", () => {
 					},
 				},
 			};
-			expect(parseSave(JSON.stringify(corrupted)).ok).toBe(false);
+			expect(parseSave(historicalSaveText(corrupted)).ok).toBe(false);
 		},
 	);
 });

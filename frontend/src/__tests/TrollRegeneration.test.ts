@@ -1,4 +1,5 @@
 // @vitest-environment node
+
 import { expect, it } from "vitest";
 import { createGameState } from "../domain/game/GameState";
 import { resolvePlayerAction } from "../domain/game/PlayerActions";
@@ -9,7 +10,7 @@ import {
 	serializeSave,
 } from "../domain/saves/SaveFormat";
 import { createCorridorEncounter } from "./MonsterEncounterTestHelpers";
-import { savedAdventure } from "./SaveTestHelpers";
+import { historicalSaveText, savedAdventure } from "./SaveTestHelpers";
 
 const hit = () => ({ d20: () => 20, damage: (min: number) => min });
 const encounter = () => ({
@@ -130,7 +131,7 @@ it("migrates old injury metadata to an explicit unknown time and rejects future 
 			),
 		},
 	};
-	const migrated = parseSave(JSON.stringify(legacy));
+	const migrated = parseSave(historicalSaveText(legacy));
 	expect(migrated.ok).toBe(true);
 	if (!migrated.ok) throw new Error(migrated.error);
 	expect(
@@ -148,5 +149,5 @@ it("migrates old injury metadata to an explicit unknown time and rejects future 
 			})),
 		},
 	};
-	expect(parseSave(JSON.stringify(invalid)).ok).toBe(false);
+	expect(parseSave(historicalSaveText(invalid)).ok).toBe(false);
 });

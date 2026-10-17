@@ -1,4 +1,5 @@
 // @vitest-environment node
+
 import { describe, expect, it } from "vitest";
 import {
 	assignSpell,
@@ -11,7 +12,7 @@ import {
 	restoreSave,
 	serializeSave,
 } from "../domain/saves/SaveFormat";
-import { savedAdventure } from "./SaveTestHelpers";
+import { historicalSaveText, savedAdventure } from "./SaveTestHelpers";
 
 describe("Six spell shortcuts", () => {
 	it("provides six slots and moves, replaces and clears the sixth assignment", () => {
@@ -71,10 +72,10 @@ describe("Six spell shortcuts", () => {
 				spellHotbar: [null, "heal", null, "magic-missile"],
 			},
 		};
-		const parsed = parseSave(JSON.stringify(old));
+		const parsed = parseSave(historicalSaveText(old));
 		expect(
 			parseSave(
-				JSON.stringify({
+				historicalSaveText({
 					...old,
 					state: {
 						...old.state,
@@ -123,7 +124,7 @@ describe("Six spell shortcuts", () => {
 		const document = savedAdventure();
 		expect(
 			parseSave(
-				JSON.stringify({
+				historicalSaveText({
 					...document,
 					state: { ...document.state, spellHotbar: slots },
 				}),

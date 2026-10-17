@@ -1,4 +1,5 @@
 // @vitest-environment node
+
 import { describe, expect, it } from "vitest";
 import { updateExploration } from "../domain/dungeon/Exploration";
 import { createGameState } from "../domain/game/GameState";
@@ -11,7 +12,7 @@ import {
 	serializeSave,
 } from "../domain/saves/SaveFormat";
 import versionOneFile from "./fixtures/adventure-v1.json?raw";
-import { savedAdventure } from "./SaveTestHelpers";
+import { historicalSaveText, savedAdventure } from "./SaveTestHelpers";
 
 describe("Difficulty save continuation", () => {
 	it.each([0.75, 1, 1.25])(
@@ -48,7 +49,7 @@ describe("Difficulty save continuation", () => {
 			const parsed = parseSave(serializeSave(document));
 			expect(parsed.ok).toBe(true);
 			if (!parsed.ok) throw new Error(parsed.error);
-			expect(parsed.value.version).toBe(23);
+			expect(parsed.value.version).toBe(24);
 			const restored = restoreSave(parsed.value);
 			expect(restored.state).toEqual(played);
 			expect(
@@ -69,7 +70,7 @@ describe("Difficulty save continuation", () => {
 		(text) => {
 			const source = JSON.parse(text);
 			source.configuration.difficulty = 1.25; // Unintroduced legacy metadata cannot select a harder run.
-			const result = parseSave(JSON.stringify(source));
+			const result = parseSave(historicalSaveText(source));
 			if (!result.ok) throw new Error(result.error);
 			const restored = restoreSave(result.value);
 			expect(restored.state.difficulty).toBe(1);
@@ -89,7 +90,7 @@ describe("Difficulty save continuation", () => {
 				version: 20,
 				configuration: { ...source.configuration, difficulty },
 			};
-			expect(parseSave(JSON.stringify(corrupted)).ok).toBe(false);
+			expect(parseSave(historicalSaveText(corrupted)).ok).toBe(false);
 		},
 	);
 	it("rejects easier actors above their scaled limit before restoring", () => {
@@ -102,6 +103,6 @@ describe("Difficulty save continuation", () => {
 			base.fog,
 		);
 		source.state.monsters[0].health = 4; // A fresh easier goblin has a maximum of 3.
-		expect(parseSave(JSON.stringify(source)).ok).toBe(false);
+		expect(parseSave(historicalSaveText(source)).ok).toBe(false);
 	});
 });

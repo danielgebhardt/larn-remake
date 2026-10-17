@@ -1,4 +1,5 @@
 // @vitest-environment node
+
 import { expect, it } from "vitest";
 import { createGameState } from "../domain/game/GameState";
 import { resolvePlayerAction } from "../domain/game/PlayerActions";
@@ -9,7 +10,7 @@ import {
 	serializeSave,
 } from "../domain/saves/SaveFormat";
 import { createCorridorEncounter } from "./MonsterEncounterTestHelpers";
-import { savedAdventure } from "./SaveTestHelpers";
+import { historicalSaveText, savedAdventure } from "./SaveTestHelpers";
 
 it("starts freely with one healing potion on 1 and one mana potion on 2", () => {
 	const state = createGameState(createCorridorEncounter());
@@ -138,7 +139,7 @@ it.each([19, 20])(
 				potionHotbar: [null, null, "mana-potion", null],
 			},
 		};
-		const parsed = parseSave(JSON.stringify(old));
+		const parsed = parseSave(historicalSaveText(old));
 		if (!parsed.ok) throw new Error(parsed.error);
 		const loaded = restoreSave(parsed.value).state;
 		expect(loaded.bag.items).toEqual([]);

@@ -23,3 +23,21 @@ export const quietCorridor = (): GameState => {
 		quest: { ...state.quest, entrance: { row: 2, col: 1 } },
 	};
 };
+
+export const quietRoomRun = (): GameState => {
+	const state = quietCorridor();
+	return {
+		...state,
+		run: {
+			...state.run,
+			floors: state.run.floors.map((floor) => ({
+				...floor,
+				terrain: floor.terrain.map((row, r) =>
+					row.map((tile, c) =>
+						(r === 1 || r === 3) && c >= 2 && c <= 8 ? "." : tile,
+					),
+				),
+			})),
+		},
+	};
+};

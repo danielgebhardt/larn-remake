@@ -1,4 +1,5 @@
 import { expect, it } from "vitest";
+import type { Coordinate } from "../domain/dungeon/DungeonTypes";
 import { updateExploration } from "../domain/dungeon/Exploration";
 import { FLOOR } from "../domain/dungeon/Tiles";
 import {
@@ -9,7 +10,7 @@ import {
 import type { GameState } from "../domain/game/GameState";
 import { resolvePlayerAction } from "../domain/game/PlayerActions";
 import { navigationRun } from "../domain/objects/NavigationTerrain";
-import { quietCorridor } from "./CorridorTravelTestHelpers";
+import { quietCorridor, quietRoomRun } from "./CorridorTravelTestHelpers";
 
 const view = (state: GameState, fog = false) =>
 	corridorView(state, updateExploration(navigationRun(state), 4), fog);
@@ -48,7 +49,21 @@ it("stops before blocked terrain, junctions, room mouths and unexplored neighbor
 	expect(corridorStep(view(carve(state, [1, 5])), "right")).toEqual({
 		stop: "junction",
 	});
-	expect(corridorStep(view(carve(state, [1, 4], [1, 5])), "right")).toEqual({
+	expect(
+		corridorStep(
+			view(
+				carve(
+					{
+						...state,
+						run: { ...state.run, playerCoordinate: { row: 2, col: 5 } },
+					},
+					[1, 6],
+					[1, 7],
+				),
+			),
+			"right",
+		),
+	).toEqual({
 		stop: "room",
 	});
 	const projected = view(state);
@@ -250,4 +265,89 @@ it("resolves every allowed step through the normal turn boundary; denial resolve
 	};
 	expect(corridorStep(view(poisoned), "right")).toEqual({ stop: "condition" });
 	expect(poisoned.turn).toBe(31);
+});
+
+it("runs straight across a known cleared room into its corridor using ordinary turns", () => {
+	let state = quietRoomRun();
+	let previous: Coordinate | undefined;
+	for (let col = 4; col < 12; col++) {
+		expect(state.run.playerCoordinate).toEqual({ row: 2, col });
+		expect(corridorStep(view(state), "right", previous)).toEqual({
+			direction: "right",
+		});
+		const before = view(state);
+		previous = state.run.playerCoordinate;
+		state = resolvePlayerAction(state, {
+			type: "move",
+			direction: "right",
+		}).state;
+		expect(corridorStopAfterStep(before, view(state))).toBeUndefined();
+	}
+	expect(state.turn).toBe(8);
+	// Running back from the corridor still stops before entering the room.
+	const outside = {
+		...state,
+		run: { ...state.run, playerCoordinate: { row: 2, col: 9 } },
+	};
+	expect(corridorStep(view(outside), "left")).toEqual({ stop: "room" });
+});
+it("stays on the chosen straight line in a room, stops at its wall and still stops at corridor junctions", () => {
+	const room = quietRoomRun();
+	const atWall = {
+		...room,
+		run: { ...room.run, playerCoordinate: { row: 1, col: 4 } },
+	};
+	expect(corridorStep(view(atWall), "up", { row: 2, col: 4 })).toEqual({
+		stop: "blocked",
+	});
+	expect(corridorStep(view(room), "right", { row: 2, col: 3 })).toEqual({
+		direction: "right",
+	});
+	const junction = carve(
+		{ ...room, run: { ...room.run, playerCoordinate: { row: 2, col: 9 } } },
+		[1, 10],
+	);
+	expect(corridorStep(view(junction), "right", { row: 2, col: 8 })).toEqual({
+		stop: "junction",
+	});
+});
+it.each(["door", "trap", "chest", "fountain"] as const)(
+	"room running still stops before a %s without interacting",
+	(kind) => {
+		const state = {
+			...quietRoomRun(),
+			objects: [
+				{
+					id: "decision",
+					kind,
+					activated: false,
+					floorNumber: 1,
+					coordinate: { row: 2, col: 5 },
+				},
+			],
+		};
+		expect(corridorStep(view(state), "right")).toEqual({ stop: "object" });
+		expect(state.objects[0].activated).toBe(false);
+	},
+);
+it("room running still stops for loot, stairs, enemies, poison and unknown terrain", () => {
+	const projected = view(quietRoomRun()),
+		next = { row: 2, col: 5 };
+	expect(corridorStep({ ...projected, items: [next] }, "right")).toEqual({
+		stop: "loot",
+	});
+	expect(corridorStep({ ...projected, landmarks: [next] }, "right")).toEqual({
+		stop: "landmark",
+	});
+	expect(corridorStep({ ...projected, threat: true }, "right")).toEqual({
+		stop: "threat",
+	});
+	expect(corridorStep({ ...projected, harmful: true }, "right")).toEqual({
+		stop: "condition",
+	});
+	const terrain = projected.terrain.map((row) => [...row]);
+	terrain[1][5] = undefined;
+	expect(corridorStep({ ...projected, terrain }, "right")).toEqual({
+		stop: "unexplored",
+	});
 });

@@ -692,7 +692,7 @@ test("corridor running advances visible ordinary turns, stops at decisions and c
 	await expect(turns(page)).toHaveText(paused);
 	await expect(
 		page.getByRole("dialog", { name: "Help / Controls" }),
-	).toContainText("Run a quiet corridor");
+	).toContainText("Run a cleared room or quiet corridor");
 	await page.keyboard.press("Escape");
 	await map(page).focus();
 	await page.waitForTimeout(300);
@@ -707,6 +707,36 @@ test("corridor running advances visible ordinary turns, stops at decisions and c
 	await page.waitForTimeout(300);
 	await expect(turns(page)).toHaveText("Turn 0");
 });
+
+for (const width of [390, 1280]) {
+	test(`running crosses a cleared room into its corridor at ${width}px`, async ({
+		page,
+	}, info) => {
+		await page.setViewportSize({ width, height: 720 });
+		await importAdventure(page, "room-corridor");
+		const cue = page.getByRole("status", {
+			name: "Corridor travel",
+			exact: true,
+		});
+		await page.keyboard.press("r");
+		await page.keyboard.press("ArrowRight");
+		await expect(turns(page)).toHaveText("Turn 9");
+		await expect(cue).toContainText("Loot needs your attention");
+		await expect(
+			map(page).getByRole("cell", { name: /^row50col49 - player/ }),
+		).toBeVisible();
+		await expect(map(page)).toBeFocused();
+		await page.screenshot({ path: info.outputPath(`room-run-${width}.png`) });
+		// Turning back from the corridor still stops before entering the room.
+		await page.keyboard.press("r");
+		await page.keyboard.press("ArrowLeft");
+		await expect(cue).toContainText("A room needs your attention");
+		await expect(turns(page)).toHaveText("Turn 13");
+		await expect(
+			map(page).getByRole("cell", { name: /^row50col45 - player/ }),
+		).toBeVisible();
+	});
+}
 
 test("fog-enabled corridor running uses discovered routes and stops with map focus intact", async ({
 	page,

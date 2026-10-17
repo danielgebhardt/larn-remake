@@ -114,7 +114,7 @@ const DungeonHelp = ({
 							<Keycap>E</Keycap>
 						</li>
 						<li className="flex items-center justify-between gap-3 py-2">
-							<span>Run a quiet corridor; any key stops</span>
+							<span>Run a cleared room or quiet corridor; any key stops</span>
 							<span>
 								<Keycap>R</Keycap> then Arrow / WASD
 							</span>
@@ -155,9 +155,12 @@ const DungeonHelp = ({
 					<p className="text-xs leading-relaxed text-muted-foreground">
 						Click the dungeon map to focus gameplay. While a menu is open,
 						gameplay keys are paused. Corridor running takes one normal turn per
-						step and stops at danger, poison, unknown routes, junctions, rooms,
-						objects, loot and stairs. Step off a landmark before starting.
-						Manual input, menus or focus loss cancel it.
+						step. In a cleared room it follows your chosen direction straight
+						toward the corridor, stopping at walls. In corridors it follows
+						bends and stops before entering another room. Danger, poison,
+						unknown routes, corridor junctions, objects, loot and stairs stop
+						either run. Step off a landmark before starting. Manual input, menus
+						or focus loss cancel it.
 					</p>
 				</section>
 				<section aria-labelledby="map-symbols-title" className="grid gap-3">

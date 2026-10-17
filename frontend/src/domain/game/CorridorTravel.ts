@@ -133,6 +133,7 @@ const tileAt = (view: CorridorView, p: Coordinate) => {
 	return view.terrain[p.row][p.col];
 };
 const inRoom = (view: CorridorView, p: Coordinate) =>
+	tileAt(view, p) === FLOOR &&
 	[-1, 1].some((dr) =>
 		[-1, 1].some((dc) =>
 			[
@@ -145,15 +146,20 @@ const inRoom = (view: CorridorView, p: Coordinate) =>
 const pointStop = (
 	view: CorridorView,
 	p: Coordinate,
+	crossingRoom = false,
 ): CorridorStop | undefined => {
 	if (contains(view.objects, p)) return "object";
 	if (contains(view.items, p)) return "loot";
 	if (contains(view.landmarks, p)) return "landmark";
-	if (inRoom(view, p)) return "room";
+	const room = inRoom(view, p);
+	if (room && !crossingRoom) return "room";
 	const adjacent = neighbors(p);
 	if (adjacent.some((x) => tileAt(view, x.coordinate) === undefined))
 		return "unexplored";
-	if (adjacent.filter((x) => tileAt(view, x.coordinate) === FLOOR).length > 2)
+	if (
+		!room &&
+		adjacent.filter((x) => tileAt(view, x.coordinate) === FLOOR).length > 2
+	)
 		return "junction";
 };
 export const corridorStep = (
@@ -164,10 +170,14 @@ export const corridorStep = (
 	if (view.ended) return { stop: "ended" };
 	if (view.harmful) return { stop: "condition" };
 	if (view.threat) return { stop: "threat" };
-	const here = pointStop(view, view.position);
+	// In a room, follow the explicitly chosen heading instead of treating every
+	// open neighboring tile as a corridor junction. Corridor entry into another
+	// room still stops, and all object/knowledge checks apply to both modes.
+	const crossingRoom = inRoom(view, view.position);
+	const here = pointStop(view, view.position, crossingRoom);
 	if (here) return { stop: here };
 	let direction = requested;
-	if (previous) {
+	if (previous && !crossingRoom) {
 		const onward = neighbors(view.position).filter(
 			(x) =>
 				!same(x.coordinate, previous) && tileAt(view, x.coordinate) === FLOOR,
@@ -182,7 +192,7 @@ export const corridorStep = (
 		col: view.position.col + offset.col,
 	};
 	// A closed door looks like a wall to navigation, but is a visible decision.
-	const nextStop = pointStop(view, next);
+	const nextStop = pointStop(view, next, crossingRoom);
 	if (nextStop) return { stop: nextStop };
 	const tile = tileAt(view, next);
 	if (tile === undefined) return { stop: "unexplored" };

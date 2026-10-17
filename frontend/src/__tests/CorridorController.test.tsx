@@ -8,10 +8,16 @@ import {
 } from "../components/game/useCorridorTravel";
 import { updateExploration } from "../domain/dungeon/Exploration";
 import { resolvePlayerAction } from "../domain/game/PlayerActions";
-import { quietCorridor } from "./CorridorTravelTestHelpers";
+import { quietCorridor, quietRoomRun } from "./CorridorTravelTestHelpers";
 
-const Harness = ({ enabled = true }: { enabled?: boolean }) => {
-	const [state, setState] = useState(quietCorridor);
+const Harness = ({
+	enabled = true,
+	initial = quietCorridor,
+}: {
+	enabled?: boolean;
+	initial?: typeof quietCorridor;
+}) => {
+	const [state, setState] = useState(initial);
 	const map = useRef<HTMLElement>(null);
 	const exploration = useMemo(() => updateExploration(state.run, 4), [state]);
 	const move = (direction: "up" | "down" | "left" | "right") =>
@@ -209,4 +215,23 @@ it("clears a stopped run notice on ordinary movement and expires idle notices", 
 	key("ArrowUp");
 	act(() => vi.advanceTimersByTime(4000));
 	expect(screen.getByLabelText("Travel")).toBeEmptyDOMElement();
+});
+
+it("runs out of a cleared room into the corridor and still cancels on any key", () => {
+	vi.useFakeTimers();
+	render(<Harness initial={quietRoomRun} />);
+	screen.getByLabelText("Map").focus();
+	begin();
+	tick();
+	tick();
+	expect(screen.getByLabelText("Position")).toHaveTextContent("6");
+	key("Shift");
+	tick();
+	tick();
+	expect(screen.getByLabelText("Turns")).toHaveTextContent("2");
+	expect(screen.getByLabelText("Travel")).toHaveTextContent("canceled");
+	begin();
+	for (let step = 0; step < 4; step++) tick();
+	expect(screen.getByLabelText("Turns")).toHaveTextContent("6");
+	expect(screen.getByLabelText("Position")).toHaveTextContent("10");
 });

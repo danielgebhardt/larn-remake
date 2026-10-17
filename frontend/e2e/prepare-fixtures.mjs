@@ -169,6 +169,12 @@ export default async function prepareFixtures() {
 					col++
 				) {
 					if (floor.terrain[row][col] !== ".") continue;
+					// This fixture must still start in a narrow corridor now that R also accepts rooms.
+					if (
+						floor.terrain[row - 1][col] !== "#" ||
+						floor.terrain[row + 1][col] !== "#"
+					)
+						continue;
 					const candidate = {
 						...quiet,
 						objects: [],
@@ -267,6 +273,28 @@ export default async function prepareFixtures() {
 			objects: [],
 			monsters: [],
 			floorItems: largeFresh.floorItems.filter((x) => x.item.kind === "cure"),
+		};
+		const roomCorridor = {
+			...largeCorridor,
+			run: {
+				...largeRun,
+				floors: largeRun.floors.map((floor) => ({
+					...floor,
+					terrain: floor.terrain.map((row, r) =>
+						row.map((tile, c) =>
+							(r === 49 || r === 51) && c >= 36 && c <= 44 ? "." : tile,
+						),
+					),
+				})),
+			},
+			floorItems: [
+				...largeCorridor.floorItems,
+				{
+					item: { id: "room-run:stop", kind: "healing-potion" },
+					floorNumber: 2,
+					coordinate: { row: 50, col: 50 },
+				},
+			],
 		};
 		const fatalCorridor = {
 			...largeCorridor,
@@ -541,6 +569,7 @@ export default async function prepareFixtures() {
 				},
 				configuration,
 			],
+			["room-corridor", roomCorridor, largeConfiguration],
 			["corridor-large", largeCorridor, largeConfiguration],
 			[
 				"corridor-fatal",

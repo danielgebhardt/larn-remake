@@ -6,7 +6,7 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-	--font-heading: var(--font-sans);
+	--font-heading: var(--font-serif);
 	--color-fog-visible: var(--fog-visible);
 	--color-fog-unseen: var(--fog-unseen);
 	--color-fog-remembered: var(--fog-remembered);
@@ -72,10 +72,12 @@
 
 :root {
 	--dungeon-tile-size: 24px;
-	--fog-visible: #ffffff;
-	--fog-unseen: #dedbd3;
-	--fog-remembered: #eeece7;
-	--remembered-icon-opacity: 0.45;
+	--ember-trim-soft: #a1886140;
+	--ember-frame-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'%3E%3Cpath d='M8 1H92L99 8V92L92 99H8L1 92V8Z' fill='none' stroke='%23b39464' stroke-opacity='.7'/%3E%3C/svg%3E");
+	--fog-visible: rgba(250, 245, 232, 0.9);
+	--fog-unseen: transparent;
+	--fog-remembered: #d6cbb8;
+	--remembered-icon-opacity: 0.55;
 	--background: #faf9f6;
 	--foreground: #292b30;
 	--card: #ffffff;
@@ -108,10 +110,10 @@
 	--sidebar-accent-foreground: oklch(0.205 0 0);
 	--sidebar-border: oklch(0.922 0 0);
 	--sidebar-ring: oklch(0.708 0 0);
-	--wall-icon: #596273;
+	--wall-icon: #475569;
 	--object-stone: #57534e;
-	--wall-tile: #e1e4e9;
-	--floor-dot: #a6abb4;
+	--wall-tile: rgba(203, 195, 182, 0.78);
+	--floor-dot: #77818f;
 	--player: #dc2626;
 	--monster-ember: #c2410c;
 	--monster-rose: #be185d;
@@ -130,26 +132,27 @@
 }
 
 .dark {
+	--ember-trim-soft: #b394644d;
 	--fog-visible: #364152;
-	--fog-unseen: #090c12;
+	--fog-unseen: transparent;
 	--fog-remembered: #1f2631;
-	--background: #17191f;
+	--background: #0c1017;
 	--foreground: #eeece7;
-	--card: #20232b;
+	--card: #10141c;
 	--card-foreground: #eeece7;
-	--popover: #20232b;
+	--popover: #10141c;
 	--popover-foreground: #eeece7;
 	--primary: #fbbf24;
 	--primary-foreground: #29200b;
-	--secondary: #2b2f38;
+	--secondary: #141923;
 	--secondary-foreground: #eeece7;
-	--muted: #2b2f38;
+	--muted: #141923;
 	--muted-foreground: #acb0ba;
 	--accent: #393323;
 	--accent-foreground: #fcd34d;
 	--destructive: oklch(0.704 0.191 22.216);
-	--border: #383d48;
-	--input: #414754;
+	--border: #2e3746;
+	--input: #344052;
 	--ring: #fbbf24;
 	--chart-1: oklch(0.87 0 0);
 	--chart-2: oklch(0.556 0 0);
@@ -193,7 +196,7 @@
 		@apply bg-background text-foreground;
 	}
 	html {
-		@apply font-sans;
+		@apply font-serif;
 	}
 }
 
@@ -203,4 +206,61 @@
 
 [data-low-health="true"] {
 	background-color: color-mix(in oklab, var(--destructive) 20%, var(--card));
+}
+
+/* Decorative trim overlays the existing boxes without changing layout or hit areas. */
+.ember-panel {
+	position: relative;
+	border-color: var(--ember-trim-soft);
+}
+
+.ember-panel::after {
+	content: "";
+	position: absolute;
+	inset: 3px;
+	z-index: 20;
+	pointer-events: none;
+	border: 1px solid transparent;
+	border-image: var(--ember-frame-image) 12 / 12px / 0 stretch;
+}
+
+.ember-objective {
+	border-color: transparent;
+	--ember-frame-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'%3E%3Cpath d='M8 1H92L99 8V92L92 99H8L1 92V8Z' fill='none' stroke='%23d58b32' stroke-opacity='.7'/%3E%3C/svg%3E");
+}
+
+.ember-button {
+	position: relative;
+	border-radius: 5px;
+}
+
+.ember-button::before {
+	content: "";
+	position: absolute;
+	inset: 2px;
+	pointer-events: none;
+	border: 1px solid transparent;
+	border-image: var(--ember-frame-image) 12 / 6px / 0 stretch;
+}
+
+.ember-button:hover:not(:disabled)::before {
+	filter: brightness(1.35);
+}
+
+@media (forced-colors: active) {
+	.ember-panel::after,
+	.ember-button::before {
+		display: none;
+	}
+}
+
+/* Share the header's blue-black surface only in dark mode.
+   Low-health adventures retain their existing warning background. */
+.dark .ember-surface:not([data-low-health="true"]) {
+	background-image: linear-gradient(
+		to bottom,
+		var(--card),
+		var(--muted),
+		var(--background)
+	);
 }

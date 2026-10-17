@@ -7,14 +7,18 @@ import {
 const ExperienceProgress = ({
 	progression,
 	compact = false,
+	inline = false,
 }: {
 	progression: Progression;
 	compact?: boolean;
+	inline?: boolean;
 }) => {
 	const { level, earned, needed, remaining } = progressionProgress(progression);
-	const textStyle = compact ? "text-[10px] leading-tight" : "text-xs";
+	const textStyle = compact ? "text-[14px] leading-tight" : "text-xs";
 	return (
-		<div className="grid gap-1 tabular-nums text-muted-foreground">
+		<div
+			className={`grid gap-1 tabular-nums text-muted-foreground ${inline && level !== MAX_PLAYER_LEVEL ? "grid-cols-[minmax(0,1fr)_auto] items-center gap-2" : ""}`}
+		>
 			{level === MAX_PLAYER_LEVEL ? (
 				<>
 					<p className={textStyle}>Maximum level reached</p>
@@ -33,7 +37,7 @@ const ExperienceProgress = ({
 						aria-valuetext={`${earned} of ${needed} XP this level; ${remaining} XP to level ${level + 1}`}
 						value={earned}
 						max={needed}
-						className={`${compact ? "h-1.5" : "h-2"} w-full overflow-hidden rounded-full appearance-none bg-muted [&::-webkit-progress-bar]:bg-muted [&::-webkit-progress-value]:rounded-full [&::-webkit-progress-value]:bg-primary [&::-moz-progress-bar]:bg-primary`}
+						className="h-3 w-full overflow-hidden rounded-full border border-amber-600/70 appearance-none bg-amber-950/10 dark:border-amber-400/60 dark:bg-amber-950/35 [&::-webkit-progress-bar]:bg-transparent [&::-webkit-progress-value]:rounded-full [&::-webkit-progress-value]:bg-amber-500 [&::-moz-progress-bar]:bg-amber-500"
 					/>
 					<output
 						aria-label={compact ? "Player experience" : undefined}

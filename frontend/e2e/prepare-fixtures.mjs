@@ -379,8 +379,61 @@ export default async function prepareFixtures() {
 				},
 			],
 		};
+		const laptopHistory = Array.from({ length: 60 }, (_, index) => ({
+			id: index,
+			event:
+				index % 3 === 0
+					? {
+							type: "player-hit",
+							turn: Math.floor(index / 3) + 1,
+							monster: "orc",
+							damage: 3,
+						}
+					: index % 3 === 1
+						? {
+								type: "monster-hit",
+								turn: Math.floor(index / 3) + 1,
+								monster: "orc",
+								damage: 1,
+							}
+						: {
+								type: "spell-healed",
+								turn: Math.floor(index / 3) + 1,
+								spell: "heal",
+								recovered: 4,
+							},
+		}));
+		const laptopLayout = {
+			...spellBalance,
+			run: scrolling.run,
+			monsters: [],
+			player: { health: 5, maxHealth: 10 },
+			turn: 20,
+			activityHistory: { entries: laptopHistory, nextId: 60 },
+		};
+		const hintRow = run.floors[0].terrain.findIndex((row) =>
+			row.join("").includes("..."),
+		);
+		if (hintRow < 0)
+			throw new Error("Expected room for the interaction-hint fixture");
+		const hintCol = run.floors[0].terrain[hintRow].join("").indexOf("...");
+		const interactionHints = {
+			...scrolling,
+			run: { ...run, playerCoordinate: { row: hintRow, col: hintCol } },
+			objects: [
+				{
+					id: "floor:1:object:chest:hint",
+					kind: "chest",
+					floorNumber: 1,
+					coordinate: { row: hintRow, col: hintCol + 2 },
+					activated: false,
+				},
+			],
+		};
 		await mkdir(directory, { recursive: true });
 		for (const [name, state, config, fixtureFog = fog] of [
+			["laptop-layout", laptopLayout, configuration],
+			["interaction-hints", interactionHints, configuration],
 			["spell-balance", spellBalance, configuration],
 			[
 				"spell-balance-fatal",

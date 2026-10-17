@@ -52,10 +52,14 @@ describe("Activity history on the play screen", () => {
 		const entries = within(
 			screen.getByRole("log", { name: "Activity log" }),
 		).getAllByRole("listitem");
-		expect(entries.map((entry) => entry.textContent)).toEqual([
-			"Turn 1 — You hit the goblin for 2 damage.",
-			"Turn 2 — You descend to floor 2.",
-			"Turn 4 — You ascend to floor 1.",
+		expect(
+			entries.map(
+				(entry) => entry.querySelector("[data-activity-message]")?.textContent,
+			),
+		).toEqual([
+			"You hit the goblin for 2 damage.",
+			"You descend to floor 2.",
+			"You ascend to floor 1.",
 		]);
 	});
 

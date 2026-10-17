@@ -15,8 +15,11 @@ import {
 	useState,
 } from "react";
 import { Button } from "@/components/ui/button";
+import FantasyRail from "@/components/ui/FantasyRail.tsx";
 import { Sheet, SheetTrigger } from "@/components/ui/sheet";
+import { HEADER_BUTTON_SECONDARY } from "@/HeaderButtonStyles.ts";
 import DungeonHelp from "@/settings/DungeonHelp.tsx";
+import DungeonFrame from "./components/dungeon/DungeonFrame";
 import DungeonLayout from "./components/dungeon/DungeonLayout.tsx";
 import ActivityLog from "./components/game/ActivityLog.tsx";
 import AdventureSaveSheet from "./components/game/AdventureSaveSheet";
@@ -343,7 +346,7 @@ const Home = ({
 	};
 
 	return (
-		<div className="flex h-dvh flex-col bg-muted/30">
+		<div className="ember-surface flex min-h-dvh flex-col bg-muted/30 lg:h-dvh">
 			<Header
 				floorNumber={activeFloor.floorNumber}
 				floorCount={run.floors.length}
@@ -352,7 +355,13 @@ const Home = ({
 					<Dialog.Root open={characterOpen} onOpenChange={setCharacterOpen}>
 						<Dialog.Trigger
 							onClick={() => setCharacterOpenedFromMap(false)}
-							render={<Button type="button" variant="outline" />}
+							render={
+								<Button
+									type="button"
+									variant="outline"
+									className={HEADER_BUTTON_SECONDARY}
+								/>
+							}
 						>
 							<UserRound aria-hidden="true" focusable="false" />
 							Character
@@ -392,7 +401,15 @@ const Home = ({
 								mapRef.current?.focus({ preventScroll: true });
 						}}
 					>
-						<SheetTrigger render={<Button type="button" variant="outline" />}>
+						<SheetTrigger
+							render={
+								<Button
+									type="button"
+									variant="outline"
+									className={HEADER_BUTTON_SECONDARY}
+								/>
+							}
+						>
 							<Save aria-hidden="true" focusable="false" />
 							Save/Load
 						</SheetTrigger>
@@ -425,7 +442,15 @@ const Home = ({
 								mapRef.current?.focus({ preventScroll: true });
 						}}
 					>
-						<SheetTrigger render={<Button type="button" variant="outline" />}>
+						<SheetTrigger
+							render={
+								<Button
+									type="button"
+									variant="outline"
+									className={HEADER_BUTTON_SECONDARY}
+								/>
+							}
+						>
 							<Settings aria-hidden="true" focusable="false" />
 							Settings
 						</SheetTrigger>
@@ -460,7 +485,15 @@ const Home = ({
 				}
 				helpAction={
 					<Sheet open={helpOpen} onOpenChange={setHelpOpen}>
-						<SheetTrigger render={<Button type="button" variant="outline" />}>
+						<SheetTrigger
+							render={
+								<Button
+									type="button"
+									variant="outline"
+									className={HEADER_BUTTON_SECONDARY}
+								/>
+							}
+						>
 							<HelpCircleIcon aria-hidden="true" focusable="false" />
 							Help
 						</SheetTrigger>
@@ -477,7 +510,15 @@ const Home = ({
 				catalogAction={
 					APP_FEATURES.developerCatalog && (
 						<Sheet open={catalogOpen} onOpenChange={setCatalogOpen}>
-							<SheetTrigger render={<Button type="button" variant="outline" />}>
+							<SheetTrigger
+								render={
+									<Button
+										type="button"
+										variant="outline"
+										className={HEADER_BUTTON_SECONDARY}
+									/>
+								}
+							>
 								<LibraryBig aria-hidden="true" />
 								Catalog
 							</SheetTrigger>
@@ -491,140 +532,198 @@ const Home = ({
 				}
 			/>
 
-			<main className="flex min-h-0 min-w-0 flex-1 p-4 sm:p-6">
+			<main className="flex min-h-0 min-w-0 flex-1 p-2">
 				<section
 					aria-label="Adventure"
 					data-low-health={isLowHealth(player)}
-					className="flex min-h-0 min-w-0 flex-1 flex-col rounded-lg border border-border bg-card p-3 sm:p-4"
+					className="ember-surface flex min-h-0 min-w-0 flex-1 flex-col gap-2 rounded-lg border border-border bg-card p-2"
 				>
-					<div className="flex shrink-0 flex-wrap items-center justify-center gap-x-5 gap-y-2 pb-3">
-						<PlayerStatus
-							difficulty={game.state.difficulty}
-							effects={game.state.effects}
-							gold={game.state.gold}
-							equipment={game.state.equipment}
-							mana={game.state.mana}
-							turn={turn}
-							player={player}
-							progression={game.state.progression}
-						/>
-						<PotionHotbarView
-							bag={game.state.bag}
-							potionHotbar={game.state.potionHotbar}
-							alive={gameplayEnabled && !spells.targeting}
-							onActivate={handlePotionRequested}
-						/>
-						<SpellHotbarView
-							slots={game.state.spellHotbar}
-							knownSpells={game.state.knownSpells}
-							enabled={gameplayEnabled}
-							targeting={spells.targeting?.spell}
-							onActivate={spells.activate}
-						/>
-					</div>
-					<QuestStatus
-						quest={game.state.quest}
-						activeFloor={game.state.run.activeFloor}
-					/>
-					<VisibleEffects
-						effects={game.state.effects}
-						monsters={activeMonsters}
-						visible={fogConfiguration.enabled ? exploration.visible : undefined}
-					/>
-					{victory && (
-						<Button
-							variant="outline"
-							size="sm"
-							className="mb-3 self-center"
-							onClick={() => setDismissedVictory(null)}
+					<FantasyRail className="mx-auto w-full max-w-[83rem] shrink-0">
+						<div
+							className="
+         grid min-w-0 grid-cols-1 items-center gap-2
+         rounded-md bg-muted/20 px-2 py-1.5 sm:px-7
+         lg:grid-cols-[minmax(0,1fr)_19rem] xl:grid-cols-[minmax(0,1fr)_20rem]
+      "
 						>
-							Victory summary
-						</Button>
-					)}
-					{spells.description && (
-						<p
-							role="status"
-							aria-label="Spell targeting"
-							className="mb-2 rounded-md border border-violet-500/50 bg-violet-500/10 px-3 py-2 text-center text-sm"
-						>
-							{spells.description}
-						</p>
-					)}
-					{corridor.description && (
-						<p
-							role="status"
-							aria-label="Corridor travel"
-							className="mb-1 text-center text-xs text-muted-foreground"
-						>
-							{corridor.description}
-						</p>
-					)}
-					<DungeonLayout
-						onCorridorKey={corridor.handleKey}
-						mapRef={mapRef}
-						onSpellRequested={spells.activate}
-						onSpellSlotRequested={(slot) => {
-							const spell = game.state.spellHotbar[slot - 1];
-							if (spell) spells.activate(spell);
-							else
-								setActionError(
-									`Spell slot ${slot} is empty. Assign a spell in Character.`,
-								);
-						}}
-						onTargetingKey={spells.targeting ? spells.handleKey : undefined}
-						targetIds={spells.targetIds}
-						spellArea={spells.spellArea}
-						selectedTargetId={spells.targeting?.id}
-						onTargetRequested={spells.targeting ? spells.castTarget : undefined}
-						monsters={activeMonsters}
-						floorItems={activeItems}
-						dungeon={activeFloor.terrain}
-						visible={fogConfiguration.enabled ? exploration.visible : undefined}
-						explored={
-							fogConfiguration.enabled
-								? exploration.explored.get(run.activeFloor)
-								: undefined
-						}
-						playerPosition={run.playerCoordinate}
-						upStair={activeFloor.upStair?.coordinate}
-						entrance={
-							run.activeFloor === 1 ? game.state.quest.entrance : undefined
-						}
-						downStair={activeFloor.downStair?.coordinate}
-						onMoveRequested={(direction) =>
-							handleActionRequested({ type: "move", direction })
-						}
-						onWaitRequested={() => handleActionRequested({ type: "wait" })}
-						dungeonObjects={activeObjects}
-						onInteractRequested={
-							gameplayEnabled ? handleInteractRequested : undefined
-						}
-						onPickupRequested={handlePickupRequested}
-						onPotionRequested={handlePotionRequested}
-						onCharacterRequested={
-							mapInputAvailable
-								? () => {
-										setCharacterOpenedFromMap(true);
-										setCharacterOpen(true);
+							<div className="min-w-0">
+								<PlayerStatus
+									difficulty={game.state.difficulty}
+									effects={game.state.effects}
+									gold={game.state.gold}
+									equipment={game.state.equipment}
+									mana={game.state.mana}
+									turn={turn}
+									player={player}
+									progression={game.state.progression}
+								/>
+							</div>
+
+							<div className="min-w-0">
+								<QuestStatus
+									quest={game.state.quest}
+									activeFloor={game.state.run.activeFloor}
+								/>
+							</div>
+						</div>
+					</FantasyRail>
+					<div className="grid min-h-0 flex-1 grid-cols-1 gap-2 lg:grid-cols-[minmax(0,1fr)_18rem] lg:grid-rows-[minmax(0,1fr)_auto] xl:grid-cols-[minmax(0,1fr)_20rem] 2xl:grid-cols-[minmax(0,1fr)_22rem] min-[112.5rem]:grid-cols-[minmax(0,1fr)_26rem]">
+						<div className="flex h-[50dvh] min-h-64 min-w-0 flex-col lg:col-start-1 lg:row-start-1 lg:h-auto lg:min-h-0">
+							<VisibleEffects
+								effects={game.state.effects}
+								monsters={activeMonsters}
+								visible={
+									fogConfiguration.enabled ? exploration.visible : undefined
+								}
+							/>
+							{victory && (
+								<Button
+									variant="outline"
+									size="sm"
+									className="mb-3 self-center"
+									onClick={() => setDismissedVictory(null)}
+								>
+									Victory summary
+								</Button>
+							)}
+							{spells.description && (
+								<p
+									role="status"
+									aria-label="Spell targeting"
+									className="mb-2 rounded-md border border-violet-500/50 bg-violet-500/10 px-3 py-2 text-center text-sm"
+								>
+									{spells.description}
+								</p>
+							)}
+							{corridor.description && (
+								<p
+									role="status"
+									aria-label="Corridor travel"
+									className="mb-1 text-center text-xs text-muted-foreground"
+								>
+									{corridor.description}
+								</p>
+							)}
+							<DungeonFrame>
+								<DungeonLayout
+									onCorridorKey={corridor.handleKey}
+									mapRef={mapRef}
+									onSpellRequested={spells.activate}
+									onSpellSlotRequested={(slot) => {
+										const spell = game.state.spellHotbar[slot - 1];
+										if (spell) spells.activate(spell);
+										else
+											setActionError(
+												`Spell slot ${slot} is empty. Assign a spell in Character.`,
+											);
+									}}
+									onTargetingKey={
+										spells.targeting ? spells.handleKey : undefined
 									}
-								: undefined
-						}
-						movementEnabled={gameplayEnabled}
-					/>
-					{game.actionError && merchantId === null && (
-						<p
-							role="status"
-							aria-label="Action feedback"
-							className="py-2 text-sm text-muted-foreground"
-						>
-							{game.actionError}
-						</p>
-					)}
-					<ObjectContext
-						state={game.state}
-						visible={fogConfiguration.enabled ? exploration.visible : undefined}
-					/>
-					<ActivityLog history={game.state.activityHistory} />
+									targetIds={spells.targetIds}
+									spellArea={spells.spellArea}
+									selectedTargetId={spells.targeting?.id}
+									onTargetRequested={
+										spells.targeting ? spells.castTarget : undefined
+									}
+									monsters={activeMonsters}
+									floorItems={activeItems}
+									dungeon={activeFloor.terrain}
+									visible={
+										fogConfiguration.enabled ? exploration.visible : undefined
+									}
+									explored={
+										fogConfiguration.enabled
+											? exploration.explored.get(run.activeFloor)
+											: undefined
+									}
+									playerPosition={run.playerCoordinate}
+									upStair={activeFloor.upStair?.coordinate}
+									entrance={
+										run.activeFloor === 1
+											? game.state.quest.entrance
+											: undefined
+									}
+									downStair={activeFloor.downStair?.coordinate}
+									onMoveRequested={(direction) =>
+										handleActionRequested({ type: "move", direction })
+									}
+									onWaitRequested={() =>
+										handleActionRequested({ type: "wait" })
+									}
+									dungeonObjects={activeObjects}
+									onInteractRequested={
+										gameplayEnabled ? handleInteractRequested : undefined
+									}
+									onPickupRequested={handlePickupRequested}
+									onPotionRequested={handlePotionRequested}
+									onCharacterRequested={
+										mapInputAvailable
+											? () => {
+													setCharacterOpenedFromMap(true);
+													setCharacterOpen(true);
+												}
+											: undefined
+									}
+									movementEnabled={gameplayEnabled}
+								/>
+							</DungeonFrame>
+							{game.actionError && merchantId === null && (
+								<p
+									role="status"
+									aria-label="Action feedback"
+									className="py-2 text-sm text-muted-foreground"
+								>
+									{game.actionError}
+								</p>
+							)}
+							<ObjectContext
+								state={game.state}
+								visible={
+									fogConfiguration.enabled ? exploration.visible : undefined
+								}
+							/>
+						</div>
+						<div className="order-3 flex min-h-0 min-w-0 flex-col lg:col-start-2 lg:row-span-2 lg:row-start-1 [&>*]:flex-1 [&>*]:min-h-0">
+							<ActivityLog
+								history={game.state.activityHistory}
+								resetKey={run.floors}
+							/>
+						</div>
+
+						<div className="order-2 flex min-w-0 justify-center lg:col-start-1 lg:row-start-2">
+							<FantasyRail className="w-fit max-w-full">
+								<fieldset
+									aria-label="Quick slots"
+									className="
+            flex min-w-0 max-w-full flex-wrap
+            items-start justify-center gap-x-3 gap-y-3
+            bg-muted/20 px-2 py-2 sm:px-7
+         "
+								>
+									<PotionHotbarView
+										bag={game.state.bag}
+										potionHotbar={game.state.potionHotbar}
+										alive={gameplayEnabled && !spells.targeting}
+										onActivate={handlePotionRequested}
+									/>
+
+									<div
+										aria-hidden="true"
+										className="hidden self-stretch border-l border-amber-800/40 dark:border-amber-500/30 xl:block"
+									/>
+
+									<SpellHotbarView
+										slots={game.state.spellHotbar}
+										knownSpells={game.state.knownSpells}
+										enabled={gameplayEnabled}
+										targeting={spells.targeting?.spell}
+										onActivate={spells.activate}
+									/>
+								</fieldset>
+							</FantasyRail>
+						</div>
+					</div>
 				</section>
 			</main>
 			<GameOverDialog

@@ -1,5 +1,7 @@
 import {
 	Brain,
+	Heart,
+	ShieldAlert,
 	Skull,
 	Sparkles,
 	Sword,
@@ -8,31 +10,86 @@ import {
 	Zap,
 } from "lucide-react";
 import type { ActivityEvent } from "../../domain/game/ActivityHistory";
+import { isPlayerDamage } from "../../domain/game/PlayerDamageEvents";
 import { formatActivityEvent } from "./ActivityMessages";
 
-const ActivityMessage = ({ event }: { event: ActivityEvent }) => {
-	const text = formatActivityEvent(event);
+const ActivityMessage = ({
+	event,
+	showTurn = true,
+}: {
+	event: ActivityEvent;
+	showTurn?: boolean;
+}) => {
+	const fullText = formatActivityEvent(event);
+	const text = showTurn ? fullText : fullText.replace(/^Turn \d+ — /, "");
+
 	const milestone =
 		event.type === "level-gained" ||
 		event.type === "quest-completed" ||
 		event.type === "escape-started";
+
 	const danger = event.type === "player-died";
 	const growth = event.type === "attribute-gained";
+
+	// Monster telegraphs need to be immediately noticeable.
 	if (
 		event.type === "monster-prepared" ||
 		event.type === "monster-charge-prepared" ||
 		event.type === "monster-alarm-prepared"
-	)
+	) {
 		return (
-			<span className="my-0.5 flex items-start gap-2 rounded-r border-l-2 border-map-threat/50 bg-map-threat/10 px-2 py-1 font-semibold text-map-threat">
+			<span
+				className="
+               my-0.5 flex items-start gap-2 rounded-r-sm
+               border-l-2 border-map-threat/60
+               bg-map-threat/10 px-2 py-1
+               font-semibold text-map-threat
+            "
+			>
 				<TriangleAlert
 					aria-hidden="true"
 					className="mt-0.5 size-3.5 shrink-0"
 				/>
-				{text}
+				<span className="min-w-0">{text}</span>
 			</span>
 		);
-	if (!milestone && !danger && !growth) return <>{text}</>;
+	}
+
+	if (!milestone && !danger && !growth) {
+		const damage = isPlayerDamage(event);
+		const healing =
+			event.type === "spell-healed" || event.type === "fountain-restored";
+
+		const condition =
+			event.type === "condition-applied" ||
+			event.type === "player-condition-applied";
+
+		if (!damage && !healing && !condition) {
+			return <>{text}</>;
+		}
+
+		const Icon = damage ? ShieldAlert : healing ? Heart : Zap;
+
+		const style = damage
+			? "text-rose-700 dark:text-rose-300 bg-rose-500/[0.045] dark:bg-rose-400/[0.055]"
+			: healing
+				? "text-emerald-800 dark:text-emerald-300 bg-emerald-500/[0.045] dark:bg-emerald-400/[0.055]"
+				: "text-cyan-800 dark:text-cyan-300 bg-cyan-500/[0.045] dark:bg-cyan-400/[0.055]";
+
+		return (
+			<span
+				className={`
+               flex items-start gap-1.5 rounded-sm
+               px-1.5 py-0.5 font-medium
+               ${style}
+            `}
+			>
+				<Icon aria-hidden="true" className="mt-0.5 size-3.5 shrink-0" />
+				<span className="min-w-0">{text}</span>
+			</span>
+		);
+	}
+
 	const Icon =
 		event.type === "level-gained"
 			? Sparkles
@@ -45,18 +102,25 @@ const ActivityMessage = ({ event }: { event: ActivityEvent }) => {
 							? Brain
 							: Zap
 					: Skull;
-	const className = danger
-		? "border-destructive/50 bg-destructive/10 font-semibold text-destructive"
+
+	const style = danger
+		? "border-destructive/60 bg-destructive/10 font-semibold text-destructive"
 		: milestone
 			? "border-primary/50 bg-primary/10 font-semibold text-primary"
-			: "border-primary/25 font-medium text-primary";
+			: "border-primary/25 bg-primary/5 font-medium text-primary";
+
 	return (
 		<span
-			className={`my-0.5 flex items-start gap-2 rounded-r border-l-2 px-2 py-1 ${className}`}
+			className={`
+            my-0.5 flex items-start gap-2 rounded-r-sm
+            border-l-2 px-2 py-1
+            ${style}
+         `}
 		>
 			<Icon aria-hidden="true" className="mt-0.5 size-3.5 shrink-0" />
-			{text}
+			<span className="min-w-0">{text}</span>
 		</span>
 	);
 };
+
 export default ActivityMessage;

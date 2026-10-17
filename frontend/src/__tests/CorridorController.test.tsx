@@ -103,7 +103,11 @@ it.each(["focus", "pointer", "blur", "disabled"])(
 		screen.getByLabelText("Map").focus();
 		begin();
 		tick();
-		if (kind === "focus") screen.getByRole("button", { name: "Menu" }).focus();
+		if (kind === "focus") {
+			act(() => {
+				screen.getByRole("button", { name: "Menu" }).focus();
+			});
+		}
 		if (kind === "pointer")
 			fireEvent.pointerDown(screen.getByRole("button", { name: "Menu" }));
 		if (kind === "blur") fireEvent(window, new Event("blur"));

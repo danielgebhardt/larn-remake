@@ -18,8 +18,14 @@ describe("Tactical activity emphasis", () => {
 		const message = screen.getByText(
 			"Turn 1 — The dungeon brute prepares a heavy attack at your tile. Move away to dodge.",
 		);
-		expect(message).toHaveClass("border-map-threat/50", "font-semibold");
-		expect(message.querySelector("svg")).toHaveAttribute("aria-hidden", "true");
+		expect(message.parentElement).toHaveClass(
+			"border-map-threat/60",
+			"font-semibold",
+		);
+		expect(message.parentElement?.querySelector("svg")).toHaveAttribute(
+			"aria-hidden",
+			"true",
+		);
 	});
 
 	it.each([
@@ -27,10 +33,15 @@ describe("Tactical activity emphasis", () => {
 		{ type: "monster-heavy-hit", turn: 2, monster: "dungeon-brute", damage: 5 },
 		{ type: "monster-heavy-avoided", turn: 2, monster: "dungeon-brute" },
 	] satisfies ActivityEvent[])(
-		"keeps routine $type messages plain",
+		"emphasizes incoming $type damage without promoting it to a milestone",
 		(event) => {
 			const { container } = render(<ActivityMessage event={event} />);
-			expect(container.querySelector("svg")).toBeNull();
+			if ("damage" in event)
+				expect(container.querySelector("svg")).toHaveAttribute(
+					"aria-hidden",
+					"true",
+				);
+			else expect(container.querySelector("svg")).toBeNull();
 			expect(container.querySelector(".font-semibold")).toBeNull();
 		},
 	);

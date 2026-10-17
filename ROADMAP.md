@@ -215,3 +215,6 @@ Earlier appearances of stronger monster kinds are a separate [Backlog experiment
 
 
 **#302 is implemented for developer review** on `codex/spell-balance-pass`: stronger learned attacks, dangerous radius-three Fireball, scaling Renewal/poison, twenty-turn spell buffs, longer Blink, and a shared 3–6-book discovery budget. Heal/Magic Missile and control spells retain their baseline roles; enemy spell damage is isolated from player buffs. Current saves emit v22 and preserve earlier played state. See [the spell balance review](docs/spell-balance-review.md). Human balance acceptance remains pending.
+
+
+**#305 is implemented for developer review** on `codex/laptop-adventure-layout`: compact status/hotbars, a taller dungeon with a 288px right-side Activity panel at laptop widths, turn-grouped messages, readable damage/healing/condition emphasis, and Latest/new-event controls. Below 1024px, the map and log stack without horizontal overflow. Reference map height improved from 36.2% to 71.5% at 1280×720 after the compact status-strip follow-up; both themes and 1440×900 were compared. [Layout review](docs/laptop-layout-review.md). Human usability acceptance remains pending.

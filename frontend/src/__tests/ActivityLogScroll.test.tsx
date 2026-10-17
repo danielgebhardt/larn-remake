@@ -33,8 +33,9 @@ beforeEach(() => {
 	vi.spyOn(HTMLElement.prototype, "getBoundingClientRect").mockImplementation(
 		function (this: HTMLElement) {
 			const viewport = this.closest<HTMLElement>('[role="log"]');
-			const index = this.hasAttribute("data-entry-id")
-				? Array.from(this.parentElement?.children ?? []).indexOf(this)
+			const owner = this.closest<HTMLElement>("[data-entry-id]");
+			const index = owner
+				? Array.from(owner.parentElement?.children ?? []).indexOf(owner)
 				: -1;
 			const top = index < 0 ? 0 : index * 24 - (viewport?.scrollTop ?? 0);
 			return {
@@ -51,6 +52,37 @@ beforeEach(() => {
 afterEach(() => vi.restoreAllMocks());
 
 describe("Activity log scrolling", () => {
+	it("follows a replaced adventure even when its history has the same event IDs", () => {
+		const history = appendActivityEvents(createActivityHistory(), events(10));
+		const firstAdventure = {};
+		const { rerender } = render(
+			<ActivityLog history={history} resetKey={firstAdventure} />,
+		);
+		const viewport = readAt(48);
+		expect(
+			screen.getByRole("button", { name: /Jump to latest/ }),
+		).toBeVisible();
+		rerender(<ActivityLog history={history} resetKey={{}} />);
+		expect(viewport.scrollTop).toBe(168);
+		expect(screen.queryByRole("button", { name: /Jump to latest/ })).toBeNull();
+	});
+	it("offers unseen activity and returns to following without stealing map focus on arrival", () => {
+		const history = appendActivityEvents(createActivityHistory(), events(10));
+		const { rerender } = render(<ActivityLog history={history} />);
+		const viewport = readAt(48);
+		viewport.focus();
+		rerender(
+			<ActivityLog history={appendActivityEvents(history, events(2, 11))} />,
+		);
+		expect(viewport.scrollTop).toBe(48);
+		const latest = screen.getByRole("button", {
+			name: "Jump to latest activity, 2 new events",
+		});
+		fireEvent.click(latest);
+		expect(viewport.scrollTop).toBe(216);
+		expect(viewport).toHaveFocus();
+		expect(screen.queryByRole("button", { name: /Jump to latest/ })).toBeNull();
+	});
 	it("follows new entries at the bottom without moving focus", () => {
 		const history = appendActivityEvents(createActivityHistory(), events(10));
 		const { rerender } = render(<ActivityLog history={history} />);
@@ -83,9 +115,8 @@ describe("Activity log scrolling", () => {
 		const history = appendActivityEvents(createActivityHistory(), events(100));
 		const { rerender } = render(<ActivityLog history={history} />);
 		const viewport = readAt(48);
-		const message = screen.getByText(
-			"Turn 3 — You hit the goblin for 2 damage.",
-		);
+		const message = viewport.querySelector<HTMLElement>('[data-entry-id="2"]');
+		if (!message) throw new Error("Expected the turn-three entry");
 		expect(message.getBoundingClientRect().top).toBe(0);
 		rerender(
 			<ActivityLog history={appendActivityEvents(history, events(1, 101))} />,

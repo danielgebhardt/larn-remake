@@ -45,9 +45,14 @@ describe("Waiting on the play screen", () => {
 		expect(screen.getByLabelText("Player health")).toHaveTextContent(
 			"Health 10 / 10",
 		);
-		expect(screen.getByRole("log")).toHaveTextContent(
-			"Turn 1 — The goblin begins pursuit.",
-		);
+		expect(
+			within(screen.getByRole("log")).getByRole("heading", {
+				name: "Turn 1",
+			}),
+		).toBeVisible();
+		expect(
+			within(screen.getByRole("log")).getByText("The goblin begins pursuit."),
+		).toBeVisible();
 		await user.keyboard(" ");
 		expect(screen.getByLabelText("row1col1 - player")).toBeVisible();
 		expect(screen.getByLabelText("Turn count")).toHaveTextContent("Turn 2");
@@ -58,11 +63,18 @@ describe("Waiting on the play screen", () => {
 		expect(
 			within(screen.getByRole("log"))
 				.getAllByRole("listitem")
-				.map((item) => item.textContent),
+				.map(
+					(item) => item.querySelector("[data-activity-message]")?.textContent,
+				),
 		).toEqual([
-			"Turn 1 — The goblin begins pursuit.",
-			"Turn 2 — The goblin hits you for 1 damage.",
+			"The goblin begins pursuit.",
+			"The goblin hits you for 1 damage.",
 		]);
+		expect(
+			within(screen.getByRole("log")).getByRole("heading", {
+				name: "Turn 2",
+			}),
+		).toBeVisible();
 	});
 	it("leaves Spacebar to Settings and log focus, then waits only when gameplay is focused", async () => {
 		const user = renderWaitingRun(false);

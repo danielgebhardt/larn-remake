@@ -25,11 +25,13 @@ const expectEndedRun = () => {
 	expect(
 		within(screen.getByRole("log"))
 			.getAllByRole("listitem")
-			.map((item) => item.textContent),
+			.map(
+				(item) => item.querySelector("[data-activity-message]")?.textContent,
+			),
 	).toEqual([
-		"Turn 1 — You hit the goblin for 2 damage.",
-		"Turn 1 — The goblin hits you for 1 damage.",
-		"Turn 1 — You die.",
+		"You hit the goblin for 2 damage.",
+		"The goblin hits you for 1 damage.",
+		"You die.",
 	]);
 };
 

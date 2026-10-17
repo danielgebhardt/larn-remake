@@ -9,6 +9,11 @@ import {
 	type PotionKind,
 } from "../../domain/items/PotionHotbar";
 import ItemIcon from "../items/ItemIcon";
+import {
+	HOTBAR_CARD_CLASS_NAME,
+	HOTBAR_SLOT_CLASS_NAME,
+	HotbarShortcut,
+} from "./HotbarSlot";
 
 const POTION_LABELS: Record<PotionKind, string> = {
 	"strength-potion": "Strength",
@@ -20,6 +25,7 @@ const POTION_LABELS: Record<PotionKind, string> = {
 	"greater-healing-potion": "Greater heal",
 	"greater-mana-potion": "Greater mana",
 };
+
 const PotionHotbarView = ({
 	bag,
 	potionHotbar,
@@ -31,26 +37,36 @@ const PotionHotbarView = ({
 	alive: boolean;
 	onActivate: (slot: HotbarSlot) => void;
 }) => (
-	<section aria-label="Potion hotbar" className="flex items-start gap-1.5">
+	<section
+		aria-label="Potion hotbar"
+		className="grid min-w-0 grid-cols-4 items-start gap-1"
+	>
 		{HOTBAR_SLOTS.map((slot) => {
 			const { kind, count } = hotbarSlotContents({ bag, potionHotbar }, slot);
-			const label = `Potion slot ${slot}: ${kind ? `${ITEM_DEFINITIONS[kind].name}, ${count} carried` : "empty"}`;
+			const label = `Potion slot ${slot}: ${
+				kind ? `${ITEM_DEFINITIONS[kind].name}, ${count} carried` : "empty"
+			}`;
+
 			return (
-				<div key={slot} className="grid w-12 gap-1 text-center">
+				<div key={slot} className={HOTBAR_CARD_CLASS_NAME}>
 					<Button
 						type="button"
 						variant="outline"
 						disabled={!alive}
 						aria-label={label}
+						aria-keyshortcuts={String(slot)}
 						title={label}
 						onClick={() => onActivate(slot)}
-						className="relative size-12 rounded-md p-2 dark:bg-background/60"
+						className={`${HOTBAR_SLOT_CLASS_NAME} ${
+							kind && count > 0
+								? "border-amber-700/35 dark:border-amber-600/40"
+								: "border-dashed"
+						}`}
 					>
-						<kbd className="absolute top-0.5 left-1 text-[10px] leading-none text-muted-foreground">
-							{slot}
-						</kbd>
+						<HotbarShortcut shortcut={String(slot)} />
+
 						{kind ? (
-							<span className={`size-6 ${count === 0 ? "opacity-40" : ""}`}>
+							<span className={`size-7 ${count === 0 ? "opacity-40" : ""}`}>
 								<ItemIcon kind={kind} />
 							</span>
 						) : (
@@ -58,18 +74,20 @@ const PotionHotbarView = ({
 								—
 							</span>
 						)}
+
 						{kind && (
 							<span
 								aria-hidden="true"
-								className="absolute right-1 bottom-0.5 text-[10px] font-medium tabular-nums"
+								className="absolute right-[7px] bottom-[5px] text-[11px] font-medium leading-none tabular-nums"
 							>
 								{count}
 							</span>
 						)}
 					</Button>
+
 					<span
 						aria-hidden="true"
-						className="line-clamp-2 min-h-6 text-[10px] leading-3 text-muted-foreground"
+						className="w-full whitespace-nowrap text-center text-[11px] leading-4 text-muted-foreground"
 					>
 						{kind ? POTION_LABELS[kind] : "Empty"}
 					</span>
@@ -78,4 +96,5 @@ const PotionHotbarView = ({
 		})}
 	</section>
 );
+
 export default PotionHotbarView;

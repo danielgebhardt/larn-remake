@@ -1121,11 +1121,17 @@ test("merchant bounds and unsold positions stay stable, and repeated clicks cann
 }, testInfo) => {
 	await importAdventure(page, "merchant-many");
 	await page.keyboard.press("e");
-	await page.keyboard.press("s");
 	const merchant = page.getByRole("dialog", {
 		name: "Wandering potion merchant",
 		exact: true,
 	});
+	await expect(
+		merchant.getByRole("heading", {
+			name: "Wandering potion merchant",
+			exact: true,
+		}),
+	).toBeFocused();
+	await page.keyboard.press("s");
 	const panel = merchant.getByRole("tabpanel", { name: "Sell", exact: true });
 	const close = merchant.getByRole("button", { name: "Close", exact: true });
 	const sales = merchant.getByRole("button", {
@@ -1288,4 +1294,333 @@ test("fatal Fireball self-damage opens defeat with the blast in its recap", asyn
 	await expect(death).toContainText("Fireball blast hits you");
 	await page.keyboard.press("ArrowRight");
 	await expect(turns(page)).toHaveText("Turn 1");
+});
+
+test("adventure layout keeps the dungeon usable beside a responsive Activity panel", async ({
+	page,
+}, testInfo) => {
+	await importAdventure(page, "laptop-layout");
+	for (const size of [
+		{ width: 1024, height: 768 },
+		{ width: 1280, height: 720 },
+		{ width: 1468, height: 837 },
+		{ width: 1440, height: 900 },
+		{ width: 1920, height: 1080 },
+	]) {
+		await page.setViewportSize(size);
+		for (const theme of ["Light", "Dark"]) {
+			await page.getByRole("button", { name: "Settings", exact: true }).click();
+			await page.getByRole("button", { name: theme, exact: true }).click();
+			await page.keyboard.press("Escape");
+			await expect(map(page)).toBeFocused();
+			const status = await page
+				.getByRole("region", { name: "Player status", exact: true })
+				.boundingBox();
+			const health = await page
+				.getByLabel("Player health", { exact: true })
+				.boundingBox();
+			const mana = await page
+				.getByLabel("Player mana", { exact: true })
+				.boundingBox();
+			const gold = await page
+				.getByLabel("Player gold", { exact: true })
+				.boundingBox();
+			if (!status || !health || !mana || !gold)
+				throw new Error("Expected player status");
+			const rail = await page
+				.getByRole("region", { name: "Player status", exact: true })
+				.locator("../..")
+				.boundingBox();
+			if (!rail) throw new Error("Expected the command rail");
+			expect(rail.width).toBeLessThanOrEqual(1328);
+			expect(Math.abs(rail.x + rail.width / 2 - size.width / 2)).toBeLessThan(
+				1,
+			);
+			await expect(
+				page.getByLabel("Player experience", { exact: true }),
+			).toBeVisible();
+			const xpText = await page
+				.getByLabel("Player experience", { exact: true })
+				.boundingBox();
+			const quest = await page
+				.getByRole("region", { name: "Adventure quest", exact: true })
+				.boundingBox();
+			if (!xpText || !quest)
+				throw new Error("Expected XP and objective bounds");
+			expect(xpText.x + xpText.width + 4).toBeLessThanOrEqual(quest.x);
+
+			expect(status.height).toBeLessThanOrEqual(80);
+			expect(Math.abs(health.y - mana.y)).toBeLessThan(2);
+			// The serif value uses a single 24px line; wrapping would double its height.
+			expect(gold.height).toBeLessThanOrEqual(24);
+			for (const name of ["Health reserve", "Mana reserve"]) {
+				const bar = await page
+					.getByRole("meter", { name, exact: true })
+					.locator("..")
+					.boundingBox();
+				if (!bar) throw new Error("Expected a visible reserve bar");
+				const value = name === "Health reserve" ? health : mana;
+				const label = await page
+					.getByRole("meter", { name, exact: true })
+					.locator("../..")
+					.locator(":scope > div")
+					.first()
+					.locator(":scope > span")
+					.boundingBox();
+				if (!label) throw new Error("Expected a resource label");
+				expect(label.x + label.width + 2).toBeLessThanOrEqual(value.x);
+
+				expect(
+					Math.abs(value.x + value.width / 2 - bar.x - bar.width / 2),
+				).toBeLessThan(1);
+				expect(bar.height).toBeGreaterThanOrEqual(12);
+				expect(bar.width).toBeGreaterThanOrEqual(76);
+				expect(bar.width).toBeLessThanOrEqual(260);
+			}
+			const dungeon = await map(page).boundingBox();
+			const activity = await page
+				.getByRole("region", { name: "Activity", exact: true })
+				.boundingBox();
+			if (!dungeon || !activity)
+				throw new Error("Expected map and activity bounds");
+			console.log(
+				`${size.width}×${size.height} ${theme}: dungeon ${((100 * dungeon.height) / size.height).toFixed(1)}% (${dungeon.height}px)`,
+			);
+			expect(dungeon.height).toBeGreaterThanOrEqual(
+				size.width < 1280 ? 300 : 320,
+			);
+			expect(activity.x).toBeGreaterThanOrEqual(dungeon.x + dungeon.width);
+			expect(activity.width).toBeGreaterThanOrEqual(280);
+			expect(activity.width).toBe(
+				size.width >= 1800 ? 416 : size.width >= 1280 ? 320 : 288,
+			);
+			expect(activity.y + activity.height).toBeLessThanOrEqual(size.height);
+			expect(
+				await page
+					.locator("html")
+					.evaluate((node) => node.scrollWidth <= node.clientWidth),
+			).toBe(true);
+			await page.screenshot({
+				path: testInfo.outputPath(`laptop-${size.width}-${theme}.png`),
+			});
+		}
+	}
+});
+
+test("Activity preserves older reading, counts new events and follows again without moving the player", async ({
+	page,
+}, testInfo) => {
+	await importAdventure(page, "laptop-layout");
+	const log = page.getByRole("log", { name: "Activity log", exact: true });
+	await expect
+		.poll(() =>
+			log.evaluate(
+				(node) => node.scrollHeight - node.clientHeight - node.scrollTop,
+			),
+		)
+		.toBeLessThan(3);
+	await log.evaluate((node) => {
+		node.scrollTop = 0;
+	});
+	const latest = page.getByRole("button", { name: /Jump to latest activity/ });
+	await expect(latest).toBeVisible();
+	const first = log.locator("[data-entry-id]").first();
+	const before = await first.boundingBox();
+	await map(page).focus();
+	await page.keyboard.press("h");
+	await expect(turns(page)).toHaveText("Turn 21");
+	await expect(latest).toHaveAccessibleName(
+		"Jump to latest activity, 1 new event",
+	);
+	expect(
+		Math.abs(((await first.boundingBox())?.y ?? 0) - (before?.y ?? 0)),
+	).toBeLessThan(2);
+	await expect(map(page)).toBeFocused();
+	await latest.click();
+	await expect(log).toBeFocused();
+	await expect(latest).toBeHidden();
+	await expect
+		.poll(() =>
+			log.evaluate(
+				(node) => node.scrollHeight - node.clientHeight - node.scrollTop,
+			),
+		)
+		.toBeLessThan(3);
+	await page.keyboard.press("ArrowRight");
+	await expect(turns(page)).toHaveText("Turn 21");
+	await page.screenshot({ path: testInfo.outputPath("activity-latest.png") });
+	await page.setViewportSize({ width: 800, height: 667 });
+	const dungeon = await map(page).boundingBox();
+	const activity = await page
+		.getByRole("region", { name: "Activity", exact: true })
+		.boundingBox();
+	if (!dungeon || !activity) throw new Error("Expected stacked adventure");
+	expect(activity.y).toBeGreaterThanOrEqual(dungeon.y + dungeon.height);
+	expect(dungeon.height).toBeGreaterThanOrEqual(200);
+	await expect
+		.poll(() =>
+			log.evaluate(
+				(node) => node.scrollHeight - node.clientHeight - node.scrollTop,
+			),
+		)
+		.toBeLessThan(3);
+	for (const width of [390, 320]) {
+		await page.setViewportSize({ width, height: 667 });
+		const status = page.getByRole("region", {
+			name: "Player status",
+			exact: true,
+		});
+		const health = await status
+			.getByLabel("Player health", { exact: true })
+			.boundingBox();
+		const mana = await status
+			.getByLabel("Player mana", { exact: true })
+			.boundingBox();
+		if (!health || !mana) throw new Error("Expected mobile resource values");
+		expect(health.x + health.width).toBeLessThanOrEqual(mana.x);
+		const slots = page.getByRole("group", { name: "Quick slots", exact: true });
+		const controls = slots.locator("button, [role=img]");
+		expect(await controls.count()).toBe(10);
+		for (const control of await controls.all()) {
+			const bounds = await control.boundingBox();
+			if (!bounds) throw new Error("Expected every quick slot to be rendered");
+			expect(bounds.x).toBeGreaterThanOrEqual(0);
+			expect(bounds.x + bounds.width).toBeLessThanOrEqual(width);
+		}
+		const cards = await slots
+			.locator('section[aria-label$="hotbar"] > div')
+			.all();
+		expect(cards).toHaveLength(10);
+		const slotBounds = await slots.boundingBox();
+		if (!slotBounds) throw new Error("Expected quick-slot bounds");
+		const boxes = [];
+		for (const card of cards) {
+			const bounds = await card.boundingBox();
+			if (!bounds) throw new Error("Expected a quick-slot card");
+			expect(bounds.x).toBeGreaterThanOrEqual(slotBounds.x);
+			expect(bounds.x + bounds.width).toBeLessThanOrEqual(
+				slotBounds.x + slotBounds.width,
+			);
+			for (const previous of boxes) {
+				const overlaps =
+					bounds.x < previous.x + previous.width - 0.5 &&
+					previous.x < bounds.x + bounds.width - 0.5 &&
+					bounds.y < previous.y + previous.height - 0.5 &&
+					previous.y < bounds.y + bounds.height - 0.5;
+				expect(overlaps).toBe(false);
+			}
+			boxes.push(bounds);
+		}
+
+		expect(
+			await page
+				.locator("html")
+				.evaluate((node) => node.scrollWidth <= node.clientWidth),
+		).toBe(true);
+		await page.screenshot({
+			path: testInfo.outputPath(`activity-mobile-${width}.png`),
+			fullPage: true,
+		});
+	}
+	await expect
+		.poll(() =>
+			log.evaluate(
+				(node) => node.scrollHeight - node.clientHeight - node.scrollTop,
+			),
+		)
+		.toBeLessThan(3);
+	expect(
+		await page
+			.locator("html")
+			.evaluate((node) => node.scrollWidth <= node.clientWidth),
+	).toBe(true);
+	await page.screenshot({
+		path: testInfo.outputPath("activity-mobile.png"),
+		fullPage: true,
+	});
+});
+
+test("interaction hints reserve their space without resizing the dungeon", async ({
+	page,
+}) => {
+	await importAdventure(page, "interaction-hints");
+	for (const size of [
+		{ width: 1280, height: 720 },
+		{ width: 390, height: 667 },
+	]) {
+		await page.setViewportSize(size);
+		const hints = page.getByRole("region", {
+			name: "Nearby objects",
+			exact: true,
+		});
+		await expect(hints).toHaveCount(0);
+		const before = await map(page).boundingBox();
+		await map(page).focus();
+		await page.keyboard.press("ArrowRight");
+		await expect(hints).toContainText("Press E within reach to open.");
+		expect(await map(page).boundingBox()).toEqual(before);
+		await expect(map(page)).toBeFocused();
+		await page.keyboard.press("ArrowLeft");
+		await expect(hints).toHaveCount(0);
+		expect(await map(page).boundingBox()).toEqual(before);
+	}
+});
+
+test("the wider rail keeps the floor-20 objective on one line and leaves room for XP", async ({
+	page,
+}) => {
+	await importAdventure(page, "corridor-large");
+	const objective = page
+		.getByRole("region", { name: "Adventure quest", exact: true })
+		.getByLabel("Quest objective", { exact: true });
+	await expect(objective).toHaveText("Recover the last ember on floor 20.");
+	for (const size of [
+		{ width: 1024, height: 768 },
+		{ width: 1280, height: 720 },
+		{ width: 1920, height: 1080 },
+	]) {
+		await page.setViewportSize(size);
+		const bounds = await objective.boundingBox();
+		if (!bounds) throw new Error("Expected objective text");
+		expect(bounds.height).toBeLessThanOrEqual(16);
+		const xp = await page
+			.getByRole("progressbar", {
+				name: "Player experience progress",
+				exact: true,
+			})
+			.boundingBox();
+		if (!xp) throw new Error("Expected XP track");
+		expect(xp.width).toBeGreaterThanOrEqual(80);
+		expect(
+			await page
+				.locator("html")
+				.evaluate((node) => node.scrollWidth <= node.clientWidth),
+		).toBe(true);
+	}
+});
+
+test("dungeon artwork only loads the active theme image", async ({ page }) => {
+	const requested = new Set<string>();
+	page.on("request", (request) => {
+		const url = request.url();
+		if (url.includes("dungeon-frame-")) requested.add(url);
+	});
+	await importAdventure(page, "laptop-layout");
+	await expect
+		.poll(() =>
+			[...requested].some((url) => url.includes("dungeon-frame-dark")),
+		)
+		.toBe(true);
+	expect(
+		[...requested].some((url) => url.includes("dungeon-frame-light")),
+	).toBe(false);
+	await page.getByRole("button", { name: "Settings", exact: true }).click();
+	await page.getByRole("button", { name: "Light", exact: true }).click();
+	await page.keyboard.press("Escape");
+	await expect
+		.poll(() =>
+			[...requested].some((url) => url.includes("dungeon-frame-light")),
+		)
+		.toBe(true);
+	await expect(map(page)).toBeFocused();
 });

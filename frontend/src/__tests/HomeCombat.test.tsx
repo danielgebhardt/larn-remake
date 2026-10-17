@@ -10,7 +10,7 @@ import {
 const messages = () =>
 	within(screen.getByRole("log"))
 		.getAllByRole("listitem")
-		.map((item) => item.textContent);
+		.map((item) => item.querySelector("[data-activity-message]")?.textContent);
 
 afterEach(resetHomeTestState);
 
@@ -26,9 +26,7 @@ describe("Combat on the play screen", () => {
 				"Health 9 / 10",
 			);
 			expect(screen.getByLabelText("Turn count")).toHaveTextContent("Turn 2");
-			expect(messages()).toEqual([
-				"Turn 2 — The goblin hits you for 1 damage.",
-			]);
+			expect(messages()).toEqual(["The goblin hits you for 1 damage."]);
 		},
 	);
 
@@ -44,9 +42,9 @@ describe("Combat on the play screen", () => {
 			);
 			expect(screen.getByLabelText("Turn count")).toHaveTextContent("Turn 1");
 			expect(messages()).toEqual([
-				"Turn 1 — You hit the goblin for 2 damage.",
-				"Turn 1 — The goblin hits you for 1 damage.",
-				"Turn 1 — The goblin begins pursuit.",
+				"You hit the goblin for 2 damage.",
+				"The goblin hits you for 1 damage.",
+				"The goblin begins pursuit.",
 			]);
 			await user.keyboard(key);
 			expect(screen.getByLabelText("row1col2 - floor")).toBeVisible();
@@ -56,10 +54,10 @@ describe("Combat on the play screen", () => {
 			);
 			expect(screen.getByLabelText("Turn count")).toHaveTextContent("Turn 2");
 			expect(messages().slice(-4)).toEqual([
-				"Turn 2 — You hit the goblin for 2 damage.",
-				"Turn 2 — The goblin dies.",
-				"Turn 2 — You collect 6 gold.",
-				"Turn 2 — You gain 5 XP.",
+				"You hit the goblin for 2 damage.",
+				"The goblin dies.",
+				"You collect 6 gold.",
+				"You gain 5 XP.",
 			]);
 			await user.keyboard(key);
 			expect(screen.getByLabelText("row1col2 - player")).toBeVisible();
@@ -73,8 +71,8 @@ describe("Combat on the play screen", () => {
 			expect(screen.queryByLabelText(/goblin/)).not.toBeInTheDocument();
 			expect(messages()).toHaveLength(9);
 			expect(messages().slice(-2)).toEqual([
-				"Turn 5 — You descend to floor 2.",
-				"Turn 7 — You ascend to floor 1.",
+				"You descend to floor 2.",
+				"You ascend to floor 1.",
 			]);
 			expect(generate).toHaveBeenCalledTimes(1);
 			expect(spawn).toHaveBeenCalledTimes(1);
@@ -98,8 +96,8 @@ describe("Combat on the play screen", () => {
 		);
 		expect(messages()).toHaveLength(6);
 		expect(messages().slice(-2)).toEqual([
-			"Turn 4 — You descend to floor 2.",
-			"Turn 6 — You ascend to floor 1.",
+			"You descend to floor 2.",
+			"You ascend to floor 1.",
 		]);
 		// Approach from the right; one remaining hit should kill it.
 		await user.keyboard("wa");
@@ -108,10 +106,10 @@ describe("Combat on the play screen", () => {
 			"Health 7 / 10",
 		);
 		expect(messages().slice(-4)).toEqual([
-			"Turn 8 — You hit the goblin for 2 damage.",
-			"Turn 8 — The goblin dies.",
-			"Turn 8 — You collect 6 gold.",
-			"Turn 8 — You gain 5 XP.",
+			"You hit the goblin for 2 damage.",
+			"The goblin dies.",
+			"You collect 6 gold.",
+			"You gain 5 XP.",
 		]);
 	});
 

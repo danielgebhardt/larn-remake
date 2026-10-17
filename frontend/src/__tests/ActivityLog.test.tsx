@@ -30,14 +30,27 @@ describe("Activity log presentation", () => {
 			/>,
 		);
 		expect(
-			screen.getAllByRole("listitem").map((entry) => entry.textContent),
+			screen
+				.getAllByRole("listitem")
+				.map(
+					(entry) =>
+						entry.querySelector("[data-activity-message]")?.textContent,
+				),
 		).toEqual([
-			"Turn 8 — You hit the goblin for 2 damage.",
-			"Turn 8 — The goblin hits you for 1 damage.",
-			"Turn 9 — You hit the goblin for 2 damage.",
-			"Turn 9 — The goblin dies.",
-			"Turn 10 — You die.",
+			"You hit the goblin for 2 damage.",
+			"The goblin hits you for 1 damage.",
+			"You hit the goblin for 2 damage.",
+			"The goblin dies.",
+			"You die.",
 		]);
+		const headings = screen.getAllByRole("heading", { level: 3 });
+		expect(headings).toHaveLength(3);
+		["Turn 8", "Turn 9", "Turn 10"].forEach((name, index) => {
+			expect(headings[index]).toHaveAccessibleName(name);
+		});
+		const current = screen.getByText("Current");
+		expect(current).toHaveAttribute("aria-hidden", "true");
+		expect(headings[2]).toContainElement(current);
 	});
 	it("highlights milestones and danger without changing narration or order", () => {
 		const events: ActivityEvent[] = [
@@ -54,34 +67,40 @@ describe("Activity log presentation", () => {
 			/>,
 		);
 		const entries = screen.getAllByRole("listitem");
-		expect(entries.map((entry) => entry.textContent)).toEqual([
-			"Turn 3 — You gain 5 XP.",
-			"Turn 3 — You reach level 2. Maximum and current health increase by 2.",
-			"Turn 3 — Dexterity increases to 12.",
-			"Turn 3 — The orc hits you for 2 damage.",
-			"Turn 4 — You die.",
-			"Turn 5 — The beacon catches. Beyond the walls, the shapes retreat. By morning, someone has complained about the smoke.",
+		expect(
+			entries.map(
+				(entry) => entry.querySelector("[data-activity-message]")?.textContent,
+			),
+		).toEqual([
+			"You gain 5 XP.",
+			"You reach level 2. Maximum and current health increase by 2.",
+			"Dexterity increases to 12.",
+			"The orc hits you for 2 damage.",
+			"You die.",
+			"The beacon catches. Beyond the walls, the shapes retreat. By morning, someone has complained about the smoke.",
 		]);
-		expect(within(entries[1]).getByText(/You reach level 2/)).toHaveClass(
-			"font-semibold",
-			"bg-primary/10",
-		);
-		expect(within(entries[2]).getByText(/Dexterity increases/)).toHaveClass(
-			"font-medium",
-		);
-		expect(within(entries[4]).getByText(/You die/)).toHaveClass(
+		expect(
+			within(entries[1]).getByText(/You reach level 2/).parentElement,
+		).toHaveClass("font-semibold", "bg-primary/10");
+		expect(
+			within(entries[2]).getByText(/Dexterity increases/).parentElement,
+		).toHaveClass("font-medium");
+		expect(within(entries[4]).getByText(/You die/).parentElement).toHaveClass(
 			"text-destructive",
 		);
-		expect(within(entries[5]).getByText(/The beacon catches/)).toHaveClass(
-			"font-semibold",
-		);
+		expect(
+			within(entries[5]).getByText(/The beacon catches/).parentElement,
+		).toHaveClass("font-semibold");
 		for (const index of [1, 2, 4, 5])
 			expect(entries[index].querySelector("svg")).toHaveAttribute(
 				"aria-hidden",
 				"true",
 			);
-		for (const index of [0, 3])
+		for (const index of [0])
 			expect(entries[index].querySelector("svg")).toBeNull();
+		expect(
+			within(entries[3]).getByText(/The orc hits/).parentElement,
+		).toHaveClass("text-rose-700");
 		expect(screen.getByRole("log")).toHaveAttribute("aria-live", "polite");
 	});
 });
